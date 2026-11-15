@@ -107,8 +107,8 @@ export async function initDynamicDashboard(supabase,root,user){
  drawNav();
 
  async function open(key){
-  $(".dashboard-nav-item",nav).forEach(b=>b.classList.toggle("is-active",b.dataset.panelKey===key));
-  $(".dashboard-module-tab",tabs).forEach(b=>{const active=b.dataset.panelKey===key;b.classList.toggle("is-active",active);b.setAttribute("aria-selected",String(active));});
+  $$(".dashboard-nav-item",nav).forEach(b=>b.classList.toggle("is-active",b.dataset.panelKey===key));
+  $$(".dashboard-module-tab",tabs).forEach(b=>{const active=b.dataset.panelKey===key;b.classList.toggle("is-active",active);b.setAttribute("aria-selected",String(active));});
   panel.replaceChildren();
   if(key==="overview")return overview();
   if(key==="relations")return relationsPage();
