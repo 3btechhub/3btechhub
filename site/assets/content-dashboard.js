@@ -215,19 +215,17 @@ export async function initDynamicDashboard(supabase,root,user){
   const page=el("div","dashboard-page");page.append(el("h2","","Settings"),el("p","muted","Website identity and configurable module slugs."));
   const {data:rows,error}=await supabase.from("Settings").select("*");
   if(error){page.append(el("p","editor-message",error.message));panel.append(page);return;}
-  const map=new Map((rows||[]).map(r=>[r.setting_key,r])),profile=map.get("site_profile")?.setting_value||{},intro=map.get("home_intro")?.setting_value||{},account=map.get("account_layout_slugs")?.setting_value||{};
+  const map=new Map((rows||[]).map(r=>[r.setting_key,r])),profile=map.get("site_profile")?.setting_value||{},intro=map.get("home_intro")?.setting_value||{};
   const form=el("form","content-editor-form");
-  form.innerHTML='<h3>Website Identity</h3><label class="module-form-field"><span>Website Title</span><input name="website_title" maxlength="100"></label><label class="module-form-field"><span>Logo URL</span><input name="logo_url" type="url"></label><label class="module-form-field"><span>Home Intro</span><textarea name="intro" rows="4"></textarea></label><h3>Dashboard Module Slugs</h3><div data-slugs></div><h3>Account Layout Slugs</h3><div class="module-form-grid"><label class="module-form-field"><span>Login</span><input name="login"></label><label class="module-form-field"><span>Create Account</span><input name="create_account"></label><label class="module-form-field"><span>Reset Password</span><input name="reset_password"></label><label class="module-form-field"><span>Profile</span><input name="profile"></label></div><div class="editor-actions"><button type="submit">Save Settings</button></div><p class="editor-message" role="status"></p>';
+  form.innerHTML='<h3>Website Identity</h3><label class="module-form-field"><span>Website Title</span><input name="website_title" maxlength="100"></label><label class="module-form-field"><span>Logo URL</span><input name="logo_url" type="url"></label><label class="module-form-field"><span>Home Intro</span><textarea name="intro" rows="4"></textarea></label><h3>Dashboard Module Slugs</h3><div data-slugs></div><div class="editor-actions"><button type="submit">Save Settings</button></div><p class="editor-message" role="status"></p>';
   form.elements.website_title.value=profile.website_title||"3B TECH HUB";form.elements.logo_url.value=profile.logo_url||"";form.elements.intro.value=intro.content||"";
-  for(const k of ["login","create_account","reset_password","profile"])form.elements[k].value=account[k]||k.replace("_","-");
   const slugHost=$("[data-slugs]",form);
   modules.forEach(m=>{const l=el("label","module-form-field");l.append(el("span","",m.name));const input=el("input");input.value=m.slug;input.required=true;input.dataset.moduleId=m.id;l.append(input);slugHost.append(l);});
   form.addEventListener("submit",async e=>{e.preventDefault();const button=form.querySelector('[type="submit"]'),msg=$(".editor-message",form);button.disabled=true;
    try{
     const settings=[
      {setting_key:"site_profile",setting_value:{...profile,website_title:form.elements.website_title.value.trim(),logo_url:form.elements.logo_url.value.trim()},visibility_roles:["owner","visitor"],description:"Website identity"},
-     {setting_key:"home_intro",setting_value:{content:form.elements.intro.value.trim()},visibility_roles:["owner","visitor"],description:"Homepage introduction"},
-     {setting_key:"account_layout_slugs",setting_value:{login:form.elements.login.value,create_account:form.elements.create_account.value,reset_password:form.elements.reset_password.value,profile:form.elements.profile.value},visibility_roles:["owner"],description:"Account route slugs"}
+     {setting_key:"home_intro",setting_value:{content:form.elements.intro.value.trim()},visibility_roles:["owner","visitor"],description:"Homepage introduction"}
     ];
     const {error:se}=await supabase.from("Settings").upsert(settings,{onConflict:"setting_key"});if(se)throw se;
     for(const input of $$("[data-module-id]",slugHost)){const slug=slugify(input.value);if(!slug)throw new Error("Module slugs cannot be empty.");const {error:me}=await supabase.from("modules").update({slug}).eq("id",input.dataset.moduleId);if(me)throw me;}
