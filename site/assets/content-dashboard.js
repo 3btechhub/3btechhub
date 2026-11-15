@@ -215,20 +215,25 @@ export async function initDynamicDashboard(supabase,root,user){
   const page=el("div","dashboard-page");page.append(el("h2","","Settings"),el("p","muted","Website identity and configurable module slugs."));
   const {data:rows,error}=await supabase.from("Settings").select("*");
   if(error){page.append(el("p","editor-message",error.message));panel.append(page);return;}
-  const map=new Map((rows||[]).map(r=>[r.setting_key,r])),profile=map.get("site_profile")?.setting_value||{},intro=map.get("home_intro")?.setting_value||{};
+  const map=new Map((rows||[]).map(r=>[r.setting_key,r])),websiteInfo=map.get("website_information")?.setting_value||{},profile=map.get("site_profile")?.setting_value||{},intro=map.get("home_intro")?.setting_value||{},moduleSlugMap=map.get("module_slugs")?.setting_value||{};
   const form=el("form","content-editor-form");
   form.innerHTML='<h3>Website Identity</h3><label class="module-form-field"><span>Website Title</span><input name="website_title" maxlength="100"></label><label class="module-form-field"><span>Logo URL</span><input name="logo_url" type="url"></label><label class="module-form-field"><span>Home Intro</span><textarea name="intro" rows="4"></textarea></label><h3>Dashboard Module Slugs</h3><div data-slugs></div><div class="editor-actions"><button type="submit">Save Settings</button></div><p class="editor-message" role="status"></p>';
-  form.elements.website_title.value=profile.website_title||"3B TECH HUB";form.elements.logo_url.value=profile.logo_url||"";form.elements.intro.value=intro.content||"";
+  form.elements.website_title.value=profile.website_title||websiteInfo.title||"3B TECH HUB";form.elements.logo_url.value=profile.logo_url||websiteInfo.logo_url||"";form.elements.intro.value=intro.content||websiteInfo.intro||"";
   const slugHost=$("[data-slugs]",form);
-  modules.forEach(m=>{const l=el("label","module-form-field");l.append(el("span","",m.name));const input=el("input");input.value=m.slug;input.required=true;input.dataset.moduleId=m.id;l.append(input);slugHost.append(l);});
+  modules.forEach(m=>{const l=el("label","module-form-field");l.append(el("span","",m.name));const input=el("input");input.value=moduleSlugMap[m.module_key]||m.slug;input.required=true;input.dataset.moduleId=m.id;input.dataset.moduleKey=m.module_key;l.append(input);slugHost.append(l);});
   form.addEventListener("submit",async e=>{e.preventDefault();const button=form.querySelector('[type="submit"]'),msg=$(".editor-message",form);button.disabled=true;
    try{
+    const websiteValue={...websiteInfo,title:form.elements.website_title.value.trim(),intro:form.elements.intro.value.trim(),logo_url:form.elements.logo_url.value.trim()};
     const settings=[
-     {setting_key:"site_profile",setting_value:{...profile,website_title:form.elements.website_title.value.trim(),logo_url:form.elements.logo_url.value.trim()},visibility_roles:["owner","visitor"],description:"Website identity"},
-     {setting_key:"home_intro",setting_value:{content:form.elements.intro.value.trim()},visibility_roles:["owner","visitor"],description:"Homepage introduction"}
+     {setting_key:"website_information",setting_value:websiteValue,visibility_roles:["owner","visitor"],description:"Website information"},
+     {setting_key:"site_profile",setting_value:{...profile,website_title:websiteValue.title,logo_url:websiteValue.logo_url},visibility_roles:["owner","visitor"],description:"Website identity"},
+     {setting_key:"home_intro",setting_value:{content:websiteValue.intro},visibility_roles:["owner","visitor"],description:"Homepage introduction"}
     ];
     const {error:se}=await supabase.from("Settings").upsert(settings,{onConflict:"setting_key"});if(se)throw se;
-    for(const input of $$("[data-module-id]",slugHost)){const slug=slugify(input.value);if(!slug)throw new Error("Module slugs cannot be empty.");const {error:me}=await supabase.from("modules").update({slug}).eq("id",input.dataset.moduleId);if(me)throw me;}
+    const nextModuleSlugs={...moduleSlugMap};
+    for(const input of $("[data-module-id]",slugHost)){const slug=slugify(input.value);if(!slug)throw new Error("Module slugs cannot be empty.");const {error:me}=await supabase.from("modules").update({slug}).eq("id",input.dataset.moduleId);if(me)throw me;nextModuleSlugs[input.dataset.moduleKey]=slug;}
+    const {error:slugSettingError}=await supabase.from("Settings").upsert({setting_key:"module_slugs",setting_value:nextModuleSlugs,visibility_roles:["owner"],description:"Dashboard module slugs"},{onConflict:"setting_key"});
+    if(slugSettingError)throw slugSettingError;
     msg.textContent="Settings saved.";msg.dataset.kind="success";await reloadRegistry();
    }catch(err){msg.textContent=err.message||"Could not save settings.";msg.dataset.kind="error";}
    finally{button.disabled=false;}
