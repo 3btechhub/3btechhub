@@ -1709,3 +1709,19 @@ button.home-content-card{font:inherit;color:inherit;text-align:left;border:1px s
 .home-related-section{margin:26px 0 0}
 .home-related-section h2{margin:0 0 12px;font-size:1.2rem}
 @media(max-width:600px){.home-detail-heading{align-items:flex-start;flex-wrap:wrap}.home-detail-field{grid-template-columns:1fr;gap:5px}}
+
+
+/* Dashboard sidebar drawer, header-logo toggle and one-line module tabs */
+.dashboard-workspace-layout{display:block;position:relative;min-height:260px}
+.dashboard-workspace-sidebar{position:fixed;z-index:32;top:var(--header-min-height,68px);bottom:0;left:0;width:min(310px,86vw);max-height:none;overflow:auto;border:1px solid var(--border,#d9dee7);border-left:0;border-radius:0 16px 0 0;padding:16px;background:var(--surface,#fff);box-shadow:12px 0 34px #0000001a;transform:translateX(-105%);transition:transform .22s ease}
+.dashboard-workspace.is-sidebar-open .dashboard-workspace-sidebar{transform:translateX(0)}
+.dashboard-sidebar-backdrop{position:fixed;z-index:31;inset:var(--header-min-height,68px) 0 0;border:0;border-radius:0;background:#0006;cursor:pointer}
+.dashboard-sidebar-backdrop[hidden]{display:none}
+.dashboard-workspace-main{width:100%;min-width:0}
+.dashboard-workspace .dashboard-module-nav{display:flex;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:thin;gap:7px;margin:0 0 22px;padding:8px 2px 12px;border-bottom:1px solid var(--border,#e5e7eb);-webkit-overflow-scrolling:touch}
+.dashboard-workspace .dashboard-module-tab{flex:0 0 auto;white-space:nowrap}
+.site-header .brand-logo{cursor:pointer;display:grid;place-items:center;min-width:38px;min-height:38px;border-radius:9px;outline-offset:4px}
+.site-header .brand-logo:focus-visible{outline:2px solid currentColor}
+.dashboard-sidebar-close-icon{display:block;width:24px;height:24px}
+@media(prefers-reduced-motion:reduce){.dashboard-workspace-sidebar{transition:none}}
+@media(max-width:900px){.dashboard-workspace-layout{display:block}.dashboard-workspace-sidebar{position:fixed;max-height:none;overflow:auto}.dashboard-workspace-main{width:100%}}
