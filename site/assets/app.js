@@ -157,33 +157,33 @@ async function loadHomeCatalog() {
 }
 
 async function applyPublicSiteSettings() {
-  const [{data,error},{data:introData},{data:homeModulesData,error:homeModulesError}] = await Promise.all([
+  const [{data:profileData},{data:websiteData},{data:introData}] = await Promise.all([
     supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","site_profile").maybeSingle(),
-    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_intro").maybeSingle(),
-    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_modules").maybeSingle()
+    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","website_information").maybeSingle(),
+    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_intro").maybeSingle()
   ]);
-  const settings=data?.setting_value&&typeof data.setting_value==="object"?data.setting_value:{};
-  const intro=typeof introData?.setting_value?.content==="string"?introData.setting_value.content.trim():"";
+  const profile=profileData?.setting_value&&typeof profileData.setting_value==="object"?profileData.setting_value:{};
+  const website=websiteData?.setting_value&&typeof websiteData.setting_value==="object"?websiteData.setting_value:{};
+  const settings={...website,...profile,
+    website_title:profile.website_title||website.title,
+    logo_url:profile.logo_url||website.logo_url
+  };
+  const intro=typeof introData?.setting_value?.content==="string"&&introData.setting_value.content.trim()
+    ?introData.setting_value.content.trim()
+    :(typeof website.intro==="string"?website.intro.trim():"");
+  const introRoles=introData?.visibility_roles||websiteData?.visibility_roles||[];
   const introSection=document.getElementById("home-intro-section");
   const introContent=document.getElementById("home-intro-content");
-  if(introSection&&introContent){introContent.textContent=intro;introSection.hidden=!intro||!(introData?.visibility_roles||[]).includes("visitor");}
-  const websiteTitle = typeof settings.website_title === "string" && settings.website_title.trim()
-    ? settings.website_title.trim() : "3B TECH HUB";
-  document.querySelectorAll(".brand-title, .home-hero h1, .home-main h1").forEach((node) => { node.textContent = websiteTitle; });
-  document.title = websiteTitle;
-  const brandLogo = document.querySelector(".brand-logo");
-  if (brandLogo) {
-    if (typeof settings.logo_url === "string" && /^https?:\/\//i.test(settings.logo_url)) {
-      const logo = document.createElement("img");
-      logo.src = settings.logo_url;
-      logo.alt = websiteTitle;
-      logo.className = "brand-image";
-      brandLogo.replaceChildren(logo);
-    } else {
-      const mark=document.createElement("span");
-      mark.className="brand-mark";
-      mark.textContent="3B";
-      brandLogo.replaceChildren(mark);
+  if(introSection&&introContent){introContent.textContent=intro;introSection.hidden=!intro||!introRoles.includes("visitor");}
+  const websiteTitle=typeof settings.website_title==="string"&&settings.website_title.trim()?settings.website_title.trim():"3B TECH HUB";
+  document.querySelectorAll(".brand-title, .home-hero h1, .home-main h1").forEach(node=>{node.textContent=websiteTitle;});
+  document.title=websiteTitle;
+  const brandLogo=document.querySelector(".brand-logo");
+  if(brandLogo){
+    if(typeof settings.logo_url==="string"&&/^https?:\/\//i.test(settings.logo_url)){
+      const logo=document.createElement("img");logo.src=settings.logo_url;logo.alt=websiteTitle;logo.className="brand-image";brandLogo.replaceChildren(logo);
+    }else{
+      const mark=document.createElement("span");mark.className="brand-mark";mark.textContent="3B";brandLogo.replaceChildren(mark);
     }
   }
 }
