@@ -1,5 +1,6 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js";
 import { initCataloguePage } from "./catalogue.js";
+import { initSharedCataloguePage } from "./shared-catalogue.js";
 import { initExtendedDashboard } from "./admin-extended.js";
 import { initDynamicDashboard } from "./content-dashboard.js";
 import { createContactIcon } from "./contact-utils.js";
@@ -86,100 +87,71 @@ applyTheme(savedTheme === "dark" ? "dark" : "light");
 applyRuntimeConfig(runtimeConfig, document.documentElement.dataset.theme);
 
 const HOME_MODULE_TYPES = Object.freeze([
-  { key:"service_types", table:"service_types", route:"service-types", icon:"wrench", columns:"id,title,slug,photo_url,gallery_urls,status,visibility_roles" },
-  { key:"device_types", table:"device_types", route:"device-types", icon:"smartphone", columns:"id,title,slug,photo_url,gallery_urls,status,visibility_roles" },
-  { key:"services", table:"services", route:"services", icon:"wrench", columns:"id,name,description,photo_url,short_info,service_information,gallery_urls,location,map_url,phone,whatsapp,status,visibility_roles" },
-  { key:"products", table:"products", route:"products", icon:"package", columns:"id,name,description,condition,price_minor,currency,stock_qty,category,category_group,photo_url,short_info,service_information,gallery_urls,location,map_url,phone,whatsapp,status,visibility_roles" },
-  { key:"workshops", table:"workshops", route:"workshops", icon:"building", columns:"id,title,description,workshop_date,workshop_time,location,trainer,phone,whatsapp,photo_url,category,short_info,service_information,gallery_urls,map_url,address,status,visibility_roles" },
-  { key:"technicians", table:"technicians", route:"technicians", icon:"technician", columns:"id,name,description,category,phone,whatsapp,photo_url,skill,short_info,service_information,gallery_urls,location,map_url,email,link,is_published,visibility_roles" },
-  { key:"contacts", table:"contacts", route:"contacts", icon:"contact", columns:"id,name,value,visibility_roles" }
+  { key:"services", route:"services", icon:"wrench" },
+  { key:"products", route:"products", icon:"package" },
+  { key:"what_we_do", route:"what-we-do", icon:"compass" },
+  { key:"workshops", route:"workshops", icon:"building" },
+  { key:"technicians", route:"technicians", icon:"technician" }
 ]);
 
 function renderHomeCard(module, record) {
-  const title=record.name||record.title||"";
-  const card=document.createElement(module.key==="contacts"?"article":"a");
+  const title=record.title||"";
+  const route=module.slug||module.route||module.module_key.replace(/_/g,"-");
+  const card=document.createElement("a");
   card.className="home-content-card";
-  if(card.tagName==="A"){
-    const routeModule=module.key==="service_types"?"service-types":module.key==="device_types"?"device-types":module.key;
-    const routeKey=module.key==="service_types"||module.key==="device_types"?record.slug:record.publicSlug;
-    if(routeKey)card.href="/3btechhub/"+routeModule+"/"+encodeURIComponent(routeKey)+"/";
-  }
+  if(record.slug)card.href="/3btechhub/"+encodeURIComponent(route)+"/"+encodeURIComponent(record.slug)+"/";
   const visual=document.createElement("div");
-  visual.className="home-content-visual"+(module.key==="technicians"?" home-content-visual--person":"");
-  if(module.key==="contacts"){const icon=createContactIcon(record.value,title);icon.classList.add("home-content-fallback");visual.append(icon);}
-  else{visual.append(getItemFallbackIcon(title,module.key));}
-  if(record.photo_url) {
-    const image=document.createElement("img");
-    image.src=record.photo_url;
-    image.alt="";
-    image.loading="lazy";
-    image.addEventListener("error",()=>image.remove(),{once:true});
-    visual.append(image);
+  visual.className="home-content-visual"+(module.module_key==="technicians"?" home-content-visual--person":"");
+  visual.append(getItemFallbackIcon(title,module.module_key));
+  const photo=record.field_values?.photo_url||(Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls[0]:"");
+  if(photo){
+    const image=document.createElement("img");image.src=photo;image.alt="";image.loading="lazy";
+    image.addEventListener("error",()=>image.remove(),{once:true});visual.append(image);
   }
-  const body=document.createElement("div");
-  body.className="home-content-card-body";
+  const body=document.createElement("div");body.className="home-content-card-body";
   if(title){const heading=document.createElement("h3");heading.textContent=title;body.append(heading);}
-  card.append(visual,body);
-  return card;
+  const description=record.field_values?.short_info||record.field_values?.description;
+  if(description){const summary=document.createElement("p");summary.textContent=String(description).slice(0,150);body.append(summary);}
+  card.append(visual,body);return card;
 }
 
 async function loadHomeCatalog() {
   const area=document.getElementById("home-module-area");
   if(!area)return;
-  area.replaceChildren();
-  area.hidden=true;
-  const {data:moduleSettings,error:settingsError}=await supabase
-    .from("Settings").select("setting_value,visibility_roles")
-    .eq("setting_key","home_modules").maybeSingle();
-  if(settingsError||!moduleSettings||!Array.isArray(moduleSettings.setting_value?.modules))return;
-  if(!(moduleSettings.visibility_roles||[]).includes("visitor"))return;
-  const configuredModules=moduleSettings.setting_value.modules
-    .filter(item=>item&&typeof item.key==="string"&&Array.isArray(item.visibility_roles)&&item.visibility_roles.includes("visitor"))
+  area.replaceChildren();area.hidden=true;
+  const {data:setting,error:settingsError}=await supabase.from("Settings")
+    .select("setting_value,visibility_roles").eq("setting_key","home_modules").maybeSingle();
+  if(settingsError)return;
+  if(setting&&!(setting.visibility_roles||[]).includes("visitor"))return;
+  const configured=Array.isArray(setting?.setting_value?.modules)
+    ?setting.setting_value.modules
+    :HOME_MODULE_TYPES.map((item,index)=>({key:item.key,title:titleCase(item.key),sort_order:(index+1)*10,visibility_roles:["owner","visitor"]}));
+  const visible=configured.filter(item=>item&&typeof item.key==="string"&&Array.isArray(item.visibility_roles)&&item.visibility_roles.includes("visitor"))
     .sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0));
-  for(const config of configuredModules){
-    const module=HOME_MODULE_TYPES.find(item=>item.key===config.key);
-    if(!module)continue;
+  const keys=[...new Set(visible.map(item=>item.key))];
+  if(!keys.length)return;
+  const {data:moduleRows,error:moduleError}=await supabase.from("modules").select("*").in("module_key",keys).eq("status","published");
+  if(moduleError)return;
+  const byKey=new Map((moduleRows||[]).map(m=>[m.module_key,m]));
+  for(const config of visible){
+    const module=byKey.get(config.key);if(!module)continue;
     try{
-      const {data,error}=await supabase.from(module.table).select(module.columns).order("created_at",{ascending:false}).limit(50);
+      const {data,error}=await supabase.from("content_items").select("id,title,slug,status,visibility_roles,field_values")
+        .eq("module_id",module.id).in("status",["active","published"]).order("sort_order").order("created_at",{ascending:false}).limit(50);
       if(error)continue;
-      if(["services","products","workshops","technicians"].includes(module.key)){
-        const {data:slugRows,error:slugError}=await supabase.rpc("get_public_catalogue_slugs",{p_module:module.key});
-        if(slugError)continue;
-        const slugById=new Map((slugRows||[]).map(row=>[row.id,row.slug]));
-        (data||[]).forEach(record=>{record.publicSlug=slugById.get(record.id)||"";});
-      }
-      const visitorRecords=(data||[]).filter(record=>{
-        if(!Array.isArray(record.visibility_roles)||!record.visibility_roles.includes("visitor"))return false;
-        if(["service_types","device_types"].includes(module.key))return ["active","published"].includes(record.status);
-        if(["services","products"].includes(module.key))return record.status==="active";
-        if(module.key==="workshops")return record.status==="published";
-        if(module.key==="technicians")return record.is_published===true;
-        return true;
-      });
-      const records=visitorRecords.slice(0,4).filter(record=>{
-        const title=String(record.name||record.title||"").trim();
-        const image=String(record.photo_url||"").trim();
-        return Boolean(title||image);
-      });
+      const records=(data||[]).filter(record=>(record.visibility_roles||[]).includes("visitor"))
+        .filter(record=>String(record.title||"").trim());
       if(!records.length)continue;
-      const section=document.createElement("section");
-      section.className="home-catalog-section";
-      const moduleTitle=typeof config.title==="string"?config.title.trim():"";
-      if(moduleTitle){
-        const heading=document.createElement("div");
-        heading.className="home-section-heading";
-        const h2=document.createElement("h2");
-        const link=document.createElement("a");
-        link.className="home-module-link";
-        link.href="/3btechhub/"+module.route+"/";
-        link.textContent=moduleTitle;
-        h2.append(link);heading.append(h2);section.append(heading);
-      }
-      const grid=document.createElement("div");
-      grid.className="home-card-grid";
-      records.forEach(record=>grid.append(renderHomeCard(module,record)));
+      const section=document.createElement("section");section.className="home-catalog-section";
+      const heading=document.createElement("div");heading.className="home-section-heading";
+      const h2=document.createElement("h2");const link=document.createElement("a");
+      link.className="home-module-link";link.href="/3btechhub/"+encodeURIComponent(module.slug)+"/";
+      link.textContent=typeof config.title==="string"&&config.title.trim()?config.title.trim():module.name;
+      h2.append(link);heading.append(h2);section.append(heading);
+      const grid=document.createElement("div");grid.className="home-card-grid";
+      records.slice(0,4).forEach(record=>grid.append(renderHomeCard(module,record)));
       section.append(grid);area.append(section);
-    }catch(error){console.error("Could not load homepage module.",module.key,error);}
+    }catch(error){console.error("Could not load homepage module.",module.module_key,error);}
   }
   area.hidden=area.childElementCount===0;
 }
@@ -283,7 +255,7 @@ export async function initRoutePage() {
       body:JSON.stringify({visitor_key:visitorKey,page_path:location.pathname,referrer:document.referrer||"",device,operating_system:os,browser})
     }).catch(error=>console.debug("Visitor analytics unavailable.",error));
   }
-  if(document.querySelector('#app-main[data-view="catalogue"]')){await applyPublicSiteSettings();await initCataloguePage(supabase,document.getElementById("app-main").dataset.module,document.getElementById("app-main").dataset.recordKey||"");return;}
+  if(document.querySelector('#app-main[data-view="catalogue"]')){await applyPublicSiteSettings();const catalogueRoot=document.getElementById("app-main");const moduleSlug=catalogueRoot.dataset.module;const recordKey=catalogueRoot.dataset.recordKey||"";if(moduleSlug==="service-types"||moduleSlug==="device-types")await initCataloguePage(supabase,moduleSlug,recordKey);else await initSharedCataloguePage(supabase,moduleSlug,recordKey);return;}
   const accountMode = document.querySelector("#app-main")?.dataset.authMode || "login";
   const accountAuthLayout = document.querySelector("#account-auth-layout");
   const accountProfileLayout = document.querySelector("#profile-card");
