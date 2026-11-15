@@ -196,7 +196,7 @@ export async function initDynamicDashboard(supabase,root,user){
   const {data:setting,error}=await supabase.from("Settings").select("setting_value").eq("setting_key","home_modules").maybeSingle();
   if(error){page.append(el("p","editor-message",error.message));panel.append(page);return;}
   const current=setting?.setting_value?.modules||[],form=el("form","content-editor-form");
-  modules.filter(m=>m.status==="published").forEach((m,i)=>{
+  modules.filter(m=>m.status==="published"&&HOME_DEFAULT.includes(m.module_key)).forEach((m,i)=>{
    const c=current.find(x=>x.key===m.module_key),row=el("div","dashboard-home-module-row");row.dataset.key=m.module_key;
    const visible=el("input");visible.type="checkbox";visible.checked=c?c.visibility_roles?.includes("visitor"):HOME_DEFAULT.includes(m.module_key);
    const title=el("input");title.value=c?.title||m.name;title.maxLength=100;

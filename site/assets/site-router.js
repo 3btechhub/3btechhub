@@ -2,8 +2,8 @@ import { initRoutePage, resolveAuthRoute } from "./app.js";
 
 const BASE = "/3btechhub/";
 const main = document.getElementById("app-main");
-const viewFiles = { home:"home.html", account:"account.html", dashboard:"dashboard.html", catalogue:"catalogue.html" };
-const titles = { home:"3B TECH HUB", account:"Account | 3B TECH HUB", dashboard:"Dashboard | 3B TECH HUB", catalogue:"3B TECH HUB" };
+const viewFiles = { home:"home.html", account:"account.html", dashboard:"dashboard.html" };
+const titles = { home:"3B TECH HUB", account:"Account | 3B TECH HUB", dashboard:"Dashboard | 3B TECH HUB" };
 
 function normalizedPath(value) {
   const url = new URL(value, window.location.origin);
@@ -25,8 +25,6 @@ function routeDetails(path) {
   if (first === "edit-profile") return { view:"account", authMode:"edit-profile" };
   if (legacy[first]) return { view:"account", authMode:legacy[first] };
   if (["home","dashboard"].includes(first)) return { view:first };
-  if (["service-types","device-types"].includes(first)) { const recordPart=parts[1] || ""; return { view:"catalogue", module:first, recordKey:recordPart ? decodeURIComponent(recordPart) : "" }; }
-  if (first) { const recordPart=parts[1] || ""; return { view:"catalogue", module:first, recordKey:recordPart ? decodeURIComponent(recordPart) : "" }; }
   return { view:"home" };
 }
 function resolveFragmentLinks(container, routePath) {
