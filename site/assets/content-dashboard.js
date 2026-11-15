@@ -61,6 +61,7 @@ export async function initDynamicDashboard(supabase,root,user){
   if(logo){logo.replaceChildren();if(isOpen){const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("width","24");svg.setAttribute("height","24");svg.setAttribute("aria-hidden","true");svg.classList.add("dashboard-sidebar-close-icon");const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d","M18 6 6 18M6 6l12 12");path.setAttribute("fill","none");path.setAttribute("stroke","currentColor");path.setAttribute("stroke-width","2");path.setAttribute("stroke-linecap","round");svg.append(path);logo.append(svg);}else if(originalBrandLogo){[...originalBrandLogo.childNodes].forEach(node=>logo.append(node.cloneNode(true)));}logo.setAttribute("aria-label",isOpen?"Close dashboard sidebar":"Open dashboard sidebar");logo.setAttribute("aria-expanded",String(isOpen));}
  }
  window.__dashboardSidebarToggle=()=>setSidebarOpen(!workspace.classList.contains("is-sidebar-open"));
+ window.__dashboardSidebarClose=()=>setSidebarOpen(false);
  backdrop.addEventListener("click",()=>setSidebarOpen(false));
  setSidebarOpen(false);
  const nav=$("#dashboard-dynamic-nav",root),tabs=$("#dashboard-dynamic-tabs",root),panel=$("#dashboard-dynamic-panel",root),workspace=$(".dashboard-workspace",root),sidebar=$("#dashboard-workspace-sidebar",root),backdrop=$("#dashboard-sidebar-backdrop",root);
