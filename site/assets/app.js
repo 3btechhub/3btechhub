@@ -125,7 +125,7 @@ async function loadHomeCatalog() {
   if(setting&&!(setting.visibility_roles||[]).includes("visitor"))return;
   const configured=Array.isArray(setting?.setting_value?.modules)
     ?setting.setting_value.modules
-    :HOME_MODULE_TYPES.map((item,index)=>({key:item.key,title:titleCase(item.key),sort_order:(index+1)*10,visibility_roles:["owner","visitor"]}));
+    :HOME_MODULE_TYPES.map((item,index)=>({key:item.key,title:item.key.replace(/_/g," "),sort_order:(index+1)*10,visibility_roles:["owner","visitor"]}));
   const visible=configured.filter(item=>item&&typeof item.key==="string"&&Array.isArray(item.visibility_roles)&&item.visibility_roles.includes("visitor"))
     .sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0));
   const keys=[...new Set(visible.map(item=>item.key))];
