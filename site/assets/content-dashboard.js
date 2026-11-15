@@ -46,7 +46,7 @@ async function uploadMedia(supabase,moduleKey,files){
   const path=moduleKey+"/"+Date.now()+"-"+crypto.randomUUID()+"-"+name;
   const {error}=await supabase.storage.from("site-media").upload(path,file,{upsert:false,contentType:file.type||undefined});
   if(error)throw error;
-  urls.push(supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl);
+  urls.push({path,url:supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl,mime_type:file.type||null,size_bytes:file.size});
  }
  return urls;
 }
@@ -148,7 +148,7 @@ export async function initDynamicDashboard(supabase,root,user){
   const fieldHost=$("[data-builder-fields]",form);
   function addField(){
    const row=el("div","dashboard-builder-field-row");
-   row.innerHTML='<input name="field_label" placeholder="Field label" required><input name="field_key" placeholder="field_key" required><select name="field_type"><option value="text">Text</option><option value="textarea">Textarea</option><option value="number">Number</option><option value="boolean">Boolean</option><option value="date">Date</option><option value="url">URL</option><option value="email">Email</option><option value="select">Select</option><option value="radio">Radio</option><option value="checkboxes">Checkboxes</option><option value="gallery">Gallery</option><option value="json">JSON</option></select><label><input type="checkbox" name="required"> Required</label><label><input type="checkbox" name="unique"> Unique</label><button type="button" class="secondary-button" data-remove>Remove</button>';
+   row.innerHTML='<input name="field_label" placeholder="Field label" required><input name="field_key" placeholder="field_key" required><select name="field_type"><option value="text">Text</option><option value="textarea">Textarea</option><option value="number">Number</option><option value="boolean">Boolean</option><option value="date">Date</option><option value="url">URL</option><option value="email">Email</option><option value="select">Select</option><option value="radio">Radio</option><option value="checkboxes">Checkboxes</option><option value="gallery">Gallery</option><option value="file">File</option><option value="json">JSON</option></select><input name="options" placeholder="Options (comma-separated)"><label><input type="checkbox" name="required"> Required</label><label><input type="checkbox" name="unique"> Unique</label><button type="button" class="secondary-button" data-remove>Remove</button>';
    row.querySelector('[name="field_label"]').addEventListener("input",e=>{const k=row.querySelector('[name="field_key"]');if(!k.dataset.edited)k.value=slugify(e.target.value).replace(/-/g,"_");});
    row.querySelector('[name="field_key"]').addEventListener("input",e=>e.target.dataset.edited="true");
    row.querySelector("[data-remove]").addEventListener("click",()=>row.remove());fieldHost.append(row);
@@ -169,7 +169,18 @@ export async function initDynamicDashboard(supabase,root,user){
      if(!fieldKey||!label)throw new Error("Every field needs a valid key and label.");
      defs.push({module_id:m.id,field_key:fieldKey,label,field_type:row.querySelector('[name="field_type"]').value,is_required:row.querySelector('[name="required"]').checked,is_unique:row.querySelector('[name="unique"]').checked,sort_order:defs.length*10+10});
     }
-    const {error:fe}=await supabase.from("module_fields").insert(defs);if(fe)throw fe;
+    const {data:savedFields,error:fe}=await supabase.from("module_fields").insert(defs).select("id,field_key");if(fe)throw fe;
+    const optionRows=[];
+    for(const row of $(".dashboard-builder-field-row",fieldHost)){
+     const type=row.querySelector('[name="field_type"]').value;
+     if(!["select","radio","checkboxes"].includes(type))continue;
+     const key=slugify(row.querySelector('[name="field_key"]').value).replace(/-/g,"_");
+     const field=savedFields.find(x=>x.field_key===key);
+     const values=row.querySelector('[name="options"]').value.split(",").map(x=>x.trim()).filter(Boolean);
+     if(!field||!values.length)throw new Error("Add comma-separated options for "+key+".");
+     values.forEach((v,i)=>optionRows.push({field_id:field.id,value:v,label:v,sort_order:(i+1)*10}));
+    }
+    if(optionRows.length){const {error:oe}=await supabase.from("module_field_options").insert(optionRows);if(oe)throw oe;}
     message.textContent="Draft created. Publish it below to add it to CONTENT.";message.dataset.kind="success";form.reset();await reloadRegistry();await builderPage();
    }catch(error){message.textContent=error.message||"Could not create module.";message.dataset.kind="error";}
    finally{submit.disabled=false;}
@@ -238,9 +249,16 @@ export async function initDynamicDashboard(supabase,root,user){
   const editable=moduleFields.filter(f=>!["title","slug"].includes(f.field_key)&&f.field_type!=="relation");
   for(const f of editable){
    const wrap=fieldControl(f,null,optionsMap.get(f.id)||[]),control=wrap.querySelector("[data-field-key]");
-   if(["image","gallery"].includes(f.field_type)){
-    const upload=el("input");upload.type="file";upload.accept="image/*";upload.multiple=f.field_type==="gallery";
-    upload.addEventListener("change",async()=>{if(!upload.files?.length)return;try{const urls=await uploadMedia(supabase,module.module_key,[...upload.files]);control.value=f.field_type==="image"?urls[0]:[control.value,...urls].filter(Boolean).join("\n");}catch(err){const msg=$(".editor-message",form);msg.textContent=err.message;msg.dataset.kind="error";}});
+   if(["image","gallery","file"].includes(f.field_type)){
+    const upload=el("input");upload.type="file";upload.accept=f.field_type==="file"?"*/*":"image/*";upload.multiple=f.field_type==="gallery";
+    upload.addEventListener("change",async()=>{if(!upload.files?.length)return;try{const uploads=await uploadMedia(supabase,module.module_key,[...upload.files]);
+     if(f.field_type==="image")control.value=uploads[0]?.url||"";
+     else if(f.field_type==="file")control.value=uploads[0]?.path||"";
+     else control.value=[control.value,...uploads.map(x=>x.url)].filter(Boolean).join("\n");
+     if(module.module_key==="media"&&uploads[0]){
+      const mime=$('[data-field-key="mime_type"]',form),size=$('[data-field-key="size_bytes"]',form),bucket=$('[data-field-key="bucket_id"]',form);
+      if(mime)mime.value=uploads[0].mime_type||"";if(size)size.value=uploads[0].size_bytes;if(bucket)bucket.value="site-media";
+     }}catch(err){const msg=$(".editor-message",form);msg.textContent=err.message;msg.dataset.kind="error";}});
     wrap.append(upload);
    }
    dynamic.append(wrap);
