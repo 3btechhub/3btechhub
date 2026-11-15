@@ -241,7 +241,7 @@ export async function initDynamicDashboard(supabase,root,user){
      const {count,error:countError}=await supabase.from("content_items").select("id",{count:"exact",head:true}).eq("module_id",m.id);
      if(countError)throw countError;
      const confirmed=confirm("Permanently delete the Content Module \""+m.name+"\" and all "+(count??0)+" of its Content Items? Its own relations and files will also be deleted. Other modules and their content will remain; only references to this module will be removed. This cannot be undone.");
-     if(!confirmed)return;
+     if(!confirmed){remove.disabled=false;return;}
      const storagePaths=await listModuleStorageFiles(supabase,m.module_key);
      const {data:deleted,error}=await supabase.rpc("delete_content_module",{p_module_id:m.id});
      if(error)throw error;
