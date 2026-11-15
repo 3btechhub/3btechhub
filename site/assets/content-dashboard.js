@@ -84,7 +84,7 @@ export async function initDynamicDashboard(supabase,root,user){
  permissions:'<section id="dashboard-admin-permissions"><div class="admin-list"><form id="permission-form" class="content-editor-form"><h3 id="permission-form-title">Add permission</h3><div class="module-form-grid"><label class="module-form-field"><span>Title</span><input name="title" maxlength="100" required></label><div class="module-form-field module-related-field"><span>Users</span><div id="permission-user-options" class="module-related-options"></div></div><div class="module-form-field module-related-field"><span>Roles</span><div id="permission-role-options" class="module-related-options"></div></div></div><div class="editor-actions"><button type="submit" id="permission-submit">Save</button><button class="secondary-button" id="permission-cancel" type="button" hidden>Cancel</button><button class="secondary-button" id="permission-delete" type="button" hidden>Delete</button></div><p id="permission-message" class="editor-message" role="status"></p></form><div id="permissions-list" class="admin-list" aria-live="polite"></div></div></section>'
  };
  Object.entries(adminMarkup).forEach(([key,html])=>{const holder=el("div");holder.innerHTML=html;adminPanels[key]=holder.firstElementChild;hidden.append(adminPanels[key]);});
- initExtendedDashboard(supabase,user?.role||"owner");
+ try{initExtendedDashboard(supabase,user?.role||"owner");}catch(error){console.error("Dashboard administration panels failed to initialize.",error);const notice=el("p","editor-message","Administration panels could not initialize: "+(error?.message||"Unknown error"));notice.setAttribute("role","alert");panel.append(notice);}
 
  const general=[["overview","Overview"],["relations","Relations"],["builder","Content Module Builder"],["customization","Customizations"],["settings","Settings"]];
  function navGroup(name,items){
@@ -310,7 +310,7 @@ export async function initDynamicDashboard(supabase,root,user){
    search.addEventListener("input",()=>{clearTimeout(picker.timer);picker.timer=setTimeout(()=>void picker.load(search.value.trim()),250);});
    relationPickers.push(picker);await picker.load("");
   }
-  const records=node("div","dashboard-record-list");page.append(form,el("h3","","Database"),records);panel.append(page);
+  const records=el("div","dashboard-record-list");page.append(form,el("h3","","Database"),records);panel.append(page);
   async function loadRecords(){
    records.replaceChildren();const {data,error}=await supabase.from("content_items").select("*").eq("module_id",module.id).order("sort_order").order("created_at",{ascending:false});
    if(error){records.append(el("p","editor-message",error.message));return;}
@@ -354,5 +354,5 @@ export async function initDynamicDashboard(supabase,root,user){
   $("[data-delete]",form).addEventListener("click",async()=>{const id=form.dataset.editId;if(!id||!confirm("Delete this Content Item? Related links will be removed; other Items will remain."))return;const {error}=await supabase.from("content_items").delete().eq("id",id);if(error){$(".editor-message",form).textContent=error.message;return;}resetForm();await loadRecords();});
   await loadRecords();
  }
- await open("overview");
+ try{await open("overview");}catch(error){console.error("Dashboard overview failed to load.",error);panel.replaceChildren(el("h2","","Dashboard"),el("p","editor-message","Dashboard overview could not load: "+(error?.message||"Unknown error")));}
 }

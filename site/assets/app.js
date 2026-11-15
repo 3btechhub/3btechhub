@@ -1,6 +1,6 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js";
-import { initExtendedDashboard } from "./admin-extended.js?v=20261115-admin";
-import { initDynamicDashboard } from "./content-dashboard.js?v=20261115-sidebar";
+import { initExtendedDashboard } from "./admin-extended.js?v=20261115-dashboard-recovery-1";
+import { initDynamicDashboard } from "./content-dashboard.js?v=20261115-dashboard-recovery-1";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
