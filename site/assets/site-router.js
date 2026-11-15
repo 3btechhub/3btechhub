@@ -25,8 +25,6 @@ function routeDetails(path) {
   if (first === "edit-profile") return { view:"account", authMode:"edit-profile" };
   if (legacy[first]) return { view:"account", authMode:legacy[first] };
   if (["home","dashboard"].includes(first)) return { view:first };
-  if (["service-types","device-types"].includes(first)) { const recordPart=parts[1] || ""; return { view:"catalogue", module:first, recordKey:recordPart ? decodeURIComponent(recordPart) : "" }; }
-  if (first) { const recordPart=parts[1] || ""; return { view:"catalogue", module:first, recordKey:recordPart ? decodeURIComponent(recordPart) : "" }; }
   return { view:"home" };
 }
 function resolveFragmentLinks(container, routePath) {
