@@ -10,7 +10,7 @@ function checked(host){return host?[...host.querySelectorAll('input[type="checkb
 function messageFrom(error){return error?.message||"The request could not be completed.";}
 
 export function initExtendedDashboard(supabase,role){
- if(role!=="owner")return;
+ if(!["owner","admin"].includes(role))return;
  let roles=[],permissions=[],users=[];
  async function ownerUsers(body){const {data,error}=await supabase.functions.invoke("owner-users",{body});if(error)throw new Error(error.message||"User administration request failed.");if(data?.error)throw new Error(data.error);return data;}
  async function loadLookups(){

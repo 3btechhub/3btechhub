@@ -52,9 +52,18 @@ async function uploadMedia(supabase,moduleKey,files){
 }
 
 export async function initDynamicDashboard(supabase,root,user){
- root.innerHTML='<div class="dashboard-workspace"><header class="dashboard-workspace-header"><div><h1>Dashboard</h1><p id="dashboard-owner-email"></p></div><span>Owner workspace</span></header><div class="dashboard-workspace-layout"><aside class="dashboard-workspace-sidebar"><nav id="dashboard-dynamic-nav" aria-label="Dashboard modules"></nav></aside><section class="dashboard-workspace-main" id="dashboard-dynamic-panel" aria-live="polite"></section></div><div id="dashboard-hidden-admin" hidden></div></div>';
+ root.innerHTML='<div class="dashboard-workspace"><header class="dashboard-workspace-header"><div><h1>Dashboard</h1><p id="dashboard-owner-email"></p></div><span>Dashboard workspace</span></header><nav id="dashboard-dynamic-tabs" class="dashboard-module-nav" aria-label="Dashboard module tabs" role="tablist"></nav><div class="dashboard-workspace-layout"><button id="dashboard-sidebar-backdrop" class="dashboard-sidebar-backdrop" type="button" aria-label="Close dashboard sidebar" hidden></button><aside class="dashboard-workspace-sidebar" id="dashboard-workspace-sidebar" aria-hidden="true"><nav id="dashboard-dynamic-nav" aria-label="Dashboard sidebar"></nav></aside><section class="dashboard-workspace-main" id="dashboard-dynamic-panel" aria-live="polite"></section></div><div id="dashboard-hidden-admin" hidden></div></div>';
  $("#dashboard-owner-email",root).textContent=user?.email||"";
- const nav=$("#dashboard-dynamic-nav",root),panel=$("#dashboard-dynamic-panel",root);
+ const originalBrandLogo=document.querySelector(".brand-logo")?.cloneNode(true)||null;
+ function setSidebarOpen(isOpen){
+  workspace.classList.toggle("is-sidebar-open",isOpen);sidebar.setAttribute("aria-hidden",String(!isOpen));backdrop.hidden=!isOpen;
+  const logo=document.querySelector(".brand-logo");
+  if(logo){logo.replaceChildren();if(isOpen){const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");svg.setAttribute("viewBox","0 0 24 24");svg.setAttribute("width","24");svg.setAttribute("height","24");svg.setAttribute("aria-hidden","true");svg.classList.add("dashboard-sidebar-close-icon");const path=document.createElementNS("http://www.w3.org/2000/svg","path");path.setAttribute("d","M18 6 6 18M6 6l12 12");path.setAttribute("fill","none");path.setAttribute("stroke","currentColor");path.setAttribute("stroke-width","2");path.setAttribute("stroke-linecap","round");svg.append(path);logo.append(svg);}else if(originalBrandLogo){[...originalBrandLogo.childNodes].forEach(node=>logo.append(node.cloneNode(true)));}logo.setAttribute("aria-label",isOpen?"Close dashboard sidebar":"Open dashboard sidebar");logo.setAttribute("aria-expanded",String(isOpen));}
+ }
+ window.__dashboardSidebarToggle=()=>setSidebarOpen(!workspace.classList.contains("is-sidebar-open"));
+ backdrop.addEventListener("click",()=>setSidebarOpen(false));
+ setSidebarOpen(false);
+ const nav=$("#dashboard-dynamic-nav",root),tabs=$("#dashboard-dynamic-tabs",root),panel=$("#dashboard-dynamic-panel",root),workspace=$(".dashboard-workspace",root),sidebar=$("#dashboard-workspace-sidebar",root),backdrop=$("#dashboard-sidebar-backdrop",root);
  let modules=[],fields=[],roles=[],adminPanels={};
  async function registry(){
   const [m,f,r]=await Promise.all([
@@ -74,24 +83,31 @@ export async function initDynamicDashboard(supabase,root,user){
  permissions:'<section id="dashboard-admin-permissions"><div class="admin-list"><form id="permission-form" class="content-editor-form"><h3 id="permission-form-title">Add permission</h3><div class="module-form-grid"><label class="module-form-field"><span>Title</span><input name="title" maxlength="100" required></label><div class="module-form-field module-related-field"><span>Users</span><div id="permission-user-options" class="module-related-options"></div></div><div class="module-form-field module-related-field"><span>Roles</span><div id="permission-role-options" class="module-related-options"></div></div></div><div class="editor-actions"><button type="submit" id="permission-submit">Save</button><button class="secondary-button" id="permission-cancel" type="button" hidden>Cancel</button><button class="secondary-button" id="permission-delete" type="button" hidden>Delete</button></div><p id="permission-message" class="editor-message" role="status"></p></form><div id="permissions-list" class="admin-list" aria-live="polite"></div></div></section>'
  };
  Object.entries(adminMarkup).forEach(([key,html])=>{const holder=el("div");holder.innerHTML=html;adminPanels[key]=holder.firstElementChild;hidden.append(adminPanels[key]);});
- initExtendedDashboard(supabase,"owner");
+ initExtendedDashboard(supabase,user?.role||"owner");
 
- const general=[["overview","Overview"],["relations","Relations"],["builder","Content Module Builder"],["customization","Customization"],["settings","Settings"]];
+ const general=[["overview","Overview"],["relations","Relations"],["builder","Content Module Builder"],["customization","Customizations"],["settings","Settings"]];
  function navGroup(name,items){
   const group=el("section","dashboard-nav-group");group.append(el("h2","",name));
   const list=el("div","dashboard-nav-items");
   items.forEach(([key,title])=>{const b=el("button","dashboard-nav-item",title);b.type="button";b.dataset.panelKey=key;b.addEventListener("click",()=>void open(key));list.append(b);});
   group.append(list);nav.append(group);
  }
+ function drawTabs(){
+  tabs.replaceChildren();
+  const all=[...general,...modules.filter(m=>m.status==="published").map(m=>["module:"+m.id,m.name]),["users","Users"],["roles","Roles"],["permissions","Permissions"]];
+  all.forEach(([key,title])=>{const b=el("button","dashboard-module-tab",title);b.type="button";b.role="tab";b.dataset.panelKey=key;b.addEventListener("click",()=>void open(key));tabs.append(b);});
+ }
  function drawNav(){
   nav.replaceChildren();navGroup("GENERAL",general);
   navGroup("CONTENT",modules.filter(m=>m.status==="published").map(m=>["module:"+m.id,m.name]));
   navGroup("ADMINISTRATION",[["users","Users"],["roles","Roles"],["permissions","Permissions"]]);
+  drawTabs();
  }
  drawNav();
 
  async function open(key){
-  $$(".dashboard-nav-item",nav).forEach(b=>b.classList.toggle("is-active",b.dataset.panelKey===key));
+  $(".dashboard-nav-item",nav).forEach(b=>b.classList.toggle("is-active",b.dataset.panelKey===key));
+  $(".dashboard-module-tab",tabs).forEach(b=>{const active=b.dataset.panelKey===key;b.classList.toggle("is-active",active);b.setAttribute("aria-selected",String(active));});
   panel.replaceChildren();
   if(key==="overview")return overview();
   if(key==="relations")return relationsPage();

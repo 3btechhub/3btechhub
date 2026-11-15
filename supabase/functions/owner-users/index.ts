@@ -11,7 +11,7 @@ Deno.serve(async(req:Request)=>{
  const admin=createClient(url,key,{auth:{autoRefreshToken:false,persistSession:false}});
  try{
   const {data:authData,error:authError}=await admin.auth.getUser(token),actor=authData.user;if(authError||!actor)return response({error:"Invalid session."},401,origin);
-  const {data:owner,error:ownerError}=await admin.from("user_roles").select("role").eq("user_id",actor.id).eq("role","owner").maybeSingle();if(ownerError||!owner)return response({error:"Owner permission required."},403,origin);
+  const {data:adminRole,error:ownerError}=await admin.from("user_roles").select("role").eq("user_id",actor.id).in("role",["owner","admin"]).limit(1).maybeSingle();if(ownerError||!adminRole)return response({error:"Owner or Admin permission required."},403,origin);
   const body=await req.json().catch(()=>null);if(!body||typeof body!=="object"||typeof body.action!=="string")return response({error:"Invalid request body."},400,origin);if(body.action==="health")return response({ok:true},200,origin);
   if(body.action==="list"){
    const page=Math.max(1,Math.min(1000,Number.isInteger(body.page)?body.page:1)),perPage=Math.max(1,Math.min(50,Number.isInteger(body.perPage)?body.perPage:50)),{data,error}=await admin.auth.admin.listUsers({page,perPage});if(error)throw error;
