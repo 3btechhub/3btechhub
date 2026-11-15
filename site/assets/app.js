@@ -1,6 +1,4 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js";
-import { initCataloguePage } from "./catalogue.js";
-import { initSharedCataloguePage } from "./shared-catalogue.js";
 import { initExtendedDashboard } from "./admin-extended.js";
 import { initDynamicDashboard } from "./content-dashboard.js";
 import { createContactIcon } from "./contact-utils.js";
@@ -94,31 +92,94 @@ const HOME_MODULE_TYPES = Object.freeze([
   { key:"technicians", route:"technicians", icon:"technician" }
 ]);
 
-function renderHomeCard(module, record) {
+const homeDetailStack = [];
+
+function renderHomeCard(module, record, onSelect) {
   const title=record.title||"";
-  const route=module.slug||module.route||module.module_key.replace(/_/g,"-");
-  const card=document.createElement("a");
-  card.className="home-content-card";
-  if(record.slug)card.href="/3btechhub/"+encodeURIComponent(route)+"/"+encodeURIComponent(record.slug)+"/";
-  const visual=document.createElement("div");
-  visual.className="home-content-visual"+(module.module_key==="technicians"?" home-content-visual--person":"");
+  const card=document.createElement("button");card.type="button";card.className="home-content-card";
+  const visual=document.createElement("div");visual.className="home-content-visual"+(module.module_key==="technicians"?" home-content-visual--person":"");
   visual.append(getItemFallbackIcon(title,module.module_key));
   const photo=record.field_values?.photo_url||(Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls[0]:"");
-  if(photo){
-    const image=document.createElement("img");image.src=photo;image.alt="";image.loading="lazy";
-    image.addEventListener("error",()=>image.remove(),{once:true});visual.append(image);
-  }
+  if(photo){const image=document.createElement("img");image.src=photo;image.alt="";image.loading="lazy";image.addEventListener("error",()=>image.remove(),{once:true});visual.append(image);}
   const body=document.createElement("div");body.className="home-content-card-body";
   if(title){const heading=document.createElement("h3");heading.textContent=title;body.append(heading);}
   const description=record.field_values?.short_info||record.field_values?.description;
   if(description){const summary=document.createElement("p");summary.textContent=String(description).slice(0,150);body.append(summary);}
-  card.append(visual,body);return card;
+  card.append(visual,body);card.addEventListener("click",onSelect);return card;
+}
+
+function openHomeDetail(module,record){
+  homeDetailStack.push({module,record});
+  void renderHomeDetail();
+}
+
+async function renderHomeDetail(){
+  const area=document.getElementById("home-module-area");
+  const current=homeDetailStack[homeDetailStack.length-1];
+  if(!area||!current)return;
+  const {module,record}=current;area.replaceChildren();area.hidden=false;
+  const view=document.createElement("section");view.className="home-detail-view";
+  const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
+  back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else void loadHomeCatalog();});
+  const heading=document.createElement("h1");heading.textContent=record.title||"Details";
+  const top=document.createElement("div");top.className="home-detail-heading";top.append(back,heading);view.append(top);
+  const gallery=Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls:[];
+  const imageUrl=record.field_values?.photo_url||gallery[0]||"";
+  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.title||"";view.append(img);}
+  const fieldsResult=await supabase.from("module_fields").select("*").eq("module_id",module.id).eq("is_active",true).order("sort_order");
+  const fieldHost=document.createElement("div");fieldHost.className="home-detail-fields";
+  const skip=new Set(["title","slug","photo_url","gallery_urls","visibility_roles"]);
+  for(const field of fieldsResult.data||[]){
+    if(skip.has(field.field_key)||field.field_type==="relation")continue;
+    const value=record.field_values?.[field.field_key];
+    if(value===null||value===undefined||value==="")continue;
+    if(field.field_type==="image"){
+      const img=document.createElement("img");img.className="home-detail-inline-image";img.src=String(value);img.alt=field.label;fieldHost.append(img);continue;
+    }
+    if(field.field_type==="gallery"&&Array.isArray(value)){
+      const galleryHost=document.createElement("div");galleryHost.className="home-detail-gallery";
+      value.forEach(url=>{const img=document.createElement("img");img.src=String(url);img.alt=field.label;img.loading="lazy";galleryHost.append(img);});
+      fieldHost.append(galleryHost);continue;
+    }
+    const row=document.createElement("div");row.className="home-detail-field";
+    const label=document.createElement("strong");label.textContent=field.label||field.field_key;
+    let content;
+    if(field.field_type==="url"&&/^https?:\/\//i.test(String(value))){
+      content=document.createElement("a");content.href=String(value);content.target="_blank";content.rel="noopener noreferrer";content.textContent=String(value);
+    }else if(field.field_type==="email"){
+      content=document.createElement("a");content.href="mailto:"+String(value);content.textContent=String(value);
+    }else if(field.field_type==="phone"){
+      content=document.createElement("a");content.href="tel:"+String(value);content.textContent=String(value);
+    }else{
+      content=document.createElement("span");content.textContent=Array.isArray(value)?value.join(", "):typeof value==="object"?JSON.stringify(value):String(value);
+    }
+    row.append(label,content);fieldHost.append(row);
+  }
+  if(gallery.length>1){const galleryHost=document.createElement("div");galleryHost.className="home-detail-gallery";gallery.slice(1).forEach(url=>{const img=document.createElement("img");img.src=url;img.alt=record.title||"";img.loading="lazy";galleryHost.append(img);});fieldHost.append(galleryHost);}
+  if(fieldHost.childElementCount)view.append(fieldHost);
+  const {data:relations,error:relationError}=await supabase.from("relations").select("item_a_id,item_b_id").or("item_a_id.eq."+record.id+",item_b_id.eq."+record.id);
+  const relatedIds=[...new Set((relations||[]).map(r=>r.item_a_id===record.id?r.item_b_id:r.item_a_id))];
+  if(!relationError&&relatedIds.length){
+    const {data:related}=await supabase.from("content_items").select("id,title,slug,module_id,status,visibility_roles,field_values").in("id",relatedIds);
+    const moduleIds=[...new Set((related||[]).map(item=>item.module_id))];
+    const {data:relatedModules}=await supabase.from("modules").select("*").in("id",moduleIds);
+    const moduleById=new Map((relatedModules||[]).map(item=>[item.id,item]));
+    const grouped=new Map();
+    for(const item of related||[]){const relatedModule=moduleById.get(item.module_id);if(!relatedModule)continue;if(!grouped.has(relatedModule.id))grouped.set(relatedModule,[]);grouped.get(relatedModule).push(item);}
+    for(const [relatedModule,items] of grouped){
+      const section=document.createElement("section");section.className="home-related-section";const h2=document.createElement("h2");h2.textContent="Related "+relatedModule.name;section.append(h2);
+      const grid=document.createElement("div");grid.className="home-card-grid";
+      items.forEach(item=>grid.append(renderHomeCard(relatedModule,item,()=>openHomeDetail(relatedModule,item))));
+      section.append(grid);view.append(section);
+    }
+  }
+  area.append(view);
 }
 
 async function loadHomeCatalog() {
   const area=document.getElementById("home-module-area");
   if(!area)return;
-  area.replaceChildren();area.hidden=true;
+  homeDetailStack.length=0;area.replaceChildren();area.hidden=true;
   const {data:setting,error:settingsError}=await supabase.from("Settings")
     .select("setting_value,visibility_roles").eq("setting_key","home_modules").maybeSingle();
   if(settingsError)return;
@@ -127,9 +188,9 @@ async function loadHomeCatalog() {
   const configured=[...savedModules,...HOME_MODULE_TYPES.filter(item=>!savedModules.some(saved=>saved?.key===item.key))
     .map((item,index)=>({key:item.key,title:item.key.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),sort_order:(savedModules.length+index+1)*10,visibility_roles:["owner","visitor"]}))];
   const visible=configured.filter(item=>item&&typeof item.key==="string"&&Array.isArray(item.visibility_roles)&&item.visibility_roles.includes("visitor"))
+    .filter(item=>HOME_MODULE_TYPES.some(approved=>approved.key===item.key))
     .sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0));
-  const keys=[...new Set(visible.map(item=>item.key))];
-  if(!keys.length)return;
+  const keys=[...new Set(visible.map(item=>item.key))];if(!keys.length)return;
   const {data:moduleRows,error:moduleError}=await supabase.from("modules").select("*").in("module_key",keys).eq("status","published");
   if(moduleError)return;
   const byKey=new Map((moduleRows||[]).map(m=>[m.module_key,m]));
@@ -144,12 +205,10 @@ async function loadHomeCatalog() {
       if(!records.length)continue;
       const section=document.createElement("section");section.className="home-catalog-section";
       const heading=document.createElement("div");heading.className="home-section-heading";
-      const h2=document.createElement("h2");const link=document.createElement("a");
-      link.className="home-module-link";link.href="/3btechhub/"+encodeURIComponent(module.slug)+"/";
-      link.textContent=typeof config.title==="string"&&config.title.trim()?config.title.trim():module.name;
-      h2.append(link);heading.append(h2);section.append(heading);
+      const h2=document.createElement("h2");h2.textContent=typeof config.title==="string"&&config.title.trim()?config.title.trim():module.name;
+      heading.append(h2);section.append(heading);
       const grid=document.createElement("div");grid.className="home-card-grid";
-      records.slice(0,4).forEach(record=>grid.append(renderHomeCard(module,record)));
+      records.slice(0,4).forEach(record=>grid.append(renderHomeCard(module,record,()=>openHomeDetail(module,record))));
       section.append(grid);area.append(section);
     }catch(error){console.error("Could not load homepage module.",module.module_key,error);}
   }
@@ -255,7 +314,7 @@ export async function initRoutePage() {
       body:JSON.stringify({visitor_key:visitorKey,page_path:location.pathname,referrer:document.referrer||"",device,operating_system:os,browser})
     }).catch(error=>console.debug("Visitor analytics unavailable.",error));
   }
-  if(document.querySelector('#app-main[data-view="catalogue"]')){await applyPublicSiteSettings();const catalogueRoot=document.getElementById("app-main");const moduleSlug=catalogueRoot.dataset.module;const recordKey=catalogueRoot.dataset.recordKey||"";if(moduleSlug==="service-types"||moduleSlug==="device-types")await initCataloguePage(supabase,moduleSlug,recordKey);else await initSharedCataloguePage(supabase,moduleSlug,recordKey);return;}
+  
   const accountMode = document.querySelector("#app-main")?.dataset.authMode || "login";
   const accountAuthLayout = document.querySelector("#account-auth-layout");
   const accountProfileLayout = document.querySelector("#profile-card");
