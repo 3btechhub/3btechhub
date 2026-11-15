@@ -51,6 +51,34 @@ async function uploadMedia(supabase,moduleKey,files){
  return urls;
 }
 
+async function listModuleStorageFiles(supabase,moduleKey){
+ const bucket=supabase.storage.from("site-media"),paths=[];
+ async function walk(prefix){
+  let offset=0;
+  for(;;){
+   const {data,error}=await bucket.list(prefix,{limit:100,offset});
+   if(error)throw error;
+   const entries=data||[];
+   for(const entry of entries){
+    const path=prefix+"/"+entry.name;
+    if(entry.id||entry.metadata)paths.push(path);
+    else await walk(path);
+   }
+   if(entries.length<100)break;
+   offset+=entries.length;
+  }
+ }
+ await walk(moduleKey);
+ return paths;
+}
+async function removeModuleStorageFiles(supabase,paths){
+ const bucket=supabase.storage.from("site-media");
+ for(let i=0;i<paths.length;i+=100){
+  const {error}=await bucket.remove(paths.slice(i,i+100));
+  if(error)throw error;
+ }
+}
+
 export async function initDynamicDashboard(supabase,root,user){
  root.innerHTML='<div class="dashboard-workspace"><header class="dashboard-workspace-header"><div><h1>Dashboard</h1><p id="dashboard-owner-email"></p></div><span>Dashboard workspace</span></header><nav id="dashboard-dynamic-tabs" class="dashboard-module-nav" aria-label="Dashboard module tabs" role="tablist"></nav><div class="dashboard-workspace-layout"><button id="dashboard-sidebar-backdrop" class="dashboard-sidebar-backdrop" type="button" aria-label="Close dashboard sidebar" hidden></button><aside class="dashboard-workspace-sidebar" id="dashboard-workspace-sidebar" aria-hidden="true"><nav id="dashboard-dynamic-nav" aria-label="Dashboard sidebar"></nav></aside><section class="dashboard-workspace-main" id="dashboard-dynamic-panel" aria-live="polite"></section></div><div id="dashboard-hidden-admin" hidden></div></div>';
  $("#dashboard-owner-email",root).textContent=user?.email||"";
@@ -205,7 +233,27 @@ export async function initDynamicDashboard(supabase,root,user){
   page.append(form,el("h3","","Existing Modules"));const list=el("div","dashboard-module-builder-list");
   modules.forEach(m=>{const row=el("article","dashboard-module-builder-row"),details=el("div");details.append(el("strong","",m.name),el("small","",m.slug+" · "+m.status));row.append(details);
    if(m.status!=="published"){const b=el("button","secondary-button","Publish");b.type="button";b.addEventListener("click",async()=>{const {error}=await supabase.from("modules").update({status:"published"}).eq("id",m.id);if(error)alert(error.message);else{await reloadRegistry();await builderPage();}});row.append(b);}
-   list.append(row);
+   const remove=el("button","secondary-button","Delete");remove.type="button";remove.disabled=Boolean(m.is_system);remove.title=m.is_system?"System modules cannot be deleted":"Permanently delete this Content Module";
+   remove.addEventListener("click",async()=>{
+    if(remove.disabled)return;
+    remove.disabled=true;
+    try{
+     const {count,error:countError}=await supabase.from("content_items").select("id",{count:"exact",head:true}).eq("module_id",m.id);
+     if(countError)throw countError;
+     const confirmed=confirm("Permanently delete the Content Module \""+m.name+"\" and all "+(count??0)+" of its Content Items? Its own relations and files will also be deleted. Other modules and their content will remain; only references to this module will be removed. This cannot be undone.");
+     if(!confirmed)return;
+     const storagePaths=await listModuleStorageFiles(supabase,m.module_key);
+     const {data:deleted,error}=await supabase.rpc("delete_content_module",{p_module_id:m.id});
+     if(error)throw error;
+     let storageWarning="";
+     try{await removeModuleStorageFiles(supabase,storagePaths);}
+     catch(storageError){storageWarning=" The database deletion succeeded, but some Storage files could not be removed: "+(storageError.message||"Unknown Storage error");}
+     await reloadRegistry();
+     await builderPage();
+     if(storageWarning)alert("Module deleted."+storageWarning);
+    }catch(error){alert(error.message||"Could not delete this Content Module.");remove.disabled=false;}
+   });
+   row.append(remove);list.append(row);
   });page.append(list);panel.append(page);
  }
  async function customizationPage(){
