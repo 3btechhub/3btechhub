@@ -306,6 +306,7 @@ export async function resolveAuthRoute(requestedPath) {
 }
 
 export async function initRoutePage() {
+  window.__dashboardSidebarToggle = null;
   window.__routeAuthSubscriptions?.forEach((subscription) => subscription.unsubscribe());
   window.__routeAuthSubscriptions = [];
   applyEnglishText();
