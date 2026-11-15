@@ -2,8 +2,8 @@ import { initRoutePage, resolveAuthRoute } from "./app.js";
 
 const BASE = "/3btechhub/";
 const main = document.getElementById("app-main");
-const viewFiles = { home:"home.html", account:"account.html", dashboard:"dashboard.html", catalogue:"catalogue.html" };
-const titles = { home:"3B TECH HUB", account:"Account | 3B TECH HUB", dashboard:"Dashboard | 3B TECH HUB", catalogue:"3B TECH HUB" };
+const viewFiles = { home:"home.html", account:"account.html", dashboard:"dashboard.html" };
+const titles = { home:"3B TECH HUB", account:"Account | 3B TECH HUB", dashboard:"Dashboard | 3B TECH HUB" };
 
 function normalizedPath(value) {
   const url = new URL(value, window.location.origin);
