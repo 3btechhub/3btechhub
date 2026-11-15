@@ -273,11 +273,25 @@ export async function initDynamicDashboard(supabase,root,user){
    const group=el("fieldset","dashboard-relation-picker");group.append(el("legend","",target.name));
    const search=el("input");search.type="search";search.placeholder="Search "+target.name+"…";
    const list=el("div","module-related-options");group.append(search,list);relationHost.append(group);
-   const {data:items,error}=await supabase.from("content_items").select("id,title,slug").eq("module_id",target.id).order("title").limit(300);
-   if(error){list.append(el("small","muted",error.message));continue;}
-   (items||[]).forEach(item=>{const l=el("label","module-related-option"),c=el("input");c.type="checkbox";c.value=item.id;l.append(c,el("span","",item.title+(item.slug?" · "+item.slug:"")));list.append(l);});
-   search.addEventListener("input",()=>{const term=search.value.toLowerCase();$$(".module-related-option",list).forEach(l=>l.hidden=!l.textContent.toLowerCase().includes(term));});
-   relationPickers.push(list);
+   const picker={target,search,list,selectedIds:new Set(),timer:null};
+   picker.load=async(term="")=>{
+    let query=supabase.from("content_items").select("id,title,slug").eq("module_id",target.id).order("title").limit(100);
+    if(term)query=query.ilike("title","%"+term+"%");
+    const {data,error}=await query;
+    if(error){list.replaceChildren(el("small","muted",error.message));return;}
+    const items=[...(data||[])];
+    const missing=[...picker.selectedIds].filter(id=>!items.some(item=>item.id===id));
+    if(missing.length){const {data:extra}=await supabase.from("content_items").select("id,title,slug").in("id",missing);items.push(...(extra||[]));}
+    list.replaceChildren();
+    items.forEach(item=>{
+     const label=el("label","module-related-option"),check=el("input");check.type="checkbox";check.value=item.id;check.checked=picker.selectedIds.has(item.id);
+     check.addEventListener("change",()=>{if(check.checked)picker.selectedIds.add(item.id);else picker.selectedIds.delete(item.id);});
+     label.append(check,el("span","",item.title+(item.slug?" · "+item.slug:"")));list.append(label);
+    });
+    if(!items.length)list.append(el("small","muted","No matching items."));
+   };
+   search.addEventListener("input",()=>{clearTimeout(picker.timer);picker.timer=setTimeout(()=>void picker.load(search.value.trim()),250);});
+   relationPickers.push(picker);await picker.load("");
   }
   const records=node("div","dashboard-record-list");page.append(form,el("h3","","Database"),records);panel.append(page);
   async function loadRecords(){
@@ -291,13 +305,15 @@ export async function initDynamicDashboard(supabase,root,user){
    editable.forEach(f=>{const c=$('[data-field-key="'+f.field_key+'"]',form);if(!c)return;const v=item.field_values?.[f.field_key];if(f.field_type==="boolean")c.checked=Boolean(v);else if(f.field_type==="checkboxes")$$('input[type="checkbox"]',c).forEach(x=>x.checked=Array.isArray(v)&&v.includes(x.value));else if(f.field_type==="json")c.value=v==null?"":JSON.stringify(v,null,2);else if(["gallery","multi_text"].includes(f.field_type))c.value=Array.isArray(v)?v.join("\n"):(v||"");else c.value=v??"";});
    const chosen=new Set(item.visibility_roles||["owner"]);$$('input[type="checkbox"]',visibility).forEach(c=>c.checked=c.value==="owner"||chosen.has(c.value));
    const {data:rels}=await supabase.from("relations").select("*").or("item_a_id.eq."+item.id+",item_b_id.eq."+item.id);
-   const related=new Set((rels||[]).map(r=>r.item_a_id===item.id?r.item_b_id:r.item_a_id));
-   $$(".dashboard-relation-picker input[type=checkbox]",relationHost).forEach(c=>c.checked=related.has(c.value));
+   const relatedIds=[...new Set((rels||[]).map(r=>r.item_a_id===item.id?r.item_b_id:r.item_a_id))];
+   const {data:relatedItems}=relatedIds.length?await supabase.from("content_items").select("id,module_id").in("id",relatedIds):{data:[]};
+   for(const picker of relationPickers){picker.selectedIds.clear();(relatedItems||[]).filter(x=>x.module_id===picker.target.id).forEach(x=>picker.selectedIds.add(x.id));await picker.load(picker.search.value.trim());}
    $("[data-form-title]",form).textContent="Edit "+module.name+" Item";$("[data-cancel]",form).hidden=false;$("[data-delete]",form).hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});
   }
   function resetForm(){
    form.reset();delete form.dataset.editId;form.elements.status.value="draft";form.elements.sort_order.value="0";
-   $$('input[type="checkbox"]',visibility).forEach(c=>c.checked=c.value==="owner");$$(".dashboard-relation-picker input[type=checkbox]",relationHost).forEach(c=>c.checked=false);
+   $$('input[type="checkbox"]',visibility).forEach(c=>c.checked=c.value==="owner");
+   for(const picker of relationPickers){picker.selectedIds.clear();void picker.load(picker.search.value.trim());}
    $("[data-form-title]",form).textContent="Add "+module.name+" Item";$("[data-cancel]",form).hidden=true;$("[data-delete]",form).hidden=true;
   }
   form.addEventListener("submit",async e=>{
@@ -310,7 +326,7 @@ export async function initDynamicDashboard(supabase,root,user){
     let id=form.dataset.editId;
     if(id){const {error}=await supabase.from("content_items").update(payload).eq("id",id);if(error)throw error;}
     else{payload.created_by=user.id;const {data,error}=await supabase.from("content_items").insert(payload).select("id").single();if(error)throw error;id=data.id;}
-    const related=$$(".dashboard-relation-picker input[type=checkbox]:checked",relationHost).map(c=>c.value);
+    const related=relationPickers.flatMap(picker=>[...picker.selectedIds]);
     const {error:re}=await supabase.rpc("sync_content_item_relations",{p_item_id:id,p_related_item_ids:related});
     if(re)throw new Error("Item saved, but relationship synchronization failed: "+re.message);
     msg.textContent="Saved successfully.";msg.dataset.kind="success";resetForm();await loadRecords();
