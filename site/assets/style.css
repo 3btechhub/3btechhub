@@ -1693,7 +1693,7 @@ button.dashboard-overview-card{cursor:pointer}
 
 
 /* In-context Home catalogue details */
-button.home-content-card{font:inherit;color:inherit;text-align:left;border:0;width:100%;cursor:pointer}
+button.home-content-card{font:inherit;color:inherit;text-align:left;border:1px solid var(--line);width:100%;cursor:pointer;background:var(--surface)}
 .home-detail-view{max-width:1000px;margin:0 auto;padding:8px 0 28px}
 .home-detail-heading{display:flex;align-items:center;gap:16px;margin:0 0 18px}
 .home-detail-heading h1{margin:0;font-size:clamp(1.5rem,3vw,2.1rem)}
