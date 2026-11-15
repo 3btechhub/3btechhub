@@ -1,4 +1,4 @@
-import { initRoutePage, resolveAuthRoute } from "./app.js?v=20261115-dashboard-recovery-1";
+import { initRoutePage, resolveAuthRoute } from "./app.js?v=20261115-dashboard-recovery-2";
 
 const BASE = "/3btechhub/";
 const main = document.getElementById("app-main");
