@@ -1,6 +1,6 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js";
-import { initExtendedDashboard } from "./admin-extended.js";
-import { initDynamicDashboard } from "./content-dashboard.js";
+import { initExtendedDashboard } from "./admin-extended.js?v=20261115-admin";
+import { initDynamicDashboard } from "./content-dashboard.js?v=20261115-sidebar";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
@@ -73,7 +73,7 @@ async function setMenuSession(session) {
   if (profileMenuLink) profileMenuLink.href=new URL("account/profile/",ROOT_URL).href;
   if (profileMenuLink) profileMenuLink.hidden=!session;
   if (logoutMenuLink) logoutMenuLink.hidden=!session;
-  if (dashboardMenuLink) { dashboardMenuLink.hidden=true; if(session?.user?.id){const {data,error}=await supabase.from("user_roles").select("role").eq("user_id",session.user.id).eq("role","owner").maybeSingle();if(!error&&data?.role==="owner")dashboardMenuLink.hidden=false;} }
+  if (dashboardMenuLink) { dashboardMenuLink.hidden=true; if(session?.user?.id){const {data,error}=await supabase.from("user_roles").select("role").eq("user_id",session.user.id).in("role",["owner","admin"]).limit(1).maybeSingle();if(!error&&data?.role)dashboardMenuLink.hidden=false;} }
 }
 // Load authentication separately so a Supabase CDN issue cannot disable the menu.
 const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
@@ -267,6 +267,13 @@ supabase.auth.onAuthStateChange((_event, session) => {
   setMenuSession(session);
 });
 const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
+const headerBrandLogo=document.querySelector(".brand-logo");
+if(headerBrandLogo){
+  headerBrandLogo.setAttribute("role","button");headerBrandLogo.tabIndex=0;headerBrandLogo.setAttribute("aria-label","Go to Home");
+  const activateBrand=()=>{if(document.querySelector('#app-main[data-view="dashboard"]')&&typeof window.__dashboardSidebarToggle==="function"){window.__dashboardSidebarToggle();return;}window.navigateSiteRoute(new URL("home/",ROOT_URL).pathname);};
+  headerBrandLogo.addEventListener("click",activateBrand);
+  headerBrandLogo.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();activateBrand();}});
+}
 
 export async function resolveAuthRoute(requestedPath) {
   const url = new URL(requestedPath, window.location.origin);
@@ -668,18 +675,18 @@ if (ownerDashboard) {
   if (authError || !authData.user) {
     window.navigateSiteRoute(new URL("account/login/", ROOT_URL).pathname, { replace: true });
   } else {
-    const { data: ownerRole, error: roleError } = await supabase
+    const { data: dashboardRole, error: roleError } = await supabase
       .from("user_roles").select("role")
-      .eq("user_id", authData.user.id).eq("role", "owner").maybeSingle();
-    if (roleError || ownerRole?.role !== "owner") {
+      .eq("user_id", authData.user.id).in("role", ["owner","admin"]).limit(1).maybeSingle();
+    if (roleError || !["owner","admin"].includes(dashboardRole?.role)) {
       window.navigateSiteRoute(new URL("account/profile/", ROOT_URL).pathname, { replace: true });
     } else {
-      currentDashboardRole = "owner";
+      currentDashboardRole = dashboardRole.role;
       const dashboardAuthListener = supabase.auth.onAuthStateChange((_event, session) => {
         if (!session) window.navigateSiteRoute(new URL("account/login/", ROOT_URL).pathname, { replace: true });
       });
       window.__routeAuthSubscriptions.push(dashboardAuthListener.data.subscription);
-      await initDynamicDashboard(supabase, ownerDashboard, authData.user);
+      await initDynamicDashboard(supabase, ownerDashboard, {...authData.user,role:currentDashboardRole});
       return;
       const ownerEmail = document.querySelector("#dashboard-owner-email");
       if (ownerEmail) ownerEmail.textContent = authData.user.email || "";
