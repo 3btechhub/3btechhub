@@ -1,6 +1,7 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js";
 import { initCataloguePage } from "./catalogue.js";
 import { initExtendedDashboard } from "./admin-extended.js";
+import { initDynamicDashboard } from "./content-dashboard.js";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
@@ -643,6 +644,12 @@ if (ownerDashboard) {
       window.navigateSiteRoute(new URL("account/profile/", ROOT_URL).pathname, { replace: true });
     } else {
       currentDashboardRole = "owner";
+      const dashboardAuthListener = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!session) window.navigateSiteRoute(new URL("account/login/", ROOT_URL).pathname, { replace: true });
+      });
+      window.__routeAuthSubscriptions.push(dashboardAuthListener.data.subscription);
+      await initDynamicDashboard(supabase, ownerDashboard, authData.user);
+      return;
       const ownerEmail = document.querySelector("#dashboard-owner-email");
       if (ownerEmail) ownerEmail.textContent = authData.user.email || "";
       const resources = [["Users","dashboard-users-count"],["services","dashboard-services-count"],["categories","dashboard-categories-count"],["products","dashboard-products-count"],["workshops","dashboard-workshops-count"],["technicians","dashboard-technicians-count"],["contacts","dashboard-contacts-count"],["Roles","dashboard-roles-count"],["permissions","dashboard-permissions-count"]];
