@@ -9,7 +9,7 @@ security definer
 set search_path = pg_catalog, public, private
 as $function$
 declare
-  related_ids uuid[] := coalesce(p_related_item_ids, '{}'::uuid[]);
+  related_ids uuid[] := coalesce(array(select distinct x from unnest(coalesce(p_related_item_ids, '{}'::uuid[])) x where x is not null), '{}'::uuid[]);
 begin
   if not private.is_site_owner() then
     raise exception 'Only the site Owner may manage Content relationships';
@@ -29,10 +29,6 @@ begin
   ) then
     raise exception 'One or more related Content Items do not exist';
   end if;
-
-  delete from public.relations r
-  where r.item_a_id=p_item_id or r.item_b_id=p_item_id
-    and false;
 
   delete from public.relations r
   where (r.item_a_id=p_item_id or r.item_b_id=p_item_id)
