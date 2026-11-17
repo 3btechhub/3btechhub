@@ -16,6 +16,27 @@ const LAYOUT_VARIABLES = Object.freeze({
 
 const COLOR_KEYS = new Set(Object.keys(THEME_VARIABLES));
 
+const PALETTE_PRESETS = Object.freeze({
+  white: {
+    light: {page_bg:"#ffffff",page_text:"#111111",surface:"#ffffff",line:"#e5e5e5",muted:"#666666",hover:"#f3f3f3",primary:"#111111"},
+    dark: {page_bg:"#111111",page_text:"#f5f5f5",surface:"#1b1b1b",line:"#333333",muted:"#aaaaaa",hover:"#292929",primary:"#f5f5f5"}
+  },
+  black: {
+    light: {page_bg:"#111111",page_text:"#f5f5f5",surface:"#1b1b1b",line:"#333333",muted:"#aaaaaa",hover:"#292929",primary:"#f5f5f5"},
+    dark: {page_bg:"#080808",page_text:"#ffffff",surface:"#141414",line:"#303030",muted:"#aaaaaa",hover:"#242424",primary:"#ffffff"}
+  },
+  "neutral-gray": {
+    light: {page_bg:"#f2f2f2",page_text:"#222222",surface:"#ffffff",line:"#d6d6d6",muted:"#666666",hover:"#e8e8e8",primary:"#333333"},
+    dark: {page_bg:"#202020",page_text:"#eeeeee",surface:"#292929",line:"#444444",muted:"#aaaaaa",hover:"#353535",primary:"#eeeeee"}
+  }
+});
+
+const SIZE_PRESETS = Object.freeze({
+  small: {small:"11px",medium:"14px",large:"clamp(22px,2.8vw,30px)"},
+  medium: {small:"12px",medium:"15px",large:"clamp(24px,3vw,34px)"},
+  large: {small:"13px",medium:"16px",large:"clamp(26px,3.4vw,38px)"}
+});
+
 function isMonochromeHex(value) {
   if (typeof value !== "string" || !/^#[0-9a-f]{3,8}$/i.test(value)) return false;
   let hex = value.slice(1);
@@ -66,6 +87,27 @@ export function applyRuntimeConfig(config, theme = "light", root = document.docu
       root.style.setProperty("--font-family", tokens.font_family);
       applied += 1;
     }
+  }
+
+  if (config.direction === "ltr" || config.direction === "rtl") {
+    root.dir = config.direction;
+    applied += 1;
+  }
+
+  const palette = PALETTE_PRESETS[config.palette]?.[selectedTheme];
+  if (palette) {
+    for (const [key, cssVariable] of Object.entries(THEME_VARIABLES)) {
+      root.style.setProperty(cssVariable, palette[key]);
+      applied += 1;
+    }
+  }
+
+  const size = SIZE_PRESETS[config.size];
+  if (size) {
+    root.style.setProperty("--text-small", size.small);
+    root.style.setProperty("--text-medium", size.medium);
+    root.style.setProperty("--text-large", size.large);
+    applied += 3;
   }
 
   if (isPlainObject(config.layout)) {

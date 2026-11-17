@@ -257,9 +257,23 @@ export async function initDynamicDashboard(supabase,root,user){
   });page.append(list);panel.append(page);
  }
  async function customizationPage(){
-  const page=el("div","dashboard-page");page.append(el("h2","","Customization"),el("p","muted","Control which Content sections appear on Home and their order."));
-  const {data:setting,error}=await supabase.from("Settings").select("setting_value").eq("setting_key","home_modules").maybeSingle();
-  if(error){page.append(el("p","editor-message",error.message));panel.append(page);return;}
+  const page=el("div","dashboard-page");page.append(el("h2","","Customization"),el("p","muted","Global visual settings and Home module visibility."));
+  const [{data:setting,error},{data:runtimeRow,error:runtimeError}]=await Promise.all([
+   supabase.from("Settings").select("setting_value").eq("setting_key","home_modules").maybeSingle(),
+   supabase.from("Settings").select("setting_value").eq("setting_key","runtime_config").maybeSingle()
+  ]);
+  if(error||runtimeError){page.append(el("p","editor-message",(error||runtimeError).message));panel.append(page);return;}
+  const runtime=runtimeRow?.setting_value&&typeof runtimeRow.setting_value==="object"?runtimeRow.setting_value:{schema_version:1};
+  const globalForm=el("form","content-editor-form");
+  globalForm.innerHTML='<h3>Global Style</h3><div class="module-form-grid"><label class="module-form-field"><span>Color</span><select name="palette"><option value="white">White</option><option value="black">Black</option><option value="neutral-gray">Neutral Gray</option></select></label><label class="module-form-field"><span>Size</span><select name="size"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></label><label class="module-form-field"><span>Direction</span><select name="direction"><option value="ltr">LTR</option><option value="rtl">RTL</option></select></label></div><div class="editor-actions"><button type="submit">Save Global Style</button></div><p class="editor-message" role="status"></p>';
+  globalForm.elements.palette.value=runtime.palette||"white";globalForm.elements.size.value=runtime.size||"medium";globalForm.elements.direction.value=runtime.direction||"ltr";
+  globalForm.addEventListener("submit",async event=>{event.preventDefault();const button=globalForm.querySelector('[type="submit"]'),msg=globalForm.querySelector(".editor-message");button.disabled=true;
+   const next={...runtime,schema_version:1,palette:globalForm.elements.palette.value,size:globalForm.elements.size.value,direction:globalForm.elements.direction.value};
+   const {error:saveError}=await supabase.from("Settings").upsert({setting_key:"runtime_config",setting_value:next,visibility_roles:["owner"],description:"Global style configuration"},{onConflict:"setting_key"});
+   msg.textContent=saveError?saveError.message:"Global Style saved.";msg.dataset.kind=saveError?"error":"success";button.disabled=false;
+   if(!saveError){window.dispatchEvent(new CustomEvent("runtime-config-updated",{detail:next}));}
+  });
+  page.append(globalForm);
   const current=setting?.setting_value?.modules||[],form=el("form","content-editor-form");
   modules.filter(m=>m.status==="published").forEach((m,i)=>{
    const c=current.find(x=>x.key===m.module_key),row=el("div","dashboard-home-module-row");row.dataset.key=m.module_key;
@@ -358,12 +372,28 @@ export async function initDynamicDashboard(supabase,root,user){
    search.addEventListener("input",()=>{clearTimeout(picker.timer);picker.timer=setTimeout(()=>void picker.load(search.value.trim()),250);});
    relationPickers.push(picker);await picker.load("");
   }
-  const records=el("div","dashboard-record-list");page.append(form,el("h3","","Database"),records);panel.append(page);
+  const searchBar=el("div","dashboard-toolbar"),searchLabel=el("label","","Search this module"),searchInput=el("input"),suggestions=el("datalist");
+  searchInput.type="search";searchInput.placeholder="Search by text or number…";suggestions.id="module-search-"+module.id;searchInput.setAttribute("list",suggestions.id);searchLabel.append(searchInput);searchBar.append(searchLabel,suggestions);
+  const records=el("div","dashboard-record-list");page.append(form,searchBar,el("h3","","Database"),records);panel.append(page);
+  let loadedRecords=[];
+  function renderRecords(){
+   records.replaceChildren();const term=searchInput.value.trim().toLocaleLowerCase();
+   const matches=loadedRecords.filter(item=>{
+    if(!term)return true;
+    const values=[item.title,item.slug,item.status,...Object.values(item.field_values||{}).flat(Infinity)];
+    return values.some(value=>value!==null&&value!==undefined&&String(typeof value==="object"?JSON.stringify(value):value).toLocaleLowerCase().includes(term));
+   });
+   if(!matches.length){records.append(el("p","muted",loadedRecords.length?"No matching records.":"No records yet."));return;}
+   matches.forEach(item=>{const b=el("button","dashboard-record-row");b.type="button";b.append(el("strong","",item.title),el("small","",item.slug||item.status));b.addEventListener("click",()=>void editItem(item));records.append(b);});
+  }
+  searchInput.addEventListener("input",renderRecords);
   async function loadRecords(){
    records.replaceChildren();const {data,error}=await supabase.from("content_items").select("*").eq("module_id",module.id).order("sort_order").order("created_at",{ascending:false});
    if(error){records.append(el("p","editor-message",error.message));return;}
-   if(!(data||[]).length){records.append(el("p","muted","No records yet."));return;}
-   data.forEach(item=>{const b=el("button","dashboard-record-row");b.type="button";b.append(el("strong","",item.title),el("small","",item.slug||item.status));b.addEventListener("click",()=>void editItem(item));records.append(b);});
+   loadedRecords=data||[];suggestions.replaceChildren();
+   const values=new Set();for(const item of loadedRecords){if(item.title)values.add(String(item.title));if(item.slug)values.add(String(item.slug));for(const value of Object.values(item.field_values||{})){if(typeof value==="number")values.add(String(value));}}
+   [...values].slice(0,100).forEach(value=>{const option=el("option");option.value=value;suggestions.append(option);});
+   renderRecords();
   }
   async function editItem(item){
    form.dataset.editId=item.id;form.elements.core_title.value=item.title||"";form.elements.core_slug.value=item.slug||"";form.elements.status.value=item.status||"draft";form.elements.sort_order.value=item.sort_order??0;
