@@ -43,10 +43,12 @@ function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
  document.querySelectorAll("[data-label]").forEach(element=>{const value=labels[element.dataset.label];if(value)element.textContent=value;});
  document.querySelectorAll("[data-placeholder]").forEach(element=>{const value=labels[element.dataset.placeholder];if(value)element.placeholder=value;});
  document.querySelectorAll("[data-aria-label]").forEach(element=>{const value=labels[element.dataset.ariaLabel];if(value)element.setAttribute("aria-label",value);});
- const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
- while((node=walker.nextNode())){const raw=node.nodeValue||"",trimmed=raw.trim(),translated=textMap[trimmed];if(translated)node.nodeValue=raw.replace(trimmed,translated);}
+ const translateTree=root=>{if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;while((node=walker.nextNode())){const raw=node.nodeValue||"",trimmed=raw.trim(),translated=textMap[trimmed];if(translated)node.nodeValue=raw.replace(trimmed,translated);}};
+ translateTree(document.body);
 }
 function applyEnglishText(){applyLanguage(localStorage.getItem("3b-language")||"en");}
+const languageObserver=new MutationObserver(records=>{const map=(document.documentElement.lang||"en")==="bn"?bnText:enText;for(const record of records)for(const node of record.addedNodes){if(node.nodeType!==Node.ELEMENT_NODE&&node.nodeType!==Node.TEXT_NODE)continue;const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);let textNode;while((textNode=walker.nextNode())){const raw=textNode.nodeValue||"",trimmed=raw.trim(),translated=map[trimmed];if(translated)textNode.nodeValue=raw.replace(trimmed,translated);}}});
+languageObserver.observe(document.body,{childList:true,subtree:true});
 let runtimeConfig = null;
 window.addEventListener("runtime-config-updated", (event) => {
   if (!event.detail || typeof event.detail !== "object") return;
@@ -252,17 +254,19 @@ async function loadHomeCatalog() {
 }
 
 async function applyPublicSiteSettings() {
-  const [{data:profileData},{data:websiteData},{data:introData}] = await Promise.all([
+  const [{data:profileData},{data:websiteData},{data:introData},{data:navigationData}] = await Promise.all([
     supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","site_profile").maybeSingle(),
     supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","website_information").maybeSingle(),
-    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_intro").maybeSingle()
+    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_intro").maybeSingle(),
+    supabase.from("Settings").select("setting_value").eq("setting_key","navigation_menu").maybeSingle()
   ]);
   const profile=profileData?.setting_value&&typeof profileData.setting_value==="object"?profileData.setting_value:{};
   const website=websiteData?.setting_value&&typeof websiteData.setting_value==="object"?websiteData.setting_value:{};
   const settings={...website,...profile,
     website_title:profile.website_title||website.title,
     logo_url:profile.logo_url||website.logo_url,
-    favicon_url:profile.favicon_url||website.favicon_url
+    favicon_url:profile.favicon_url||website.favicon_url,
+    navigation_menu:navigationData?.setting_value||{}
   };
   const intro=typeof introData?.setting_value?.content==="string"&&introData.setting_value.content.trim()
     ?introData.setting_value.content.trim()
