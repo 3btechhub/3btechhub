@@ -257,9 +257,23 @@ export async function initDynamicDashboard(supabase,root,user){
   });page.append(list);panel.append(page);
  }
  async function customizationPage(){
-  const page=el("div","dashboard-page");page.append(el("h2","","Customization"),el("p","muted","Control which Content sections appear on Home and their order."));
-  const {data:setting,error}=await supabase.from("Settings").select("setting_value").eq("setting_key","home_modules").maybeSingle();
-  if(error){page.append(el("p","editor-message",error.message));panel.append(page);return;}
+  const page=el("div","dashboard-page");page.append(el("h2","","Customization"),el("p","muted","Global visual settings and Home module visibility."));
+  const [{data:setting,error},{data:runtimeRow,error:runtimeError}]=await Promise.all([
+   supabase.from("Settings").select("setting_value").eq("setting_key","home_modules").maybeSingle(),
+   supabase.from("Settings").select("setting_value").eq("setting_key","runtime_config").maybeSingle()
+  ]);
+  if(error||runtimeError){page.append(el("p","editor-message",(error||runtimeError).message));panel.append(page);return;}
+  const runtime=runtimeRow?.setting_value&&typeof runtimeRow.setting_value==="object"?runtimeRow.setting_value:{schema_version:1};
+  const globalForm=el("form","content-editor-form");
+  globalForm.innerHTML='<h3>Global Style</h3><div class="module-form-grid"><label class="module-form-field"><span>Color</span><select name="palette"><option value="white">White</option><option value="black">Black</option><option value="neutral-gray">Neutral Gray</option></select></label><label class="module-form-field"><span>Size</span><select name="size"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></label><label class="module-form-field"><span>Direction</span><select name="direction"><option value="ltr">LTR</option><option value="rtl">RTL</option></select></label></div><div class="editor-actions"><button type="submit">Save Global Style</button></div><p class="editor-message" role="status"></p>';
+  globalForm.elements.palette.value=runtime.palette||"white";globalForm.elements.size.value=runtime.size||"medium";globalForm.elements.direction.value=runtime.direction||"ltr";
+  globalForm.addEventListener("submit",async event=>{event.preventDefault();const button=globalForm.querySelector('[type="submit"]'),msg=globalForm.querySelector(".editor-message");button.disabled=true;
+   const next={...runtime,schema_version:1,palette:globalForm.elements.palette.value,size:globalForm.elements.size.value,direction:globalForm.elements.direction.value};
+   const {error:saveError}=await supabase.from("Settings").upsert({setting_key:"runtime_config",setting_value:next,visibility_roles:["owner"],description:"Global style configuration"},{onConflict:"setting_key"});
+   msg.textContent=saveError?saveError.message:"Global Style saved.";msg.dataset.kind=saveError?"error":"success";button.disabled=false;
+   if(!saveError){document.documentElement.dir=next.direction;window.location.reload();}
+  });
+  page.append(globalForm);
   const current=setting?.setting_value?.modules||[],form=el("form","content-editor-form");
   modules.filter(m=>m.status==="published").forEach((m,i)=>{
    const c=current.find(x=>x.key===m.module_key),row=el("div","dashboard-home-module-row");row.dataset.key=m.module_key;
