@@ -220,6 +220,32 @@ async function loadHomeCatalog() {
   if(setting&&!(setting.visibility_roles||[]).includes("visitor"))return;
   const savedModules=Array.isArray(setting?.setting_value?.modules)?setting.setting_value.modules:[];
   const savedByKey=new Map(savedModules.filter(item=>item&&typeof item.key==="string").map(item=>[item.key,item]));
+  const selectedRegion=document.documentElement.dataset.country||localStorage.getItem("3b-country")||"global";
+  const countryModule=(moduleRows||[]).find(item=>item.module_key==="countries");
+  let regionAllowedIds=null,regionLinkedIds=new Set();
+  if(countryModule){
+    const {data:countryItems}=await supabase.from("content_items").select("id,title").eq("module_id",countryModule.id).in("status",["active","published"]);
+    const countryBySlug=new Map((countryItems||[]).map(item=>[String(item.title||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),item.id]));
+    const selectedCountryId=countryBySlug.get(selectedRegion);
+    const globalCountryId=countryBySlug.get("global");
+    const targetCountryIds=[...new Set([selectedCountryId,selectedRegion==="global"?null:globalCountryId].filter(Boolean))];
+    const allCountryIds=[...new Set((countryItems||[]).map(item=>item.id))];
+    if(targetCountryIds.length&&allCountryIds.length){
+      const [fromCountry,toCountry]=await Promise.all([
+        supabase.from("relations").select("item_a_id,item_b_id").in("item_a_id",allCountryIds),
+        supabase.from("relations").select("item_a_id,item_b_id").in("item_b_id",allCountryIds)
+      ]);
+      if(!fromCountry.error&&!toCountry.error){
+        for(const link of [...(fromCountry.data||[]),...(toCountry.data||[])]){
+          const countryId=allCountryIds.includes(link.item_a_id)?link.item_a_id:link.item_b_id;
+          const itemId=countryId===link.item_a_id?link.item_b_id:link.item_a_id;
+          regionLinkedIds.add(itemId);
+          if(targetCountryIds.includes(countryId))regionAllowedIds??=new Set();
+          if(targetCountryIds.includes(countryId))regionAllowedIds.add(itemId);
+        }
+      }
+    }
+  }
   const configured=(moduleRows||[]).map((module,index)=>{
     const saved=savedByKey.get(module.module_key);
     return {module,title:typeof saved?.title==="string"&&saved.title.trim()?saved.title.trim():module.name,
@@ -234,7 +260,8 @@ async function loadHomeCatalog() {
         .eq("module_id",module.id).in("status",["active","published"]).order("sort_order").order("created_at",{ascending:false}).limit(200);
       if(error)continue;
       const records=(data||[]).filter(record=>(record.visibility_roles||[]).includes("visitor"))
-        .filter(record=>String(record.title||"").trim());
+        .filter(record=>String(record.title||"").trim())
+        .filter(record=>!regionLinkedIds.has(record.id)||!regionAllowedIds||regionAllowedIds.has(record.id));
       if(!records.length)continue;
       const section=document.createElement("section");section.className="home-catalog-section";
       const heading=document.createElement("div");heading.className="home-section-heading";
@@ -355,6 +382,7 @@ countrySelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-country",countrySelect.value);
   document.documentElement.dataset.country=countrySelect.value;
   window.dispatchEvent(new CustomEvent("site-country-changed",{detail:{country:countrySelect.value}}));
+  void loadHomeCatalog();
 });
 languageSelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-language",languageSelect.value);
