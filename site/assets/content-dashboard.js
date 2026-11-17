@@ -166,7 +166,8 @@ export async function initDynamicDashboard(supabase,root,user){
  async function relationsPage(){
   const page=el("div","dashboard-page");page.append(el("h2","","Relations"),el("p","muted","Each Item-to-Item relationship is stored once and displayed from either side."));
   const filter=el("select");filter.append(new Option("All modules",""));modules.forEach(m=>filter.append(new Option(m.name,m.id)));
-  const toolbar=el("div","dashboard-toolbar");toolbar.append(el("label","","Filter by module"),filter);const list=el("div","dashboard-relation-list");page.append(toolbar,list);panel.append(page);
+  const search=el("input");search.type="search";search.placeholder="Search related items…";search.setAttribute("aria-label","Search relationships");
+  const toolbar=el("div","dashboard-toolbar");toolbar.append(el("label","","Filter by module"),filter,search);const list=el("div","dashboard-relation-list");page.append(toolbar,list);panel.append(page);
   async function load(){
    list.replaceChildren();const {data:rels,error}=await supabase.from("relations").select("*").order("created_at",{ascending:false}).limit(500);
    if(error){list.append(el("p","editor-message",error.message));return;}
@@ -174,7 +175,8 @@ export async function initDynamicDashboard(supabase,root,user){
    const {data:items,error:itemError}=await supabase.from("content_items").select("id,title,module_id").in("id",ids);
    if(itemError){list.append(el("p","editor-message",itemError.message));return;}
    const byId=new Map((items||[]).map(i=>[i.id,i])),byModule=new Map(modules.map(m=>[m.id,m]));
-   const visible=(rels||[]).filter(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id);return a&&b&&(!filter.value||a.module_id===filter.value||b.module_id===filter.value);});
+   const term=search.value.trim().toLocaleLowerCase();
+   const visible=(rels||[]).filter(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id);if(!a||!b||(filter.value&&a.module_id!==filter.value&&b.module_id!==filter.value))return false;const ma=byModule.get(a.module_id)?.name||"",mb=byModule.get(b.module_id)?.name||"";return !term||[a.title,b.title,ma,mb].some(value=>String(value).toLocaleLowerCase().includes(term));});
    if(!visible.length){list.append(el("p","muted","No matching relationships."));return;}
    visible.forEach(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id),row=el("article","dashboard-relation-row");
     const left=el("div");left.append(el("strong","",a.title),el("small","",byModule.get(a.module_id)?.name||""));
@@ -183,7 +185,7 @@ export async function initDynamicDashboard(supabase,root,user){
     row.append(left,el("span","dashboard-relation-arrow","↔"),right,remove);list.append(row);
    });
   }
-  filter.addEventListener("change",()=>void load());await load();
+  filter.addEventListener("change",()=>void load());search.addEventListener("input",()=>void load());await load();
  }
  async function reloadRegistry(){await registry();drawNav();}
  async function builderPage(){
@@ -421,9 +423,15 @@ export async function initDynamicDashboard(supabase,root,user){
     let id=form.dataset.editId;
     if(id){const {error}=await supabase.from("content_items").update(payload).eq("id",id);if(error)throw error;}
     else{payload.created_by=user.id;const {data,error}=await supabase.from("content_items").insert(payload).select("id").single();if(error)throw error;id=data.id;}
-    const related=relationPickers.flatMap(picker=>[...picker.selectedIds]);
-    const {error:re}=await supabase.rpc("sync_content_item_relations",{p_item_id:id,p_related_item_ids:related});
-    if(re)throw new Error("Item saved, but relationship synchronization failed: "+re.message);
+    const related=[...new Set(relationPickers.flatMap(picker=>[...picker.selectedIds]))];
+    const {data:existingRelations,error:relationReadError}=await supabase.from("relations").select("id,item_a_id,item_b_id").or("item_a_id.eq."+id+",item_b_id.eq."+id);
+    if(relationReadError)throw relationReadError;
+    const existingByOther=new Map((existingRelations||[]).map(row=>[row.item_a_id===id?row.item_b_id:row.item_a_id,row]));
+    const wanted=new Set(related);
+    const removeIds=[...existingByOther].filter(([other])=>!wanted.has(other)).map(([,row])=>row.id);
+    if(removeIds.length){const {error:removeError}=await supabase.from("relations").delete().in("id",removeIds);if(removeError)throw removeError;}
+    const addRows=related.filter(other=>!existingByOther.has(other)).map(other=>({item_a_id:id<other?id:other,item_b_id:id<other?other:id}));
+    if(addRows.length){const {error:addError}=await supabase.from("relations").insert(addRows);if(addError)throw addError;}
     msg.textContent="Saved successfully.";msg.dataset.kind="success";resetForm();await loadRecords();
    }catch(err){msg.textContent=err.message||"Could not save the Item.";msg.dataset.kind="error";}
    finally{submit.disabled=false;}
