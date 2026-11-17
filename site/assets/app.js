@@ -39,7 +39,7 @@ const bnText={"Home":"হোম","Account":"অ্যাকাউন্ট","Pro
 const enText=Object.fromEntries(Object.entries(bnText).map(([english,bengali])=>[bengali,english]));
 function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
  const selected=Object.hasOwn(translations,language)?language:"en",labels=translations[selected],textMap=selected==="bn"?bnText:enText;
- document.documentElement.lang=selected;document.documentElement.dir=selected==="ar"?"rtl":"ltr";
+ document.documentElement.lang=selected;
  document.querySelectorAll("[data-label]").forEach(element=>{const value=labels[element.dataset.label];if(value)element.textContent=value;});
  document.querySelectorAll("[data-placeholder]").forEach(element=>{const value=labels[element.dataset.placeholder];if(value)element.placeholder=value;});
  document.querySelectorAll("[data-aria-label]").forEach(element=>{const value=labels[element.dataset.ariaLabel];if(value)element.setAttribute("aria-label",value);});
