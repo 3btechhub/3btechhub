@@ -26,7 +26,7 @@
       cycleTimer=window.setInterval(()=>{if(!menu.hidden){clearTimers();render("icon");return;}render(showingLogo?"icon":"logo");},swapSeconds*1000);
     },swapSeconds*1000);
   }
-  function closeMenu(){menu.hidden=true;button.classList.remove("is-open");button.setAttribute("aria-expanded","false");button.setAttribute("aria-label","Open menu");scheduleIdle();}
+  function closeMenu(){if(menu.hidden)return;menu.hidden=true;button.classList.remove("is-open");button.setAttribute("aria-expanded","false");button.setAttribute("aria-label","Open menu");scheduleIdle();}
   button.addEventListener("click",event=>{
     event.stopPropagation();clearTimers();const opening=menu.hidden;menu.hidden=!opening;button.classList.toggle("is-open",opening);button.setAttribute("aria-expanded",String(opening));button.setAttribute("aria-label",opening?"Close menu":"Open menu");render("icon");if(!opening)scheduleIdle();
   });
