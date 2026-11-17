@@ -377,7 +377,7 @@ export async function initDynamicDashboard(supabase,root,user){
   const searchBar=el("div","dashboard-toolbar"),searchLabel=el("label","","Search this module"),searchInput=el("input"),suggestions=el("datalist");
   searchInput.type="search";searchInput.placeholder="Search by text or number…";suggestions.id="module-search-"+module.id;searchInput.setAttribute("list",suggestions.id);searchLabel.append(searchInput);searchBar.append(searchLabel,suggestions);
   const records=el("div","dashboard-record-list");page.append(form,searchBar,el("h3","","Database"),records);panel.append(page);
-  let loadedRecords=[];
+  let loadedRecords=[],draggedRecordId=null;
   function renderRecords(){
    records.replaceChildren();const term=searchInput.value.trim().toLocaleLowerCase();
    const matches=loadedRecords.filter(item=>{
@@ -386,7 +386,29 @@ export async function initDynamicDashboard(supabase,root,user){
     return values.some(value=>value!==null&&value!==undefined&&String(typeof value==="object"?JSON.stringify(value):value).toLocaleLowerCase().includes(term));
    });
    if(!matches.length){records.append(el("p","muted",loadedRecords.length?"No matching records.":"No records yet."));return;}
-   matches.forEach(item=>{const b=el("button","dashboard-record-row");b.type="button";b.append(el("strong","",item.title),el("small","",item.slug||item.status));b.addEventListener("click",()=>void editItem(item));records.append(b);});
+   matches.forEach(item=>{
+    const b=el("button","dashboard-record-row");b.type="button";b.draggable=!term;
+    b.append(el("strong","",item.title),el("small","",item.slug||item.status));
+    b.addEventListener("click",()=>{if(!draggedRecordId)void editItem(item);});
+    b.addEventListener("dragstart",event=>{draggedRecordId=item.id;b.classList.add("is-dragging");if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",item.id);}});
+    b.addEventListener("dragend",()=>{draggedRecordId=null;records.querySelectorAll(".is-dragging,.is-drag-over").forEach(node=>node.classList.remove("is-dragging","is-drag-over"));});
+    b.addEventListener("dragover",event=>{if(!draggedRecordId||term||draggedRecordId===item.id)return;event.preventDefault();b.classList.add("is-drag-over");});
+    b.addEventListener("dragleave",()=>b.classList.remove("is-drag-over"));
+    b.addEventListener("drop",async event=>{
+     event.preventDefault();b.classList.remove("is-drag-over");
+     const sourceId=draggedRecordId||event.dataTransfer?.getData("text/plain");draggedRecordId=null;
+     if(!sourceId||sourceId===item.id)return;
+     const ordered=[...loadedRecords],from=ordered.findIndex(row=>row.id===sourceId),to=ordered.findIndex(row=>row.id===item.id);
+     if(from<0||to<0)return;
+     const [moved]=ordered.splice(from,1);ordered.splice(to,0,moved);loadedRecords=ordered;renderRecords();
+     const updates=await Promise.all(loadedRecords.map((row,index)=>supabase.from("content_items").update({sort_order:(index+1)*10}).eq("id",row.id)));
+     const failed=updates.find(result=>result.error);
+     const message=$(".editor-message",form);
+     if(failed){message.textContent="Order could not be saved: "+failed.error.message;message.dataset.kind="error";await loadRecords();}
+     else{message.textContent="Display order saved.";message.dataset.kind="success";}
+    });
+    records.append(b);
+   });
   }
   searchInput.addEventListener("input",renderRecords);
   async function loadRecords(){
