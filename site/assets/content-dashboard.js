@@ -372,12 +372,28 @@ export async function initDynamicDashboard(supabase,root,user){
    search.addEventListener("input",()=>{clearTimeout(picker.timer);picker.timer=setTimeout(()=>void picker.load(search.value.trim()),250);});
    relationPickers.push(picker);await picker.load("");
   }
-  const records=el("div","dashboard-record-list");page.append(form,el("h3","","Database"),records);panel.append(page);
+  const searchBar=el("div","dashboard-toolbar"),searchLabel=el("label","","Search this module"),searchInput=el("input"),suggestions=el("datalist");
+  searchInput.type="search";searchInput.placeholder="Search by text or number…";suggestions.id="module-search-"+module.id;searchInput.setAttribute("list",suggestions.id);searchLabel.append(searchInput);searchBar.append(searchLabel,suggestions);
+  const records=el("div","dashboard-record-list");page.append(form,searchBar,el("h3","","Database"),records);panel.append(page);
+  let loadedRecords=[];
+  function renderRecords(){
+   records.replaceChildren();const term=searchInput.value.trim().toLocaleLowerCase();
+   const matches=loadedRecords.filter(item=>{
+    if(!term)return true;
+    const values=[item.title,item.slug,item.status,...Object.values(item.field_values||{}).flat(Infinity)];
+    return values.some(value=>value!==null&&value!==undefined&&String(typeof value==="object"?JSON.stringify(value):value).toLocaleLowerCase().includes(term));
+   });
+   if(!matches.length){records.append(el("p","muted",loadedRecords.length?"No matching records.":"No records yet."));return;}
+   matches.forEach(item=>{const b=el("button","dashboard-record-row");b.type="button";b.append(el("strong","",item.title),el("small","",item.slug||item.status));b.addEventListener("click",()=>void editItem(item));records.append(b);});
+  }
+  searchInput.addEventListener("input",renderRecords);
   async function loadRecords(){
    records.replaceChildren();const {data,error}=await supabase.from("content_items").select("*").eq("module_id",module.id).order("sort_order").order("created_at",{ascending:false});
    if(error){records.append(el("p","editor-message",error.message));return;}
-   if(!(data||[]).length){records.append(el("p","muted","No records yet."));return;}
-   data.forEach(item=>{const b=el("button","dashboard-record-row");b.type="button";b.append(el("strong","",item.title),el("small","",item.slug||item.status));b.addEventListener("click",()=>void editItem(item));records.append(b);});
+   loadedRecords=data||[];suggestions.replaceChildren();
+   const values=new Set();for(const item of loadedRecords){if(item.title)values.add(String(item.title));if(item.slug)values.add(String(item.slug));for(const value of Object.values(item.field_values||{})){if(typeof value==="number")values.add(String(value));}}
+   [...values].slice(0,100).forEach(value=>{const option=el("option");option.value=value;suggestions.append(option);});
+   renderRecords();
   }
   async function editItem(item){
    form.dataset.editId=item.id;form.elements.core_title.value=item.title||"";form.elements.core_slug.value=item.slug||"";form.elements.status.value=item.status||"draft";form.elements.sort_order.value=item.sort_order??0;
