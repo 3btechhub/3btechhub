@@ -230,7 +230,7 @@ export async function initDynamicDashboard(supabase,root,user){
     const payload={item_a_id:a<b?a:b,item_b_id:a<b?b:a};
     let result;
     if(editingRelationId)result=await supabase.from("relations").update(payload).eq("id",editingRelationId);
-    else{const {data:last,error:lastError}=await supabase.from("relations").select("sort_order").order("sort_order",{ascending:false}).limit(1).maybeSingle();if(lastError)throw lastError;result=await supabase.from("relations").insert({...payload,sort_order:(last?.sort_order||0)+10);}
+    else{const {data:last,error:lastError}=await supabase.from("relations").select("sort_order").order("sort_order",{ascending:false}).limit(1).maybeSingle();if(lastError)throw lastError;result=await supabase.from("relations").insert({...payload,sort_order:(last?.sort_order||0)+10});}
     if(result.error)throw result.error;
     message.textContent="Relation saved.";message.dataset.kind="success";resetRelationForm();await load();
    }catch(error){message.textContent=error.message||"Could not save the relation.";message.dataset.kind="error";}
