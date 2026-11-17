@@ -301,6 +301,17 @@ supabase.auth.onAuthStateChange((_event, session) => {
 const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
 const languageSelect=document.getElementById("language-select");
 const countrySelect=document.getElementById("country-select");
+const themeSelect=document.getElementById("theme-select");
+if(themeSelect){
+  const savedVariant=localStorage.getItem("3b-theme-variant")||"classic";
+  themeSelect.value=["classic","modern","future"].includes(savedVariant)?savedVariant:"classic";
+  document.documentElement.dataset.themeVariant=themeSelect.value;
+  themeSelect.addEventListener("change",()=>{
+    localStorage.setItem("3b-theme-variant",themeSelect.value);
+    document.documentElement.dataset.themeVariant=themeSelect.value;
+    window.dispatchEvent(new CustomEvent("site-theme-changed",{detail:{theme:themeSelect.value}}));
+  });
+}
 async function loadMenuPreferences(){
   const [countriesResult,languagesResult]=await Promise.all([
     supabase.from("countries").select("name,slug,status,sort_order").eq("status","active").order("sort_order"),
