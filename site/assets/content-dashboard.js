@@ -1,4 +1,5 @@
 import { initExtendedDashboard } from "./admin-extended.js";
+import { applyRuntimeConfig } from "./runtime-config.js?v=notion-global-style-20261118-1";
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const el=(tag,cls="",text="")=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n;};
 const slugify=v=>String(v||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
@@ -271,7 +272,7 @@ export async function initDynamicDashboard(supabase,root,user){
    const next={...runtime,schema_version:1,palette:globalForm.elements.palette.value,size:globalForm.elements.size.value,direction:globalForm.elements.direction.value};
    const {error:saveError}=await supabase.from("Settings").upsert({setting_key:"runtime_config",setting_value:next,visibility_roles:["owner"],description:"Global style configuration"},{onConflict:"setting_key"});
    msg.textContent=saveError?saveError.message:"Global Style saved.";msg.dataset.kind=saveError?"error":"success";button.disabled=false;
-   if(!saveError){document.documentElement.dir=next.direction;window.location.reload();}
+   if(!saveError){window.dispatchEvent(new CustomEvent("runtime-config-updated",{detail:next}));}
   });
   page.append(globalForm);
   const current=setting?.setting_value?.modules||[],form=el("form","content-editor-form");
