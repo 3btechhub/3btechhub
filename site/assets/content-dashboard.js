@@ -356,13 +356,17 @@ export async function initDynamicDashboard(supabase,root,user){
    const list=el("div","module-related-options");group.append(search,list);relationHost.append(group);
    const picker={target,search,list,selectedIds:new Set(),timer:null};
    picker.load=async(term="")=>{
-    let query=supabase.from("content_items").select("id,title,slug").eq("module_id",target.id).order("title").limit(100);
+    const visibleRole=String(user?.role||"owner").toLowerCase();
+    let query=supabase.from("content_items").select("id,title,slug,visibility_roles,status").eq("module_id",target.id).in("status",["active","published"]).contains("visibility_roles",[visibleRole]).order("title").limit(100);
     if(term)query=query.ilike("title","%"+term+"%");
     const {data,error}=await query;
     if(error){list.replaceChildren(el("small","muted",error.message));return;}
     const items=[...(data||[])];
     const missing=[...picker.selectedIds].filter(id=>!items.some(item=>item.id===id));
-    if(missing.length){const {data:extra}=await supabase.from("content_items").select("id,title,slug").in("id",missing);items.push(...(extra||[]));}
+    if(missing.length){
+     const {data:extra}=await supabase.from("content_items").select("id,title,slug,visibility_roles,status").in("id",missing);
+     items.push(...(extra||[]).filter(item=>item.status==="active"||item.status==="published").filter(item=>(item.visibility_roles||[]).includes(visibleRole)));
+    }
     list.replaceChildren();
     items.forEach(item=>{
      const label=el("label","module-related-option"),check=el("input");check.type="checkbox";check.value=item.id;check.checked=picker.selectedIds.has(item.id);
