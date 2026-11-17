@@ -148,17 +148,47 @@ export async function initDynamicDashboard(supabase,root,user){
  }
  async function overview(){
   const page=el("div","dashboard-page");page.append(el("h2","","Overview"),el("p","muted","Content summary and verified system status."));
-  const grid=el("div","dashboard-overview-grid");
+  const mediaModule=modules.find(item=>item.module_key==="media");
+  const [dataCount,mediaCount,userCount,roleCount,permissionCount]=await Promise.all([
+   supabase.from("content_items").select("id",{count:"exact",head:true}),
+   mediaModule?supabase.from("content_items").select("id",{count:"exact",head:true}).eq("module_id",mediaModule.id):Promise.resolve({count:0,error:null}),
+   supabase.from("Users").select("id",{count:"exact",head:true}),
+   supabase.from("Roles").select("id",{count:"exact",head:true}),
+   supabase.from("permissions").select("id",{count:"exact",head:true})
+  ]);
+  const summary=el("div","dashboard-overview-grid");
+  for(const [label,result] of [["Data",dataCount],["Media",mediaCount],["User",userCount],["Role",roleCount],["Permission",permissionCount]]){
+   const card=el("div","dashboard-overview-card");card.append(el("span","",label),el("strong","",result.error?"—":result.count??0));summary.append(card);
+  }
+  page.append(summary);
+  page.append(el("h3","","Content Modules"));
+  const moduleGrid=el("div","dashboard-overview-grid");
   for(const m of modules.filter(x=>x.status==="published")){
    const {count,error}=await supabase.from("content_items").select("id",{count:"exact",head:true}).eq("module_id",m.id);
-   const card=el("button","dashboard-overview-card");card.type="button";card.append(el("span","",m.name),el("strong","",error?"—":count??0));card.addEventListener("click",()=>void open("module:"+m.id));grid.append(card);
+   const card=el("button","dashboard-overview-card");card.type="button";card.append(el("span","",m.name),el("strong","",error?"—":count??0));card.addEventListener("click",()=>void open("module:"+m.id));moduleGrid.append(card);
   }
-  for(const [name,table] of [["Users","Users"],["Roles","Roles"],["Permissions","permissions"]]){
-   const {count,error}=await supabase.from(table).select("id",{count:"exact",head:true});
-   const card=el("div","dashboard-overview-card");card.append(el("span","",name),el("strong","",error?"—":count??0));grid.append(card);
-  }
-  page.append(grid);
-  const health=el("section","dashboard-health-panel");health.append(el("h3","","System Health"));
+  page.append(moduleGrid);
+  const activity=el("section","dashboard-activity-panel");activity.append(el("h3","","Activities List"));
+  const [itemsResult,usersResult,rolesResult,permissionsResult,modulesResult]=await Promise.all([
+   supabase.from("content_items").select("title,updated_at,module_id").order("updated_at",{ascending:false}).limit(8),
+   supabase.from("Users").select("full_name,updated_at").order("updated_at",{ascending:false}).limit(4),
+   supabase.from("Roles").select("name,updated_at").order("updated_at",{ascending:false}).limit(4),
+   supabase.from("permissions").select("name,updated_at").order("updated_at",{ascending:false}).limit(4),
+   supabase.from("modules").select("name,updated_at").order("updated_at",{ascending:false}).limit(4)
+  ]);
+  const moduleNames=new Map(modules.map(item=>[item.id,item.name])),events=[];
+  for(const row of itemsResult.data||[])events.push({label:row.title||"Content Item",detail:"Content · "+(moduleNames.get(row.module_id)||"Module"),date:row.updated_at});
+  for(const row of usersResult.data||[])events.push({label:row.full_name||"User",detail:"User updated",date:row.updated_at});
+  for(const row of rolesResult.data||[])events.push({label:row.name||"Role",detail:"Role updated",date:row.updated_at});
+  for(const row of permissionsResult.data||[])events.push({label:row.name||"Permission",detail:"Permission updated",date:row.updated_at});
+  for(const row of modulesResult.data||[])events.push({label:row.name||"Module",detail:"Content Module updated",date:row.updated_at});
+  events.sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+  if(!events.length)activity.append(el("p","muted","No recent activity."));
+  else for(const event of events.slice(0,12)){const row=el("article","dashboard-activity-row");row.append(el("strong","",event.label),el("span","muted",event.detail),el("time","",event.date?new Date(event.date).toLocaleString():""));activity.append(row);}
+  const activityErrors=[itemsResult,usersResult,rolesResult,permissionsResult,modulesResult].filter(result=>result.error);
+  if(activityErrors.length)activity.append(el("p","muted","Some activity sources could not be loaded."));
+  page.append(activity);
+  const health=el("section","dashboard-health-panel");health.append(el("h3","","Health Status"));
   const tests=[["Database",()=>supabase.from("modules").select("id",{head:true,count:"exact"}).limit(1)],["Authentication",()=>supabase.auth.getUser()],["Storage",()=>supabase.storage.from("site-media").list("",{limit:1})]];
   for(const [name,run] of tests){const row=el("div","dashboard-health-row");row.append(el("span","",name));try{const result=await run();const failed=Boolean(result.error);row.append(el("strong",failed?"health-error":"health-ok",failed?"Unavailable":"Connected"));}catch{row.append(el("strong","health-error","Unavailable"));}health.append(row);}
   page.append(health);panel.append(page);

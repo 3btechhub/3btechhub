@@ -1,6 +1,6 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-completion-20261118-1";
 import { initExtendedDashboard } from "./admin-extended.js?v=20261115-dashboard-recovery-2";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-completion-20261118-3";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-completion-20261118-4";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
@@ -273,6 +273,10 @@ async function applyPublicSiteSettings() {
       const mark=document.createElement("span");mark.className="brand-mark";mark.textContent="3B";brandLogo.replaceChildren(mark);
     }
   }
+  const menuBrandLogo=document.querySelector(".menu-brand-logo");
+  if(menuBrandLogo&&brandLogo)menuBrandLogo.replaceChildren(...[...brandLogo.childNodes].map(node=>node.cloneNode(true)));
+  const menuBrandTitle=document.querySelector(".menu-brand-title");
+  if(menuBrandTitle)menuBrandTitle.textContent=websiteTitle;
 }
 
 if (logoutMenuLink) logoutMenuLink.addEventListener("click", async () => {
@@ -297,6 +301,17 @@ supabase.auth.onAuthStateChange((_event, session) => {
 const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
 const languageSelect=document.getElementById("language-select");
 const countrySelect=document.getElementById("country-select");
+const themeSelect=document.getElementById("theme-select");
+if(themeSelect){
+  const savedVariant=localStorage.getItem("3b-theme-variant")||"classic";
+  themeSelect.value=["classic","modern","future"].includes(savedVariant)?savedVariant:"classic";
+  document.documentElement.dataset.themeVariant=themeSelect.value;
+  themeSelect.addEventListener("change",()=>{
+    localStorage.setItem("3b-theme-variant",themeSelect.value);
+    document.documentElement.dataset.themeVariant=themeSelect.value;
+    window.dispatchEvent(new CustomEvent("site-theme-changed",{detail:{theme:themeSelect.value}}));
+  });
+}
 async function loadMenuPreferences(){
   const [countriesResult,languagesResult]=await Promise.all([
     supabase.from("countries").select("name,slug,status,sort_order").eq("status","active").order("sort_order"),
