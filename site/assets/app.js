@@ -358,6 +358,7 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
   const nameInput = form.elements.fullName;
   const passwordInput = form.elements.password;
   const otpInput = form.elements.otp;
+  const confirmPasswordInput = form.elements.confirmPassword;
   const currentAuthUrl = new URL(window.location.href);
   const isPasswordRecoveryCallback = new URLSearchParams(currentAuthUrl.hash.replace(/^#/, "")).get("type") === "recovery" || currentAuthUrl.searchParams.get("recovery") === "1";
   let mode = isPasswordRecoveryCallback ? "recovery-new-password" : (document.querySelector("#app-main")?.dataset.authMode || "login");
@@ -395,6 +396,11 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
     emailInput.readOnly = recoveryFlow;
     passwordInput.hidden = recoveryStart || recoveryVerify;
     passwordInput.required = !recoveryStart && !recoveryVerify;
+    if (confirmPasswordInput) {
+      confirmPasswordInput.hidden = !recoveryNewPassword;
+      confirmPasswordInput.required = recoveryNewPassword;
+      confirmPasswordInput.autocomplete = "new-password";
+    }
     passwordInput.autocomplete = signup || recoveryNewPassword ? "new-password" : "current-password";
     passwordInput.placeholder = recoveryNewPassword ? "New Password" : "Password";
     passwordInput.setAttribute("aria-label", recoveryNewPassword ? "New Password" : "Password");
@@ -434,14 +440,18 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
       passwordInput.focus();
       return showMessage("Password must be at least 8 characters.", "error");
     }
-    if (mode === "recovery" && !/^\d{6,8}$/.test(code)) {
+    if (mode === "recovery-new-password" && password !== confirmPasswordInput?.value) {
+      confirmPasswordInput?.focus();
+      return showMessage("New passwords do not match.", "error");
+    }
+    if (["recovery-verify", "recovery"].includes(mode) && !/^\d{6,8}$/.test(code)) {
       otpInput.focus();
       return showMessage("Enter the verification code from your email.", "error");
     }
 
     submit.disabled = true;
     showMessage(mode === "recovery-start" ? "Sending verification code…"
-      : mode === "recovery" ? "Verifying code…"
+       : ["recovery-verify", "recovery"].includes(mode) ? "Verifying code…"
       : mode === "recovery-new-password" ? "Updating password…"
       : mode === "signup" ? "Creating account…" : "Signing in…");
     try {
