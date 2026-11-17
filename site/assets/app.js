@@ -380,6 +380,8 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
     toggle.textContent = signup || recoveryStart ? "Login" : "Create Account";
     if (recoveryStart) toggle.textContent = "Create Account";
 
+    forgot.hidden = recoveryFlow;
+    toggle.hidden = recoveryFlow;
     nameInput.hidden = !signup;
     nameInput.required = signup;
     emailInput.hidden = recoveryFlow;
