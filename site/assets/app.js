@@ -1,5 +1,5 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-completion-20261118-1";
-import { initExtendedDashboard } from "./admin-extended.js?v=notion-permission-read-write-20261118-1";
+import { initExtendedDashboard } from "./admin-extended.js?v=notion-permission-read-write-20261118-2";
 import { initDynamicDashboard } from "./content-dashboard.js?v=notion-completion-20261118-5";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
