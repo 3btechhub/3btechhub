@@ -9,6 +9,8 @@
       <input id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Code" minlength="6" maxlength="8" pattern="[0-9]{6,8}" hidden>
       <label class="visually-hidden" for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Password" data-placeholder="password" minlength="8" maxlength="256" required>
+      <label class="visually-hidden" for="confirm-password">Confirm New Password</label>
+      <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Confirm New Password" minlength="8" maxlength="256" hidden>
       <p id="auth-message" class="auth-message" role="status" aria-live="polite"></p>
       <button id="auth-submit" type="submit">Login</button>
       <div class="auth-links">
