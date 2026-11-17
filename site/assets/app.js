@@ -34,7 +34,7 @@ function addTextElement(parent, tag, className, value) {
 const translations = { en: {home:"Home",profile:"Profile",login:"Login",logout:"Logout",dashboard:"Dashboard",accountLogin:"Account login",dark:"Switch to dark mode",light:"Switch to light mode",services:"Services",products:"Products",workshops:"Workshops",technicians:"Technicians",contacts:"Contacts",user:"User",role:"Role",permission:"Permission",settings:"Settings",users:"Users",refresh:"Refresh",inviteUser:"Invite User",userType:"User Type",emailAddress:"Email Address",sendInvitation:"Send Invitation",refreshUsers:"Refresh Users",userList:"User List",roleAssignments:"Role Assignments",permissionMatrix:"Permission Matrix",websiteSettings:"Website Settings",websiteTitle:"Website Title",logoUrl:"Logo URL (optional)",saveSettings:"Save Settings",signIn:"Sign In",sendResetCode:"Send Reset Code",forgotPassword:"Forgot password?",createAccount:"Create account",verificationCode:"Verification Code",name:"Name",email:"Email",phoneNumber:"Phone Number",password:"Password",changePassword:"Change Password",edit:"Edit",currentPassword:"Current Password",newPassword:"New Password",confirmPassword:"Confirm New Password",updatePassword:"Update Password",verifyCodeReset:"Verify Code & Reset Password",loginAccount:"Login Account"} };
 function applyEnglishText() {
   document.documentElement.lang = "en";
-  document.documentElement.dir = "ltr";
+  document.documentElement.dir ||= "ltr";
   document.querySelectorAll("[data-label]").forEach((element) => { const value=translations.en[element.dataset.label]; if(value) element.textContent=value; });
   document.querySelectorAll("[data-placeholder]").forEach((element) => { const value=translations.en[element.dataset.placeholder]; if(value) element.placeholder=value; });
   document.querySelectorAll("[data-aria-label]").forEach((element) => { const value=translations.en[element.dataset.ariaLabel]; if(value) element.setAttribute("aria-label",value); });
@@ -752,7 +752,7 @@ function renderHomeModulesSettings(settingValue){
   if(!homeModulesSettingsHost)return;
   homeModulesSettingsHost.replaceChildren();
   const modules=Array.isArray(settingValue?.modules)?settingValue.modules:[];
-  modules.filter(item=>HOME_MODULE_TYPES.some(type=>type.key===item?.key))
+  modules.filter(item=>item&&typeof item.key==="string")
     .sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0))
     .forEach((item,index)=>{
       const row=document.createElement("div");row.className="module-form-grid";row.dataset.homeModuleKey=item.key;
