@@ -727,13 +727,13 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
         const editButton = field.closest(".profile-row").querySelector("[data-edit-field]");
         if (editButton) {
           editButton.dataset.saving = "false";
-          editButton.textContent = "Edit";
+          editButton.textContent = "Edit Name";
         }
       });
       document.querySelector("#profile-password-fields").hidden = true;
       const passwordEditButton = document.querySelector("#profile-password-edit");
       passwordEditButton.dataset.saving = "false";
-      passwordEditButton.textContent = "Edit";
+      passwordEditButton.textContent = "Change Password";
       form.reset();
       await loadProfile();
       profileMessage(
