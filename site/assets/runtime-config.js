@@ -68,6 +68,11 @@ export function applyRuntimeConfig(config, theme = "light", root = document.docu
     }
   }
 
+  if (config.direction === "ltr" || config.direction === "rtl") {
+    root.dir = config.direction;
+    applied += 1;
+  }
+
   if (isPlainObject(config.layout)) {
     for (const [key, cssVariable] of Object.entries(LAYOUT_VARIABLES)) {
       const value = config.layout[key];
