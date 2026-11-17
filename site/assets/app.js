@@ -84,15 +84,10 @@ renderSvgIconAttributes(document);
 applyTheme(savedTheme === "dark" ? "dark" : "light");
 applyRuntimeConfig(runtimeConfig, document.documentElement.dataset.theme);
 
-const HOME_MODULE_TYPES = Object.freeze([
-  { key:"services", route:"services", icon:"wrench" },
-  { key:"products", route:"products", icon:"package" },
-  { key:"what_we_do", route:"what-we-do", icon:"compass" },
-  { key:"workshops", route:"workshops", icon:"building" },
-  { key:"technicians", route:"technicians", icon:"technician" }
-]);
+
 
 const homeDetailStack = [];
+let homeListState = null;
 
 function renderHomeCard(module, record, onSelect) {
   const title=record.title||"";
@@ -103,8 +98,6 @@ function renderHomeCard(module, record, onSelect) {
   if(photo){const image=document.createElement("img");image.src=photo;image.alt="";image.loading="lazy";image.addEventListener("error",()=>image.remove(),{once:true});visual.append(image);}
   const body=document.createElement("div");body.className="home-content-card-body";
   if(title){const heading=document.createElement("h3");heading.textContent=title;body.append(heading);}
-  const description=record.field_values?.short_info||record.field_values?.description;
-  if(description){const summary=document.createElement("p");summary.textContent=String(description).slice(0,150);body.append(summary);}
   card.append(visual,body);card.addEventListener("click",onSelect);return card;
 }
 
@@ -120,7 +113,7 @@ async function renderHomeDetail(){
   const {module,record}=current;area.replaceChildren();area.hidden=false;
   const view=document.createElement("section");view.className="home-detail-view";
   const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
-  back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else void loadHomeCatalog();});
+  back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else if(homeListState)renderHomeList(homeListState.module,homeListState.records,homeListState.title);else void loadHomeCatalog();});
   const heading=document.createElement("h1");heading.textContent=record.title||"Details";
   const top=document.createElement("div");top.className="home-detail-heading";top.append(back,heading);view.append(top);
   const gallery=Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls:[];
@@ -176,39 +169,57 @@ async function renderHomeDetail(){
   area.append(view);
 }
 
+function renderHomeList(module,records,title) {
+  const area=document.getElementById("home-module-area");if(!area)return;
+  homeListState={module,records,title};homeDetailStack.length=0;area.replaceChildren();area.hidden=false;
+  const view=document.createElement("section");view.className="home-list-view";
+  const header=document.createElement("div");header.className="home-list-heading";
+  const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
+  back.addEventListener("click",()=>{homeListState=null;void loadHomeCatalog();});
+  const heading=document.createElement("h1");heading.textContent=title||module.name;header.append(back,heading);view.append(header);
+  const list=document.createElement("div");list.className="home-list-grid";
+  records.forEach(record=>list.append(renderHomeCard(module,record,()=>openHomeDetail(module,record))));
+  view.append(list);area.append(view);
+}
 async function loadHomeCatalog() {
   const area=document.getElementById("home-module-area");
   if(!area)return;
-  homeDetailStack.length=0;area.replaceChildren();area.hidden=true;
-  const {data:setting,error:settingsError}=await supabase.from("Settings")
-    .select("setting_value,visibility_roles").eq("setting_key","home_modules").maybeSingle();
-  if(settingsError)return;
+  homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=true;
+  const [{data:setting,error:settingsError},{data:moduleRows,error:moduleError}]=await Promise.all([
+    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_modules").maybeSingle(),
+    supabase.from("modules").select("*").eq("status","published").order("sort_order").order("name")
+  ]);
+  if(settingsError||moduleError)return;
   if(setting&&!(setting.visibility_roles||[]).includes("visitor"))return;
   const savedModules=Array.isArray(setting?.setting_value?.modules)?setting.setting_value.modules:[];
-  const configured=[...savedModules,...HOME_MODULE_TYPES.filter(item=>!savedModules.some(saved=>saved?.key===item.key))
-    .map((item,index)=>({key:item.key,title:item.key.replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase()),sort_order:(savedModules.length+index+1)*10,visibility_roles:["owner","visitor"]}))];
-  const visible=configured.filter(item=>item&&typeof item.key==="string"&&Array.isArray(item.visibility_roles)&&item.visibility_roles.includes("visitor"))
-    .filter(item=>HOME_MODULE_TYPES.some(approved=>approved.key===item.key))
-    .sort((a,b)=>(Number(a.sort_order)||0)-(Number(b.sort_order)||0));
-  const keys=[...new Set(visible.map(item=>item.key))];if(!keys.length)return;
-  const {data:moduleRows,error:moduleError}=await supabase.from("modules").select("*").in("module_key",keys).eq("status","published");
-  if(moduleError)return;
-  const byKey=new Map((moduleRows||[]).map(m=>[m.module_key,m]));
-  for(const config of visible){
-    const module=byKey.get(config.key);if(!module)continue;
+  const savedByKey=new Map(savedModules.filter(item=>item&&typeof item.key==="string").map(item=>[item.key,item]));
+  const configured=(moduleRows||[]).map((module,index)=>{
+    const saved=savedByKey.get(module.module_key);
+    return {module,title:typeof saved?.title==="string"&&saved.title.trim()?saved.title.trim():module.name,
+      sort_order:Number(saved?.sort_order)||Number(module.sort_order)||((index+1)*10),
+      visibility_roles:Array.isArray(saved?.visibility_roles)?saved.visibility_roles:["owner","visitor"]};
+  }).filter(item=>item.visibility_roles.includes("visitor"))
+    .sort((left,right)=>left.sort_order-right.sort_order);
+  for(const config of configured){
+    const module=config.module;
     try{
       const {data,error}=await supabase.from("content_items").select("id,title,slug,status,visibility_roles,field_values")
-        .eq("module_id",module.id).in("status",["active","published"]).order("sort_order").order("created_at",{ascending:false}).limit(50);
+        .eq("module_id",module.id).in("status",["active","published"]).order("sort_order").order("created_at",{ascending:false}).limit(200);
       if(error)continue;
       const records=(data||[]).filter(record=>(record.visibility_roles||[]).includes("visitor"))
         .filter(record=>String(record.title||"").trim());
       if(!records.length)continue;
       const section=document.createElement("section");section.className="home-catalog-section";
       const heading=document.createElement("div");heading.className="home-section-heading";
-      const h2=document.createElement("h2");h2.textContent=typeof config.title==="string"&&config.title.trim()?config.title.trim():module.name;
+      const h2=document.createElement("h2");h2.textContent=config.title;
       heading.append(h2);section.append(heading);
       const grid=document.createElement("div");grid.className="home-card-grid";
-      records.slice(0,4).forEach(record=>grid.append(renderHomeCard(module,record,()=>openHomeDetail(module,record))));
+      records.slice(0,3).forEach(record=>grid.append(renderHomeCard(module,record,()=>openHomeDetail(module,record))));
+      if(records.length>3){
+        const more=document.createElement("button");more.type="button";more.className="home-content-card home-view-all-card";
+        more.textContent="View All";more.setAttribute("aria-label","View all "+config.title);
+        more.addEventListener("click",()=>renderHomeList(module,records,config.title));grid.append(more);
+      }
       section.append(grid);area.append(section);
     }catch(error){console.error("Could not load homepage module.",module.module_key,error);}
   }
