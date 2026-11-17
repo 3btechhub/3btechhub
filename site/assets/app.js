@@ -305,9 +305,9 @@ export async function resolveAuthRoute(requestedPath) {
   const recoveryCallback = accountRoute === "reset-password" &&
     (hashParams.get("type") === "recovery" || url.searchParams.get("recovery") === "1");
 
-  let target = accountRoute || (session ? "profile" : "login");
-  if (!["login","create-account","reset-password","profile","edit-profile"].includes(target)) target = session ? "profile" : "login";
-  if (!session && ["profile","edit-profile"].includes(target)) target = "login";
+  let target = recoveryCallback ? "new-password" : (accountRoute || (session ? "profile" : "login"));
+  if (!["login","create-account","reset-password","verify","new-password","profile","edit-profile"].includes(target)) target = session ? "profile" : "login";
+  if (!session && ["profile","edit-profile","new-password"].includes(target)) target = "login";
   if (session && ["login","create-account"].includes(target)) target = "profile";
   if (session && target === "reset-password" && !recoveryCallback) target = "profile";
 
@@ -349,12 +349,14 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
   const toggle = document.querySelector("#toggle-signup");
   const forgot = document.querySelector("#forgot-password");
   const emailInput = form.elements.email;
+  const nameInput = form.elements.fullName;
   const passwordInput = form.elements.password;
   const otpInput = form.elements.otp;
   const currentAuthUrl = new URL(window.location.href);
   const isPasswordRecoveryCallback = new URLSearchParams(currentAuthUrl.hash.replace(/^#/, "")).get("type") === "recovery" || currentAuthUrl.searchParams.get("recovery") === "1";
   let mode = isPasswordRecoveryCallback ? "recovery-new-password" : (document.querySelector("#app-main")?.dataset.authMode || "login");
-  let recoveryEmail = "";
+  let recoveryEmail = currentAuthUrl.searchParams.get("email") || "";
+  if (mode === "recovery-verify") emailInput.value = recoveryEmail;
 
   function showMessage(text, kind = "") {
     message.textContent = text;
@@ -364,7 +366,7 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
   function render() {
     const signup = mode === "signup";
     const recoveryStart = mode === "recovery-start";
-    const recoveryVerify = mode === "recovery";
+    const recoveryVerify = mode === "recovery-verify" || mode === "recovery";
     const recoveryNewPassword = mode === "recovery-new-password";
     const recoveryFlow = recoveryVerify || recoveryNewPassword;
 
@@ -378,8 +380,8 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
     toggle.textContent = signup || recoveryStart ? "Login" : "Create Account";
     if (recoveryStart) toggle.textContent = "Create Account";
 
-    forgot.hidden = recoveryFlow;
-    toggle.hidden = recoveryFlow;
+    nameInput.hidden = !signup;
+    nameInput.required = signup;
     emailInput.hidden = recoveryFlow;
     emailInput.required = !recoveryFlow;
     emailInput.readOnly = recoveryFlow;
@@ -394,13 +396,13 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
   }
 
   toggle.addEventListener("click", () => {
-    if (mode === "recovery" || mode === "recovery-new-password") return;
+    if (["recovery-verify","recovery","recovery-new-password"].includes(mode)) return;
     const target = mode === "signup" ? "account/login/" : "account/create-account/";
     window.navigateSiteRoute(new URL(target, ROOT_URL).pathname);
   });
 
   forgot.addEventListener("click", () => {
-    if (mode === "recovery" || mode === "recovery-new-password") return;
+    if (["recovery-verify","recovery","recovery-new-password"].includes(mode)) return;
     const target = mode === "recovery-start" ? "account/login/" : "account/reset-password/";
     window.navigateSiteRoute(new URL(target, ROOT_URL).pathname);
   });
@@ -408,12 +410,17 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const email = emailInput.value.trim();
+    const fullName = nameInput.value.trim();
     const password = passwordInput.value;
     const code = otpInput.value.trim();
 
-    if (!email && !["recovery", "recovery-new-password"].includes(mode)) {
+    if (!email && !["recovery-verify", "recovery", "recovery-new-password"].includes(mode)) {
       emailInput.focus();
       return showMessage("Enter your email address.", "error");
+    }
+    if (mode === "signup" && !fullName) {
+      nameInput.focus();
+      return showMessage("Enter your name.", "error");
     }
     if (["login", "signup", "recovery-new-password"].includes(mode) && password.length < 8) {
       passwordInput.focus();
@@ -436,11 +443,9 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
         });
         if (error) throw error;
         recoveryEmail = email;
-        mode = "recovery";
         otpInput.value = "";
-        render();
-        showMessage("A verification code has been sent to your email.", "success");
-      } else if (mode === "recovery") {
+        window.navigateSiteRoute(new URL("account/verify/?email=" + encodeURIComponent(email), ROOT_URL).pathname + "?email=" + encodeURIComponent(email));
+      } else if (mode === "recovery-verify" || mode === "recovery") {
         const { error } = await supabase.auth.verifyOtp({
           email: recoveryEmail,
           token: code,
@@ -448,9 +453,7 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
         });
         if (error) throw error;
         otpInput.value = "";
-        mode = "recovery-new-password";
-        render();
-        showMessage("Code verified. Enter your new password.", "success");
+        window.navigateSiteRoute(new URL("account/new-password/", ROOT_URL).pathname);
       } else if (mode === "recovery-new-password") {
         const { error } = await supabase.auth.updateUser({ password });
         if (error) throw error;
@@ -466,7 +469,7 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: new URL("account/login/", ROOT_URL).href },
+          options: { data: { display_name: fullName, full_name: fullName }, emailRedirectTo: new URL("account/login/", ROOT_URL).href },
         });
         if (error) throw error;
         if (data.session) {
@@ -519,6 +522,7 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
     email: document.querySelector("#profile-email"),
     phone: document.querySelector("#profile-phone"),
   };
+  const roleField = document.querySelector("#profile-role");
   let currentUser = null;
   let currentPhone = "";
   Object.values(fields).forEach((field) => {
@@ -593,6 +597,11 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
     } else {
       currentPhone = profileData?.phone || "";
       setProfileValue("phone", currentPhone, "Phone Number");
+      if (roleField) {
+        const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", currentUser.id);
+        roleField.textContent = (roleRows || []).map(row => row.role).join(", ");
+        roleField.closest(".profile-row").hidden = !roleField.textContent;
+      }
     }
   }
 
