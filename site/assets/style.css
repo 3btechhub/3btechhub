@@ -1798,3 +1798,12 @@ button.home-content-card{font:inherit;color:inherit;text-align:left;border:1px s
 .home-detail-visual>.home-detail-image{margin:0}
 .home-detail-visual>.home-content-fallback,.home-detail-visual>.svg-icon{width:88px;height:88px}
 .home-detail-description{margin:8px 0 20px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--page-text)}
+
+
+/* Global Size tokens apply consistently to forms and card types/items. */
+:root{--control-height:42px;--card-type-padding:16px;--card-item-padding:12px;--card-gap:10px}
+input:not([type="checkbox"]):not([type="radio"]),select{min-height:var(--control-height)}
+textarea{min-height:calc(var(--control-height) * 2)}
+.home-catalog-section{padding-inline:var(--card-type-padding)}
+.home-content-card,.dashboard-record-row,.dashboard-overview-card,.dashboard-module-builder-row,.dashboard-relation-row{padding:var(--card-item-padding);gap:var(--card-gap)}
+.home-card-grid,.home-list-grid{gap:var(--card-gap)}
