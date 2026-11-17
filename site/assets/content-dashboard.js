@@ -386,21 +386,32 @@ export async function initDynamicDashboard(supabase,root,user){
   page.append(form);panel.append(page);
  }
  async function settingsPage(){
-  const page=el("div","dashboard-page");page.append(el("h2","","Settings"),el("p","muted","Website identity and configurable module slugs."));
+  const page=el("div","dashboard-page");page.append(el("h2","","Settings"),el("p","muted","Website identity, navigation menu and configurable module slugs."));
   const {data:rows,error}=await supabase.from("Settings").select("*");
   if(error){page.append(el("p","editor-message",error.message));panel.append(page);return;}
   const map=new Map((rows||[]).map(r=>[r.setting_key,r])),websiteInfo=map.get("website_information")?.setting_value||{},profile=map.get("site_profile")?.setting_value||{},intro=map.get("home_intro")?.setting_value||{},moduleSlugMap=map.get("module_slugs")?.setting_value||{};
   const form=el("form","content-editor-form");
-  form.innerHTML='<h3>Website Identity</h3><label class="module-form-field"><span>Website Title</span><input name="website_title" maxlength="100"></label><label class="module-form-field"><span>Logo URL</span><input name="logo_url" type="url"></label><label class="module-form-field"><span>Home Intro</span><textarea name="intro" rows="4"></textarea></label><h3>Dashboard Module Slugs</h3><div data-slugs></div><div class="editor-actions"><button type="submit">Save Settings</button></div><p class="editor-message" role="status"></p>';
-  form.elements.website_title.value=profile.website_title||websiteInfo.title||"3B TECH HUB";form.elements.logo_url.value=profile.logo_url||websiteInfo.logo_url||"";form.elements.intro.value=intro.content||websiteInfo.intro||"";
+  form.innerHTML='<h3>Website Identity</h3><label class="module-form-field"><span>Website Title</span><input name="website_title" maxlength="100"></label><label class="module-form-field"><span>Logo URL (optional)</span><input name="logo_url" type="url"></label><label class="module-form-field"><span>Upload Website Logo</span><input name="logo_file" type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/gif"></label><label class="module-form-field"><span>Upload Website Favicon</span><input name="favicon_file" type="file" accept="image/png,image/jpeg,image/webp,image/avif,image/gif"></label><label class="module-form-field"><span>Home Intro</span><textarea name="intro" rows="4"></textarea></label><h3>Navigation Menu</h3><div class="module-form-grid"><label class="module-form-field"><span>Logo Swap Interval (seconds)</span><input name="logo_swap_interval_seconds" type="number" min="5" max="60" step="1"></label><label class="module-form-field"><span>Icon Transition Speed (milliseconds)</span><input name="icon_transition_speed_ms" type="number" min="300" max="5000" step="100"></label></div><h3>Dashboard Module Slugs</h3><div data-slugs></div><div class="editor-actions"><button type="submit">Save Settings</button></div><p class="editor-message" role="status"></p>';
+  form.elements.website_title.value=profile.website_title||websiteInfo.title||"3B TECH HUB";form.elements.logo_url.value=profile.logo_url||websiteInfo.logo_url||"";form.elements.intro.value=intro.content||websiteInfo.intro||"";const navigationMenu=map.get("navigation_menu")?.setting_value||{};form.elements.logo_swap_interval_seconds.value=String(navigationMenu.logo_swap_interval_seconds||5);form.elements.icon_transition_speed_ms.value=String(navigationMenu.icon_transition_speed_ms||1400);
   const slugHost=$("[data-slugs]",form);
   modules.forEach(m=>{const l=el("label","module-form-field");l.append(el("span","",m.name));const input=el("input");input.value=moduleSlugMap[m.module_key]||m.slug;input.required=true;input.dataset.moduleId=m.id;input.dataset.moduleKey=m.module_key;l.append(input);slugHost.append(l);});
+  async function uploadBrandAsset(file,kind){
+   if(!file)return null;
+   if(!/^image\/(png|jpeg|webp|avif|gif)$/.test(file.type)||file.size>10*1024*1024)throw new Error("Choose a supported image under 10 MB.");
+   const extension={"image/jpeg":"jpg","image/png":"png","image/webp":"webp","image/avif":"avif","image/gif":"gif"}[file.type]||"png";
+   const path="site/brand/"+kind+"-"+Date.now()+"."+extension;
+   const {data,error}=await supabase.storage.from("site-media").upload(path,file,{contentType:file.type,upsert:true});if(error)throw error;
+   return supabase.storage.from("site-media").getPublicUrl(data.path).data.publicUrl;
+  }
   form.addEventListener("submit",async e=>{e.preventDefault();const button=form.querySelector('[type="submit"]'),msg=$(".editor-message",form);button.disabled=true;
    try{
-    const websiteValue={...websiteInfo,title:form.elements.website_title.value.trim(),intro:form.elements.intro.value.trim(),logo_url:form.elements.logo_url.value.trim()};
+    const uploadedLogo=await uploadBrandAsset(form.elements.logo_file.files[0],"logo"),uploadedFavicon=await uploadBrandAsset(form.elements.favicon_file.files[0],"favicon");
+    const websiteValue={...websiteInfo,title:form.elements.website_title.value.trim(),intro:form.elements.intro.value.trim(),logo_url:uploadedLogo||form.elements.logo_url.value.trim(),favicon_url:uploadedFavicon||websiteInfo.favicon_url||profile.favicon_url||""};
+    const navigationValue={logo_swap_interval_seconds:Math.max(5,Math.min(60,Number(form.elements.logo_swap_interval_seconds.value)||5)),icon_transition_speed_ms:Math.max(300,Math.min(5000,Number(form.elements.icon_transition_speed_ms.value)||1400))};
     const settings=[
      {setting_key:"website_information",setting_value:websiteValue,visibility_roles:["owner","visitor"],description:"Website information"},
-     {setting_key:"site_profile",setting_value:{...profile,website_title:websiteValue.title,logo_url:websiteValue.logo_url},visibility_roles:["owner","visitor"],description:"Website identity"},
+     {setting_key:"site_profile",setting_value:{...profile,website_title:websiteValue.title,logo_url:websiteValue.logo_url,favicon_url:websiteValue.favicon_url},visibility_roles:["owner","visitor"],description:"Website identity"},
+     {setting_key:"navigation_menu",setting_value:navigationValue,visibility_roles:["owner"],description:"Navigation menu animation preferences"},
      {setting_key:"home_intro",setting_value:{content:websiteValue.intro},visibility_roles:["owner","visitor"],description:"Homepage introduction"}
     ];
     const {error:se}=await supabase.from("Settings").upsert(settings,{onConflict:"setting_key"});if(se)throw se;
@@ -408,7 +419,7 @@ export async function initDynamicDashboard(supabase,root,user){
     for(const input of $("[data-module-id]",slugHost)){const slug=slugify(input.value);if(!slug)throw new Error("Module slugs cannot be empty.");const {error:me}=await supabase.from("modules").update({slug}).eq("id",input.dataset.moduleId);if(me)throw me;nextModuleSlugs[input.dataset.moduleKey]=slug;}
     const {error:slugSettingError}=await supabase.from("Settings").upsert({setting_key:"module_slugs",setting_value:nextModuleSlugs,visibility_roles:["owner"],description:"Dashboard module slugs"},{onConflict:"setting_key"});
     if(slugSettingError)throw slugSettingError;
-    msg.textContent="Settings saved.";msg.dataset.kind="success";await reloadRegistry();
+    msg.textContent="Settings saved.";msg.dataset.kind="success";await reloadRegistry();await window.__applyPublicSiteSettings?.();
    }catch(err){msg.textContent=err.message||"Could not save settings.";msg.dataset.kind="error";}
    finally{button.disabled=false;}
   });
