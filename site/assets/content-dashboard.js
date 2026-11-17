@@ -3,7 +3,7 @@ const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelect
 const el=(tag,cls="",text="")=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n;};
 const slugify=v=>String(v||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const labelize=v=>String(v||"").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());
-const HOME_DEFAULT=["services","products","what_we_do","workshops","technicians"];
+const HOME_DEFAULT=[];
 
 function fieldControl(field,value,options=[]){
  const wrap=el("label","module-form-field"),caption=el("span","",field.label||labelize(field.field_key));
@@ -261,9 +261,9 @@ export async function initDynamicDashboard(supabase,root,user){
   const {data:setting,error}=await supabase.from("Settings").select("setting_value").eq("setting_key","home_modules").maybeSingle();
   if(error){page.append(el("p","editor-message",error.message));panel.append(page);return;}
   const current=setting?.setting_value?.modules||[],form=el("form","content-editor-form");
-  modules.filter(m=>m.status==="published"&&HOME_DEFAULT.includes(m.module_key)).forEach((m,i)=>{
+  modules.filter(m=>m.status==="published").forEach((m,i)=>{
    const c=current.find(x=>x.key===m.module_key),row=el("div","dashboard-home-module-row");row.dataset.key=m.module_key;
-   const visible=el("input");visible.type="checkbox";visible.checked=c?c.visibility_roles?.includes("visitor"):HOME_DEFAULT.includes(m.module_key);
+   const visible=el("input");visible.type="checkbox";visible.checked=c?c.visibility_roles?.includes("visitor"):true;
    const title=el("input");title.value=c?.title||m.name;title.maxLength=100;
    const order=el("input");order.type="number";order.min="1";order.value=String(c?.sort_order??(i+1)*10);
    row.append(visible,el("strong","",m.name),el("span","","Display title"),title,el("span","","Order"),order);form.append(row);
