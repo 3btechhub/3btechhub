@@ -1,4 +1,4 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-global-style-20261118-1";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-completion-20261118-1";
 import { initExtendedDashboard } from "./admin-extended.js?v=20261115-dashboard-recovery-2";
 import { initDynamicDashboard } from "./content-dashboard.js?v=notion-completion-20261118-2";
 import { createContactIcon } from "./contact-utils.js";
@@ -374,17 +374,7 @@ export async function initRoutePage() {
   window.__routeAuthSubscriptions = [];
   applyEnglishText();
   renderSvgIconAttributes(document);
-  const visitorKeyName="3b-visitor-key";let visitorKey=localStorage.getItem(visitorKeyName);if(!visitorKey){visitorKey=crypto.randomUUID();localStorage.setItem(visitorKeyName,visitorKey);}
-  const ua=navigator.userAgent,device=/tablet|ipad/i.test(ua)?"tablet":/mobile|android|iphone/i.test(ua)?"mobile":"desktop";
-  const os=/android/i.test(ua)?"Android":/iphone|ipad|ios/i.test(ua)?"iOS":/windows/i.test(ua)?"Windows":/mac os/i.test(ua)?"macOS":/linux/i.test(ua)?"Linux":"unknown";
-  const browser=/edg\//i.test(ua)?"Edge":/firefox\//i.test(ua)?"Firefox":/chrome\//i.test(ua)?"Chrome":/safari\//i.test(ua)?"Safari":"unknown";
-  if(navigator.doNotTrack!=="1") {
-    void fetch(SUPABASE_URL+"/functions/v1/visitor-analytics",{
-      method:"POST",
-      headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify({visitor_key:visitorKey,page_path:location.pathname,referrer:document.referrer||"",device,operating_system:os,browser})
-    }).catch(error=>console.debug("Visitor analytics unavailable.",error));
-  }
+  // Visitor analytics are intentionally not collected.
   
   const accountMode = document.querySelector("#app-main")?.dataset.authMode || "login";
   const accountAuthLayout = document.querySelector("#account-auth-layout");
