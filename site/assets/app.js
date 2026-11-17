@@ -304,7 +304,7 @@ async function loadMenuPreferences(){
   ]);
   if(countrySelect&&!countriesResult.error){
     const rows=countriesResult.data||[],saved=localStorage.getItem("3b-country")||"global";
-    countrySelect.replaceChildren(...rows.map(row=>new Option(row.name,row.slug||row.name.toLowerCase().replace(/\\s+/g,"-"))));
+    countrySelect.replaceChildren(...rows.map(row=>new Option(row.name,row.slug||row.name.toLowerCase().replace(/\s+/g,"-"))));
     countrySelect.value=rows.some(row=>(row.slug||"")===saved)?saved:(rows.find(row=>row.slug==="global")?.slug||rows[0]?.slug||"");
     document.documentElement.dataset.country=countrySelect.value;
   }
