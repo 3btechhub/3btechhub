@@ -629,6 +629,12 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
       enableInlineEdit(button);
     });
   });
+  document.querySelector("#profile-logout")?.addEventListener("click", async () => {
+    const button=document.querySelector("#profile-logout");button.disabled=true;
+    const {error}=await supabase.auth.signOut();button.disabled=false;
+    if(error){profileMessage(error.message||"Could not log out.","error");return;}
+    setMenuSession(null);window.navigateSiteRoute(new URL("home/",ROOT_URL).pathname,{replace:true});
+  });
   document.querySelector("#profile-password-edit").addEventListener("click", (event) => {
     const fieldsBox = document.querySelector("#profile-password-fields");
     const button = event.currentTarget;
@@ -719,8 +725,10 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
         field.contentEditable = "false";
         field.classList.remove("is-editing");
         const editButton = field.closest(".profile-row").querySelector("[data-edit-field]");
-        editButton.dataset.saving = "false";
-        editButton.textContent = "Edit";
+        if (editButton) {
+          editButton.dataset.saving = "false";
+          editButton.textContent = "Edit";
+        }
       });
       document.querySelector("#profile-password-fields").hidden = true;
       const passwordEditButton = document.querySelector("#profile-password-edit");
