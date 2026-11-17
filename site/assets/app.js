@@ -126,14 +126,19 @@ async function renderHomeDetail(){
   const view=document.createElement("section");view.className="home-detail-view";
   const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
   back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else if(homeListState)renderHomeList(homeListState.module,homeListState.records,homeListState.title);else void loadHomeCatalog();});
-  const heading=document.createElement("h1");heading.textContent=record.title||"Details";
-  const top=document.createElement("div");top.className="home-detail-heading";top.append(back,heading);view.append(top);
+  const top=document.createElement("div");top.className="home-detail-heading";top.append(back);view.append(top);
   const gallery=Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls:[];
   const imageUrl=record.field_values?.photo_url||gallery[0]||"";
-  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.title||"";view.append(img);}
+  const visual=document.createElement("div");visual.className="home-detail-visual";
+  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.title||"";visual.append(img);}
+  else visual.append(getItemFallbackIcon(record.title||module.name,module.module_key));
+  view.append(visual);
+  const heading=document.createElement("h1");heading.textContent=record.title||"Details";view.append(heading);
+  const description=typeof record.field_values?.description==="string"?record.field_values.description.trim():"";
+  if(description){const summary=document.createElement("p");summary.className="home-detail-description";summary.textContent=description;view.append(summary);}
   const fieldsResult=await supabase.from("module_fields").select("*").eq("module_id",module.id).eq("is_active",true).order("sort_order");
   const fieldHost=document.createElement("div");fieldHost.className="home-detail-fields";
-  const skip=new Set(["title","slug","photo_url","gallery_urls","visibility_roles"]);
+  const skip=new Set(["title","slug","description","photo_url","gallery_urls","visibility_roles"]);
   for(const field of fieldsResult.data||[]){
     if(skip.has(field.field_key)||field.field_type==="relation")continue;
     const value=record.field_values?.[field.field_key];
