@@ -1,6 +1,6 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-global-style-20261118-1";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-completion-20261118-1";
 import { initExtendedDashboard } from "./admin-extended.js?v=20261115-dashboard-recovery-2";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-global-style-20261118-3";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-completion-20261118-3";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
@@ -76,10 +76,16 @@ function closeSiteMenu() {
 }
 async function setMenuSession(session) {
   if (accountMenuLink) { accountMenuLink.href=new URL("account/login/",ROOT_URL).href; accountMenuLink.hidden=Boolean(session); }
+  let roles=[];
+  if(session?.user?.id){
+    const {data,error}=await supabase.from("user_roles").select("role").eq("user_id",session.user.id);
+    if(!error)roles=(data||[]).map(row=>String(row.role||"").toLowerCase());
+  }
+  const registered=roles.some(role=>["owner","admin","member"].includes(role));
   if (profileMenuLink) profileMenuLink.href=new URL("account/profile/",ROOT_URL).href;
-  if (profileMenuLink) profileMenuLink.hidden=!session;
-  if (logoutMenuLink) logoutMenuLink.hidden=!session;
-  if (dashboardMenuLink) { dashboardMenuLink.hidden=true; if(session?.user?.id){const {data,error}=await supabase.from("user_roles").select("role").eq("user_id",session.user.id).in("role",["owner","admin"]).limit(1).maybeSingle();if(!error&&data?.role)dashboardMenuLink.hidden=false;} }
+  if (profileMenuLink) profileMenuLink.hidden=!registered;
+  if (logoutMenuLink) logoutMenuLink.hidden=!registered;
+  if (dashboardMenuLink) dashboardMenuLink.hidden=!(roles.includes("owner")||roles.includes("admin"));
 }
 // Load authentication separately so a Supabase CDN issue cannot disable the menu.
 const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
@@ -120,14 +126,19 @@ async function renderHomeDetail(){
   const view=document.createElement("section");view.className="home-detail-view";
   const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
   back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else if(homeListState)renderHomeList(homeListState.module,homeListState.records,homeListState.title);else void loadHomeCatalog();});
-  const heading=document.createElement("h1");heading.textContent=record.title||"Details";
-  const top=document.createElement("div");top.className="home-detail-heading";top.append(back,heading);view.append(top);
+  const top=document.createElement("div");top.className="home-detail-heading";top.append(back);view.append(top);
   const gallery=Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls:[];
   const imageUrl=record.field_values?.photo_url||gallery[0]||"";
-  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.title||"";view.append(img);}
+  const visual=document.createElement("div");visual.className="home-detail-visual";
+  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.title||"";visual.append(img);}
+  else visual.append(getItemFallbackIcon(record.title||module.name,module.module_key));
+  view.append(visual);
+  const heading=document.createElement("h1");heading.textContent=record.title||"Details";view.append(heading);
+  const description=typeof record.field_values?.description==="string"?record.field_values.description.trim():"";
+  if(description){const summary=document.createElement("p");summary.className="home-detail-description";summary.textContent=description;view.append(summary);}
   const fieldsResult=await supabase.from("module_fields").select("*").eq("module_id",module.id).eq("is_active",true).order("sort_order");
   const fieldHost=document.createElement("div");fieldHost.className="home-detail-fields";
-  const skip=new Set(["title","slug","photo_url","gallery_urls","visibility_roles"]);
+  const skip=new Set(["title","slug","description","photo_url","gallery_urls","visibility_roles"]);
   for(const field of fieldsResult.data||[]){
     if(skip.has(field.field_key)||field.field_type==="relation")continue;
     const value=record.field_values?.[field.field_key];
@@ -284,6 +295,39 @@ supabase.auth.onAuthStateChange((_event, session) => {
   setMenuSession(session);
 });
 const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
+const languageSelect=document.getElementById("language-select");
+const countrySelect=document.getElementById("country-select");
+async function loadMenuPreferences(){
+  const [countriesResult,languagesResult]=await Promise.all([
+    supabase.from("countries").select("name,slug,status,sort_order").eq("status","active").order("sort_order"),
+    supabase.from("languages").select("title,slug,status,is_default,sort_order").eq("status","active").order("sort_order")
+  ]);
+  if(countrySelect&&!countriesResult.error){
+    const rows=countriesResult.data||[],saved=localStorage.getItem("3b-country")||"global";
+    countrySelect.replaceChildren(...rows.map(row=>new Option(row.name,row.slug||row.name.toLowerCase().replace(/\s+/g,"-"))));
+    countrySelect.value=rows.some(row=>(row.slug||"")===saved)?saved:(rows.find(row=>row.slug==="global")?.slug||rows[0]?.slug||"");
+    document.documentElement.dataset.country=countrySelect.value;
+  }
+  if(languageSelect&&!languagesResult.error){
+    const rows=languagesResult.data||[],saved=localStorage.getItem("3b-language")||"";
+    languageSelect.replaceChildren(...rows.map(row=>new Option(row.title,row.slug)));
+    languageSelect.value=rows.some(row=>row.slug===saved)?saved:(rows.find(row=>row.is_default)?.slug||rows[0]?.slug||"en");
+    document.documentElement.lang=languageSelect.value;
+    document.documentElement.dataset.language=languageSelect.value;
+  }
+}
+countrySelect?.addEventListener("change",()=>{
+  localStorage.setItem("3b-country",countrySelect.value);
+  document.documentElement.dataset.country=countrySelect.value;
+  window.dispatchEvent(new CustomEvent("site-country-changed",{detail:{country:countrySelect.value}}));
+});
+languageSelect?.addEventListener("change",()=>{
+  localStorage.setItem("3b-language",languageSelect.value);
+  document.documentElement.lang=languageSelect.value;
+  document.documentElement.dataset.language=languageSelect.value;
+  window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:languageSelect.value}}));
+});
+void loadMenuPreferences();
 const headerBrandLogo=document.querySelector(".brand-logo");
 if(headerBrandLogo){
   headerBrandLogo.setAttribute("role","button");headerBrandLogo.tabIndex=0;headerBrandLogo.setAttribute("aria-label","Go to Home");
@@ -330,17 +374,7 @@ export async function initRoutePage() {
   window.__routeAuthSubscriptions = [];
   applyEnglishText();
   renderSvgIconAttributes(document);
-  const visitorKeyName="3b-visitor-key";let visitorKey=localStorage.getItem(visitorKeyName);if(!visitorKey){visitorKey=crypto.randomUUID();localStorage.setItem(visitorKeyName,visitorKey);}
-  const ua=navigator.userAgent,device=/tablet|ipad/i.test(ua)?"tablet":/mobile|android|iphone/i.test(ua)?"mobile":"desktop";
-  const os=/android/i.test(ua)?"Android":/iphone|ipad|ios/i.test(ua)?"iOS":/windows/i.test(ua)?"Windows":/mac os/i.test(ua)?"macOS":/linux/i.test(ua)?"Linux":"unknown";
-  const browser=/edg\//i.test(ua)?"Edge":/firefox\//i.test(ua)?"Firefox":/chrome\//i.test(ua)?"Chrome":/safari\//i.test(ua)?"Safari":"unknown";
-  if(navigator.doNotTrack!=="1") {
-    void fetch(SUPABASE_URL+"/functions/v1/visitor-analytics",{
-      method:"POST",
-      headers:{"apikey":SUPABASE_PUBLISHABLE_KEY,"Content-Type":"application/json"},
-      body:JSON.stringify({visitor_key:visitorKey,page_path:location.pathname,referrer:document.referrer||"",device,operating_system:os,browser})
-    }).catch(error=>console.debug("Visitor analytics unavailable.",error));
-  }
+  // Visitor analytics are intentionally not collected.
   
   const accountMode = document.querySelector("#app-main")?.dataset.authMode || "login";
   const accountAuthLayout = document.querySelector("#account-auth-layout");
@@ -358,6 +392,7 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
   const nameInput = form.elements.fullName;
   const passwordInput = form.elements.password;
   const otpInput = form.elements.otp;
+  const confirmPasswordInput = form.elements.confirmPassword;
   const currentAuthUrl = new URL(window.location.href);
   const isPasswordRecoveryCallback = new URLSearchParams(currentAuthUrl.hash.replace(/^#/, "")).get("type") === "recovery" || currentAuthUrl.searchParams.get("recovery") === "1";
   let mode = isPasswordRecoveryCallback ? "recovery-new-password" : (document.querySelector("#app-main")?.dataset.authMode || "login");
@@ -395,6 +430,11 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
     emailInput.readOnly = recoveryFlow;
     passwordInput.hidden = recoveryStart || recoveryVerify;
     passwordInput.required = !recoveryStart && !recoveryVerify;
+    if (confirmPasswordInput) {
+      confirmPasswordInput.hidden = !recoveryNewPassword;
+      confirmPasswordInput.required = recoveryNewPassword;
+      confirmPasswordInput.autocomplete = "new-password";
+    }
     passwordInput.autocomplete = signup || recoveryNewPassword ? "new-password" : "current-password";
     passwordInput.placeholder = recoveryNewPassword ? "New Password" : "Password";
     passwordInput.setAttribute("aria-label", recoveryNewPassword ? "New Password" : "Password");
@@ -434,14 +474,18 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
       passwordInput.focus();
       return showMessage("Password must be at least 8 characters.", "error");
     }
-    if (mode === "recovery" && !/^\d{6,8}$/.test(code)) {
+    if (mode === "recovery-new-password" && password !== confirmPasswordInput?.value) {
+      confirmPasswordInput?.focus();
+      return showMessage("New passwords do not match.", "error");
+    }
+    if (["recovery-verify", "recovery"].includes(mode) && !/^\d{6,8}$/.test(code)) {
       otpInput.focus();
       return showMessage("Enter the verification code from your email.", "error");
     }
 
     submit.disabled = true;
     showMessage(mode === "recovery-start" ? "Sending verification code…"
-      : mode === "recovery" ? "Verifying code…"
+       : ["recovery-verify", "recovery"].includes(mode) ? "Verifying code…"
       : mode === "recovery-new-password" ? "Updating password…"
       : mode === "signup" ? "Creating account…" : "Signing in…");
     try {
@@ -575,6 +619,12 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
       enableInlineEdit(button);
     });
   });
+  document.querySelector("#profile-logout")?.addEventListener("click", async () => {
+    const button=document.querySelector("#profile-logout");button.disabled=true;
+    const {error}=await supabase.auth.signOut();button.disabled=false;
+    if(error){profileMessage(error.message||"Could not log out.","error");return;}
+    setMenuSession(null);window.navigateSiteRoute(new URL("home/",ROOT_URL).pathname,{replace:true});
+  });
   document.querySelector("#profile-password-edit").addEventListener("click", (event) => {
     const fieldsBox = document.querySelector("#profile-password-fields");
     const button = event.currentTarget;
@@ -665,13 +715,15 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
         field.contentEditable = "false";
         field.classList.remove("is-editing");
         const editButton = field.closest(".profile-row").querySelector("[data-edit-field]");
-        editButton.dataset.saving = "false";
-        editButton.textContent = "Edit";
+        if (editButton) {
+          editButton.dataset.saving = "false";
+          editButton.textContent = "Edit Name";
+        }
       });
       document.querySelector("#profile-password-fields").hidden = true;
       const passwordEditButton = document.querySelector("#profile-password-edit");
       passwordEditButton.dataset.saving = "false";
-      passwordEditButton.textContent = "Edit";
+      passwordEditButton.textContent = "Change Password";
       form.reset();
       await loadProfile();
       profileMessage(

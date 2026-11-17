@@ -9,6 +9,8 @@
       <input id="otp" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="Code" minlength="6" maxlength="8" pattern="[0-9]{6,8}" hidden>
       <label class="visually-hidden" for="password">Password</label>
       <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Password" data-placeholder="password" minlength="8" maxlength="256" required>
+      <label class="visually-hidden" for="confirm-password">Confirm New Password</label>
+      <input id="confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Confirm New Password" minlength="8" maxlength="256" hidden>
       <p id="auth-message" class="auth-message" role="status" aria-live="polite"></p>
       <button id="auth-submit" type="submit">Login</button>
       <div class="auth-links">
@@ -19,12 +21,13 @@
   </section>
   <section id="profile-card" class="auth-main profile-form" hidden>
     <form class="profile-inline-form" id="profile-edit-form">
-      <div class="profile-row"><span class="profile-value" id="profile-name" data-profile-field="name" data-placeholder="name" contenteditable="false" role="textbox" aria-label="Name"></span><button class="profile-inline-edit" type="button" data-edit-field="name" data-label="edit">Edit</button></div>
-      <div class="profile-row"><span class="profile-value" id="profile-email" data-profile-field="email" data-placeholder="email" contenteditable="false" role="textbox" aria-label="Email"></span><button class="profile-inline-edit" type="button" data-edit-field="email" data-label="edit">Edit</button></div>
-      <div class="profile-row"><span class="profile-value" id="profile-phone" data-profile-field="phone" data-placeholder="phoneNumber" contenteditable="false" role="textbox" aria-label="Phone Number"></span><button class="profile-inline-edit" type="button" data-edit-field="phone" data-label="edit">Edit</button></div>
+      <div class="profile-row"><span class="profile-value" id="profile-name" data-profile-field="name" data-placeholder="name" contenteditable="false" role="textbox" aria-label="Name"></span><button class="profile-inline-edit" type="button" data-edit-field="name">Edit Name</button></div>
+      <div class="profile-row"><span class="profile-value" id="profile-email" data-profile-field="email" data-placeholder="email" contenteditable="false" aria-label="Email"></span></div>
+      <div class="profile-row" hidden><span class="profile-value" id="profile-phone" data-profile-field="phone" data-placeholder="phoneNumber" contenteditable="false" aria-label="Phone Number"></span></div>
       <div class="profile-row profile-readonly-row"><strong>Role</strong><span class="profile-value" id="profile-role" aria-label="Role"></span></div>
-      <div class="profile-row"><span class="profile-value profile-password-value" data-placeholder="password" aria-label="Password is hidden">••••••••</span><button class="profile-inline-edit" id="profile-password-edit" type="button" data-label="edit">Edit</button></div>
+      <div class="profile-row"><span class="profile-value profile-password-value" data-placeholder="password" aria-label="Password is hidden">••••••••</span><button class="profile-inline-edit" id="profile-password-edit" type="button">Change Password</button></div>
       <fieldset class="profile-password-fields" id="profile-password-fields" hidden><legend data-label="changePassword">Change Password</legend><input name="currentPassword" type="password" autocomplete="current-password" placeholder="Current Password" data-placeholder="currentPassword" aria-label="Current Password" data-aria-label="currentPassword"><input name="newPassword" type="password" autocomplete="new-password" minlength="8" maxlength="256" placeholder="New Password" data-placeholder="newPassword" aria-label="New Password" data-aria-label="newPassword"><input name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="256" placeholder="Confirm New Password" data-placeholder="confirmPassword" aria-label="Confirm New Password" data-aria-label="confirmPassword"></fieldset>
+      <button id="profile-logout" class="secondary-button" type="button">Logout</button>
       <button id="profile-save" type="submit" hidden aria-hidden="true" tabindex="-1"></button>
     </form>
     <p id="profile-message" class="auth-message" role="status" aria-live="polite"></p>

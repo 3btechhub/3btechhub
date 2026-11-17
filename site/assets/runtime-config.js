@@ -32,9 +32,9 @@ const PALETTE_PRESETS = Object.freeze({
 });
 
 const SIZE_PRESETS = Object.freeze({
-  small: {small:"11px",medium:"14px",large:"clamp(22px,2.8vw,30px)"},
-  medium: {small:"12px",medium:"15px",large:"clamp(24px,3vw,34px)"},
-  large: {small:"13px",medium:"16px",large:"clamp(26px,3.4vw,38px)"}
+  small: {small:"11px",medium:"14px",large:"clamp(22px,2.8vw,30px)",control:"36px",typeCard:"12px",itemCard:"8px",cardGap:"8px"},
+  medium: {small:"12px",medium:"15px",large:"clamp(24px,3vw,34px)",control:"42px",typeCard:"16px",itemCard:"12px",cardGap:"10px"},
+  large: {small:"13px",medium:"16px",large:"clamp(26px,3.4vw,38px)",control:"48px",typeCard:"20px",itemCard:"16px",cardGap:"12px"}
 });
 
 function isMonochromeHex(value) {
@@ -107,7 +107,11 @@ export function applyRuntimeConfig(config, theme = "light", root = document.docu
     root.style.setProperty("--text-small", size.small);
     root.style.setProperty("--text-medium", size.medium);
     root.style.setProperty("--text-large", size.large);
-    applied += 3;
+    root.style.setProperty("--control-height", size.control);
+    root.style.setProperty("--card-type-padding", size.typeCard);
+    root.style.setProperty("--card-item-padding", size.itemCard);
+    root.style.setProperty("--card-gap", size.cardGap);
+    applied += 7;
   }
 
   if (isPlainObject(config.layout)) {

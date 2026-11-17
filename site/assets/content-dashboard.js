@@ -164,9 +164,49 @@ export async function initDynamicDashboard(supabase,root,user){
   page.append(health);panel.append(page);
  }
  async function relationsPage(){
-  const page=el("div","dashboard-page");page.append(el("h2","","Relations"),el("p","muted","Each Item-to-Item relationship is stored once and displayed from either side."));
+  const page=el("div","dashboard-page");page.append(el("h2","","Relations"),el("p","muted","Create and manage links between existing Content Items. Relationships are bidirectional; Items are never created here."));
+  const form=el("form","content-editor-form");
+  form.innerHTML='<h3 data-relation-form-title>Create Relation</h3><div class="module-form-grid"><label class="module-form-field"><span>Source Type</span><select name="sourceType" required></select></label><label class="module-form-field"><span>Source Name</span><select name="sourceName" required><option value="">Select Item</option></select></label><label class="module-form-field"><span>Target Type</span><select name="targetType" required></select></label><label class="module-form-field"><span>Target Name</span><select name="targetName" required><option value="">Select Item</option></select></label></div><div class="editor-actions"><button type="submit">Save Relation</button><button type="button" class="secondary-button" data-relation-cancel hidden>Cancel</button></div><p class="editor-message" role="status"></p>';
+  const sourceType=form.elements.sourceType,sourceName=form.elements.sourceName,targetType=form.elements.targetType,targetName=form.elements.targetName;
+  for(const select of [sourceType,targetType]){select.append(new Option("Select Type",""));modules.forEach(m=>select.append(new Option(m.name,m.id)));}
+  let editingRelationId=null;
+  async function fillItems(typeSelect,itemSelect,selectedId=""){
+   const moduleId=typeSelect.value;itemSelect.replaceChildren(new Option("Select Item",""));if(!moduleId)return;
+   const role=String(user?.role||"owner").toLowerCase();
+   let query=supabase.from("content_items").select("id,title,status,visibility_roles").eq("module_id",moduleId).in("status",["active","published"]).contains("visibility_roles",[role]).order("title").limit(200);
+   const {data,error}=await query;if(error)throw error;
+   const rows=[...(data||[])];
+   if(selectedId&&!rows.some(row=>row.id===selectedId)){
+    const {data:existing,error:existingError}=await supabase.from("content_items").select("id,title,status,visibility_roles").eq("id",selectedId).maybeSingle();
+    if(existingError)throw existingError;
+    if(existing)rows.push(existing);
+   }
+   rows.forEach(item=>itemSelect.append(new Option(item.title,item.id)));
+   itemSelect.value=selectedId||"";
+  }
+  sourceType.addEventListener("change",()=>void fillItems(sourceType,sourceName).catch(error=>{form.querySelector(".editor-message").textContent=error.message;form.querySelector(".editor-message").dataset.kind="error";}));
+  targetType.addEventListener("change",()=>void fillItems(targetType,targetName).catch(error=>{form.querySelector(".editor-message").textContent=error.message;form.querySelector(".editor-message").dataset.kind="error";}));
+  function resetRelationForm(){
+   editingRelationId=null;form.reset();sourceName.replaceChildren(new Option("Select Item",""));targetName.replaceChildren(new Option("Select Item",""));
+   form.querySelector("[data-relation-form-title]").textContent="Create Relation";form.querySelector('[data-relation-cancel]').hidden=true;form.querySelector(".editor-message").textContent="";
+  }
+  form.querySelector('[data-relation-cancel]').addEventListener("click",resetRelationForm);
+  form.addEventListener("submit",async event=>{
+   event.preventDefault();const button=form.querySelector('[type="submit"]'),message=form.querySelector(".editor-message");
+   const a=sourceName.value,b=targetName.value;if(!a||!b){message.textContent="Select both existing Items.";message.dataset.kind="error";return;}
+   if(a===b){message.textContent="An Item cannot be related to itself.";message.dataset.kind="error";return;}
+   button.disabled=true;message.textContent="Saving…";
+   try{
+    const payload={item_a_id:a<b?a:b,item_b_id:a<b?b:a};
+    const result=editingRelationId?await supabase.from("relations").update(payload).eq("id",editingRelationId):await supabase.from("relations").insert(payload);
+    if(result.error)throw result.error;
+    message.textContent="Relation saved.";message.dataset.kind="success";resetRelationForm();await load();
+   }catch(error){message.textContent=error.message||"Could not save the relation.";message.dataset.kind="error";}
+   finally{button.disabled=false;}
+  });
   const filter=el("select");filter.append(new Option("All modules",""));modules.forEach(m=>filter.append(new Option(m.name,m.id)));
-  const toolbar=el("div","dashboard-toolbar");toolbar.append(el("label","","Filter by module"),filter);const list=el("div","dashboard-relation-list");page.append(toolbar,list);panel.append(page);
+  const search=el("input");search.type="search";search.placeholder="Search related items…";search.setAttribute("aria-label","Search relationships");
+  const toolbar=el("div","dashboard-toolbar");toolbar.append(el("label","","Filter by module"),filter,search);const list=el("div","dashboard-relation-list");page.append(form,toolbar,list);panel.append(page);
   async function load(){
    list.replaceChildren();const {data:rels,error}=await supabase.from("relations").select("*").order("created_at",{ascending:false}).limit(500);
    if(error){list.append(el("p","editor-message",error.message));return;}
@@ -174,16 +214,23 @@ export async function initDynamicDashboard(supabase,root,user){
    const {data:items,error:itemError}=await supabase.from("content_items").select("id,title,module_id").in("id",ids);
    if(itemError){list.append(el("p","editor-message",itemError.message));return;}
    const byId=new Map((items||[]).map(i=>[i.id,i])),byModule=new Map(modules.map(m=>[m.id,m]));
-   const visible=(rels||[]).filter(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id);return a&&b&&(!filter.value||a.module_id===filter.value||b.module_id===filter.value);});
+   const term=search.value.trim().toLocaleLowerCase();
+   const visible=(rels||[]).filter(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id);if(!a||!b||(filter.value&&a.module_id!==filter.value&&b.module_id!==filter.value))return false;const ma=byModule.get(a.module_id)?.name||"",mb=byModule.get(b.module_id)?.name||"";return !term||[a.title,b.title,ma,mb].some(value=>String(value).toLocaleLowerCase().includes(term));});
    if(!visible.length){list.append(el("p","muted","No matching relationships."));return;}
-   visible.forEach(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id),row=el("article","dashboard-relation-row");
+   visible.forEach(r=>{
+    const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id),row=el("article","dashboard-relation-row");
     const left=el("div");left.append(el("strong","",a.title),el("small","",byModule.get(a.module_id)?.name||""));
     const right=el("div");right.append(el("strong","",b.title),el("small","",byModule.get(b.module_id)?.name||""));
-    const remove=el("button","secondary-button","Remove");remove.type="button";remove.addEventListener("click",async()=>{if(!confirm("Remove this relationship only? The Content Items will remain."))return;const {error}=await supabase.from("relations").delete().eq("id",r.id);if(error)alert(error.message);else await load();});
-    row.append(left,el("span","dashboard-relation-arrow","↔"),right,remove);list.append(row);
+    const edit=el("button","secondary-button","Edit");edit.type="button";edit.addEventListener("click",async()=>{
+     editingRelationId=r.id;sourceType.value=a.module_id;targetType.value=b.module_id;
+     try{await fillItems(sourceType,sourceName,a.id);await fillItems(targetType,targetName,b.id);form.querySelector("[data-relation-form-title]").textContent="Edit Relation";form.querySelector('[data-relation-cancel]').hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
+     catch(error){form.querySelector(".editor-message").textContent=error.message;form.querySelector(".editor-message").dataset.kind="error";}
+    });
+    const remove=el("button","secondary-button","Delete");remove.type="button";remove.addEventListener("click",async()=>{if(!confirm("Remove this relationship only? The Content Items will remain."))return;const {error}=await supabase.from("relations").delete().eq("id",r.id);if(error)alert(error.message);else await load();});
+    row.append(left,el("span","dashboard-relation-arrow","↔"),right,edit,remove);list.append(row);
    });
   }
-  filter.addEventListener("change",()=>void load());await load();
+  filter.addEventListener("change",()=>void load());search.addEventListener("input",()=>void load());await load();
  }
  async function reloadRegistry(){await registry();drawNav();}
  async function builderPage(){
@@ -354,13 +401,17 @@ export async function initDynamicDashboard(supabase,root,user){
    const list=el("div","module-related-options");group.append(search,list);relationHost.append(group);
    const picker={target,search,list,selectedIds:new Set(),timer:null};
    picker.load=async(term="")=>{
-    let query=supabase.from("content_items").select("id,title,slug").eq("module_id",target.id).order("title").limit(100);
+    const visibleRole=String(user?.role||"owner").toLowerCase();
+    let query=supabase.from("content_items").select("id,title,slug,visibility_roles,status").eq("module_id",target.id).in("status",["active","published"]).contains("visibility_roles",[visibleRole]).order("title").limit(100);
     if(term)query=query.ilike("title","%"+term+"%");
     const {data,error}=await query;
     if(error){list.replaceChildren(el("small","muted",error.message));return;}
     const items=[...(data||[])];
     const missing=[...picker.selectedIds].filter(id=>!items.some(item=>item.id===id));
-    if(missing.length){const {data:extra}=await supabase.from("content_items").select("id,title,slug").in("id",missing);items.push(...(extra||[]));}
+    if(missing.length){
+     const {data:extra}=await supabase.from("content_items").select("id,title,slug,visibility_roles,status").in("id",missing);
+     items.push(...(extra||[]).filter(item=>item.status==="active"||item.status==="published").filter(item=>(item.visibility_roles||[]).includes(visibleRole)));
+    }
     list.replaceChildren();
     items.forEach(item=>{
      const label=el("label","module-related-option"),check=el("input");check.type="checkbox";check.value=item.id;check.checked=picker.selectedIds.has(item.id);
@@ -375,7 +426,7 @@ export async function initDynamicDashboard(supabase,root,user){
   const searchBar=el("div","dashboard-toolbar"),searchLabel=el("label","","Search this module"),searchInput=el("input"),suggestions=el("datalist");
   searchInput.type="search";searchInput.placeholder="Search by text or number…";suggestions.id="module-search-"+module.id;searchInput.setAttribute("list",suggestions.id);searchLabel.append(searchInput);searchBar.append(searchLabel,suggestions);
   const records=el("div","dashboard-record-list");page.append(form,searchBar,el("h3","","Database"),records);panel.append(page);
-  let loadedRecords=[];
+  let loadedRecords=[],draggedRecordId=null;
   function renderRecords(){
    records.replaceChildren();const term=searchInput.value.trim().toLocaleLowerCase();
    const matches=loadedRecords.filter(item=>{
@@ -384,7 +435,29 @@ export async function initDynamicDashboard(supabase,root,user){
     return values.some(value=>value!==null&&value!==undefined&&String(typeof value==="object"?JSON.stringify(value):value).toLocaleLowerCase().includes(term));
    });
    if(!matches.length){records.append(el("p","muted",loadedRecords.length?"No matching records.":"No records yet."));return;}
-   matches.forEach(item=>{const b=el("button","dashboard-record-row");b.type="button";b.append(el("strong","",item.title),el("small","",item.slug||item.status));b.addEventListener("click",()=>void editItem(item));records.append(b);});
+   matches.forEach(item=>{
+    const b=el("button","dashboard-record-row");b.type="button";b.draggable=!term;
+    b.append(el("strong","",item.title),el("small","",item.slug||item.status));
+    b.addEventListener("click",()=>{if(!draggedRecordId)void editItem(item);});
+    b.addEventListener("dragstart",event=>{draggedRecordId=item.id;b.classList.add("is-dragging");if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",item.id);}});
+    b.addEventListener("dragend",()=>{draggedRecordId=null;records.querySelectorAll(".is-dragging,.is-drag-over").forEach(node=>node.classList.remove("is-dragging","is-drag-over"));});
+    b.addEventListener("dragover",event=>{if(!draggedRecordId||term||draggedRecordId===item.id)return;event.preventDefault();b.classList.add("is-drag-over");});
+    b.addEventListener("dragleave",()=>b.classList.remove("is-drag-over"));
+    b.addEventListener("drop",async event=>{
+     event.preventDefault();b.classList.remove("is-drag-over");
+     const sourceId=draggedRecordId||event.dataTransfer?.getData("text/plain");draggedRecordId=null;
+     if(!sourceId||sourceId===item.id)return;
+     const ordered=[...loadedRecords],from=ordered.findIndex(row=>row.id===sourceId),to=ordered.findIndex(row=>row.id===item.id);
+     if(from<0||to<0)return;
+     const [moved]=ordered.splice(from,1);ordered.splice(to,0,moved);loadedRecords=ordered;renderRecords();
+     const updates=await Promise.all(loadedRecords.map((row,index)=>supabase.from("content_items").update({sort_order:(index+1)*10}).eq("id",row.id)));
+     const failed=updates.find(result=>result.error);
+     const message=$(".editor-message",form);
+     if(failed){message.textContent="Order could not be saved: "+failed.error.message;message.dataset.kind="error";await loadRecords();}
+     else{message.textContent="Display order saved.";message.dataset.kind="success";}
+    });
+    records.append(b);
+   });
   }
   searchInput.addEventListener("input",renderRecords);
   async function loadRecords(){
@@ -421,9 +494,15 @@ export async function initDynamicDashboard(supabase,root,user){
     let id=form.dataset.editId;
     if(id){const {error}=await supabase.from("content_items").update(payload).eq("id",id);if(error)throw error;}
     else{payload.created_by=user.id;const {data,error}=await supabase.from("content_items").insert(payload).select("id").single();if(error)throw error;id=data.id;}
-    const related=relationPickers.flatMap(picker=>[...picker.selectedIds]);
-    const {error:re}=await supabase.rpc("sync_content_item_relations",{p_item_id:id,p_related_item_ids:related});
-    if(re)throw new Error("Item saved, but relationship synchronization failed: "+re.message);
+    const related=[...new Set(relationPickers.flatMap(picker=>[...picker.selectedIds]))];
+    const {data:existingRelations,error:relationReadError}=await supabase.from("relations").select("id,item_a_id,item_b_id").or("item_a_id.eq."+id+",item_b_id.eq."+id);
+    if(relationReadError)throw relationReadError;
+    const existingByOther=new Map((existingRelations||[]).map(row=>[row.item_a_id===id?row.item_b_id:row.item_a_id,row]));
+    const wanted=new Set(related);
+    const removeIds=[...existingByOther].filter(([other])=>!wanted.has(other)).map(([,row])=>row.id);
+    if(removeIds.length){const {error:removeError}=await supabase.from("relations").delete().in("id",removeIds);if(removeError)throw removeError;}
+    const addRows=related.filter(other=>!existingByOther.has(other)).map(other=>({item_a_id:id<other?id:other,item_b_id:id<other?other:id}));
+    if(addRows.length){const {error:addError}=await supabase.from("relations").insert(addRows);if(addError)throw addError;}
     msg.textContent="Saved successfully.";msg.dataset.kind="success";resetForm();await loadRecords();
    }catch(err){msg.textContent=err.message||"Could not save the Item.";msg.dataset.kind="error";}
    finally{submit.disabled=false;}

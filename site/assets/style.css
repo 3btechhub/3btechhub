@@ -1746,3 +1746,67 @@ button.home-content-card{font:inherit;color:inherit;text-align:left;border:1px s
 
 .profile-readonly-row .profile-value{flex:1;text-align:start}
 @media(max-width:480px){.profile-readonly-row .profile-value{grid-column:1/-1;text-align:start}}
+
+
+/* Notion navigation menu: fixed floating control and upward-opening menu. */
+.site-header .menu-trigger{
+  position:fixed;
+  z-index:1102;
+  inset-inline-start:18px;
+  inset-inline-end:auto;
+  inset-block-start:auto;
+  inset-block-end:calc(18px + env(safe-area-inset-bottom));
+  width:48px;
+  height:48px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:var(--surface);
+  color:var(--page-text);
+  box-shadow:0 4px 18px #00000024;
+}
+:root[dir="rtl"] .site-header .menu-trigger{
+  inset-inline-start:auto;
+  inset-inline-end:18px;
+}
+.site-header .site-menu{
+  position:fixed;
+  z-index:1101;
+  inset-inline-start:18px;
+  inset-inline-end:auto;
+  inset-block-start:auto;
+  inset-block-end:calc(78px + env(safe-area-inset-bottom));
+  max-height:min(72vh,620px);
+  overflow-y:auto;
+}
+:root[dir="rtl"] .site-header .site-menu{
+  inset-inline-start:auto;
+  inset-inline-end:18px;
+}
+@media(max-width:600px){
+  .site-header .menu-trigger{inset-inline-start:14px;inset-block-end:calc(14px + env(safe-area-inset-bottom))}
+  :root[dir="rtl"] .site-header .menu-trigger{inset-inline-start:auto;inset-inline-end:14px}
+  .site-header .site-menu{inset-inline-start:14px;inset-inline-end:auto;inset-block-end:calc(72px + env(safe-area-inset-bottom));width:min(260px,calc(100vw - 28px))}
+  :root[dir="rtl"] .site-header .site-menu{inset-inline-start:auto;inset-inline-end:14px}
+}
+
+
+/* Database rows support direct drag-and-drop ordering. */
+.dashboard-record-row[draggable="true"]{cursor:grab}
+.dashboard-record-row.is-dragging{opacity:.45}
+.dashboard-record-row.is-drag-over{outline:2px dashed var(--page-text);outline-offset:2px}
+.home-detail-visual{display:grid;place-items:center;min-height:140px;margin:10px 0 20px}
+.home-detail-visual>.home-detail-image{margin:0}
+.home-detail-visual>.home-content-fallback,.home-detail-visual>.svg-icon{width:88px;height:88px}
+.home-detail-description{margin:8px 0 20px;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--page-text)}
+
+
+/* Global Size tokens apply consistently to forms and card types/items. */
+:root{--control-height:42px;--card-type-padding:16px;--card-item-padding:12px;--card-gap:10px}
+input:not([type="checkbox"]):not([type="radio"]),select{min-height:var(--control-height)}
+textarea{min-height:calc(var(--control-height) * 2)}
+.home-catalog-section{padding-inline:var(--card-type-padding)}
+.home-content-card,.dashboard-record-row,.dashboard-overview-card,.dashboard-module-builder-row,.dashboard-relation-row{padding:var(--card-item-padding);gap:var(--card-gap)}
+.home-card-grid,.home-list-grid{gap:var(--card-gap)}
+
+.dashboard-relation-row{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto auto;align-items:center}
+@media(max-width:600px){.dashboard-relation-row{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.dashboard-relation-row>button{grid-row:2}.dashboard-relation-row>button:first-of-type{grid-column:1}.dashboard-relation-row>button:last-of-type{grid-column:3}}
