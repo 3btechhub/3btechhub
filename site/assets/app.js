@@ -40,6 +40,12 @@ function applyEnglishText() {
   document.querySelectorAll("[data-aria-label]").forEach((element) => { const value=translations.en[element.dataset.ariaLabel]; if(value) element.setAttribute("aria-label",value); });
 }
 let runtimeConfig = null;
+window.addEventListener("runtime-config-updated", (event) => {
+  if (!event.detail || typeof event.detail !== "object") return;
+  runtimeConfig = event.detail;
+  applyRuntimeConfig(runtimeConfig, document.documentElement.dataset.theme);
+});
+
 function applyTheme(theme) {
   const dark = theme === "dark";
   document.documentElement.dataset.theme = dark ? "dark" : "light";
