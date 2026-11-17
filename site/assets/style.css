@@ -1807,3 +1807,6 @@ textarea{min-height:calc(var(--control-height) * 2)}
 .home-catalog-section{padding-inline:var(--card-type-padding)}
 .home-content-card,.dashboard-record-row,.dashboard-overview-card,.dashboard-module-builder-row,.dashboard-relation-row{padding:var(--card-item-padding);gap:var(--card-gap)}
 .home-card-grid,.home-list-grid{gap:var(--card-gap)}
+
+.dashboard-relation-row{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto auto;align-items:center}
+@media(max-width:600px){.dashboard-relation-row{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}.dashboard-relation-row>button{grid-row:2}.dashboard-relation-row>button:first-of-type{grid-column:1}.dashboard-relation-row>button:last-of-type{grid-column:3}}
