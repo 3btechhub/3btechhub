@@ -164,10 +164,49 @@ export async function initDynamicDashboard(supabase,root,user){
   page.append(health);panel.append(page);
  }
  async function relationsPage(){
-  const page=el("div","dashboard-page");page.append(el("h2","","Relations"),el("p","muted","Each Item-to-Item relationship is stored once and displayed from either side."));
+  const page=el("div","dashboard-page");page.append(el("h2","","Relations"),el("p","muted","Create and manage links between existing Content Items. Relationships are bidirectional; Items are never created here."));
+  const form=el("form","content-editor-form");
+  form.innerHTML='<h3 data-relation-form-title>Create Relation</h3><div class="module-form-grid"><label class="module-form-field"><span>Source Type</span><select name="sourceType" required></select></label><label class="module-form-field"><span>Source Name</span><select name="sourceName" required><option value="">Select Item</option></select></label><label class="module-form-field"><span>Target Type</span><select name="targetType" required></select></label><label class="module-form-field"><span>Target Name</span><select name="targetName" required><option value="">Select Item</option></select></label></div><div class="editor-actions"><button type="submit">Save Relation</button><button type="button" class="secondary-button" data-relation-cancel hidden>Cancel</button></div><p class="editor-message" role="status"></p>';
+  const sourceType=form.elements.sourceType,sourceName=form.elements.sourceName,targetType=form.elements.targetType,targetName=form.elements.targetName;
+  for(const select of [sourceType,targetType]){select.append(new Option("Select Type",""));modules.forEach(m=>select.append(new Option(m.name,m.id)));}
+  let editingRelationId=null;
+  async function fillItems(typeSelect,itemSelect,selectedId=""){
+   const moduleId=typeSelect.value;itemSelect.replaceChildren(new Option("Select Item",""));if(!moduleId)return;
+   const role=String(user?.role||"owner").toLowerCase();
+   let query=supabase.from("content_items").select("id,title,status,visibility_roles").eq("module_id",moduleId).in("status",["active","published"]).contains("visibility_roles",[role]).order("title").limit(200);
+   const {data,error}=await query;if(error)throw error;
+   const rows=[...(data||[])];
+   if(selectedId&&!rows.some(row=>row.id===selectedId)){
+    const {data:existing,error:existingError}=await supabase.from("content_items").select("id,title,status,visibility_roles").eq("id",selectedId).maybeSingle();
+    if(existingError)throw existingError;
+    if(existing)rows.push(existing);
+   }
+   rows.forEach(item=>itemSelect.append(new Option(item.title,item.id)));
+   itemSelect.value=selectedId||"";
+  }
+  sourceType.addEventListener("change",()=>void fillItems(sourceType,sourceName).catch(error=>{form.querySelector(".editor-message").textContent=error.message;form.querySelector(".editor-message").dataset.kind="error";}));
+  targetType.addEventListener("change",()=>void fillItems(targetType,targetName).catch(error=>{form.querySelector(".editor-message").textContent=error.message;form.querySelector(".editor-message").dataset.kind="error";}));
+  function resetRelationForm(){
+   editingRelationId=null;form.reset();sourceName.replaceChildren(new Option("Select Item",""));targetName.replaceChildren(new Option("Select Item",""));
+   form.querySelector("[data-relation-form-title]").textContent="Create Relation";form.querySelector('[data-relation-cancel]').hidden=true;form.querySelector(".editor-message").textContent="";
+  }
+  form.querySelector('[data-relation-cancel]').addEventListener("click",resetRelationForm);
+  form.addEventListener("submit",async event=>{
+   event.preventDefault();const button=form.querySelector('[type="submit"]'),message=form.querySelector(".editor-message");
+   const a=sourceName.value,b=targetName.value;if(!a||!b){message.textContent="Select both existing Items.";message.dataset.kind="error";return;}
+   if(a===b){message.textContent="An Item cannot be related to itself.";message.dataset.kind="error";return;}
+   button.disabled=true;message.textContent="Saving…";
+   try{
+    const payload={item_a_id:a<b?a:b,item_b_id:a<b?b:a};
+    const result=editingRelationId?await supabase.from("relations").update(payload).eq("id",editingRelationId):await supabase.from("relations").insert(payload);
+    if(result.error)throw result.error;
+    message.textContent="Relation saved.";message.dataset.kind="success";resetRelationForm();await load();
+   }catch(error){message.textContent=error.message||"Could not save the relation.";message.dataset.kind="error";}
+   finally{button.disabled=false;}
+  });
   const filter=el("select");filter.append(new Option("All modules",""));modules.forEach(m=>filter.append(new Option(m.name,m.id)));
   const search=el("input");search.type="search";search.placeholder="Search related items…";search.setAttribute("aria-label","Search relationships");
-  const toolbar=el("div","dashboard-toolbar");toolbar.append(el("label","","Filter by module"),filter,search);const list=el("div","dashboard-relation-list");page.append(toolbar,list);panel.append(page);
+  const toolbar=el("div","dashboard-toolbar");toolbar.append(el("label","","Filter by module"),filter,search);const list=el("div","dashboard-relation-list");page.append(form,toolbar,list);panel.append(page);
   async function load(){
    list.replaceChildren();const {data:rels,error}=await supabase.from("relations").select("*").order("created_at",{ascending:false}).limit(500);
    if(error){list.append(el("p","editor-message",error.message));return;}
@@ -178,11 +217,17 @@ export async function initDynamicDashboard(supabase,root,user){
    const term=search.value.trim().toLocaleLowerCase();
    const visible=(rels||[]).filter(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id);if(!a||!b||(filter.value&&a.module_id!==filter.value&&b.module_id!==filter.value))return false;const ma=byModule.get(a.module_id)?.name||"",mb=byModule.get(b.module_id)?.name||"";return !term||[a.title,b.title,ma,mb].some(value=>String(value).toLocaleLowerCase().includes(term));});
    if(!visible.length){list.append(el("p","muted","No matching relationships."));return;}
-   visible.forEach(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id),row=el("article","dashboard-relation-row");
+   visible.forEach(r=>{
+    const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id),row=el("article","dashboard-relation-row");
     const left=el("div");left.append(el("strong","",a.title),el("small","",byModule.get(a.module_id)?.name||""));
     const right=el("div");right.append(el("strong","",b.title),el("small","",byModule.get(b.module_id)?.name||""));
-    const remove=el("button","secondary-button","Remove");remove.type="button";remove.addEventListener("click",async()=>{if(!confirm("Remove this relationship only? The Content Items will remain."))return;const {error}=await supabase.from("relations").delete().eq("id",r.id);if(error)alert(error.message);else await load();});
-    row.append(left,el("span","dashboard-relation-arrow","↔"),right,remove);list.append(row);
+    const edit=el("button","secondary-button","Edit");edit.type="button";edit.addEventListener("click",async()=>{
+     editingRelationId=r.id;sourceType.value=a.module_id;targetType.value=b.module_id;
+     try{await fillItems(sourceType,sourceName,a.id);await fillItems(targetType,targetName,b.id);form.querySelector("[data-relation-form-title]").textContent="Edit Relation";form.querySelector('[data-relation-cancel]').hidden=false;form.scrollIntoView({behavior:"smooth",block:"start"});}
+     catch(error){form.querySelector(".editor-message").textContent=error.message;form.querySelector(".editor-message").dataset.kind="error";}
+    });
+    const remove=el("button","secondary-button","Delete");remove.type="button";remove.addEventListener("click",async()=>{if(!confirm("Remove this relationship only? The Content Items will remain."))return;const {error}=await supabase.from("relations").delete().eq("id",r.id);if(error)alert(error.message);else await load();});
+    row.append(left,el("span","dashboard-relation-arrow","↔"),right,edit,remove);list.append(row);
    });
   }
   filter.addEventListener("change",()=>void load());search.addEventListener("input",()=>void load());await load();
