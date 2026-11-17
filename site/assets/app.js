@@ -76,10 +76,16 @@ function closeSiteMenu() {
 }
 async function setMenuSession(session) {
   if (accountMenuLink) { accountMenuLink.href=new URL("account/login/",ROOT_URL).href; accountMenuLink.hidden=Boolean(session); }
+  let roles=[];
+  if(session?.user?.id){
+    const {data,error}=await supabase.from("user_roles").select("role").eq("user_id",session.user.id);
+    if(!error)roles=(data||[]).map(row=>String(row.role||"").toLowerCase());
+  }
+  const registered=roles.some(role=>["owner","admin","member"].includes(role));
   if (profileMenuLink) profileMenuLink.href=new URL("account/profile/",ROOT_URL).href;
-  if (profileMenuLink) profileMenuLink.hidden=!session;
-  if (logoutMenuLink) logoutMenuLink.hidden=!session;
-  if (dashboardMenuLink) { dashboardMenuLink.hidden=true; if(session?.user?.id){const {data,error}=await supabase.from("user_roles").select("role").eq("user_id",session.user.id).in("role",["owner","admin"]).limit(1).maybeSingle();if(!error&&data?.role)dashboardMenuLink.hidden=false;} }
+  if (profileMenuLink) profileMenuLink.hidden=!registered;
+  if (logoutMenuLink) logoutMenuLink.hidden=!registered;
+  if (dashboardMenuLink) dashboardMenuLink.hidden=!(roles.includes("owner")||roles.includes("admin"));
 }
 // Load authentication separately so a Supabase CDN issue cannot disable the menu.
 const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
@@ -284,6 +290,39 @@ supabase.auth.onAuthStateChange((_event, session) => {
   setMenuSession(session);
 });
 const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
+const languageSelect=document.getElementById("language-select");
+const countrySelect=document.getElementById("country-select");
+async function loadMenuPreferences(){
+  const [countriesResult,languagesResult]=await Promise.all([
+    supabase.from("countries").select("name,slug,status,sort_order").eq("status","active").order("sort_order"),
+    supabase.from("languages").select("title,slug,status,is_default,sort_order").eq("status","active").order("sort_order")
+  ]);
+  if(countrySelect&&!countriesResult.error){
+    const rows=countriesResult.data||[],saved=localStorage.getItem("3b-country")||"global";
+    countrySelect.replaceChildren(...rows.map(row=>new Option(row.name,row.slug||row.name.toLowerCase().replace(/\\s+/g,"-"))));
+    countrySelect.value=rows.some(row=>(row.slug||"")===saved)?saved:(rows.find(row=>row.slug==="global")?.slug||rows[0]?.slug||"");
+    document.documentElement.dataset.country=countrySelect.value;
+  }
+  if(languageSelect&&!languagesResult.error){
+    const rows=languagesResult.data||[],saved=localStorage.getItem("3b-language")||"";
+    languageSelect.replaceChildren(...rows.map(row=>new Option(row.title,row.slug)));
+    languageSelect.value=rows.some(row=>row.slug===saved)?saved:(rows.find(row=>row.is_default)?.slug||rows[0]?.slug||"en");
+    document.documentElement.lang=languageSelect.value;
+    document.documentElement.dataset.language=languageSelect.value;
+  }
+}
+countrySelect?.addEventListener("change",()=>{
+  localStorage.setItem("3b-country",countrySelect.value);
+  document.documentElement.dataset.country=countrySelect.value;
+  window.dispatchEvent(new CustomEvent("site-country-changed",{detail:{country:countrySelect.value}}));
+});
+languageSelect?.addEventListener("change",()=>{
+  localStorage.setItem("3b-language",languageSelect.value);
+  document.documentElement.lang=languageSelect.value;
+  document.documentElement.dataset.language=languageSelect.value;
+  window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:languageSelect.value}}));
+});
+void loadMenuPreferences();
 const headerBrandLogo=document.querySelector(".brand-logo");
 if(headerBrandLogo){
   headerBrandLogo.setAttribute("role","button");headerBrandLogo.tabIndex=0;headerBrandLogo.setAttribute("aria-label","Go to Home");
