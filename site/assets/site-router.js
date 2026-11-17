@@ -19,7 +19,7 @@ function routeDetails(path) {
   const legacy = { login:"login", "create-account":"signup", "forgot-password":"recovery-start", "reset-password":"recovery-start", profile:"profile", "edit-profile":"edit-profile" };
   if (first === "account") {
     const child = parts[1] || "login";
-    const modes = { login:"login", "create-account":"signup", "reset-password":"recovery-start", profile:"profile", "edit-profile":"edit-profile" };
+    const modes = { login:"login", "create-account":"signup", "reset-password":"recovery-start", verify:"recovery-verify", "new-password":"recovery-new-password", profile:"profile", "edit-profile":"edit-profile" };
     return { view:"account", authMode:modes[child] || "login" };
   }
   if (first === "edit-profile") return { view:"account", authMode:"edit-profile" };
@@ -59,7 +59,6 @@ async function renderRoute(requestedPath, { replace = false } = {}) {
   resolveFragmentLinks(main, path);
   document.title = titles[details.view];
   document.documentElement.lang = "en";
-  document.documentElement.dir = "rtl";
   const homeLink = document.getElementById("home-menu-link");
   if (homeLink) homeLink.hidden = false;
   const robotsMeta = document.querySelector('meta[name="robots"]');
