@@ -228,7 +228,9 @@ export async function initDynamicDashboard(supabase,root,user){
    button.disabled=true;message.textContent="Saving…";
    try{
     const payload={item_a_id:a<b?a:b,item_b_id:a<b?b:a};
-    const result=editingRelationId?await supabase.from("relations").update(payload).eq("id",editingRelationId):await supabase.from("relations").insert(payload);
+    let result;
+    if(editingRelationId)result=await supabase.from("relations").update(payload).eq("id",editingRelationId);
+    else{const {data:last,error:lastError}=await supabase.from("relations").select("sort_order").order("sort_order",{ascending:false}).limit(1).maybeSingle();if(lastError)throw lastError;result=await supabase.from("relations").insert({...payload,sort_order:(last?.sort_order||0)+10});}
     if(result.error)throw result.error;
     message.textContent="Relation saved.";message.dataset.kind="success";resetRelationForm();await load();
    }catch(error){message.textContent=error.message||"Could not save the relation.";message.dataset.kind="error";}
@@ -238,7 +240,7 @@ export async function initDynamicDashboard(supabase,root,user){
   const search=el("input");search.type="search";search.placeholder="Search related items…";search.setAttribute("aria-label","Search relationships");
   const toolbar=el("div","dashboard-toolbar");toolbar.append(el("label","","Filter by module"),filter,search);const list=el("div","dashboard-relation-list");page.append(form,toolbar,list);panel.append(page);
   async function load(){
-   list.replaceChildren();const {data:rels,error}=await supabase.from("relations").select("*").order("created_at",{ascending:false}).limit(500);
+   list.replaceChildren();const {data:rels,error}=await supabase.from("relations").select("*").order("sort_order",{ascending:true}).order("created_at",{ascending:false}).limit(500);
    if(error){list.append(el("p","editor-message",error.message));return;}
    const ids=[...new Set((rels||[]).flatMap(r=>[r.item_a_id,r.item_b_id]))];if(!ids.length){list.append(el("p","muted","No relationships found."));return;}
    const {data:items,error:itemError}=await supabase.from("content_items").select("id,title,module_id").in("id",ids);
@@ -247,8 +249,24 @@ export async function initDynamicDashboard(supabase,root,user){
    const term=search.value.trim().toLocaleLowerCase();
    const visible=(rels||[]).filter(r=>{const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id);if(!a||!b||(filter.value&&a.module_id!==filter.value&&b.module_id!==filter.value))return false;const ma=byModule.get(a.module_id)?.name||"",mb=byModule.get(b.module_id)?.name||"";return !term||[a.title,b.title,ma,mb].some(value=>String(value).toLocaleLowerCase().includes(term));});
    if(!visible.length){list.append(el("p","muted","No matching relationships."));return;}
+   let draggedRelationId=null;
+   const canReorder=!filter.value&&!term;
    visible.forEach(r=>{
-    const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id),row=el("article","dashboard-relation-row");
+    const a=byId.get(r.item_a_id),b=byId.get(r.item_b_id),row=el("article","dashboard-relation-row");row.draggable=canReorder;
+    row.addEventListener("dragstart",event=>{draggedRelationId=r.id;row.classList.add("is-dragging");if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",r.id);}});
+    row.addEventListener("dragend",()=>{draggedRelationId=null;list.querySelectorAll(".is-dragging,.is-drag-over").forEach(node=>node.classList.remove("is-dragging","is-drag-over"));});
+    row.addEventListener("dragover",event=>{if(!canReorder||!draggedRelationId||draggedRelationId===r.id)return;event.preventDefault();row.classList.add("is-drag-over");});
+    row.addEventListener("dragleave",()=>row.classList.remove("is-drag-over"));
+    row.addEventListener("drop",async event=>{
+     event.preventDefault();row.classList.remove("is-drag-over");
+     const sourceId=draggedRelationId||event.dataTransfer?.getData("text/plain");draggedRelationId=null;
+     if(!sourceId||sourceId===r.id)return;
+     const ordered=[...visible],from=ordered.findIndex(item=>item.id===sourceId),to=ordered.findIndex(item=>item.id===r.id);
+     if(from<0||to<0)return;
+     const [moved]=ordered.splice(from,1);ordered.splice(to,0,moved);
+     const updates=await Promise.all(ordered.map((item,index)=>supabase.from("relations").update({sort_order:(index+1)*10}).eq("id",item.id)));
+     const failed=updates.find(result=>result.error);if(failed)alert("Relationship order could not be saved: "+failed.error.message);else await load();
+    });
     const left=el("div");left.append(el("strong","",a.title),el("small","",byModule.get(a.module_id)?.name||""));
     const right=el("div");right.append(el("strong","",b.title),el("small","",byModule.get(b.module_id)?.name||""));
     const edit=el("button","secondary-button","Edit");edit.type="button";edit.addEventListener("click",async()=>{

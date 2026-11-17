@@ -1,4 +1,4 @@
-import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-role-permission-20261118-1";
+import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-relation-order-20261118-1";
 
 const BASE = "/3btechhub/";
 const main = document.getElementById("app-main");
