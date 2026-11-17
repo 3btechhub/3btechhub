@@ -406,12 +406,12 @@ export async function initDynamicDashboard(supabase,root,user){
   form.addEventListener("submit",async e=>{e.preventDefault();const button=form.querySelector('[type="submit"]'),msg=$(".editor-message",form);button.disabled=true;
    try{
     const uploadedLogo=await uploadBrandAsset(form.elements.logo_file.files[0],"logo"),uploadedFavicon=await uploadBrandAsset(form.elements.favicon_file.files[0],"favicon");
-    const websiteValue={...websiteInfo,title:form.elements.website_title.value.trim(),intro:form.elements.intro.value.trim(),logo_url:uploadedLogo||form.elements.logo_url.value.trim(),favicon_url:uploadedFavicon||websiteInfo.favicon_url||profile.favicon_url||""};
+    const websiteValue={...websiteInfo,title:form.elements.website_title.value.trim(),intro:form.elements.intro.value.trim(),logo_url:uploadedLogo||form.elements.logo_url.value.trim(),favicon_url:uploadedFavicon||websiteInfo.favicon_url||profile.favicon_url||"",favicon_type:uploadedFavicon?form.elements.favicon_file.files[0].type:(websiteInfo.favicon_type||profile.favicon_type||"image/svg+xml")};
     const navigationValue={logo_swap_interval_seconds:Math.max(5,Math.min(60,Number(form.elements.logo_swap_interval_seconds.value)||5)),icon_transition_speed_ms:Math.max(300,Math.min(5000,Number(form.elements.icon_transition_speed_ms.value)||1400))};
     const settings=[
      {setting_key:"website_information",setting_value:websiteValue,visibility_roles:["owner","visitor"],description:"Website information"},
-     {setting_key:"site_profile",setting_value:{...profile,website_title:websiteValue.title,logo_url:websiteValue.logo_url,favicon_url:websiteValue.favicon_url},visibility_roles:["owner","visitor"],description:"Website identity"},
-     {setting_key:"navigation_menu",setting_value:navigationValue,visibility_roles:["owner"],description:"Navigation menu animation preferences"},
+     {setting_key:"site_profile",setting_value:{...profile,website_title:websiteValue.title,logo_url:websiteValue.logo_url,favicon_url:websiteValue.favicon_url,favicon_type:websiteValue.favicon_type},visibility_roles:["owner","visitor"],description:"Website identity"},
+     {setting_key:"navigation_menu",setting_value:navigationValue,visibility_roles:["owner","visitor"],description:"Navigation menu animation preferences"},
      {setting_key:"home_intro",setting_value:{content:websiteValue.intro},visibility_roles:["owner","visitor"],description:"Homepage introduction"}
     ];
     const {error:se}=await supabase.from("Settings").upsert(settings,{onConflict:"setting_key"});if(se)throw se;
