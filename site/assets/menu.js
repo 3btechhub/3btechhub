@@ -3,7 +3,7 @@
   const button=document.querySelector(".menu-trigger"),menu=document.querySelector("#site-menu");
   if(!button||!menu)return;
   const originalIcon=button.querySelector(".menu-icon")?.cloneNode(true);
-  let logoUrl="",logoTitle="3B TECH HUB",swapSeconds=5,transitionMs=1400,idleTimer=null,cycleTimer=null,showingLogo=false;
+  let logoUrl="",logoTitle="3B TECH HUB",swapSeconds=5,transitionMs=1400,idleTimer=null,cycleTimer=null,renderTimer=null,showingLogo=false;
   const clearTimers=()=>{if(idleTimer)clearTimeout(idleTimer);if(cycleTimer)clearInterval(cycleTimer);idleTimer=null;cycleTimer=null;};
   function render(kind){
     if(menu.hidden===false&&kind==="logo")return;
@@ -17,7 +17,8 @@
     }
     if(!next)return;
     button.classList.add("is-fading-icon");
-    window.setTimeout(()=>{button.replaceChildren(next);button.classList.remove("is-fading-icon");},Math.min(transitionMs,500));
+    if(renderTimer)window.clearTimeout(renderTimer);
+    renderTimer=window.setTimeout(()=>{button.replaceChildren(next);button.classList.remove("is-fading-icon");renderTimer=null;},Math.min(transitionMs,500));
   }
   function scheduleIdle(){
     clearTimers();if(!menu.hidden)return;
