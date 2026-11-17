@@ -1,5 +1,4 @@
 import { initExtendedDashboard } from "./admin-extended.js";
-import { applyRuntimeConfig } from "./runtime-config.js?v=notion-global-style-20261118-1";
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const el=(tag,cls="",text="")=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=String(text);return n;};
 const slugify=v=>String(v||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
