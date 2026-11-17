@@ -1,6 +1,6 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-completion-20261118-1";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-updates-20261118-1";
 import { initExtendedDashboard } from "./admin-extended.js?v=notion-permission-read-write-20261118-2";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-completion-20261118-5";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-updates-20261118-1";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
@@ -31,14 +31,22 @@ function addTextElement(parent, tag, className, value) {
   return node;
 }
 
-const translations = { en: {home:"Home",profile:"Profile",login:"Login",logout:"Logout",dashboard:"Dashboard",accountLogin:"Account login",dark:"Switch to dark mode",light:"Switch to light mode",services:"Services",products:"Products",workshops:"Workshops",technicians:"Technicians",contacts:"Contacts",user:"User",role:"Role",permission:"Permission",settings:"Settings",users:"Users",refresh:"Refresh",inviteUser:"Invite User",userType:"User Type",emailAddress:"Email Address",sendInvitation:"Send Invitation",refreshUsers:"Refresh Users",userList:"User List",roleAssignments:"Role Assignments",permissionMatrix:"Permission Matrix",websiteSettings:"Website Settings",websiteTitle:"Website Title",logoUrl:"Logo URL (optional)",saveSettings:"Save Settings",signIn:"Sign In",sendResetCode:"Send Reset Code",forgotPassword:"Forgot password?",createAccount:"Create account",verificationCode:"Verification Code",name:"Name",email:"Email",phoneNumber:"Phone Number",password:"Password",changePassword:"Change Password",edit:"Edit",currentPassword:"Current Password",newPassword:"New Password",confirmPassword:"Confirm New Password",updatePassword:"Update Password",verifyCodeReset:"Verify Code & Reset Password",loginAccount:"Login Account"} };
-function applyEnglishText() {
-  document.documentElement.lang = "en";
-  document.documentElement.dir ||= "ltr";
-  document.querySelectorAll("[data-label]").forEach((element) => { const value=translations.en[element.dataset.label]; if(value) element.textContent=value; });
-  document.querySelectorAll("[data-placeholder]").forEach((element) => { const value=translations.en[element.dataset.placeholder]; if(value) element.placeholder=value; });
-  document.querySelectorAll("[data-aria-label]").forEach((element) => { const value=translations.en[element.dataset.ariaLabel]; if(value) element.setAttribute("aria-label",value); });
+const translations = {
+ en:{home:"Home",profile:"Profile",login:"Login",logout:"Logout",dashboard:"Dashboard",accountLogin:"Account login",dark:"Switch to dark mode",light:"Switch to light mode",services:"Services",products:"Products",workshops:"Workshops",technicians:"Technicians",contacts:"Contacts",user:"User",role:"Role",permission:"Permission",settings:"Settings",users:"Users",refresh:"Refresh",inviteUser:"Invite User",userType:"User Type",emailAddress:"Email Address",sendInvitation:"Send Invitation",refreshUsers:"Refresh Users",userList:"User List",roleAssignments:"Role Assignments",permissionMatrix:"Permission Matrix",websiteSettings:"Website Settings",websiteTitle:"Website Title",logoUrl:"Logo URL (optional)",saveSettings:"Save Settings",signIn:"Sign In",sendResetCode:"Send Reset Code",forgotPassword:"Forgot password?",createAccount:"Create account",verificationCode:"Verification Code",name:"Name",email:"Email",phoneNumber:"Phone Number",password:"Password",changePassword:"Change Password",edit:"Edit",currentPassword:"Current Password",newPassword:"New Password",confirmPassword:"Confirm New Password",updatePassword:"Update Password",verifyCodeReset:"Verify Code & Reset Password"},
+ bn:{home:"হোম",profile:"প্রোফাইল",login:"লগইন",logout:"লগআউট",dashboard:"ড্যাশবোর্ড",accountLogin:"অ্যাকাউন্ট লগইন",dark:"ডার্ক মোড চালু করুন",light:"লাইট মোড চালু করুন",services:"সেবাসমূহ",products:"পণ্যসমূহ",workshops:"সার্ভিস সেন্টার",technicians:"টেকনিশিয়ান",contacts:"যোগাযোগ",user:"ব্যবহারকারী",role:"রোল",permission:"অনুমতি",settings:"সেটিংস",users:"ব্যবহারকারীগণ",refresh:"রিফ্রেশ",inviteUser:"ব্যবহারকারী আমন্ত্রণ",userType:"ব্যবহারকারীর ধরন",emailAddress:"ইমেইল ঠিকানা",sendInvitation:"আমন্ত্রণ পাঠান",refreshUsers:"ব্যবহারকারী রিফ্রেশ",userList:"ব্যবহারকারী তালিকা",roleAssignments:"রোল বরাদ্দ",permissionMatrix:"অনুমতি তালিকা",websiteSettings:"ওয়েবসাইট সেটিংস",websiteTitle:"ওয়েবসাইটের শিরোনাম",logoUrl:"লোগোর URL (ঐচ্ছিক)",saveSettings:"সেটিংস সংরক্ষণ",signIn:"সাইন ইন",sendResetCode:"রিসেট কোড পাঠান",forgotPassword:"পাসওয়ার্ড ভুলে গেছেন?",createAccount:"অ্যাকাউন্ট তৈরি",verificationCode:"যাচাইকরণ কোড",name:"নাম",email:"ইমেইল",phoneNumber:"ফোন নম্বর",password:"পাসওয়ার্ড",changePassword:"পাসওয়ার্ড পরিবর্তন",edit:"সম্পাদনা",currentPassword:"বর্তমান পাসওয়ার্ড",newPassword:"নতুন পাসওয়ার্ড",confirmPassword:"নতুন পাসওয়ার্ড নিশ্চিত করুন",updatePassword:"পাসওয়ার্ড আপডেট",verifyCodeReset:"কোড যাচাই ও পাসওয়ার্ড রিসেট"}
+};
+const bnText={"Home":"হোম","Account":"অ্যাকাউন্ট","Profile":"প্রোফাইল","Dashboard":"ড্যাশবোর্ড","Logout":"লগআউট","Language":"ভাষা","Country":"দেশ","Theme":"থিম","Loading page…":"পৃষ্ঠা লোড হচ্ছে…","Loading…":"লোড হচ্ছে…","Save Settings":"সেটিংস সংরক্ষণ","Save Global Style":"গ্লোবাল স্টাইল সংরক্ষণ","Save Customization":"কাস্টমাইজেশন সংরক্ষণ","Website Identity":"ওয়েবসাইট পরিচিতি","Website Title":"ওয়েবসাইটের শিরোনাম","Logo URL":"লোগোর URL","Logo URL (optional)":"লোগোর URL (ঐচ্ছিক)","Upload Website Logo":"ওয়েবসাইট লোগো আপলোড","Upload Website Favicon":"ওয়েবসাইট ফেভিকন আপলোড","Home Intro":"হোম পরিচিতি","Navigation Menu":"নেভিগেশন মেনু","Logo Swap Interval (seconds)":"লোগো পরিবর্তনের বিরতি (সেকেন্ড)","Icon Transition Speed (milliseconds)":"আইকন পরিবর্তনের গতি (মিলিসেকেন্ড)","Save":"সংরক্ষণ","Cancel":"বাতিল","Delete":"মুছুন","Search":"অনুসন্ধান","Name":"নাম","Slug":"স্লাগ","Type":"ধরন","Description":"বিবরণ","Visibility":"দৃশ্যমানতা","Show":"দেখান","Hide":"লুকান","Add Item":"আইটেম যোগ করুন","Save Item":"আইটেম সংরক্ষণ","Delete Item":"আইটেম মুছুন","Related Items":"সম্পর্কিত আইটেম","No records found.":"কোনো তথ্য পাওয়া যায়নি।","No records available.":"কোনো তথ্য নেই।","Settings saved.":"সেটিংস সংরক্ষিত হয়েছে।","Customization saved.":"কাস্টমাইজেশন সংরক্ষিত হয়েছে।","Global Style saved.":"গ্লোবাল স্টাইল সংরক্ষিত হয়েছে।","Overview":"সংক্ষিপ্ত বিবরণ","Relations":"সম্পর্কসমূহ","Content Module Builder":"কনটেন্ট মডিউল নির্মাতা","Customization":"কাস্টমাইজেশন","Users":"ব্যবহারকারীগণ","Roles":"রোলসমূহ","Permissions":"অনুমতিসমূহ","Create Account":"অ্যাকাউন্ট তৈরি","Reset Password":"পাসওয়ার্ড রিসেট","Verify":"যাচাই","New Password":"নতুন পাসওয়ার্ড","Login":"লগইন","Email":"ইমেইল","Password":"পাসওয়ার্ড","Current Password":"বর্তমান পাসওয়ার্ড","Confirm New Password":"নতুন পাসওয়ার্ড নিশ্চিত করুন","Update Password":"পাসওয়ার্ড আপডেট","Edit Profile":"প্রোফাইল সম্পাদনা","Change Password":"পাসওয়ার্ড পরিবর্তন","Send Reset Code":"রিসেট কোড পাঠান","Verification Code":"যাচাইকরণ কোড","Save Profile":"প্রোফাইল সংরক্ষণ"};
+const enText=Object.fromEntries(Object.entries(bnText).map(([english,bengali])=>[bengali,english]));
+function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
+ const selected=Object.hasOwn(translations,language)?language:"en",labels=translations[selected],textMap=selected==="bn"?bnText:enText;
+ document.documentElement.lang=selected;document.documentElement.dir=selected==="ar"?"rtl":"ltr";
+ document.querySelectorAll("[data-label]").forEach(element=>{const value=labels[element.dataset.label];if(value)element.textContent=value;});
+ document.querySelectorAll("[data-placeholder]").forEach(element=>{const value=labels[element.dataset.placeholder];if(value)element.placeholder=value;});
+ document.querySelectorAll("[data-aria-label]").forEach(element=>{const value=labels[element.dataset.ariaLabel];if(value)element.setAttribute("aria-label",value);});
+ const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let node;
+ while((node=walker.nextNode())){const raw=node.nodeValue||"",trimmed=raw.trim(),translated=textMap[trimmed];if(translated)node.nodeValue=raw.replace(trimmed,translated);}
 }
+function applyEnglishText(){applyLanguage(localStorage.getItem("3b-language")||"en");}
 let runtimeConfig = null;
 window.addEventListener("runtime-config-updated", (event) => {
   if (!event.detail || typeof event.detail !== "object") return;
@@ -53,7 +61,7 @@ function applyTheme(theme) {
   if (themeToggle) {
     const themeIcon = themeToggle.querySelector(".theme-icon");
     if (themeIcon) { themeIcon.replaceChildren(createIcon(dark ? "sun" : "moon")); }
-    themeToggle.setAttribute("aria-label", dark ? translations.en.light : translations.en.dark);
+    themeToggle.setAttribute("aria-label", dark ? (translations[document.documentElement.lang]||translations.en).light : (translations[document.documentElement.lang]||translations.en).dark);
   }
   localStorage.setItem("3b-theme", dark ? "dark" : "light");
 }
@@ -253,7 +261,8 @@ async function applyPublicSiteSettings() {
   const website=websiteData?.setting_value&&typeof websiteData.setting_value==="object"?websiteData.setting_value:{};
   const settings={...website,...profile,
     website_title:profile.website_title||website.title,
-    logo_url:profile.logo_url||website.logo_url
+    logo_url:profile.logo_url||website.logo_url,
+    favicon_url:profile.favicon_url||website.favicon_url
   };
   const intro=typeof introData?.setting_value?.content==="string"&&introData.setting_value.content.trim()
     ?introData.setting_value.content.trim()
@@ -277,6 +286,9 @@ async function applyPublicSiteSettings() {
   if(menuBrandLogo&&brandLogo)menuBrandLogo.replaceChildren(...[...brandLogo.childNodes].map(node=>node.cloneNode(true)));
   const menuBrandTitle=document.querySelector(".menu-brand-title");
   if(menuBrandTitle)menuBrandTitle.textContent=websiteTitle;
+  const favicon=document.getElementById("site-favicon");
+  if(favicon&&typeof settings.favicon_url==="string"&&/^https?:\/\//i.test(settings.favicon_url))favicon.href=settings.favicon_url;
+  window.dispatchEvent(new CustomEvent("site-brand-settings-updated",{detail:{logoUrl:settings.logo_url||"",title:websiteTitle,navigationMenu:settings.navigation_menu||{}}}));
 }
 
 if (logoutMenuLink) logoutMenuLink.addEventListener("click", async () => {
@@ -302,6 +314,9 @@ const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
 const languageSelect=document.getElementById("language-select");
 const countrySelect=document.getElementById("country-select");
 const themeSelect=document.getElementById("theme-select");
+window.addEventListener("site-language-changed",event=>applyLanguage(event.detail?.language||"en"));
+window.addEventListener("site-country-changed",event=>{document.documentElement.dataset.country=event.detail?.country||"global";});
+window.addEventListener("site-theme-changed",event=>{document.documentElement.dataset.themeVariant=event.detail?.theme||"classic";});
 if(themeSelect){
   const savedVariant=localStorage.getItem("3b-theme-variant")||"classic";
   themeSelect.value=["classic","modern","future"].includes(savedVariant)?savedVariant:"classic";
@@ -327,8 +342,8 @@ async function loadMenuPreferences(){
     const rows=languagesResult.data||[],saved=localStorage.getItem("3b-language")||"";
     languageSelect.replaceChildren(...rows.map(row=>new Option(row.title,row.slug)));
     languageSelect.value=rows.some(row=>row.slug===saved)?saved:(rows.find(row=>row.is_default)?.slug||rows[0]?.slug||"en");
-    document.documentElement.lang=languageSelect.value;
     document.documentElement.dataset.language=languageSelect.value;
+    applyLanguage(languageSelect.value);
   }
 }
 countrySelect?.addEventListener("change",()=>{
@@ -338,8 +353,8 @@ countrySelect?.addEventListener("change",()=>{
 });
 languageSelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-language",languageSelect.value);
-  document.documentElement.lang=languageSelect.value;
   document.documentElement.dataset.language=languageSelect.value;
+  applyLanguage(languageSelect.value);
   window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:languageSelect.value}}));
 });
 void loadMenuPreferences();
@@ -1556,6 +1571,7 @@ dashboardTabs.forEach((tab, index) => {
 if(ownerDashboard&&currentDashboardRole==="owner")initExtendedDashboard(supabase,currentDashboardRole);
 
 // Load only published records for the five public homepage sections.
+window.__applyPublicSiteSettings=applyPublicSiteSettings;
 void applyPublicSiteSettings();
   void loadHomeCatalog();
 }
