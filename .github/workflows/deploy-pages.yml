@@ -51,7 +51,8 @@ jobs:
           ! test -d site/products
           ! test -d site/workshop
           ! test -d site/technicians
-          ! grep -R -E "Content Module Builder|module_fields|content_items" site
+          grep -q 'const categories=["Service","Product","Info","Hub","Provider","Call","Whatsapp","Location","Map","Images"]' site/assets/content-dashboard.js
+          grep -q "notionHomeCategories" site/assets/app.js
           ! grep -R -E "country-router|ipwho\\.is|preferred_locale|countryContextReady" site
 
   deploy:
