@@ -1,5 +1,5 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-15";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261119-2";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261119-3";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js?v=notion-20261118-15";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
