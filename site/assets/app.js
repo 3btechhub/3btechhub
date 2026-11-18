@@ -1,6 +1,6 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-updates-20261118-2";
 import { initExtendedDashboard } from "./admin-extended.js?v=notion-permission-read-write-20261118-2";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-updates-20261118-5";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-alignment-20261118-3";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
@@ -36,8 +36,8 @@ const translations = {
  bn:{home:"হোম",profile:"প্রোফাইল",login:"লগইন",logout:"লগআউট",dashboard:"ড্যাশবোর্ড",accountLogin:"অ্যাকাউন্ট লগইন",dark:"ডার্ক মোড চালু করুন",light:"লাইট মোড চালু করুন",services:"সেবাসমূহ",products:"পণ্যসমূহ",workshops:"সার্ভিস সেন্টার",technicians:"টেকনিশিয়ান",contacts:"যোগাযোগ",user:"ব্যবহারকারী",role:"রোল",permission:"অনুমতি",settings:"সেটিংস",users:"ব্যবহারকারীগণ",refresh:"রিফ্রেশ",inviteUser:"ব্যবহারকারী আমন্ত্রণ",userType:"ব্যবহারকারীর ধরন",emailAddress:"ইমেইল ঠিকানা",sendInvitation:"আমন্ত্রণ পাঠান",refreshUsers:"ব্যবহারকারী রিফ্রেশ",userList:"ব্যবহারকারী তালিকা",roleAssignments:"রোল বরাদ্দ",permissionMatrix:"অনুমতি তালিকা",websiteSettings:"ওয়েবসাইট সেটিংস",websiteTitle:"ওয়েবসাইটের শিরোনাম",logoUrl:"লোগোর URL (ঐচ্ছিক)",saveSettings:"সেটিংস সংরক্ষণ",signIn:"সাইন ইন",sendResetCode:"রিসেট কোড পাঠান",forgotPassword:"পাসওয়ার্ড ভুলে গেছেন?",createAccount:"অ্যাকাউন্ট তৈরি",verificationCode:"যাচাইকরণ কোড",name:"নাম",email:"ইমেইল",phoneNumber:"ফোন নম্বর",password:"পাসওয়ার্ড",changePassword:"পাসওয়ার্ড পরিবর্তন",edit:"সম্পাদনা",currentPassword:"বর্তমান পাসওয়ার্ড",newPassword:"নতুন পাসওয়ার্ড",confirmPassword:"নতুন পাসওয়ার্ড নিশ্চিত করুন",updatePassword:"পাসওয়ার্ড আপডেট",verifyCodeReset:"কোড যাচাই ও পাসওয়ার্ড রিসেট"},
  ar:{home:"الرئيسية",profile:"الملف الشخصي",login:"تسجيل الدخول",logout:"تسجيل الخروج",dashboard:"لوحة التحكم",accountLogin:"تسجيل الدخول إلى الحساب",dark:"التبديل إلى الوضع الداكن",light:"التبديل إلى الوضع الفاتح",services:"الخدمات",products:"المنتجات",workshops:"مراكز الخدمة",technicians:"الفنيون",contacts:"جهات الاتصال",user:"المستخدم",role:"الدور",permission:"الصلاحية",settings:"الإعدادات",users:"المستخدمون",refresh:"تحديث",inviteUser:"دعوة مستخدم",userType:"نوع المستخدم",emailAddress:"عنوان البريد الإلكتروني",sendInvitation:"إرسال الدعوة",refreshUsers:"تحديث المستخدمين",userList:"قائمة المستخدمين",roleAssignments:"تعيينات الأدوار",permissionMatrix:"مصفوفة الصلاحيات",websiteSettings:"إعدادات الموقع",websiteTitle:"عنوان الموقع",logoUrl:"رابط الشعار (اختياري)",saveSettings:"حفظ الإعدادات",signIn:"تسجيل الدخول",sendResetCode:"إرسال رمز إعادة التعيين",forgotPassword:"هل نسيت كلمة المرور؟",createAccount:"إنشاء حساب",verificationCode:"رمز التحقق",name:"الاسم",email:"البريد الإلكتروني",phoneNumber:"رقم الهاتف",password:"كلمة المرور",changePassword:"تغيير كلمة المرور",edit:"تعديل",currentPassword:"كلمة المرور الحالية",newPassword:"كلمة المرور الجديدة",confirmPassword:"تأكيد كلمة المرور الجديدة",updatePassword:"تحديث كلمة المرور",verifyCodeReset:"التحقق من الرمز وإعادة تعيين كلمة المرور"}
 };
-const bnText={"Home":"হোম","Account":"অ্যাকাউন্ট","Profile":"প্রোফাইল","Dashboard":"ড্যাশবোর্ড","Logout":"লগআউট","Language":"ভাষা","Country":"দেশ","Theme":"থিম","Loading page…":"পৃষ্ঠা লোড হচ্ছে…","Loading…":"লোড হচ্ছে…","Save Settings":"সেটিংস সংরক্ষণ","Save Global Style":"গ্লোবাল স্টাইল সংরক্ষণ","Save Customization":"কাস্টমাইজেশন সংরক্ষণ","Website Identity":"ওয়েবসাইট পরিচিতি","Website Title":"ওয়েবসাইটের শিরোনাম","Logo URL":"লোগোর URL","Logo URL (optional)":"লোগোর URL (ঐচ্ছিক)","Upload Website Logo":"ওয়েবসাইট লোগো আপলোড","Upload Website Favicon":"ওয়েবসাইট ফেভিকন আপলোড","Home Intro":"হোম পরিচিতি","Navigation Menu":"নেভিগেশন মেনু","Logo Swap Interval (seconds)":"লোগো পরিবর্তনের বিরতি (সেকেন্ড)","Icon Transition Speed (milliseconds)":"আইকন পরিবর্তনের গতি (মিলিসেকেন্ড)","Save":"সংরক্ষণ","Cancel":"বাতিল","Delete":"মুছুন","Search":"অনুসন্ধান","Name":"নাম","Slug":"স্লাগ","Type":"ধরন","Description":"বিবরণ","Visibility":"দৃশ্যমানতা","Show":"দেখান","Hide":"লুকান","Add Item":"আইটেম যোগ করুন","Save Item":"আইটেম সংরক্ষণ","Delete Item":"আইটেম মুছুন","Related Items":"সম্পর্কিত আইটেম","No records found.":"কোনো তথ্য পাওয়া যায়নি।","No records available.":"কোনো তথ্য নেই।","Settings saved.":"সেটিংস সংরক্ষিত হয়েছে।","Customization saved.":"কাস্টমাইজেশন সংরক্ষিত হয়েছে।","Global Style saved.":"গ্লোবাল স্টাইল সংরক্ষিত হয়েছে।","Overview":"সংক্ষিপ্ত বিবরণ","Relations":"সম্পর্কসমূহ","Content Module Builder":"কনটেন্ট মডিউল নির্মাতা","Customization":"কাস্টমাইজেশন","Users":"ব্যবহারকারীগণ","Roles":"রোলসমূহ","Permissions":"অনুমতিসমূহ","Create Account":"অ্যাকাউন্ট তৈরি","Reset Password":"পাসওয়ার্ড রিসেট","Verify":"যাচাই","New Password":"নতুন পাসওয়ার্ড","Login":"লগইন","Email":"ইমেইল","Password":"পাসওয়ার্ড","Current Password":"বর্তমান পাসওয়ার্ড","Confirm New Password":"নতুন পাসওয়ার্ড নিশ্চিত করুন","Update Password":"পাসওয়ার্ড আপডেট","Edit Profile":"প্রোফাইল সম্পাদনা","Change Password":"পাসওয়ার্ড পরিবর্তন","Send Reset Code":"রিসেট কোড পাঠান","Verification Code":"যাচাইকরণ কোড","Save Profile":"প্রোফাইল সংরক্ষণ"};
-const arText={"Home":"الرئيسية","Account":"الحساب","Profile":"الملف الشخصي","Dashboard":"لوحة التحكم","Logout":"تسجيل الخروج","Language":"اللغة","Country":"الدولة","Theme":"المظهر","Loading page…":"جارٍ تحميل الصفحة…","Loading…":"جارٍ التحميل…","Save Settings":"حفظ الإعدادات","Save Global Style":"حفظ النمط العام","Save Customization":"حفظ التخصيص","Website Identity":"هوية الموقع","Website Title":"عنوان الموقع","Logo URL":"رابط الشعار","Logo URL (optional)":"رابط الشعار (اختياري)","Upload Website Logo":"رفع شعار الموقع","Upload Website Favicon":"رفع أيقونة الموقع","Home Intro":"مقدمة الصفحة الرئيسية","Navigation Menu":"قائمة التنقل","Save":"حفظ","Cancel":"إلغاء","Delete":"حذف","Search":"بحث","Name":"الاسم","Slug":"المعرّف","Type":"النوع","Description":"الوصف","Visibility":"إمكانية الظهور","Show":"إظهار","Hide":"إخفاء","Add Item":"إضافة عنصر","Save Item":"حفظ العنصر","Delete Item":"حذف العنصر","Related Items":"العناصر المرتبطة","No records found.":"لم يتم العثور على سجلات.","No records available.":"لا توجد سجلات متاحة.","Settings saved.":"تم حفظ الإعدادات.","Customization saved.":"تم حفظ التخصيص.","Global Style saved.":"تم حفظ النمط العام.","Overview":"نظرة عامة","Relations":"العلاقات","Content Module Builder":"منشئ وحدات المحتوى","Customization":"التخصيص","Users":"المستخدمون","Roles":"الأدوار","Permissions":"الصلاحيات","Create Account":"إنشاء حساب","Reset Password":"إعادة تعيين كلمة المرور","Verify":"تحقق","New Password":"كلمة المرور الجديدة","Login":"تسجيل الدخول","Email":"البريد الإلكتروني","Password":"كلمة المرور","Current Password":"كلمة المرور الحالية","Confirm New Password":"تأكيد كلمة المرور الجديدة","Update Password":"تحديث كلمة المرور","Edit Profile":"تعديل الملف الشخصي","Change Password":"تغيير كلمة المرور","Send Reset Code":"إرسال رمز إعادة التعيين","Verification Code":"رمز التحقق","Save Profile":"حفظ الملف الشخصي","Services":"الخدمات","Products":"المنتجات","Workshops":"مراكز الخدمة","Technicians":"الفنيون","Contacts":"جهات الاتصال","Countries":"الدول","Languages":"اللغات","Media":"الوسائط","What We Do":"ما نقدمه","Content Modules":"وحدات المحتوى","Activities List":"قائمة الأنشطة","Health Status":"حالة النظام","Data":"البيانات","Role":"الدور","Permission":"الصلاحية","Save Relation":"حفظ العلاقة","Create Relation":"إنشاء علاقة","Source Type":"نوع المصدر","Source Name":"اسم المصدر","Target Type":"نوع الهدف","Target Name":"اسم الهدف","Select Type":"اختر النوع","Select Item":"اختر عنصرًا","View All":"عرض الكل","Back":"رجوع"};
+const bnText={"Home":"হোম","Account":"অ্যাকাউন্ট","Profile":"প্রোফাইল","Dashboard":"ড্যাশবোর্ড","Logout":"লগআউট","Language":"ভাষা","Country":"দেশ","Theme":"থিম","Loading page…":"পৃষ্ঠা লোড হচ্ছে…","Loading…":"লোড হচ্ছে…","Save Settings":"সেটিংস সংরক্ষণ","Save Global Style":"গ্লোবাল স্টাইল সংরক্ষণ","Save Customization":"কাস্টমাইজেশন সংরক্ষণ","Website Identity":"ওয়েবসাইট পরিচিতি","Website Title":"ওয়েবসাইটের শিরোনাম","Logo URL":"লোগোর URL","Logo URL (optional)":"লোগোর URL (ঐচ্ছিক)","Upload Website Logo":"ওয়েবসাইট লোগো আপলোড","Upload Website Favicon":"ওয়েবসাইট ফেভিকন আপলোড","Home Intro":"হোম পরিচিতি","Navigation Menu":"নেভিগেশন মেনু","Logo Swap Interval (seconds)":"লোগো পরিবর্তনের বিরতি (সেকেন্ড)","Icon Transition Speed (milliseconds)":"আইকন পরিবর্তনের গতি (মিলিসেকেন্ড)","Save":"সংরক্ষণ","Cancel":"বাতিল","Delete":"মুছুন","Search":"অনুসন্ধান","Name":"নাম","Slug":"স্লাগ","Type":"ধরন","Description":"বিবরণ","Visibility":"দৃশ্যমানতা","Show":"দেখান","Hide":"লুকান","Add Item":"আইটেম যোগ করুন","Save Item":"আইটেম সংরক্ষণ","Delete Item":"আইটেম মুছুন","Related Items":"সম্পর্কিত আইটেম","No records found.":"কোনো তথ্য পাওয়া যায়নি।","No records available.":"কোনো তথ্য নেই।","Settings saved.":"সেটিংস সংরক্ষিত হয়েছে।","Customization saved.":"কাস্টমাইজেশন সংরক্ষিত হয়েছে।","Global Style saved.":"গ্লোবাল স্টাইল সংরক্ষিত হয়েছে।","Overview":"সংক্ষিপ্ত বিবরণ","Relations":"সম্পর্কসমূহ","Customization":"কাস্টমাইজেশন","Users":"ব্যবহারকারীগণ","Roles":"রোলসমূহ","Permissions":"অনুমতিসমূহ","Create Account":"অ্যাকাউন্ট তৈরি","Reset Password":"পাসওয়ার্ড রিসেট","Verify":"যাচাই","New Password":"নতুন পাসওয়ার্ড","Login":"লগইন","Email":"ইমেইল","Password":"পাসওয়ার্ড","Current Password":"বর্তমান পাসওয়ার্ড","Confirm New Password":"নতুন পাসওয়ার্ড নিশ্চিত করুন","Update Password":"পাসওয়ার্ড আপডেট","Edit Profile":"প্রোফাইল সম্পাদনা","Change Password":"পাসওয়ার্ড পরিবর্তন","Send Reset Code":"রিসেট কোড পাঠান","Verification Code":"যাচাইকরণ কোড","Save Profile":"প্রোফাইল সংরক্ষণ"};
+const arText={"Home":"الرئيسية","Account":"الحساب","Profile":"الملف الشخصي","Dashboard":"لوحة التحكم","Logout":"تسجيل الخروج","Language":"اللغة","Country":"الدولة","Theme":"المظهر","Loading page…":"جارٍ تحميل الصفحة…","Loading…":"جارٍ التحميل…","Save Settings":"حفظ الإعدادات","Save Global Style":"حفظ النمط العام","Save Customization":"حفظ التخصيص","Website Identity":"هوية الموقع","Website Title":"عنوان الموقع","Logo URL":"رابط الشعار","Logo URL (optional)":"رابط الشعار (اختياري)","Upload Website Logo":"رفع شعار الموقع","Upload Website Favicon":"رفع أيقونة الموقع","Home Intro":"مقدمة الصفحة الرئيسية","Navigation Menu":"قائمة التنقل","Save":"حفظ","Cancel":"إلغاء","Delete":"حذف","Search":"بحث","Name":"الاسم","Slug":"المعرّف","Type":"النوع","Description":"الوصف","Visibility":"إمكانية الظهور","Show":"إظهار","Hide":"إخفاء","Add Item":"إضافة عنصر","Save Item":"حفظ العنصر","Delete Item":"حذف العنصر","Related Items":"العناصر المرتبطة","No records found.":"لم يتم العثور على سجلات.","No records available.":"لا توجد سجلات متاحة.","Settings saved.":"تم حفظ الإعدادات.","Customization saved.":"تم حفظ التخصيص.","Global Style saved.":"تم حفظ النمط العام.","Overview":"نظرة عامة","Relations":"العلاقات","Customization":"التخصيص","Users":"المستخدمون","Roles":"الأدوار","Permissions":"الصلاحيات","Create Account":"إنشاء حساب","Reset Password":"إعادة تعيين كلمة المرور","Verify":"تحقق","New Password":"كلمة المرور الجديدة","Login":"تسجيل الدخول","Email":"البريد الإلكتروني","Password":"كلمة المرور","Current Password":"كلمة المرور الحالية","Confirm New Password":"تأكيد كلمة المرور الجديدة","Update Password":"تحديث كلمة المرور","Edit Profile":"تعديل الملف الشخصي","Change Password":"تغيير كلمة المرور","Send Reset Code":"إرسال رمز إعادة التعيين","Verification Code":"رمز التحقق","Save Profile":"حفظ الملف الشخصي","Services":"الخدمات","Products":"المنتجات","Workshops":"مراكز الخدمة","Technicians":"الفنيون","Contacts":"جهات الاتصال","Countries":"الدول","Languages":"اللغات","Media":"الوسائط","What We Do":"ما نقدمه","Content Modules":"وحدات المحتوى","Activities List":"قائمة الأنشطة","Health Status":"حالة النظام","Data":"البيانات","Role":"الدور","Permission":"الصلاحية","Save Relation":"حفظ العلاقة","Create Relation":"إنشاء علاقة","Source Type":"نوع المصدر","Source Name":"اسم المصدر","Target Type":"نوع الهدف","Target Name":"اسم الهدف","Select Type":"اختر النوع","Select Item":"اختر عنصرًا","View All":"عرض الكل","Back":"رجوع"};
 const enText=Object.fromEntries(Object.entries(bnText).map(([english,bengali])=>[bengali,english]));
 const translationOriginals=new WeakMap();
 function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
@@ -197,178 +197,99 @@ applyRuntimeConfig(runtimeConfig, document.documentElement.dataset.theme);
 
 
 
-const homeDetailStack = [];
-let homeListState = null;
-
-function renderHomeCard(module, record, onSelect) {
-  const title=record.title||"";
-  const card=document.createElement("button");card.type="button";card.className="home-content-card";
-  const visual=document.createElement("div");visual.className="home-content-visual"+(module.module_key==="technicians"?" home-content-visual--person":"");
-  visual.append(getItemFallbackIcon(title,module.module_key));
-  const photo=record.field_values?.photo_url||(Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls[0]:"");
-  if(photo){const image=document.createElement("img");image.src=photo;image.alt="";image.loading="lazy";image.addEventListener("error",()=>image.remove(),{once:true});visual.append(image);}
-  const body=document.createElement("div");body.className="home-content-card-body";
-  if(title){const heading=document.createElement("h3");heading.textContent=title;body.append(heading);}
-  card.append(visual,body);card.addEventListener("click",onSelect);return card;
+const homeDetailStack=[];
+let homeListState=null;
+let homeInfoRows=[];
+let homeMediaRows=[];
+let homeMediaByInfo=new Map();
+function hasValue(v){return v!==null&&v!==undefined&&v!==""&&(!Array.isArray(v)||v.length>0);}
+function titleCase(v){return String(v||"").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());}
+function makeHomeCard(title,subtitle,onClick,imageUrl=""){
+ const card=document.createElement("button");card.type="button";card.className="home-content-card";
+ const visual=document.createElement("div");visual.className="home-content-visual";
+ if(imageUrl){const img=document.createElement("img");img.src=imageUrl;img.alt="";img.loading="lazy";img.addEventListener("error",()=>img.remove(),{once:true});visual.append(img);}
+ else visual.append(getItemFallbackIcon(title,"info"));
+ const body=document.createElement("div");body.className="home-content-card-body";
+ const h=document.createElement("h3");h.textContent=title;body.append(h);
+ if(subtitle){const s=document.createElement("p");s.textContent=subtitle;body.append(s);}
+ card.append(visual,body);card.addEventListener("click",onClick);return card;
 }
-
-function openHomeDetail(module,record){
-  homeDetailStack.push({module,record});
-  void renderHomeDetail();
+function openHomeType(type){homeListState={type};homeDetailStack.length=0;void renderHomeList();}
+function openHomeDetail(record){homeDetailStack.push(record);void renderHomeDetail();}
+async function renderHomeList(){
+ const area=document.getElementById("home-module-area");if(!area||!homeListState)return;
+ const {type}=homeListState;area.replaceChildren();area.hidden=false;
+ const view=document.createElement("section");view.className="home-list-view";
+ const header=document.createElement("div");header.className="home-list-heading";
+ const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>{homeListState=null;void loadHomeCatalog();});
+ const h=document.createElement("h1");h.textContent=type;header.append(back,h);view.append(header);
+ const grid=document.createElement("div");grid.className="home-list-grid";
+ homeInfoRows.filter(r=>(r.type||"General")===type).forEach(r=>{
+  const data=r.data||{},media=homeMediaRows.find(m=>(homeMediaByInfo.get(r.id)||[]).includes(m.id));
+  const image=media?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
+  grid.append(makeHomeCard(r.name,r.description,()=>openHomeDetail(r),image));
+ });
+ if(!grid.childElementCount)grid.append(document.createTextNode("No items available."));
+ view.append(grid);area.append(view);
 }
-
 async function renderHomeDetail(){
-  const area=document.getElementById("home-module-area");
-  const current=homeDetailStack[homeDetailStack.length-1];
-  if(!area||!current)return;
-  const {module,record}=current;area.replaceChildren();area.hidden=false;
-  const view=document.createElement("section");view.className="home-detail-view";
-  const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
-  back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else if(homeListState)renderHomeList(homeListState.module,homeListState.records,homeListState.title);else void loadHomeCatalog();});
-  const top=document.createElement("div");top.className="home-detail-heading";top.append(back);view.append(top);
-  const gallery=Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls:[];
-  const imageUrl=record.field_values?.photo_url||gallery[0]||"";
-  const visual=document.createElement("div");visual.className="home-detail-visual";
-  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.title||"";visual.append(img);}
-  else visual.append(getItemFallbackIcon(record.title||module.name,module.module_key));
-  view.append(visual);
-  const heading=document.createElement("h1");heading.textContent=record.title||"Details";view.append(heading);
-  const description=typeof record.field_values?.description==="string"?record.field_values.description.trim():"";
-  if(description){const summary=document.createElement("p");summary.className="home-detail-description";summary.textContent=description;view.append(summary);}
-  const fieldsResult=await supabase.from("module_fields").select("*").eq("module_id",module.id).eq("is_active",true).order("sort_order");
-  const fieldHost=document.createElement("div");fieldHost.className="home-detail-fields";
-  const skip=new Set(["title","slug","description","photo_url","gallery_urls","visibility_roles"]);
-  for(const field of fieldsResult.data||[]){
-    if(skip.has(field.field_key)||field.field_type==="relation")continue;
-    const value=record.field_values?.[field.field_key];
-    if(value===null||value===undefined||value==="")continue;
-    if(field.field_type==="image"){
-      const img=document.createElement("img");img.className="home-detail-inline-image";img.src=String(value);img.alt=field.label;fieldHost.append(img);continue;
-    }
-    if(field.field_type==="gallery"&&Array.isArray(value)){
-      const galleryHost=document.createElement("div");galleryHost.className="home-detail-gallery";
-      value.forEach(url=>{const img=document.createElement("img");img.src=String(url);img.alt=field.label;img.loading="lazy";galleryHost.append(img);});
-      fieldHost.append(galleryHost);continue;
-    }
-    const row=document.createElement("div");row.className="home-detail-field";
-    const label=document.createElement("strong");label.textContent=field.label||field.field_key;
-    let content;
-    if(field.field_type==="url"&&/^https?:\/\//i.test(String(value))){
-      content=document.createElement("a");content.href=String(value);content.target="_blank";content.rel="noopener noreferrer";content.textContent=String(value);
-    }else if(field.field_type==="email"){
-      content=document.createElement("a");content.href="mailto:"+String(value);content.textContent=String(value);
-    }else if(field.field_type==="phone"){
-      content=document.createElement("a");content.href="tel:"+String(value);content.textContent=String(value);
-    }else{
-      content=document.createElement("span");content.textContent=Array.isArray(value)?value.join(", "):typeof value==="object"?JSON.stringify(value):String(value);
-    }
-    row.append(label,content);fieldHost.append(row);
-  }
-  if(gallery.length>1){const galleryHost=document.createElement("div");galleryHost.className="home-detail-gallery";gallery.slice(1).forEach(url=>{const img=document.createElement("img");img.src=url;img.alt=record.title||"";img.loading="lazy";galleryHost.append(img);});fieldHost.append(galleryHost);}
-  if(fieldHost.childElementCount)view.append(fieldHost);
-  const {data:relations,error:relationError}=await supabase.from("relations").select("item_a_id,item_b_id").or("item_a_id.eq."+record.id+",item_b_id.eq."+record.id);
-  const relatedIds=[...new Set((relations||[]).map(r=>r.item_a_id===record.id?r.item_b_id:r.item_a_id))];
-  if(!relationError&&relatedIds.length){
-    const {data:related}=await supabase.from("content_items").select("id,title,slug,module_id,status,visibility_roles,field_values").in("id",relatedIds);
-    const moduleIds=[...new Set((related||[]).map(item=>item.module_id))];
-    const {data:relatedModules}=await supabase.from("modules").select("*").in("id",moduleIds);
-    const moduleById=new Map((relatedModules||[]).map(item=>[item.id,item]));
-    const grouped=new Map();
-    for(const item of related||[]){const relatedModule=moduleById.get(item.module_id);if(!relatedModule)continue;if(!grouped.has(relatedModule.id))grouped.set(relatedModule,[]);grouped.get(relatedModule).push(item);}
-    for(const [relatedModule,items] of grouped){
-      const section=document.createElement("section");section.className="home-related-section";const h2=document.createElement("h2");h2.textContent="Related "+relatedModule.name;section.append(h2);
-      const grid=document.createElement("div");grid.className="home-card-grid";
-      items.forEach(item=>grid.append(renderHomeCard(relatedModule,item,()=>openHomeDetail(relatedModule,item))));
-      section.append(grid);view.append(section);
-    }
-  }
-  area.append(view);
+ const area=document.getElementById("home-module-area"),record=homeDetailStack[homeDetailStack.length-1];if(!area||!record)return;
+ area.replaceChildren();area.hidden=false;
+ const view=document.createElement("section");view.className="home-detail-view";
+ const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else if(homeListState)void renderHomeList();else void loadHomeCatalog();});view.append(back);
+ const {data:links,error:linkError}=await supabase.from("Relation").select("*").or("source_id.eq."+record.id+",target_id.eq."+record.id);
+ const related=(links||[]).map(x=>({type:x.source_id===record.id?x.target_type:x.source_type,id:x.source_id===record.id?x.target_id:x.source_id}));
+ const mediaLinks=related.filter(x=>x.type==="Media"),relatedInfo=related.filter(x=>x.type==="Info");
+ const mediaFromRelation=homeMediaRows.find(m=>mediaLinks.some(x=>x.id===m.id));
+ const data=record.data||{},imageUrl=mediaFromRelation?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
+ const visual=document.createElement("div");visual.className="home-detail-visual";
+ if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.name||"";visual.append(img);}
+ else visual.append(getItemFallbackIcon(record.name||record.type,"info"));
+ view.append(visual);
+ const heading=document.createElement("h1");heading.textContent=record.name||"Details";view.append(heading);
+ if(record.description){const summary=document.createElement("p");summary.className="home-detail-description";summary.textContent=record.description;view.append(summary);}
+ const fieldHost=document.createElement("div");fieldHost.className="home-detail-fields";
+ const hiddenKeys=new Set(["description","photo_url","gallery_urls","image_url","image_path","visibility_roles","_legacy_source","_legacy_id","_module_key"]);
+ for(const [key,value] of Object.entries(data)){
+  if(hiddenKeys.has(key)||key.startsWith("_")||!hasValue(value))continue;
+  if(typeof value==="string"&&/^https?:\/\//i.test(value)&&/\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(value))continue;
+  const row=document.createElement("div");row.className="home-detail-field";
+  const label=document.createElement("strong");label.textContent=titleCase(key);
+  const content=document.createElement("span");content.textContent=Array.isArray(value)?value.join(", "):typeof value==="object"?JSON.stringify(value):String(value);
+  row.append(label,content);fieldHost.append(row);
+ }
+ if(fieldHost.childElementCount)view.append(fieldHost);
+ if(!linkError&&relatedInfo.length){
+  const ids=relatedInfo.map(x=>x.id),relatedRows=homeInfoRows.filter(x=>ids.includes(x.id));
+  const section=document.createElement("section");section.className="home-related-section";section.append(document.createElement("h2"));section.querySelector("h2").textContent="Related Information";
+  const grid=document.createElement("div");grid.className="home-card-grid";
+  relatedRows.forEach(r=>grid.append(makeHomeCard(r.name,r.type,()=>openHomeDetail(r),r.data?.photo_url||"")));
+  section.append(grid);if(grid.childElementCount)view.append(section);
+ }
+ area.append(view);
 }
-
-function renderHomeList(module,records,title) {
-  const area=document.getElementById("home-module-area");if(!area)return;
-  homeListState={module,records,title};homeDetailStack.length=0;area.replaceChildren();area.hidden=false;
-  const view=document.createElement("section");view.className="home-list-view";
-  const header=document.createElement("div");header.className="home-list-heading";
-  const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
-  back.addEventListener("click",()=>{homeListState=null;void loadHomeCatalog();});
-  const heading=document.createElement("h1");heading.textContent=title||module.name;header.append(back,heading);view.append(header);
-  const list=document.createElement("div");list.className="home-list-grid";
-  records.forEach(record=>list.append(renderHomeCard(module,record,()=>openHomeDetail(module,record))));
-  view.append(list);area.append(view);
+async function loadHomeCatalog(){
+ const area=document.getElementById("home-module-area");if(!area)return;
+ homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=true;
+ const [infoResult,mediaResult,relationResult]=await Promise.all([
+  supabase.from("Info").select("id,name,type,slug,description,visibility_roles,sort_order,data,status").in("status",["active","published"]).order("sort_order").order("name").limit(1000),
+  supabase.from("Media").select("id,name,type,slug,description,image_path,image_url,visibility_roles,sort_order,status").in("status",["active","published"]).order("sort_order").limit(1000),
+  supabase.from("Relation").select("source_type,source_id,target_type,target_id")
+ ]);
+ if(infoResult.error||mediaResult.error||relationResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error||relationResult.error);return;}
+ homeInfoRows=infoResult.data||[];
+ homeMediaRows=mediaResult.data||[];
+ homeMediaByInfo=new Map();
+ for(const rel of relationResult.data||[]){
+  if(rel.source_type==="Info"&&rel.target_type==="Media"){const ids=homeMediaByInfo.get(rel.source_id)||[];ids.push(rel.target_id);homeMediaByInfo.set(rel.source_id,ids);}
+  else if(rel.source_type==="Media"&&rel.target_type==="Info"){const ids=homeMediaByInfo.get(rel.target_id)||[];ids.push(rel.source_id);homeMediaByInfo.set(rel.target_id,ids);}
+ }
+ const grouped=new Map();
+ for(const row of homeInfoRows){const type=String(row.type||"General").trim()||"General";if(!grouped.has(type))grouped.set(type,[]);grouped.get(type).push(row);}
+ const grid=document.createElement("div");grid.className="home-card-grid";
+ for(const [type,records] of grouped){grid.append(makeHomeCard(type,records.length+" items",()=>openHomeType(type)));}
+ if(grid.childElementCount){const section=document.createElement("section");section.className="home-catalog-section";section.append(grid);area.append(section);area.hidden=false;}
 }
-async function loadHomeCatalog() {
-  const area=document.getElementById("home-module-area");
-  if(!area)return;
-  homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=true;
-  const [{data:setting,error:settingsError},{data:moduleRows,error:moduleError}]=await Promise.all([
-    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_modules").maybeSingle(),
-    supabase.from("modules").select("*").eq("status","published").order("sort_order").order("name")
-  ]);
-  if(settingsError||moduleError)return;
-  if(setting&&!(setting.visibility_roles||[]).includes("visitor"))return;
-  const savedModules=Array.isArray(setting?.setting_value?.modules)?setting.setting_value.modules:[];
-  const savedByKey=new Map(savedModules.filter(item=>item&&typeof item.key==="string").map(item=>[item.key,item]));
-  const selectedRegion=document.documentElement.dataset.country||localStorage.getItem("3b-country")||"global";
-  const countryModule=(moduleRows||[]).find(item=>item.module_key==="countries");
-  let regionAllowedIds=null,regionLinkedIds=new Set();
-  if(countryModule){
-    const {data:countryItems}=await supabase.from("content_items").select("id,title").eq("module_id",countryModule.id).in("status",["active","published"]);
-    const countryBySlug=new Map((countryItems||[]).map(item=>[String(item.title||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),item.id]));
-    const selectedCountryId=countryBySlug.get(selectedRegion);
-    const globalCountryId=countryBySlug.get("global");
-    const targetCountryIds=[...new Set([selectedCountryId,selectedRegion==="global"?null:globalCountryId].filter(Boolean))];
-    const allCountryIds=[...new Set((countryItems||[]).map(item=>item.id))];
-    if(targetCountryIds.length&&allCountryIds.length){
-      const [fromCountry,toCountry]=await Promise.all([
-        supabase.from("relations").select("item_a_id,item_b_id").in("item_a_id",allCountryIds),
-        supabase.from("relations").select("item_a_id,item_b_id").in("item_b_id",allCountryIds)
-      ]);
-      if(!fromCountry.error&&!toCountry.error){
-        for(const link of [...(fromCountry.data||[]),...(toCountry.data||[])]){
-          const countryId=allCountryIds.includes(link.item_a_id)?link.item_a_id:link.item_b_id;
-          const itemId=countryId===link.item_a_id?link.item_b_id:link.item_a_id;
-          regionLinkedIds.add(itemId);
-          if(targetCountryIds.includes(countryId))regionAllowedIds??=new Set();
-          if(targetCountryIds.includes(countryId))regionAllowedIds.add(itemId);
-        }
-      }
-    }
-  }
-  const configured=(moduleRows||[]).map((module,index)=>{
-    const saved=savedByKey.get(module.module_key);
-    return {module,title:typeof saved?.title==="string"&&saved.title.trim()?saved.title.trim():module.name,
-      sort_order:Number(saved?.sort_order)||Number(module.sort_order)||((index+1)*10),
-      visibility_roles:Array.isArray(saved?.visibility_roles)?saved.visibility_roles:["owner","visitor"]};
-  }).filter(item=>item.visibility_roles.includes("visitor"))
-    .sort((left,right)=>left.sort_order-right.sort_order);
-  for(const config of configured){
-    const module=config.module;
-    try{
-      const {data,error}=await supabase.from("content_items").select("id,title,slug,status,visibility_roles,field_values")
-        .eq("module_id",module.id).in("status",["active","published"]).order("sort_order").order("created_at",{ascending:false}).limit(200);
-      if(error)continue;
-      const records=(data||[]).filter(record=>(record.visibility_roles||[]).includes("visitor"))
-        .filter(record=>String(record.title||"").trim())
-        .filter(record=>!regionLinkedIds.has(record.id)||!regionAllowedIds||regionAllowedIds.has(record.id));
-      if(!records.length)continue;
-      const section=document.createElement("section");section.className="home-catalog-section";
-      const heading=document.createElement("div");heading.className="home-section-heading";
-      const h2=document.createElement("h2");h2.textContent=config.title;
-      heading.append(h2);section.append(heading);
-      const grid=document.createElement("div");grid.className="home-card-grid";
-      records.slice(0,3).forEach(record=>grid.append(renderHomeCard(module,record,()=>openHomeDetail(module,record))));
-      if(records.length>3){
-        const more=document.createElement("button");more.type="button";more.className="home-content-card home-view-all-card";
-        more.textContent="View All";more.setAttribute("aria-label","View all "+config.title);
-        more.addEventListener("click",()=>renderHomeList(module,records,config.title));grid.append(more);
-      }
-      section.append(grid);area.append(section);
-    }catch(error){console.error("Could not load homepage module.",module.module_key,error);}
-  }
-  area.hidden=area.childElementCount===0;
-}
-
 async function applyPublicSiteSettings() {
   const [{data:profileData},{data:websiteData},{data:introData},{data:navigationData}] = await Promise.all([
     supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","site_profile").maybeSingle(),
@@ -450,23 +371,8 @@ if(themeSelect){
   });
 }
 async function loadMenuPreferences(){
-  const [countriesResult,languagesResult]=await Promise.all([
-    supabase.from("countries").select("name,slug,status,sort_order").eq("status","active").order("sort_order"),
-    supabase.from("languages").select("title,slug,status,is_default,sort_order").eq("status","active").order("sort_order")
-  ]);
-  if(countrySelect&&!countriesResult.error){
-    const rows=countriesResult.data||[],saved=localStorage.getItem("3b-country")||"global";
-    countrySelect.replaceChildren(...rows.map(row=>new Option(row.name,row.slug||row.name.toLowerCase().replace(/\s+/g,"-"))));
-    countrySelect.value=rows.some(row=>(row.slug||"")===saved)?saved:(rows.find(row=>row.slug==="global")?.slug||rows[0]?.slug||"");
-    document.documentElement.dataset.country=countrySelect.value;
-  }
-  if(languageSelect&&!languagesResult.error){
-    const rows=languagesResult.data||[],saved=localStorage.getItem("3b-language")||"";
-    languageSelect.replaceChildren(...rows.map(row=>new Option(row.title,row.slug)));
-    languageSelect.value=rows.some(row=>row.slug===saved)?saved:(rows.find(row=>row.is_default)?.slug||rows[0]?.slug||"en");
-    document.documentElement.dataset.language=languageSelect.value;
-    applyLanguage(languageSelect.value);
-  }
+  if(countrySelect){const rows=[["Global","global"],["Bangladesh","bangladesh"],["Saudi Arabia","saudi-arabia"]],saved=localStorage.getItem("3b-country")||"global";countrySelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));countrySelect.value=rows.some(x=>x[1]===saved)?saved:"global";document.documentElement.dataset.country=countrySelect.value;}
+  if(languageSelect){const rows=[["English","en"],["Bangla","bn"],["Arabic","ar"]],saved=localStorage.getItem("3b-language")||"en";languageSelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));languageSelect.value=rows.some(x=>x[1]===saved)?saved:"en";document.documentElement.dataset.language=languageSelect.value;applyLanguage(languageSelect.value);}
 }
 countrySelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-country",countrySelect.value);
@@ -495,10 +401,7 @@ export async function resolveAuthRoute(requestedPath) {
   if (!url.pathname.startsWith(basePath)) return url.pathname + url.search + url.hash;
   const parts = url.pathname.slice(basePath.length).split("/").filter(Boolean);
   const first = parts[0] || "";
-  const legacyRoutes = {
-    login:"login", "create-account":"create-account", "forgot-password":"reset-password",
-    "reset-password":"reset-password", profile:"profile", "edit-profile":"edit-profile"
-  };
+  const legacyRoutes = {};
   let accountRoute = first === "account" ? (parts[1] || "") : (legacyRoutes[first] || "");
   if (first !== "account" && !accountRoute) return url.pathname + url.search + url.hash;
 
@@ -509,8 +412,8 @@ export async function resolveAuthRoute(requestedPath) {
     (hashParams.get("type") === "recovery" || url.searchParams.get("recovery") === "1");
 
   let target = recoveryCallback ? "new-password" : (accountRoute || (session ? "profile" : "login"));
-  if (!["login","create-account","reset-password","verify","new-password","profile","edit-profile"].includes(target)) target = session ? "profile" : "login";
-  if (!session && ["profile","edit-profile","new-password"].includes(target)) target = "login";
+  if (!["login","create-account","reset-password","verify","new-password","profile"].includes(target)) target = session ? "profile" : "login";
+  if (!session && ["profile","new-password"].includes(target)) target = "login";
   if (session && ["login","create-account"].includes(target)) target = "profile";
   if (session && target === "reset-password" && !recoveryCallback) target = "profile";
 
@@ -532,11 +435,11 @@ export async function initRoutePage() {
   const accountMode = document.querySelector("#app-main")?.dataset.authMode || "login";
   const accountAuthLayout = document.querySelector("#account-auth-layout");
   const accountProfileLayout = document.querySelector("#profile-card");
-  if (accountAuthLayout) accountAuthLayout.hidden = ["profile","edit-profile"].includes(accountMode);
-  if (accountProfileLayout) accountProfileLayout.hidden = !["profile","edit-profile"].includes(accountMode);
+  if (accountAuthLayout) accountAuthLayout.hidden = accountMode==="profile";
+  if (accountProfileLayout) accountProfileLayout.hidden = accountMode!=="profile";
   const form = document.querySelector("#auth-form");
 
-if (form && !["profile","edit-profile"].includes(accountMode)) {
+if (form && accountMode!=="profile") {
   const message = document.querySelector("#auth-message");
   const submit = document.querySelector("#auth-submit");
   const toggle = document.querySelector("#toggle-signup");
@@ -718,7 +621,7 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
 }
 
 const profile = document.querySelector("#profile-card");
-if (profile && ["profile","edit-profile"].includes(accountMode)) {
+if (profile && accountMode==="profile") {
   const status = document.querySelector("#profile-message");
   const form = document.querySelector("#profile-edit-form");
   const saveButton = document.querySelector("#profile-save");
@@ -901,7 +804,7 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
   });
 
   await loadProfile();
-  if (accountMode === "edit-profile") profile.querySelectorAll("[data-edit-field]").forEach((button) => button.click());
+  
   const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
     if (!session) window.navigateSiteRoute(new URL("account/login/", ROOT_URL).pathname, { replace: true });
   });

@@ -1,4 +1,4 @@
-import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-updates-20261118-5";
+import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-alignment-20261118-3";
 
 const BASE = "/3btechhub/";
 const main = document.getElementById("app-main");
@@ -16,13 +16,12 @@ function routeDetails(path) {
   const pathname = new URL(path, window.location.origin).pathname;
   const parts = pathname.slice(BASE.length).split("/").filter(Boolean);
   const first = parts[0] || "";
-  const legacy = { login:"login", "create-account":"signup", "forgot-password":"recovery-start", "reset-password":"recovery-start", profile:"profile", "edit-profile":"edit-profile" };
+  const legacy = {};
   if (first === "account") {
     const child = parts[1] || "login";
-    const modes = { login:"login", "create-account":"signup", "reset-password":"recovery-start", verify:"recovery-verify", "new-password":"recovery-new-password", profile:"profile", "edit-profile":"edit-profile" };
+    const modes = { login:"login", "create-account":"signup", "reset-password":"recovery-start", verify:"recovery-verify", "new-password":"recovery-new-password", profile:"profile" };
     return { view:"account", authMode:modes[child] || "login" };
   }
-  if (first === "edit-profile") return { view:"account", authMode:"edit-profile" };
   if (legacy[first]) return { view:"account", authMode:legacy[first] };
   if (["home","dashboard"].includes(first)) return { view:first };
   return { view:"home" };
