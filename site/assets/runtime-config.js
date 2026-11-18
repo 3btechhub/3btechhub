@@ -10,8 +10,6 @@ const THEME_VARIABLES = Object.freeze({
 
 const LAYOUT_VARIABLES = Object.freeze({
   content_max_width: "--content-max-width",
-  header_min_height: "--header-min-height",
-  footer_min_height: "--footer-min-height"
 });
 
 const COLOR_KEYS = new Set(Object.keys(THEME_VARIABLES));
