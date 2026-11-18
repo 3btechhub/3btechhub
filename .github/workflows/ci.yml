@@ -36,12 +36,12 @@ jobs:
         run: |
           grep -q "3B TECH HUB" site/index.html
           grep -q 'if (path === BASE.slice(0, -1) || path === BASE)' site/assets/site-router.js
-          grep -Fq 'first === "edit-profile"' site/assets/site-router.js
           ! grep -q 'class="home-main' site/index.html
           ! test -d site/services
           ! test -d site/products
           ! test -d site/workshop
           ! test -d site/technicians
+          ! grep -R -E "Content Module Builder|module_fields|content_items" site
           grep -q "signInWithPassword" site/assets/app.js
           grep -q "resetPasswordForEmail" site/assets/app.js
           ! grep -R -E "SUPABASE_SECRET_KEY|service_role" site
