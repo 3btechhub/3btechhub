@@ -1828,3 +1828,10 @@ textarea{min-height:calc(var(--control-height) * 2)}
 .menu-logo img{width:100%;height:100%;object-fit:contain}
 .menu-logo .brand-mark{font-weight:800;font-size:18px}
 @media(min-width:700px){.menu-trigger{bottom:24px}.site-menu{bottom:90px}}
+
+/* Override the header's legacy dropdown positioning for the floating menu. */
+.site-header .menu-trigger{position:fixed!important;inset-block-end:18px;inset-inline-end:18px;inset-inline-start:auto;top:auto}
+:root[dir="ltr"] .site-header .menu-trigger{inset-inline-start:18px;inset-inline-end:auto}
+.site-header .site-menu{position:fixed!important;inset-block-end:82px;inset-inline-end:18px;inset-inline-start:auto;top:auto}
+:root[dir="ltr"] .site-header .site-menu{inset-inline-start:18px;inset-inline-end:auto}
+@media(min-width:700px){.site-header .menu-trigger{inset-block-end:24px}.site-header .site-menu{inset-block-end:90px}}
