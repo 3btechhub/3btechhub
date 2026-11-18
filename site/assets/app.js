@@ -39,9 +39,10 @@ const arText={"Home":"الرئيسية","Account":"الحساب","Profile":"ال
 const enText=Object.fromEntries(Object.entries(bnText).map(([english,bengali])=>[bengali,english]));
 const translationOriginals=new WeakMap();
 function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
- const selected=Object.hasOwn(translations,language)?language:"en",labels=translations[selected],textMap=selected==="bn"?bnText:selected==="ar"?arText:enText;
+ const selected=/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(String(language||""))?String(language).toLowerCase():"en",labels=translations[selected]||translations.en,textMap=selected==="bn"?bnText:selected==="ar"?arText:enText;
  translationQueue=[];
  document.documentElement.lang=selected;
+ document.documentElement.dir=selected==="ar"?"rtl":"ltr";
  document.querySelectorAll("[data-label]").forEach(element=>{const value=labels[element.dataset.label];if(!value)return;const textNode=[...element.childNodes].find(node=>node.nodeType===Node.TEXT_NODE);if(textNode)textNode.nodeValue=value;else element.append(document.createTextNode(value));});
  document.querySelectorAll("[placeholder]").forEach(element=>{const value=textMap[element.placeholder];if(value)element.placeholder=value;});
  document.querySelectorAll("[aria-label]").forEach(element=>{const value=textMap[element.getAttribute("aria-label")];if(value)element.setAttribute("aria-label",value);});
@@ -53,7 +54,7 @@ function applyEnglishText(){applyLanguage(localStorage.getItem("3b-language")||"
 const translationCache=new Map();let translationQueue=[],translationWorkers=0;
 function translationSource(text){if(/[\u0600-\u06FF]/.test(text))return "ar";if(/[\u0980-\u09FF]/.test(text))return "bn";return "en";}
 function queueDynamicTranslations(root,target){
- if(!root||!["bn","ar"].includes(target))return;
+ if(!root||!target||target==="en")return;
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node,added=0;
  while((node=walker.nextNode())&&added<80){
   const raw=node.nodeValue||"",value=raw.trim(),parent=node.parentElement;
