@@ -1,5 +1,5 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-4";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-4";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-5";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-5";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
@@ -269,13 +269,16 @@ async function renderHomeDetail(){
 }
 async function loadHomeCatalog(){
  const area=document.getElementById("home-module-area");if(!area)return;
- homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=true;
+ homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=false;
+ const skeletonGrid=document.createElement("div");skeletonGrid.className="home-card-grid home-skeleton-grid";skeletonGrid.setAttribute("aria-hidden","true");
+ for(let i=0;i<4;i++){const card=document.createElement("div");card.className="home-content-card home-skeleton-card";const visual=document.createElement("div");visual.className="home-content-visual skeleton home-skeleton-visual";const body=document.createElement("div");body.className="home-content-card-body";const line=document.createElement("span");line.className="skeleton home-skeleton-line";body.append(line);card.append(visual,body);skeletonGrid.append(card);}
+ area.append(skeletonGrid);
  const [infoResult,mediaResult,relationResult]=await Promise.all([
   supabase.from("Info").select("id,name,type,slug,description,visibility,visibility_roles,sort_order,data,status").in("status",["active","published"]).eq("visibility","show").order("sort_order").order("name").limit(1000),
   supabase.from("Media").select("id,name,type,slug,description,image_path,image_url,visibility,visibility_roles,sort_order,status").in("status",["active","published"]).eq("visibility","show").order("sort_order").limit(1000),
   supabase.from("Relation").select("source_type,source_id,target_type,target_id")
  ]);
- if(infoResult.error||mediaResult.error||relationResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error||relationResult.error);return;}
+ if(infoResult.error||mediaResult.error||relationResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error||relationResult.error);area.replaceChildren();const error=document.createElement("p");error.className="home-empty-state";error.textContent="Unable to load content.";area.append(error);return;}
  const allInfo=infoResult.data||[],allMedia=mediaResult.data||[],allRelations=relationResult.data||[];
  const regionKey=localStorage.getItem("3b-region")||"global",regionName=regionKey==="saudi-arabia"?"Saudi Arabia":regionKey==="bangladesh"?"Bangladesh":"Global";
  const infoById=new Map(allInfo.map(row=>[row.id,row]));
@@ -309,11 +312,13 @@ async function loadHomeCatalog(){
   if(rel.source_type==="Info"&&rel.target_type==="Media"&&visibleInfoIds.has(rel.source_id)){const ids=homeMediaByInfo.get(rel.source_id)||[];ids.push(rel.target_id);homeMediaByInfo.set(rel.source_id,ids);}
   else if(rel.source_type==="Media"&&rel.target_type==="Info"&&visibleInfoIds.has(rel.target_id)){const ids=homeMediaByInfo.get(rel.target_id)||[];ids.push(rel.source_id);homeMediaByInfo.set(rel.target_id,ids);}
  }
+ area.replaceChildren();
  const grouped=new Map();
  for(const row of homeInfoRows){const type=String(row.type||"General").trim()||"General";if(!grouped.has(type))grouped.set(type,[]);grouped.get(type).push(row);}
  const grid=document.createElement("div");grid.className="home-card-grid";
  for(const [type,records] of grouped){grid.append(makeHomeCard(type,records.length+" items",()=>openHomeType(type)));}
- if(grid.childElementCount){const section=document.createElement("section");section.className="home-catalog-section";section.append(grid);area.append(section);area.hidden=false;}
+ if(grid.childElementCount){const section=document.createElement("section");section.className="home-catalog-section";section.append(grid);area.append(section);}else{const empty=document.createElement("p");empty.className="home-empty-state";empty.textContent="No content available.";area.append(empty);}
+ area.hidden=false;
 }
 async function applyPublicSiteSettings() {
   const [{data:profileData},{data:websiteData},{data:introData},{data:navigationData}] = await Promise.all([
