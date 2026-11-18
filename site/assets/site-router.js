@@ -22,7 +22,6 @@ function routeDetails(path) {
     const modes = { login:"login", "create-account":"signup", "reset-password":"recovery-start", verify:"recovery-verify", "new-password":"recovery-new-password", profile:"profile" };
     return { view:"account", authMode:modes[child] || "login" };
   }
-  if (first === "edit-profile") return { view:"account", authMode:"profile" };
   if (legacy[first]) return { view:"account", authMode:legacy[first] };
   if (["home","dashboard"].includes(first)) return { view:first };
   return { view:"home" };
