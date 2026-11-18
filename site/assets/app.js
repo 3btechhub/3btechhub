@@ -172,18 +172,34 @@ function closeSiteMenu() {
   menuButton.setAttribute("aria-expanded", "false");
   menuButton.setAttribute("aria-label", "Open menu");
 }
+let menuSessionRevision = 0;
 async function setMenuSession(session) {
-  if (accountMenuLink) { accountMenuLink.href=new URL("account/login/",ROOT_URL).href; accountMenuLink.hidden=Boolean(session); }
-  let roles=[];
-  if(session?.user?.id){
-    const {data,error}=await supabase.from("user_roles").select("role").eq("user_id",session.user.id);
-    if(!error)roles=(data||[]).map(row=>String(row.role||"").toLowerCase());
+  const revision = ++menuSessionRevision;
+  const userId = session?.user?.id || null;
+  let roles = [];
+  if (userId) {
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId);
+    if (revision !== menuSessionRevision) return;
+    if (error) {
+      console.error("Could not load navigation permissions.", error);
+    } else {
+      roles = (data || []).map(row => String(row.role || "").toLowerCase());
+    }
   }
-  const registered=roles.some(role=>["owner","admin","member"].includes(role));
-  if (profileMenuLink) profileMenuLink.href=new URL("account/profile/",ROOT_URL).href;
-  if (profileMenuLink) profileMenuLink.hidden=!registered;
-  if (logoutMenuLink) logoutMenuLink.hidden=!registered;
-  if (dashboardMenuLink) dashboardMenuLink.hidden=!(roles.includes("owner")||roles.includes("admin"));
+  if (revision !== menuSessionRevision) return;
+  const registered = roles.some(role => ["owner", "admin", "member"].includes(role));
+  if (profileMenuLink) {
+    profileMenuLink.href = new URL("account/profile/", ROOT_URL).href;
+    profileMenuLink.hidden = !registered;
+  }
+  if (logoutMenuLink) logoutMenuLink.hidden = !registered;
+  if (dashboardMenuLink) {
+    dashboardMenuLink.href = new URL("dashboard/", ROOT_URL).href;
+    dashboardMenuLink.hidden = !(roles.includes("owner") || roles.includes("admin"));
+  }
 }
 // Load authentication separately so a Supabase CDN issue cannot disable the menu.
 const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
@@ -383,13 +399,17 @@ if (logoutMenuLink) logoutMenuLink.addEventListener("click", async () => {
   }
 });
 async function syncAccountMenu() {
-  if (!accountMenuLink) return;
-  const { data } = await supabase.auth.getSession();
-  setMenuSession(data.session);
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    console.error("Could not read the current navigation session.", error);
+    return;
+  }
+  await setMenuSession(data?.session || null);
 }
-syncAccountMenu();
+void syncAccountMenu();
 supabase.auth.onAuthStateChange((_event, session) => {
-  setMenuSession(session);
+  // Do not issue Supabase queries while the auth callback holds the auth lock.
+  queueMicrotask(() => { void setMenuSession(session); });
 });
 const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
 const languageSelect=document.getElementById("language-select");
@@ -464,13 +484,7 @@ languageSelect?.addEventListener("change",()=>{
 void loadMenuPreferences();
 window.addEventListener("site-preferences-updated",()=>void loadMenuPreferences());
 window.addEventListener("site-settings-updated",()=>{void window.__applyPublicSiteSettings?.();});
-const headerBrandLogo=document.querySelector(".brand-logo");
-if(headerBrandLogo){
-  headerBrandLogo.setAttribute("role","button");headerBrandLogo.tabIndex=0;headerBrandLogo.setAttribute("aria-label","Go to Home");
-  const activateBrand=()=>window.navigateSiteRoute(new URL("home/",ROOT_URL).pathname);
-  headerBrandLogo.addEventListener("click",activateBrand);
-  headerBrandLogo.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();activateBrand();}});
-}
+// Website Logo and Website Title remain independent, non-navigation identity components.
 
 export async function resolveAuthRoute(requestedPath) {
   const url = new URL(requestedPath, window.location.origin);
