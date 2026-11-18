@@ -1,6 +1,6 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-completion-20261118-1";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-updates-20261118-1";
 import { initExtendedDashboard } from "./admin-extended.js?v=notion-permission-read-write-20261118-2";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-completion-20261118-5";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-updates-20261118-1";
 import { createContactIcon } from "./contact-utils.js";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
@@ -31,14 +31,61 @@ function addTextElement(parent, tag, className, value) {
   return node;
 }
 
-const translations = { en: {home:"Home",profile:"Profile",login:"Login",logout:"Logout",dashboard:"Dashboard",accountLogin:"Account login",dark:"Switch to dark mode",light:"Switch to light mode",services:"Services",products:"Products",workshops:"Workshops",technicians:"Technicians",contacts:"Contacts",user:"User",role:"Role",permission:"Permission",settings:"Settings",users:"Users",refresh:"Refresh",inviteUser:"Invite User",userType:"User Type",emailAddress:"Email Address",sendInvitation:"Send Invitation",refreshUsers:"Refresh Users",userList:"User List",roleAssignments:"Role Assignments",permissionMatrix:"Permission Matrix",websiteSettings:"Website Settings",websiteTitle:"Website Title",logoUrl:"Logo URL (optional)",saveSettings:"Save Settings",signIn:"Sign In",sendResetCode:"Send Reset Code",forgotPassword:"Forgot password?",createAccount:"Create account",verificationCode:"Verification Code",name:"Name",email:"Email",phoneNumber:"Phone Number",password:"Password",changePassword:"Change Password",edit:"Edit",currentPassword:"Current Password",newPassword:"New Password",confirmPassword:"Confirm New Password",updatePassword:"Update Password",verifyCodeReset:"Verify Code & Reset Password",loginAccount:"Login Account"} };
-function applyEnglishText() {
-  document.documentElement.lang = "en";
-  document.documentElement.dir ||= "ltr";
-  document.querySelectorAll("[data-label]").forEach((element) => { const value=translations.en[element.dataset.label]; if(value) element.textContent=value; });
-  document.querySelectorAll("[data-placeholder]").forEach((element) => { const value=translations.en[element.dataset.placeholder]; if(value) element.placeholder=value; });
-  document.querySelectorAll("[data-aria-label]").forEach((element) => { const value=translations.en[element.dataset.ariaLabel]; if(value) element.setAttribute("aria-label",value); });
+const translations = {
+ en:{home:"Home",profile:"Profile",login:"Login",logout:"Logout",dashboard:"Dashboard",accountLogin:"Account login",dark:"Switch to dark mode",light:"Switch to light mode",services:"Services",products:"Products",workshops:"Workshops",technicians:"Technicians",contacts:"Contacts",user:"User",role:"Role",permission:"Permission",settings:"Settings",users:"Users",refresh:"Refresh",inviteUser:"Invite User",userType:"User Type",emailAddress:"Email Address",sendInvitation:"Send Invitation",refreshUsers:"Refresh Users",userList:"User List",roleAssignments:"Role Assignments",permissionMatrix:"Permission Matrix",websiteSettings:"Website Settings",websiteTitle:"Website Title",logoUrl:"Logo URL (optional)",saveSettings:"Save Settings",signIn:"Sign In",sendResetCode:"Send Reset Code",forgotPassword:"Forgot password?",createAccount:"Create account",verificationCode:"Verification Code",name:"Name",email:"Email",phoneNumber:"Phone Number",password:"Password",changePassword:"Change Password",edit:"Edit",currentPassword:"Current Password",newPassword:"New Password",confirmPassword:"Confirm New Password",updatePassword:"Update Password",verifyCodeReset:"Verify Code & Reset Password"},
+ bn:{home:"হোম",profile:"প্রোফাইল",login:"লগইন",logout:"লগআউট",dashboard:"ড্যাশবোর্ড",accountLogin:"অ্যাকাউন্ট লগইন",dark:"ডার্ক মোড চালু করুন",light:"লাইট মোড চালু করুন",services:"সেবাসমূহ",products:"পণ্যসমূহ",workshops:"সার্ভিস সেন্টার",technicians:"টেকনিশিয়ান",contacts:"যোগাযোগ",user:"ব্যবহারকারী",role:"রোল",permission:"অনুমতি",settings:"সেটিংস",users:"ব্যবহারকারীগণ",refresh:"রিফ্রেশ",inviteUser:"ব্যবহারকারী আমন্ত্রণ",userType:"ব্যবহারকারীর ধরন",emailAddress:"ইমেইল ঠিকানা",sendInvitation:"আমন্ত্রণ পাঠান",refreshUsers:"ব্যবহারকারী রিফ্রেশ",userList:"ব্যবহারকারী তালিকা",roleAssignments:"রোল বরাদ্দ",permissionMatrix:"অনুমতি তালিকা",websiteSettings:"ওয়েবসাইট সেটিংস",websiteTitle:"ওয়েবসাইটের শিরোনাম",logoUrl:"লোগোর URL (ঐচ্ছিক)",saveSettings:"সেটিংস সংরক্ষণ",signIn:"সাইন ইন",sendResetCode:"রিসেট কোড পাঠান",forgotPassword:"পাসওয়ার্ড ভুলে গেছেন?",createAccount:"অ্যাকাউন্ট তৈরি",verificationCode:"যাচাইকরণ কোড",name:"নাম",email:"ইমেইল",phoneNumber:"ফোন নম্বর",password:"পাসওয়ার্ড",changePassword:"পাসওয়ার্ড পরিবর্তন",edit:"সম্পাদনা",currentPassword:"বর্তমান পাসওয়ার্ড",newPassword:"নতুন পাসওয়ার্ড",confirmPassword:"নতুন পাসওয়ার্ড নিশ্চিত করুন",updatePassword:"পাসওয়ার্ড আপডেট",verifyCodeReset:"কোড যাচাই ও পাসওয়ার্ড রিসেট"}
+};
+const bnText={"Home":"হোম","Account":"অ্যাকাউন্ট","Profile":"প্রোফাইল","Dashboard":"ড্যাশবোর্ড","Logout":"লগআউট","Language":"ভাষা","Country":"দেশ","Theme":"থিম","Loading page…":"পৃষ্ঠা লোড হচ্ছে…","Loading…":"লোড হচ্ছে…","Save Settings":"সেটিংস সংরক্ষণ","Save Global Style":"গ্লোবাল স্টাইল সংরক্ষণ","Save Customization":"কাস্টমাইজেশন সংরক্ষণ","Website Identity":"ওয়েবসাইট পরিচিতি","Website Title":"ওয়েবসাইটের শিরোনাম","Logo URL":"লোগোর URL","Logo URL (optional)":"লোগোর URL (ঐচ্ছিক)","Upload Website Logo":"ওয়েবসাইট লোগো আপলোড","Upload Website Favicon":"ওয়েবসাইট ফেভিকন আপলোড","Home Intro":"হোম পরিচিতি","Navigation Menu":"নেভিগেশন মেনু","Logo Swap Interval (seconds)":"লোগো পরিবর্তনের বিরতি (সেকেন্ড)","Icon Transition Speed (milliseconds)":"আইকন পরিবর্তনের গতি (মিলিসেকেন্ড)","Save":"সংরক্ষণ","Cancel":"বাতিল","Delete":"মুছুন","Search":"অনুসন্ধান","Name":"নাম","Slug":"স্লাগ","Type":"ধরন","Description":"বিবরণ","Visibility":"দৃশ্যমানতা","Show":"দেখান","Hide":"লুকান","Add Item":"আইটেম যোগ করুন","Save Item":"আইটেম সংরক্ষণ","Delete Item":"আইটেম মুছুন","Related Items":"সম্পর্কিত আইটেম","No records found.":"কোনো তথ্য পাওয়া যায়নি।","No records available.":"কোনো তথ্য নেই।","Settings saved.":"সেটিংস সংরক্ষিত হয়েছে।","Customization saved.":"কাস্টমাইজেশন সংরক্ষিত হয়েছে।","Global Style saved.":"গ্লোবাল স্টাইল সংরক্ষিত হয়েছে।","Overview":"সংক্ষিপ্ত বিবরণ","Relations":"সম্পর্কসমূহ","Content Module Builder":"কনটেন্ট মডিউল নির্মাতা","Customization":"কাস্টমাইজেশন","Users":"ব্যবহারকারীগণ","Roles":"রোলসমূহ","Permissions":"অনুমতিসমূহ","Create Account":"অ্যাকাউন্ট তৈরি","Reset Password":"পাসওয়ার্ড রিসেট","Verify":"যাচাই","New Password":"নতুন পাসওয়ার্ড","Login":"লগইন","Email":"ইমেইল","Password":"পাসওয়ার্ড","Current Password":"বর্তমান পাসওয়ার্ড","Confirm New Password":"নতুন পাসওয়ার্ড নিশ্চিত করুন","Update Password":"পাসওয়ার্ড আপডেট","Edit Profile":"প্রোফাইল সম্পাদনা","Change Password":"পাসওয়ার্ড পরিবর্তন","Send Reset Code":"রিসেট কোড পাঠান","Verification Code":"যাচাইকরণ কোড","Save Profile":"প্রোফাইল সংরক্ষণ"};
+const enText=Object.fromEntries(Object.entries(bnText).map(([english,bengali])=>[bengali,english]));
+function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
+ const selected=Object.hasOwn(translations,language)?language:"en",labels=translations[selected],textMap=selected==="bn"?bnText:enText;
+ document.documentElement.lang=selected;
+ document.querySelectorAll("[data-label]").forEach(element=>{const value=labels[element.dataset.label];if(!value)return;const textNode=[...element.childNodes].find(node=>node.nodeType===Node.TEXT_NODE);if(textNode)textNode.nodeValue=value;else element.append(document.createTextNode(value));});
+ document.querySelectorAll("[placeholder]").forEach(element=>{const value=textMap[element.placeholder];if(value)element.placeholder=value;});
+ document.querySelectorAll("[aria-label]").forEach(element=>{const value=textMap[element.getAttribute("aria-label")];if(value)element.setAttribute("aria-label",value);});
+ const translateTree=root=>{if(!root)return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node;while((node=walker.nextNode())){const raw=node.nodeValue||"",trimmed=raw.trim(),translated=textMap[trimmed];if(translated)node.nodeValue=raw.replace(trimmed,translated);}};
+ translateTree(document.body);
 }
+function applyEnglishText(){applyLanguage(localStorage.getItem("3b-language")||"en");}
+const languageObserver=new MutationObserver(records=>{const map=(document.documentElement.lang||"en")==="bn"?bnText:enText;const translate=textNode=>{const raw=textNode.nodeValue||"",trimmed=raw.trim(),translated=map[trimmed];if(translated)textNode.nodeValue=raw.replace(trimmed,translated);};for(const record of records)for(const node of record.addedNodes){if(node.nodeType===Node.TEXT_NODE){translate(node);continue;}if(node.nodeType!==Node.ELEMENT_NODE)continue;const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);let textNode;while((textNode=walker.nextNode()))translate(textNode);}});
+languageObserver.observe(document.body,{childList:true,subtree:true});
+
+function enhanceInlineDropdowns(root=document){
+ const selects=root.matches?.("select")?[root]:[...(root.querySelectorAll?.("select")||[])];
+ for(const select of selects){
+  if(select.dataset.inlineDropdownReady==="true"){select._syncInlineDropdown?.();continue;}
+  if(!select.parentNode)continue;
+  select.dataset.inlineDropdownReady="true";
+  const wrapper=document.createElement("div");wrapper.className="inline-dropdown";
+  select.parentNode.insertBefore(wrapper,select);wrapper.append(select);
+  const trigger=document.createElement("button");trigger.type="button";trigger.className="inline-dropdown-trigger";trigger.setAttribute("aria-haspopup","listbox");trigger.setAttribute("aria-expanded","false");
+  const options=document.createElement("div");options.className="inline-dropdown-options";options.hidden=true;options.setAttribute("role","listbox");
+  wrapper.append(trigger,options);select.classList.add("inline-dropdown-native");select.tabIndex=-1;select.setAttribute("aria-hidden","true");
+  function close(){options.hidden=true;trigger.setAttribute("aria-expanded","false");}
+  function sync(){
+   const selected=select.options[select.selectedIndex];trigger.textContent=selected?.textContent?.trim()||"Select";trigger.disabled=select.disabled;
+   options.replaceChildren();
+   [...select.options].forEach(option=>{
+    const item=document.createElement("button");item.type="button";item.className="inline-dropdown-option";item.setAttribute("role","option");item.setAttribute("aria-selected",String(option.selected));item.disabled=option.disabled;item.textContent=option.textContent;
+    item.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();if(option.disabled)return;select.value=option.value;select.dispatchEvent(new Event("change",{bubbles:true}));close();trigger.focus();});
+    options.append(item);
+   });
+  }
+  trigger.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();const opening=options.hidden;document.querySelectorAll(".inline-dropdown-options:not([hidden])").forEach(list=>{if(list!==options){list.hidden=true;list.parentElement?.querySelector(".inline-dropdown-trigger")?.setAttribute("aria-expanded","false");}});options.hidden=!opening;trigger.setAttribute("aria-expanded",String(opening));});
+  trigger.addEventListener("keydown",event=>{if(event.key==="Escape"){close();trigger.focus();}});
+  select.addEventListener("change",sync);
+  const nativeValue=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,"value");
+  if(nativeValue?.get&&nativeValue?.set){try{Object.defineProperty(select,"value",{configurable:true,enumerable:true,get(){return nativeValue.get.call(this);},set(value){nativeValue.set.call(this,value);sync();}});}catch{}}
+  const observer=new MutationObserver(sync);observer.observe(select,{childList:true,subtree:true,attributes:true,attributeFilter:["disabled","label","value"]});
+  select._syncInlineDropdown=sync;sync();
+ }
+}
+enhanceInlineDropdowns(document);
+const inlineDropdownObserver=new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes){if(node.nodeType===Node.ELEMENT_NODE)enhanceInlineDropdowns(node);}});
+inlineDropdownObserver.observe(document.body,{childList:true,subtree:true});
+document.addEventListener("click",event=>{if(!event.target.closest(".inline-dropdown"))document.querySelectorAll(".inline-dropdown-options:not([hidden])").forEach(list=>{list.hidden=true;list.parentElement?.querySelector(".inline-dropdown-trigger")?.setAttribute("aria-expanded","false");});});
+window.addEventListener("site-language-changed",()=>document.querySelectorAll("select").forEach(select=>select._syncInlineDropdown?.()));
+
 let runtimeConfig = null;
 window.addEventListener("runtime-config-updated", (event) => {
   if (!event.detail || typeof event.detail !== "object") return;
@@ -53,7 +100,7 @@ function applyTheme(theme) {
   if (themeToggle) {
     const themeIcon = themeToggle.querySelector(".theme-icon");
     if (themeIcon) { themeIcon.replaceChildren(createIcon(dark ? "sun" : "moon")); }
-    themeToggle.setAttribute("aria-label", dark ? translations.en.light : translations.en.dark);
+    themeToggle.setAttribute("aria-label", dark ? (translations[document.documentElement.lang]||translations.en).light : (translations[document.documentElement.lang]||translations.en).dark);
   }
   localStorage.setItem("3b-theme", dark ? "dark" : "light");
 }
@@ -210,6 +257,32 @@ async function loadHomeCatalog() {
   if(setting&&!(setting.visibility_roles||[]).includes("visitor"))return;
   const savedModules=Array.isArray(setting?.setting_value?.modules)?setting.setting_value.modules:[];
   const savedByKey=new Map(savedModules.filter(item=>item&&typeof item.key==="string").map(item=>[item.key,item]));
+  const selectedRegion=document.documentElement.dataset.country||localStorage.getItem("3b-country")||"global";
+  const countryModule=(moduleRows||[]).find(item=>item.module_key==="countries");
+  let regionAllowedIds=null,regionLinkedIds=new Set();
+  if(countryModule){
+    const {data:countryItems}=await supabase.from("content_items").select("id,title").eq("module_id",countryModule.id).in("status",["active","published"]);
+    const countryBySlug=new Map((countryItems||[]).map(item=>[String(item.title||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),item.id]));
+    const selectedCountryId=countryBySlug.get(selectedRegion);
+    const globalCountryId=countryBySlug.get("global");
+    const targetCountryIds=[...new Set([selectedCountryId,selectedRegion==="global"?null:globalCountryId].filter(Boolean))];
+    const allCountryIds=[...new Set((countryItems||[]).map(item=>item.id))];
+    if(targetCountryIds.length&&allCountryIds.length){
+      const [fromCountry,toCountry]=await Promise.all([
+        supabase.from("relations").select("item_a_id,item_b_id").in("item_a_id",allCountryIds),
+        supabase.from("relations").select("item_a_id,item_b_id").in("item_b_id",allCountryIds)
+      ]);
+      if(!fromCountry.error&&!toCountry.error){
+        for(const link of [...(fromCountry.data||[]),...(toCountry.data||[])]){
+          const countryId=allCountryIds.includes(link.item_a_id)?link.item_a_id:link.item_b_id;
+          const itemId=countryId===link.item_a_id?link.item_b_id:link.item_a_id;
+          regionLinkedIds.add(itemId);
+          if(targetCountryIds.includes(countryId))regionAllowedIds??=new Set();
+          if(targetCountryIds.includes(countryId))regionAllowedIds.add(itemId);
+        }
+      }
+    }
+  }
   const configured=(moduleRows||[]).map((module,index)=>{
     const saved=savedByKey.get(module.module_key);
     return {module,title:typeof saved?.title==="string"&&saved.title.trim()?saved.title.trim():module.name,
@@ -224,7 +297,8 @@ async function loadHomeCatalog() {
         .eq("module_id",module.id).in("status",["active","published"]).order("sort_order").order("created_at",{ascending:false}).limit(200);
       if(error)continue;
       const records=(data||[]).filter(record=>(record.visibility_roles||[]).includes("visitor"))
-        .filter(record=>String(record.title||"").trim());
+        .filter(record=>String(record.title||"").trim())
+        .filter(record=>!regionLinkedIds.has(record.id)||!regionAllowedIds||regionAllowedIds.has(record.id));
       if(!records.length)continue;
       const section=document.createElement("section");section.className="home-catalog-section";
       const heading=document.createElement("div");heading.className="home-section-heading";
@@ -244,16 +318,20 @@ async function loadHomeCatalog() {
 }
 
 async function applyPublicSiteSettings() {
-  const [{data:profileData},{data:websiteData},{data:introData}] = await Promise.all([
+  const [{data:profileData},{data:websiteData},{data:introData},{data:navigationData}] = await Promise.all([
     supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","site_profile").maybeSingle(),
     supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","website_information").maybeSingle(),
-    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_intro").maybeSingle()
+    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_intro").maybeSingle(),
+    supabase.from("Settings").select("setting_value").eq("setting_key","navigation_menu").maybeSingle()
   ]);
   const profile=profileData?.setting_value&&typeof profileData.setting_value==="object"?profileData.setting_value:{};
   const website=websiteData?.setting_value&&typeof websiteData.setting_value==="object"?websiteData.setting_value:{};
   const settings={...website,...profile,
     website_title:profile.website_title||website.title,
-    logo_url:profile.logo_url||website.logo_url
+    logo_url:profile.logo_url||website.logo_url,
+    favicon_url:profile.favicon_url||website.favicon_url,
+    favicon_type:profile.favicon_type||website.favicon_type,
+    navigation_menu:navigationData?.setting_value||{}
   };
   const intro=typeof introData?.setting_value?.content==="string"&&introData.setting_value.content.trim()
     ?introData.setting_value.content.trim()
@@ -277,6 +355,9 @@ async function applyPublicSiteSettings() {
   if(menuBrandLogo&&brandLogo)menuBrandLogo.replaceChildren(...[...brandLogo.childNodes].map(node=>node.cloneNode(true)));
   const menuBrandTitle=document.querySelector(".menu-brand-title");
   if(menuBrandTitle)menuBrandTitle.textContent=websiteTitle;
+  const favicon=document.getElementById("site-favicon");
+  if(favicon&&typeof settings.favicon_url==="string"&&/^https?:\/\//i.test(settings.favicon_url)){favicon.href=settings.favicon_url;favicon.type=settings.favicon_type||({png:"image/png",jpg:"image/jpeg",jpeg:"image/jpeg",webp:"image/webp",avif:"image/avif",gif:"image/gif",svg:"image/svg+xml"}[settings.favicon_url.split("?")[0].split(".").pop().toLowerCase()]||"image/png");}
+  window.dispatchEvent(new CustomEvent("site-brand-settings-updated",{detail:{logoUrl:settings.logo_url||"",title:websiteTitle,navigationMenu:settings.navigation_menu||{}}}));
 }
 
 if (logoutMenuLink) logoutMenuLink.addEventListener("click", async () => {
@@ -302,6 +383,9 @@ const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
 const languageSelect=document.getElementById("language-select");
 const countrySelect=document.getElementById("country-select");
 const themeSelect=document.getElementById("theme-select");
+window.addEventListener("site-language-changed",event=>applyLanguage(event.detail?.language||"en"));
+window.addEventListener("site-country-changed",event=>{document.documentElement.dataset.country=event.detail?.country||"global";});
+window.addEventListener("site-theme-changed",event=>{document.documentElement.dataset.themeVariant=event.detail?.theme||"classic";});
 if(themeSelect){
   const savedVariant=localStorage.getItem("3b-theme-variant")||"classic";
   themeSelect.value=["classic","modern","future"].includes(savedVariant)?savedVariant:"classic";
@@ -327,19 +411,20 @@ async function loadMenuPreferences(){
     const rows=languagesResult.data||[],saved=localStorage.getItem("3b-language")||"";
     languageSelect.replaceChildren(...rows.map(row=>new Option(row.title,row.slug)));
     languageSelect.value=rows.some(row=>row.slug===saved)?saved:(rows.find(row=>row.is_default)?.slug||rows[0]?.slug||"en");
-    document.documentElement.lang=languageSelect.value;
     document.documentElement.dataset.language=languageSelect.value;
+    applyLanguage(languageSelect.value);
   }
 }
 countrySelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-country",countrySelect.value);
   document.documentElement.dataset.country=countrySelect.value;
   window.dispatchEvent(new CustomEvent("site-country-changed",{detail:{country:countrySelect.value}}));
+  void loadHomeCatalog();
 });
 languageSelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-language",languageSelect.value);
-  document.documentElement.lang=languageSelect.value;
   document.documentElement.dataset.language=languageSelect.value;
+  applyLanguage(languageSelect.value);
   window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:languageSelect.value}}));
 });
 void loadMenuPreferences();
@@ -660,6 +745,8 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
       return;
     }
     currentUser = data.user;
+    const primaryOwner=currentUser.email?.toLowerCase()==="3btechhub@gmail.com";
+    if(primaryOwner)profile.querySelectorAll('[data-edit-field="name"],[data-edit-field="email"]').forEach(button=>{button.hidden=true;button.disabled=true;});
     const name = currentUser.user_metadata?.display_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "";
     setProfileValue("name", name, "Name");
     setProfileValue("email", currentUser.email || "", "Email");
@@ -703,11 +790,15 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
         throw new Error("To change password, enter current password, new password, and confirmation.");
       }
 
-      const { data: nameData, error: nameError } = await supabase.auth.updateUser({
-        data: { ...(currentUser.user_metadata || {}), display_name: name || null },
-      });
-      if (nameError) throw nameError;
-      currentUser = nameData.user;
+      const primaryOwner=currentUser.email?.toLowerCase()==="3btechhub@gmail.com";
+      if(primaryOwner&&(name!==(currentUser.user_metadata?.display_name||currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||"")||email!==currentUser.email))throw new Error("The primary Owner identity cannot be changed.");
+      if(!primaryOwner){
+        const { data: nameData, error: nameError } = await supabase.auth.updateUser({
+          data: { ...(currentUser.user_metadata || {}), display_name: name || null },
+        });
+        if (nameError) throw nameError;
+        currentUser = nameData.user;
+      }
 
       const { error: phoneError } = await supabase.from("Users").update(
         { phone: phone || null },
@@ -1556,6 +1647,7 @@ dashboardTabs.forEach((tab, index) => {
 if(ownerDashboard&&currentDashboardRole==="owner")initExtendedDashboard(supabase,currentDashboardRole);
 
 // Load only published records for the five public homepage sections.
+window.__applyPublicSiteSettings=applyPublicSiteSettings;
 void applyPublicSiteSettings();
   void loadHomeCatalog();
 }
