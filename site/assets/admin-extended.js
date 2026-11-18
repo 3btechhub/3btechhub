@@ -1,4 +1,3 @@
-import { createContactIcon } from "./contact-utils.js";
 
 function el(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
 function say(id,message,kind=""){const node=document.getElementById(id);if(node){node.textContent=message;node.dataset.kind=kind;}}
@@ -25,9 +24,9 @@ export function initExtendedDashboard(supabase,role){
  const roleOptions=()=>roles.filter(item=>item.is_active&&item.slug!=="owner").map(item=>({value:item.slug,label:item.name}));
  const permissionOptions=()=>permissions.filter(item=>item.is_active).map(item=>({value:item.id,label:item.name}));
  const userOptions=()=>users.filter(item=>!((item.roles||[]).includes("owner"))).map(item=>({value:item.id,label:(item.full_name||item.email||"User")+" · "+item.email}));
- async function refreshAll(){await loadLookups();await Promise.all([loadContacts(),loadUsers(),loadRoles(),loadPermissions()]);}
+ async function refreshAll(){await loadLookups();await Promise.all([loadUsers(),loadRoles(),loadPermissions()]);}
 
- // One shared CRUD adapter is used for the Contacts, Roles and Permission forms.
+ // One shared CRUD adapter is used for the Role and Permission forms.
  function bindSharedCrud({form,list,formTitle,titleText,load,save,remove,edit,emptyText}){
   if(!form||!list)return;
   async function refresh(){list.replaceChildren();try{await load();}catch(error){list.append(el("p","muted",messageFrom(error)));}}
@@ -43,27 +42,6 @@ export function initExtendedDashboard(supabase,role){
   form._sharedEmpty=emptyText;
   void refresh();
  }
-
- // Contacts: Title and Value.
- const cf=document.getElementById("contacts-form"),cl=document.getElementById("contacts-list");
- const contactVisibilityHost=el("div","module-related-options");contactVisibilityHost.id="contacts-visibility-options";
- const contactVisibilityField=el("div","module-form-field module-related-field");contactVisibilityField.append(el("span","","Visibility"),contactVisibilityHost);
- cf?.querySelector(".module-form-grid")?.append(contactVisibilityField);
- function renderContactVisibility(selected=["owner"]){
-  const options=roles.filter(item=>item.is_active).map(item=>({value:item.slug,label:item.name,disabled:item.slug==="owner"}));
-  checks(contactVisibilityHost,options,[...new Set([...(selected||[]),"owner"])]);
- }
- window.addEventListener("site-roles-updated",()=>renderContactVisibility(checked(contactVisibilityHost)));
- async function loadContacts(){if(!cl)return;await loadLookups();renderContactVisibility();cl.replaceChildren();const {data,error}=await supabase.from("contacts").select("*").order("created_at",{ascending:false});if(error)throw error;if(!data?.length){cl.append(el("p","muted","No records found."));return;}for(const record of data)tap(cl,record.name,()=>cf._sharedEdit(record));}
- cf?.addEventListener("reset",()=>queueMicrotask(()=>renderContactVisibility()));
- bindSharedCrud({
-  form:cf,list:cl,formTitle:"contacts-form-title",titleText:"Add contact",emptyText:"No records found.",
-  load:loadContacts,
-  edit(form,record){form.dataset.editId=record.id;form.elements.title.value=record.name||"";form.elements.value.value=record.value||"";renderContactVisibility(record.visibility_roles||["owner"]);},
-  async save(form){const title=form.elements.title.value.trim(),value=form.elements.value.value.trim(),id=form.dataset.editId,visibility_roles=[...new Set([...checked(contactVisibilityHost),"owner"])];if(!title)throw new Error("Title is required.");const payload={name:title,value:value||null,visibility_roles};const result=id?await supabase.from("contacts").update(payload).eq("id",id):await supabase.from("contacts").insert({...payload,slug:slug(title)+"-"+crypto.randomUUID().slice(0,8)});if(result.error)throw result.error;},
-  async remove(id){const {error}=await supabase.from("contacts").delete().eq("id",id);if(error)throw error;}
- });
- if(cf)cf.dataset.messageId="contacts-message";
 
  // Users: Title plus the email required by Supabase Auth, Roles and direct Permissions.
  const uf=document.getElementById("users-form"),ul=document.getElementById("users-list"),uro=document.getElementById("user-role-options"),upo=document.getElementById("user-permission-options");
