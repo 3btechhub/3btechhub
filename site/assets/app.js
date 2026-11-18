@@ -191,8 +191,9 @@ async function setMenuSession(session) {
   if (revision !== menuSessionRevision) return;
   const registered = roles.some(role => ["owner", "admin", "member"].includes(role));
   if (profileMenuLink) {
-    profileMenuLink.href = new URL("account/profile/", ROOT_URL).href;
-    profileMenuLink.hidden = !registered;
+    profileMenuLink.href = new URL(registered ? "account/profile/" : "account/login/", ROOT_URL).href;
+    profileMenuLink.textContent = "Account";
+    profileMenuLink.hidden = false;
   }
   if (logoutMenuLink) logoutMenuLink.hidden = !registered;
   if (dashboardMenuLink) {
