@@ -3,20 +3,77 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
 <title>3B TECH HUB</title>
 <style>
-  body {
-    margin: 0;
+  :root {
+    color-scheme: light;
     font-family: Arial, sans-serif;
+    background: #fff;
+    color: #111;
   }
+
+  * { box-sizing: border-box; }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    background: #fff;
+  }
+
   main {
+    min-height: 100vh;
     padding: 24px 16px;
   }
+
   h1 {
     margin: 0;
     text-align: center;
     font-size: clamp(1.5rem, 5vw, 2rem);
+    line-height: 1.25;
     font-weight: 700;
+  }
+
+  .menu-toggle {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 10;
+    display: grid;
+    width: 56px;
+    height: 56px;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 18%);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .menu-toggle:focus-visible {
+    outline: 3px solid #777;
+    outline-offset: 4px;
+  }
+
+  .menu-toggle svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .menu-toggle .close-icon { display: none; }
+  .menu-toggle[aria-expanded="true"] .menu-icon { display: none; }
+  .menu-toggle[aria-expanded="true"] .close-icon { display: block; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .menu-toggle { transition: transform 160ms ease, box-shadow 160ms ease; }
+    .menu-toggle:active { transform: scale(.94); }
   }
 </style>
 </head>
@@ -24,5 +81,23 @@
   <main>
     <h1>3B TECH HUB</h1>
   </main>
+
+  <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">
+    <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+    <svg class="close-icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m6 6 12 12M18 6 6 18"></path>
+    </svg>
+  </button>
+
+  <script>
+    const menuToggle = document.querySelector('.menu-toggle');
+    menuToggle.addEventListener('click', () => {
+      const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+      menuToggle.setAttribute('aria-expanded', String(!isExpanded));
+      menuToggle.setAttribute('aria-label', isExpanded ? 'Open menu' : 'Close menu');
+    });
+  </script>
 </body>
 </html>
