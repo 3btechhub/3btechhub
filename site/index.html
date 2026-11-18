@@ -15,7 +15,10 @@
     --radius-control: 999px;
     --shadow-soft: 0 10px 30px rgb(17 17 17 / 10%);
     --shadow-float: 0 8px 24px rgb(17 17 17 / 18%);
+    --font-normal: 1rem;
+    --font-heading: clamp(1.5rem, 5vw, 2rem);
     font-family: Arial, sans-serif;
+    font-size: var(--font-normal);
     background: var(--color-white);
     color: var(--color-black);
   }
@@ -39,7 +42,7 @@
   h1 {
     margin: 0;
     text-align: center;
-    font-size: clamp(1.5rem, 5vw, 2rem);
+    font-size: var(--font-heading);
     line-height: 1.25;
     font-weight: 700;
   }
@@ -47,8 +50,28 @@
   .page-title {
     margin: 0;
     text-align: center;
-    font-size: clamp(1.35rem, 4vw, 1.75rem);
+    font-size: var(--font-heading);
     line-height: 1.3;
+    font-weight: 700;
+  }
+
+  .module-shell {
+    margin: 28px auto 0;
+    max-width: 720px;
+    min-height: 112px;
+    padding: 20px;
+    border: 1px solid rgb(255 255 255 / 95%);
+    border-radius: var(--radius-panel);
+    background:
+      radial-gradient(ellipse at 16% 0%, rgb(255 255 255 / 98%), transparent 60%),
+      linear-gradient(145deg, #fff, #f4f4f4);
+    box-shadow: var(--shadow-soft), inset 0 1px 0 rgb(255 255 255 / 95%);
+  }
+
+  .module-title {
+    margin: 0;
+    font-size: var(--font-heading);
+    line-height: 1.25;
     font-weight: 700;
   }
 
@@ -76,7 +99,7 @@
     padding: 12px 14px;
     border-radius: 12px;
     color: inherit;
-    font-size: 15px;
+    font-size: var(--font-normal);
     text-decoration: none;
   }
 
@@ -143,6 +166,9 @@
     </section>
     <section class="page" id="dashboard" aria-labelledby="dashboard-title">
       <h2 class="page-title" id="dashboard-title">Dashboard</h2>
+      <section class="module-shell" aria-labelledby="service-module-title">
+        <h3 class="module-title" id="service-module-title">Service</h3>
+      </section>
     </section>
   </main>
 
