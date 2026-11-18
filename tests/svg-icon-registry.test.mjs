@@ -31,15 +31,13 @@ test("every declared page icon resolves to a registered SVG", () => {
   }
 });
 
-test("Notion dashboard layouts keep the specified order", () => {
+test("Notion dashboard tabs keep the current specified order", () => {
   const source = readFileSync("site/assets/content-dashboard.js", "utf8");
-  const order = ["overview","info","media","relation","users","roles","permissions","preference","setting"];
-  let last = -1;
-  for (const key of order) {
-    const next = source.indexOf('["' + key + '"', last + 1);
-    assert.ok(next > last, "dashboard layout order must include " + key);
-    last = next;
-  }
+  const match = source.match(/const order=\[(.*?)\];/s);
+  assert.ok(match, "dashboard tab order must be declared");
+  const keys = [...match[1].matchAll(/\["([^"]+)","[^"]+"\]/g)].map((item) => item[1]);
+  assert.deepEqual(keys, ["overview","info","relation","users","roles","permissions","setting"]);
+  assert.doesNotMatch(match[1], /"media"|"preference"/, "Images and preferences are not separate dashboard tabs in the current Notion structure");
   assert.doesNotMatch(source, /Content Module Builder|module_fields|content_items/);
 });
 
