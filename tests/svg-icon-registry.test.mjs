@@ -72,3 +72,15 @@ test("Notion preference lists, visibility and access routing are implemented", (
   assert.match(app, /registered/);
   assert.match(icons, /from\("Settings"\).*icon_registry/);
 });
+
+test("navigation menu keeps configured transitions and RTL/LTR placement", () => {
+  const style = readFileSync("site/assets/style.css", "utf8");
+  const menu = readFileSync("site/assets/menu.js", "utf8");
+  assert.match(style, /animation:site-menu-rise/);
+  assert.match(style, /--menu-icon-transition/);
+  assert.match(style, /:root\[dir="rtl"\] \.site-menu\{transform-origin:bottom left\}/);
+  assert.doesNotMatch(style, /\.site-menu:not\(\[hidden\]\)\{animation:none/);
+  assert.doesNotMatch(style, /\.menu-trigger,\.menu-trigger \.menu-icon path\{transition:none!important\}/);
+  assert.match(menu, /logo_swap_interval_seconds/);
+  assert.match(menu, /icon_transition_speed_ms/);
+});
