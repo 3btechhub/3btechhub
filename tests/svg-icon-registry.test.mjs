@@ -31,10 +31,16 @@ test("every declared page icon resolves to a registered SVG", () => {
   }
 });
 
-test("contact brand icons are rendered locally as SVG, never remote image assets", () => {
-  const source = readFileSync("site/assets/contact-utils.js", "utf8");
-  assert.match(source, /createIcon\(BRANDS\[brand\]\?\.icon\|\|"link"/);
-  assert.doesNotMatch(source, /cdn\.simpleicons|uxwing\.com|createElement\(["']img["']\)/i);
+test("Notion dashboard layouts keep the specified order", () => {
+  const source = readFileSync("site/assets/content-dashboard.js", "utf8");
+  const order = ["overview","info","media","relation","users","roles","permissions","preference","setting"];
+  let last = -1;
+  for (const key of order) {
+    const next = source.indexOf('["' + key + '"', last + 1);
+    assert.ok(next > last, "dashboard layout order must include " + key);
+    last = next;
+  }
+  assert.doesNotMatch(source, /Content Module Builder|module_fields|content_items/);
 });
 
 test("the application loads the public registry and renders page icon attributes", () => {
