@@ -201,19 +201,36 @@ export async function initDynamicDashboard(supabase,root,user){
   const search=el("input");search.type="search";search.placeholder="Search by Name or Type…";search.setAttribute("aria-label","Search Info by Name or Type");
   const list=el("div","dashboard-record-list");const toolbar=el("div","dashboard-toolbar");toolbar.append(search);page.append(toolbar,list);panel.append(page);
   const moduleById=new Map(modules.filter(m=>m.status==="published"&&m.module_key!=="media").map(m=>[m.id,m]));
-  const {data,error}=await supabase.from("content_items").select("id,title,module_id,slug,status").order("sort_order").order("title").limit(1000);
+  const {data,error}=await supabase.from("content_items").select("id,title,module_id,slug,status,sort_order").order("sort_order").order("title").limit(1000);
   if(error){list.append(el("p","editor-message",error.message));return;}
-  const records=(data||[]).filter(item=>moduleById.has(item.module_id));
+  let records=(data||[]).filter(item=>moduleById.has(item.module_id)),draggedId=null;
   function render(){
     const term=search.value.trim().toLocaleLowerCase();list.replaceChildren();
     const matches=records.filter(item=>{const type=moduleById.get(item.module_id)?.name||"";return !term||String(item.title||"").toLocaleLowerCase().includes(term)||type.toLocaleLowerCase().includes(term);});
     if(!matches.length){list.append(el("p","muted","No matching records."));return;}
-    for(const item of matches){const type=moduleById.get(item.module_id),row=el("button","dashboard-record-row");row.type="button";row.append(el("strong","",item.title||"Untitled"),el("small","",type.name));row.addEventListener("click",()=>void contentPage(type,item.id));list.append(row);}
+    for(const item of matches){
+      const type=moduleById.get(item.module_id),row=el("button","dashboard-record-row");row.type="button";row.draggable=!term;
+      row.append(el("strong","",item.title||"Untitled"),el("small","",type.name));
+      row.addEventListener("click",()=>{if(!draggedId)void contentPage(type,item.id);});
+      row.addEventListener("dragstart",event=>{draggedId=item.id;row.classList.add("is-dragging");if(event.dataTransfer){event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",item.id);}});
+      row.addEventListener("dragend",()=>{draggedId=null;list.querySelectorAll(".is-dragging,.is-drag-over").forEach(node=>node.classList.remove("is-dragging","is-drag-over"));});
+      row.addEventListener("dragover",event=>{if(!draggedId||term||draggedId===item.id)return;event.preventDefault();row.classList.add("is-drag-over");});
+      row.addEventListener("dragleave",()=>row.classList.remove("is-drag-over"));
+      row.addEventListener("drop",async event=>{
+        event.preventDefault();row.classList.remove("is-drag-over");const source=draggedId||event.dataTransfer?.getData("text/plain");draggedId=null;if(!source||source===item.id)return;
+        const ordered=[...records],from=ordered.findIndex(x=>x.id===source),to=ordered.findIndex(x=>x.id===item.id);if(from<0||to<0)return;
+        const [moved]=ordered.splice(from,1);ordered.splice(to,0,moved);records=ordered;render();
+        const updates=await Promise.all(records.map((record,index)=>supabase.from("content_items").update({sort_order:(index+1)*10}).eq("id",record.id)));
+        const failed=updates.find(result=>result.error),note=el("p","editor-message",failed?"Order could not be saved: "+failed.error.message:"Display order saved.");note.dataset.kind=failed?"error":"success";list.prepend(note);
+        if(failed){const fresh=await supabase.from("content_items").select("id,title,module_id,slug,status,sort_order").order("sort_order").order("title").limit(1000);if(!fresh.error){records=(fresh.data||[]).filter(x=>moduleById.has(x.module_id));render();}}
+      });
+      list.append(row);
+    }
   }
   search.addEventListener("input",render);render();
 }
 async function relationsPage(){
-  const page=el("div","dashboard-page");page.append(el("h2","","Relations"),el("p","muted","Create and manage links between existing Content Items. Relationships are bidirectional; Items are never created here."));
+  const page=el("div","dashboard-page");page.append(el("h2","","Relation"),el("p","muted","Create and manage links between existing Content Items. Relationships are bidirectional; Items are never created here."));
   const form=el("form","content-editor-form");
   form.innerHTML='<h3 data-relation-form-title>Create Relation</h3><div class="module-form-grid"><label class="module-form-field"><span>Source Type</span><select name="sourceType" required></select></label><label class="module-form-field"><span>Source Name</span><select name="sourceName" required><option value="">Select Item</option></select></label><label class="module-form-field"><span>Target Type</span><select name="targetType" required></select></label><label class="module-form-field"><span>Target Name</span><select name="targetName" required><option value="">Select Item</option></select></label></div><div class="editor-actions"><button type="submit">Save Relation</button><button type="button" class="secondary-button" data-relation-cancel hidden>Cancel</button></div><p class="editor-message" role="status"></p>';
   const sourceType=form.elements.sourceType,sourceName=form.elements.sourceName,targetType=form.elements.targetType,targetName=form.elements.targetName;
@@ -371,7 +388,7 @@ async function relationsPage(){
   });page.append(list);panel.append(page);
  }
  async function customizationPage(){
-  const page=el("div","dashboard-page");page.append(el("h2","","Customization"),el("p","muted","Global visual settings and Home module visibility."));
+  const page=el("div","dashboard-page");page.append(el("h2","","Preference"),el("p","muted","Theme presets, Dark / Light appearance and Home module visibility."));
   const [{data:setting,error},{data:runtimeRow,error:runtimeError}]=await Promise.all([
    supabase.from("Settings").select("setting_value").eq("setting_key","home_modules").maybeSingle(),
    supabase.from("Settings").select("setting_value").eq("setting_key","runtime_config").maybeSingle()
@@ -379,12 +396,16 @@ async function relationsPage(){
   if(error||runtimeError){page.append(el("p","editor-message",(error||runtimeError).message));panel.append(page);return;}
   const runtime=runtimeRow?.setting_value&&typeof runtimeRow.setting_value==="object"?runtimeRow.setting_value:{schema_version:1};
   const globalForm=el("form","content-editor-form");
-  globalForm.innerHTML='<h3>Global Style</h3><div class="module-form-grid"><label class="module-form-field"><span>Color</span><select name="palette"><option value="white">White</option><option value="black">Black</option><option value="neutral-gray">Neutral Gray</option></select></label><label class="module-form-field"><span>Size</span><select name="size"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></label><label class="module-form-field"><span>Direction</span><select name="direction"><option value="ltr">LTR</option><option value="rtl">RTL</option></select></label></div><div class="editor-actions"><button type="submit">Save Global Style</button></div><p class="editor-message" role="status"></p>';
-  globalForm.elements.palette.value=runtime.palette||"white";globalForm.elements.size.value=runtime.size||"medium";globalForm.elements.direction.value=runtime.direction||"ltr";
+  globalForm.innerHTML='<h3>Theme Presets</h3><div class="module-form-grid"><label class="module-form-field"><span>Preset</span><select name="variant"><option value="classic">Classic</option><option value="modern">Modern</option><option value="future">Future</option></select></label><label class="module-form-field"><span>Mode</span><select name="mode"><option value="light">Light</option><option value="dark">Dark</option></select></label><label class="module-form-field"><span>Color</span><select name="palette"><option value="white">White</option><option value="black">Black</option><option value="neutral-gray">Neutral Gray</option></select></label><label class="module-form-field"><span>Size</span><select name="size"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></label><label class="module-form-field"><span>Direction</span><select name="direction"><option value="ltr">LTR</option><option value="rtl">RTL</option></select></label></div><div class="editor-actions"><button type="submit">Save Preference</button></div><p class="editor-message" role="status"></p>';
+  const presets=runtime.theme_presets&&typeof runtime.theme_presets==="object"?runtime.theme_presets:{};
+  const variant=globalForm.elements.variant,mode=globalForm.elements.mode;
+  function loadPreset(){const selected=presets[variant.value]?.[mode.value]||{};globalForm.elements.palette.value=selected.palette||runtime.palette||"white";globalForm.elements.size.value=selected.size||runtime.size||"medium";}
+  variant.value=localStorage.getItem("3b-theme-variant")||"classic";mode.value=document.documentElement.dataset.theme||"light";loadPreset();globalForm.elements.direction.value=runtime.direction||"ltr";
+  variant.addEventListener("change",loadPreset);mode.addEventListener("change",loadPreset);
   globalForm.addEventListener("submit",async event=>{event.preventDefault();const button=globalForm.querySelector('[type="submit"]'),msg=globalForm.querySelector(".editor-message");button.disabled=true;
-   const next={...runtime,schema_version:1,palette:globalForm.elements.palette.value,size:globalForm.elements.size.value,direction:globalForm.elements.direction.value};
+   const next={...runtime,schema_version:1,theme_presets:{...(runtime.theme_presets||{}),[variant.value]:{...(runtime.theme_presets?.[variant.value]||{}),[mode.value]:{palette:globalForm.elements.palette.value,size:globalForm.elements.size.value}}},palette:globalForm.elements.palette.value,size:globalForm.elements.size.value,direction:globalForm.elements.direction.value};
    const {error:saveError}=await supabase.from("Settings").upsert({setting_key:"runtime_config",setting_value:next,visibility_roles:["owner"],description:"Global style configuration"},{onConflict:"setting_key"});
-   msg.textContent=saveError?saveError.message:"Global Style saved.";msg.dataset.kind=saveError?"error":"success";button.disabled=false;
+   msg.textContent=saveError?saveError.message:"Preference saved.";msg.dataset.kind=saveError?"error":"success";button.disabled=false;
    if(!saveError){window.dispatchEvent(new CustomEvent("runtime-config-updated",{detail:next}));}
   });
   page.append(globalForm);
@@ -405,7 +426,7 @@ async function relationsPage(){
   page.append(form);panel.append(page);
  }
  async function settingsPage(){
-  const page=el("div","dashboard-page");page.append(el("h2","","Settings"),el("p","muted","Website identity, navigation menu and configurable module slugs."));
+  const page=el("div","dashboard-page");page.append(el("h2","","Setting"),el("p","muted","Website identity, navigation menu and configurable module slugs."));
   const {data:rows,error}=await supabase.from("Settings").select("*");
   if(error){page.append(el("p","editor-message",error.message));panel.append(page);return;}
   const map=new Map((rows||[]).map(r=>[r.setting_key,r])),websiteInfo=map.get("website_information")?.setting_value||{},profile=map.get("site_profile")?.setting_value||{},intro=map.get("home_intro")?.setting_value||{},moduleSlugMap=map.get("module_slugs")?.setting_value||{};
