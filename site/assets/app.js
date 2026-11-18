@@ -561,9 +561,9 @@ if (form && accountMode!=="profile") {
     const recoveryFlow = recoveryVerify || recoveryNewPassword;
 
     submit.textContent = signup ? "Create Account"
-      : recoveryStart ? "Send Code"
+      : recoveryStart ? "Reset Password"
       : recoveryVerify ? "Verify"
-      : recoveryNewPassword ? "Update Password"
+      : recoveryNewPassword ? "Set Password"
       : "Login";
 
     forgot.textContent = recoveryStart ? "Login" : "Reset Password";
@@ -720,17 +720,10 @@ if (profile && accountMode==="profile") {
   const saveButton = document.querySelector("#profile-save");
   const fields = {
     name: document.querySelector("#profile-name"),
-    email: document.querySelector("#profile-email"),
-    phone: document.querySelector("#profile-phone"),
+    email: document.querySelector("#profile-email")
   };
   const roleField = document.querySelector("#profile-role");
   let currentUser = null;
-  let currentPhone = "";
-  Object.values(fields).forEach((field) => {
-    field.addEventListener("input", () => {
-      field.classList.toggle("is-placeholder", !field.textContent.trim());
-    });
-  });
 
   function profileMessage(text, kind = "") {
     status.textContent = text;
@@ -743,29 +736,23 @@ if (profile && accountMode==="profile") {
     field.dataset.placeholderText = placeholder;
     field.classList.toggle("is-placeholder", !normalized);
   }
-  function enableInlineEdit(button) {
-    const key = button.dataset.editField;
-    const field = fields[key];
-    if (!field) return;
-    const original = key === "name"
-      ? (currentUser.user_metadata?.display_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "")
-      : key === "email" ? (currentUser.email || "") : currentPhone;
-    field.textContent = original;
-    field.classList.toggle("is-placeholder", !String(original || "").trim());
-    field.contentEditable = "true";
-    field.classList.add("is-editing");
-    button.dataset.saving = "true";
-    button.textContent = "Save";
-    field.focus();
-    profileMessage("");
-  }
+  fields.name.addEventListener("input", () => {
+    fields.name.classList.toggle("is-placeholder", !fields.name.textContent.trim());
+  });
   profile.querySelectorAll("[data-edit-field]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.dataset.saving === "true") {
         form.requestSubmit();
         return;
       }
-      enableInlineEdit(button);
+      const currentName=currentUser?.user_metadata?.display_name||currentUser?.user_metadata?.full_name||currentUser?.user_metadata?.name||"";
+      fields.name.textContent=currentName;
+      fields.name.contentEditable="true";
+      fields.name.classList.add("is-editing");
+      button.dataset.saving="true";
+      button.textContent="Save";
+      fields.name.focus();
+      profileMessage("");
     });
   });
   document.querySelector("#profile-logout")?.addEventListener("click", async () => {
@@ -773,18 +760,6 @@ if (profile && accountMode==="profile") {
     const {error}=await supabase.auth.signOut();button.disabled=false;
     if(error){profileMessage(error.message||"Could not log out.","error");return;}
     setMenuSession(null);window.navigateSiteRoute(new URL("home/",ROOT_URL).pathname,{replace:true});
-  });
-  document.querySelector("#profile-password-edit").addEventListener("click", (event) => {
-    const fieldsBox = document.querySelector("#profile-password-fields");
-    const button = event.currentTarget;
-    if (button.dataset.saving === "true") {
-      form.requestSubmit();
-      return;
-    }
-    fieldsBox.hidden = false;
-    button.dataset.saving = "true";
-    button.textContent = "Save";
-    form.elements.currentPassword.focus();
   });
 
   async function loadProfile() {
@@ -795,115 +770,49 @@ if (profile && accountMode==="profile") {
     }
     currentUser = data.user;
     const primaryOwner=currentUser.email?.toLowerCase()==="3btechhub@gmail.com";
-    if(primaryOwner)profile.querySelectorAll('[data-edit-field="name"],[data-edit-field="email"]').forEach(button=>{button.hidden=true;button.disabled=true;});
-    const name = currentUser.user_metadata?.display_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "";
-    setProfileValue("name", name, "Name");
-    setProfileValue("email", currentUser.email || "", "Email");
-    const { data: profileData, error: profileError } = await supabase
-      .from("Users").select("phone").eq("auth_user_id", currentUser.id).maybeSingle();
-    if (profileError) {
-      profileMessage("Could not load your phone number. Please refresh and try again.", "error");
-    } else {
-      currentPhone = profileData?.phone || "";
-      setProfileValue("phone", currentPhone, "Phone Number");
-      if (roleField) {
-        const { data: roleRows } = await supabase.from("user_roles").select("role").eq("user_id", currentUser.id);
-        roleField.textContent = (roleRows || []).map(row => row.role).join(", ");
-        roleField.closest(".profile-row").hidden = !roleField.textContent;
-      }
+    const name=currentUser.user_metadata?.display_name||currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||"";
+    setProfileValue("name",name,"Name");
+    setProfileValue("email",currentUser.email||"","Email");
+    const editName=profile.querySelector('[data-edit-field="name"]');
+    if(primaryOwner&&editName){editName.hidden=true;editName.disabled=true;}
+    const {data:roleRows,error:roleError}=await supabase.from("user_roles").select("role").eq("user_id",currentUser.id);
+    if(roleField){
+      roleField.textContent=roleError?"":(roleRows||[]).map(row=>row.role).join(", ");
+      roleField.closest(".profile-row").hidden=!roleField.textContent;
     }
   }
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    saveButton.disabled = true;
+    saveButton.disabled=true;
     profileMessage("Saving…");
     try {
-      const data = new FormData(form);
-      const name = fields.name.contentEditable === "true" ? fields.name.textContent.trim() : (currentUser.user_metadata?.display_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "");
-      const email = fields.email.contentEditable === "true" ? fields.email.textContent.trim().toLowerCase() : (currentUser.email || "");
-      const phone = fields.phone.contentEditable === "true" ? fields.phone.textContent.trim() : currentPhone;
-      const currentPassword = String(data.get("currentPassword") || "");
-      const newPassword = String(data.get("newPassword") || "");
-      const confirmPassword = String(data.get("confirmPassword") || "");
-
-      if (!email) throw new Error("Enter your email address.");
-      if (phone && !/^\+?[0-9() .-]{7,24}$/.test(phone)) throw new Error("Enter a valid phone number.");
-      if (newPassword) {
-        if (newPassword.length < 8) throw new Error("New password must be at least 8 characters.");
-        if (newPassword !== confirmPassword) throw new Error("New passwords do not match.");
-        if (!currentPassword) throw new Error("Enter your current password to change it.");
-        const { error: verifyError } = await supabase.auth.signInWithPassword({ email: currentUser.email, password: currentPassword });
-        if (verifyError) throw new Error("Current password is incorrect.");
-      } else if (confirmPassword || currentPassword) {
-        throw new Error("To change password, enter current password, new password, and confirmation.");
-      }
-
+      const name=fields.name.contentEditable==="true"?fields.name.textContent.trim():(currentUser.user_metadata?.display_name||currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||"");
       const primaryOwner=currentUser.email?.toLowerCase()==="3btechhub@gmail.com";
-      if(primaryOwner&&(name!==(currentUser.user_metadata?.display_name||currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||"")||email!==currentUser.email))throw new Error("The primary Owner identity cannot be changed.");
-      if(!primaryOwner){
-        const { data: nameData, error: nameError } = await supabase.auth.updateUser({
-          data: { ...(currentUser.user_metadata || {}), display_name: name || null },
-        });
-        if (nameError) throw nameError;
-        currentUser = nameData.user;
+      const originalName=currentUser.user_metadata?.display_name||currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||"";
+      if(primaryOwner&&name!==originalName)throw new Error("The primary Owner identity cannot be changed.");
+      if(!primaryOwner&&name!==originalName){
+        const {data,error}=await supabase.auth.updateUser({data:{...(currentUser.user_metadata||{}),display_name:name||null}});
+        if(error)throw error;
+        currentUser=data.user;
       }
-
-      const { error: phoneError } = await supabase.from("Users").update(
-        { phone: phone || null },
-      ).eq("auth_user_id", currentUser.id);
-      if (phoneError) throw phoneError;
-      currentPhone = phone;
-
-      let emailPending = false;
-      if (email !== currentUser.email) {
-        const { error: emailError } = await supabase.auth.updateUser({ email });
-        if (emailError) throw emailError;
-        emailPending = true;
-      }
-      if (newPassword) {
-        const { error: passwordError } = await supabase.auth.updateUser({ password: newPassword });
-        if (passwordError) throw passwordError;
-      }
-
-      form.querySelectorAll("[data-profile-field]").forEach((field) => {
-        field.contentEditable = "false";
-        field.classList.remove("is-editing");
-        const editButton = field.closest(".profile-row").querySelector("[data-edit-field]");
-        if (editButton) {
-          editButton.dataset.saving = "false";
-          editButton.textContent = "Edit Name";
-        }
-      });
-      document.querySelector("#profile-password-fields").hidden = true;
-      const passwordEditButton = document.querySelector("#profile-password-edit");
-      passwordEditButton.dataset.saving = "false";
-      passwordEditButton.textContent = "Change Password";
-      form.reset();
+      fields.name.contentEditable="false";
+      fields.name.classList.remove("is-editing");
+      const editButton=profile.querySelector('[data-edit-field="name"]');
+      if(editButton){editButton.dataset.saving="false";editButton.textContent="Edit Name";}
       await loadProfile();
-      profileMessage(
-        emailPending
-          ? "Profile saved. A confirmation link has been sent to your new email address."
-          : newPassword
-            ? "Profile and password saved successfully."
-            : "Profile saved successfully.",
-        "success",
-      );
-    } catch (error) {
-      profileMessage(error instanceof Error ? error.message : "Could not save changes. Please try again.", "error");
-    } finally {
-      saveButton.disabled = false;
-    }
+      profileMessage("Profile saved successfully.","success");
+    }catch(error){
+      profileMessage(error instanceof Error?error.message:"Could not save changes. Please try again.","error");
+    }finally{saveButton.disabled=false;}
   });
 
   await loadProfile();
-  
   const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
     if (!session) window.navigateSiteRoute(new URL("account/login/", ROOT_URL).pathname, { replace: true });
   });
   window.__routeAuthSubscriptions.push(authListener.subscription);
 }
-
 
 // Owner-only dashboard: the database role is checked again on the page itself.
 let currentDashboardRole = null;
