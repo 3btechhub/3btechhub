@@ -86,7 +86,7 @@
     const settings=data.navigationMenu||{};
     swapSeconds=Math.max(5,Math.min(60,Number(settings.logo_swap_interval_seconds)||5));
     transitionMs=Math.max(300,Math.min(5000,Number(settings.icon_transition_speed_ms)||1400));
-    button.style.setProperty("--menu-icon-transition",transitionMs+"ms");
+    button.style.setProperty("--menu-icon-transition",Math.max(150,Math.round(transitionMs/2))+"ms");
     if(showingLogo&&!menu.hidden)render("icon");
     else if(showingLogo)render("logo");
     scheduleIdle();
