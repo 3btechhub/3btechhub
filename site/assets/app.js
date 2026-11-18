@@ -439,10 +439,10 @@ export async function initRoutePage() {
   const accountAuthLayout = document.querySelector("#account-auth-layout");
   const accountProfileLayout = document.querySelector("#profile-card");
   if (accountAuthLayout) accountAuthLayout.hidden = accountMode==="profile";
-  if (accountProfileLayout) accountProfileLayout.hidden = !["profile","edit-profile"].includes(accountMode);
+  if (accountProfileLayout) accountProfileLayout.hidden = accountMode!=="profile";
   const form = document.querySelector("#auth-form");
 
-if (form && !["profile","edit-profile"].includes(accountMode)) {
+if (form && accountMode!=="profile") {
   const message = document.querySelector("#auth-message");
   const submit = document.querySelector("#auth-submit");
   const toggle = document.querySelector("#toggle-signup");
@@ -624,7 +624,7 @@ if (form && !["profile","edit-profile"].includes(accountMode)) {
 }
 
 const profile = document.querySelector("#profile-card");
-if (profile && ["profile","edit-profile"].includes(accountMode)) {
+if (profile && accountMode==="profile") {
   const status = document.querySelector("#profile-message");
   const form = document.querySelector("#profile-edit-form");
   const saveButton = document.querySelector("#profile-save");
