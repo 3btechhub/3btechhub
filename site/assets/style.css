@@ -1817,21 +1817,36 @@ textarea{min-height:calc(var(--control-height) * 2)}
 
 .dashboard-relation-row[draggable="true"]{cursor:grab}.dashboard-relation-row.is-dragging{opacity:.45}.dashboard-relation-row.is-drag-over{outline:2px dashed var(--page-text);outline-offset:2px}
 
-/* Floating navigation menu follows the global text direction. */
-.menu-trigger{position:fixed!important;z-index:1200;bottom:18px;right:18px;left:auto;width:54px;height:54px;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--page-text);box-shadow:0 5px 20px #0002;display:grid;place-items:center;cursor:pointer;transition:opacity var(--menu-icon-transition,1400ms) ease,transform var(--menu-icon-transition,1400ms) ease}
-.site-menu{position:fixed!important;z-index:1199;bottom:82px;right:18px;left:auto;top:auto;max-height:min(70vh,620px);overflow:auto}
-:root[dir="ltr"] .menu-trigger{left:18px;right:auto}
-:root[dir="ltr"] .site-menu{left:18px;right:auto}
+/* Floating navigation follows logical inline-end: LTR right, RTL left. */
+.site-header .menu-trigger,.menu-trigger{
+ position:fixed!important;z-index:1200;inset-inline-start:auto!important;inset-inline-end:18px!important;inset-block-start:auto!important;inset-block-end:calc(18px + env(safe-area-inset-bottom))!important;left:auto!important;right:auto!important;
+ width:54px;height:54px;padding:0;border:1px solid var(--line);border-radius:50%;background:var(--surface);color:var(--page-text);box-shadow:0 5px 20px #0002;display:grid;place-items:center;cursor:pointer;transition:opacity var(--menu-icon-transition,1400ms) ease,transform var(--menu-icon-transition,1400ms) ease
+}
+.site-header .site-menu,.site-menu{
+ position:fixed!important;z-index:1199;inset-inline-start:auto!important;inset-inline-end:18px!important;inset-block-start:auto!important;inset-block-end:calc(82px + env(safe-area-inset-bottom))!important;left:auto!important;right:auto!important;max-height:min(70vh,620px);overflow:auto
+}
 .menu-trigger.is-fading-icon{opacity:.2;transform:scale(.92)}
 .menu-trigger .menu-icon{width:24px;height:24px}
 .menu-logo{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;overflow:hidden}
 .menu-logo img{width:100%;height:100%;object-fit:contain}
 .menu-logo .brand-mark{font-weight:800;font-size:18px}
-@media(min-width:700px){.menu-trigger{bottom:24px}.site-menu{bottom:90px}}
+@media(max-width:600px){
+ .site-header .menu-trigger,.menu-trigger{inset-inline-end:14px!important;inset-block-end:calc(14px + env(safe-area-inset-bottom))!important}
+ .site-header .site-menu,.site-menu{inset-inline-end:14px!important;inset-block-end:calc(72px + env(safe-area-inset-bottom))!important;width:min(260px,calc(100vw - 28px));min-width:0}
+}
+@media(min-width:700px){
+ .site-header .menu-trigger,.menu-trigger{inset-block-end:24px!important}
+ .site-header .site-menu,.site-menu{inset-block-end:90px!important}
+}
 
-/* Override the header's legacy dropdown positioning for the floating menu. */
-.site-header .menu-trigger{position:fixed!important;inset-block-end:18px;inset-inline-end:18px;inset-inline-start:auto;top:auto}
-:root[dir="ltr"] .site-header .menu-trigger{inset-inline-start:18px;inset-inline-end:auto}
-.site-header .site-menu{position:fixed!important;inset-block-end:82px;inset-inline-end:18px;inset-inline-start:auto;top:auto}
-:root[dir="ltr"] .site-header .site-menu{inset-inline-start:18px;inset-inline-end:auto}
-@media(min-width:700px){.site-header .menu-trigger{inset-block-end:24px}.site-header .site-menu{inset-block-end:90px}}
+/* Native select controls are retained for form data, while options open inline. */
+.inline-dropdown{display:grid;gap:6px;min-width:0;width:100%}
+.inline-dropdown-native{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important;overflow:hidden!important;clip-path:inset(50%)!important}
+.inline-dropdown-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:var(--control-height,42px);padding:9px 12px;border:1px solid var(--line);border-radius:var(--theme-radius,8px);background:var(--surface);color:var(--page-text);text-align:start;cursor:pointer}
+.inline-dropdown-trigger::after{content:"";width:8px;height:8px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);flex:0 0 auto;margin-inline-end:3px}
+.inline-dropdown-trigger[aria-expanded="true"]::after{transform:rotate(225deg)}
+.inline-dropdown-options{position:static;display:grid;gap:3px;max-height:220px;overflow-y:auto;padding:6px;border:1px solid var(--line);border-radius:var(--theme-radius,8px);background:var(--surface);box-shadow:var(--theme-shadow,none)}
+.inline-dropdown-options[hidden]{display:none}
+.inline-dropdown-option{width:100%;min-height:38px;padding:8px 10px;border:0;border-radius:6px;background:transparent;color:var(--page-text);text-align:start;cursor:pointer}
+.inline-dropdown-option[aria-selected="true"],.inline-dropdown-option:hover{background:var(--hover)}
+.inline-dropdown-option:disabled{opacity:.5;cursor:not-allowed}
