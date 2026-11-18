@@ -406,7 +406,7 @@ async function relationsPage(){
    const next={...runtime,schema_version:1,theme_presets:{...(runtime.theme_presets||{}),[variant.value]:{...(runtime.theme_presets?.[variant.value]||{}),[mode.value]:{palette:globalForm.elements.palette.value,size:globalForm.elements.size.value}}},palette:globalForm.elements.palette.value,size:globalForm.elements.size.value,direction:globalForm.elements.direction.value};
    const {error:saveError}=await supabase.from("Settings").upsert({setting_key:"runtime_config",setting_value:next,visibility_roles:["owner"],description:"Global style configuration"},{onConflict:"setting_key"});
    msg.textContent=saveError?saveError.message:"Preference saved.";msg.dataset.kind=saveError?"error":"success";button.disabled=false;
-   if(!saveError){window.dispatchEvent(new CustomEvent("runtime-config-updated",{detail:next}));}
+   if(!saveError){presets[variant.value]={...(presets[variant.value]||{}),[mode.value]:{palette:globalForm.elements.palette.value,size:globalForm.elements.size.value}};window.dispatchEvent(new CustomEvent("runtime-config-updated",{detail:next}));}
   });
   page.append(globalForm);
   const current=setting?.setting_value?.modules||[],form=el("form","content-editor-form");
