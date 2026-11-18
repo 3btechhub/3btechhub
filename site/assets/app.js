@@ -219,12 +219,16 @@ let homeMediaByInfo=new Map();
 function hasValue(v){return v!==null&&v!==undefined&&v!==""&&(!Array.isArray(v)||v.length>0);}
 function titleCase(v){return String(v||"").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());}
 function makeHomeCard(title,subtitle,onClick,imageUrl=""){
- const card=document.createElement("button");card.type="button";card.className="home-content-card";
+ const card=document.createElement("button");card.type="button";card.className="home-content-card";card.setAttribute("aria-label",String(title||"Open item"));
  const visual=document.createElement("div");visual.className="home-content-visual";
- if(imageUrl){const img=document.createElement("img");img.src=imageUrl;img.alt="";img.loading="lazy";img.addEventListener("error",()=>img.remove(),{once:true});visual.append(img);}
- else visual.append(getItemFallbackIcon(title,"info"));
+ const fallback=()=>{if(!visual.querySelector(".home-content-fallback,.svg-icon"))visual.append(getItemFallbackIcon(title,"info"));};
+ if(imageUrl){
+  const img=document.createElement("img");img.src=imageUrl;img.alt=String(title||"");img.loading="lazy";img.decoding="async";
+  img.addEventListener("error",()=>{img.remove();fallback();},{once:true});
+  img.addEventListener("load",()=>visual.classList.add("has-image"),{once:true});visual.append(img);
+ }else fallback();
  const body=document.createElement("div");body.className="home-content-card-body";
- const h=document.createElement("h3");h.textContent=title;body.append(h);
+ const h=document.createElement("h3");h.textContent=title||"";body.append(h);
  if(subtitle){const s=document.createElement("p");s.textContent=subtitle;body.append(s);}
  card.append(visual,body);card.addEventListener("click",onClick);return card;
 }
