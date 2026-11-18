@@ -1,5 +1,5 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=nav-admin-20261118-1";
-import { initDynamicDashboard } from "./content-dashboard.js?v=nav-admin-20261118-1";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-4";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-4";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
@@ -445,12 +445,6 @@ languageSelect?.addEventListener("change",()=>{
   document.documentElement.dataset.language=languageSelect.value;
   applyLanguage(languageSelect.value);
   window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:languageSelect.value}}));
-});
-themeSelect?.addEventListener("change",()=>{
-  localStorage.setItem("3b-theme-variant",themeSelect.value);
-  document.documentElement.dataset.themeVariant=themeSelect.value;
-  applyRuntimeConfig(runtimeConfig,document.documentElement.dataset.theme||"light");
-  window.dispatchEvent(new CustomEvent("site-theme-changed",{detail:{theme:themeSelect.value}}));
 });
 void loadMenuPreferences();
 window.addEventListener("site-preferences-updated",()=>void loadMenuPreferences());
