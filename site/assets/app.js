@@ -1,5 +1,5 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-15";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-16";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-24";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js?v=notion-20261118-15";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
@@ -244,8 +244,7 @@ async function renderHomeList(){
  const {type}=homeListState;area.replaceChildren();area.hidden=false;
  const view=document.createElement("section");view.className="home-list-view";
  const header=document.createElement("div");header.className="home-list-heading";
- const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>window.navigateSiteRoute("/3btechhub/home/overview/"));
- const h=document.createElement("h1");h.textContent=type;header.append(back,h);view.append(header);
+ const h=document.createElement("h1");h.textContent=type;header.append(h);view.append(header);
  const grid=document.createElement("div");grid.className="home-list-grid";
  homeInfoRows.filter(r=>(r.type||"General")===type).forEach(r=>{
   const data=r.data||{},media=homeMediaRows.find(m=>(homeMediaByInfo.get(r.id)||[]).includes(m.id));
@@ -259,7 +258,6 @@ async function renderHomeDetail(){
  const area=document.getElementById("home-module-area"),record=homeDetailStack[homeDetailStack.length-1];if(!area||!record)return;
  area.replaceChildren();area.hidden=false;
  const view=document.createElement("section");view.className="home-detail-view";
- const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>{if(homeListState)window.navigateSiteRoute("/3btechhub/home/list-view/"+homeRouteSlug(homeListState.type)+"/");else window.navigateSiteRoute("/3btechhub/home/overview/");});view.append(back);
  const {data:links,error:linkError}=await supabase.from("Relation").select("*").or("source_id.eq."+record.id+",target_id.eq."+record.id);
  const related=(links||[]).map(x=>({type:x.source_id===record.id?x.target_type:x.source_type,id:x.source_id===record.id?x.target_id:x.source_id}));
  const mediaLinks=related.filter(x=>x.type==="Media"),relatedInfo=related.filter(x=>x.type==="Info");
@@ -340,7 +338,7 @@ async function loadHomeCatalog(){
  const grouped=new Map();
  for(const row of homeInfoRows){const type=String(row.type||"General").trim()||"General";if(!grouped.has(type))grouped.set(type,[]);grouped.get(type).push(row);}
  const grid=document.createElement("div");grid.className="home-card-grid";
- for(const [type,records] of grouped){grid.append(makeHomeCard(type,records.length+" items",()=>openHomeType(type)));}
+ for(const [type,records] of grouped){grid.append(makeHomeCard(type,"",()=>openHomeType(type)));}
  if(grid.childElementCount){const section=document.createElement("section");section.className="home-catalog-section";section.append(grid);area.append(section);}else{const empty=document.createElement("p");empty.className="home-empty-state";empty.textContent="No content available.";area.append(empty);}
  area.hidden=false;
 }
