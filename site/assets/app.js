@@ -412,6 +412,8 @@ languageSelect?.addEventListener("change",()=>{
   window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:languageSelect.value}}));
 });
 void loadMenuPreferences();
+window.addEventListener("site-preferences-updated",()=>void loadMenuPreferences());
+window.addEventListener("site-settings-updated",()=>{void window.__applyPublicSiteSettings?.();});
 const headerBrandLogo=document.querySelector(".brand-logo");
 if(headerBrandLogo){
   headerBrandLogo.setAttribute("role","button");headerBrandLogo.tabIndex=0;headerBrandLogo.setAttribute("aria-label","Go to Home");
