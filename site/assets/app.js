@@ -365,23 +365,8 @@ if(themeSelect){
   });
 }
 async function loadMenuPreferences(){
-  const [countriesResult,languagesResult]=await Promise.all([
-    supabase.from("countries").select("name,slug,status,sort_order").eq("status","active").order("sort_order"),
-    supabase.from("languages").select("title,slug,status,is_default,sort_order").eq("status","active").order("sort_order")
-  ]);
-  if(countrySelect&&!countriesResult.error){
-    const rows=countriesResult.data||[],saved=localStorage.getItem("3b-country")||"global";
-    countrySelect.replaceChildren(...rows.map(row=>new Option(row.name,row.slug||row.name.toLowerCase().replace(/\s+/g,"-"))));
-    countrySelect.value=rows.some(row=>(row.slug||"")===saved)?saved:(rows.find(row=>row.slug==="global")?.slug||rows[0]?.slug||"");
-    document.documentElement.dataset.country=countrySelect.value;
-  }
-  if(languageSelect&&!languagesResult.error){
-    const rows=languagesResult.data||[],saved=localStorage.getItem("3b-language")||"";
-    languageSelect.replaceChildren(...rows.map(row=>new Option(row.title,row.slug)));
-    languageSelect.value=rows.some(row=>row.slug===saved)?saved:(rows.find(row=>row.is_default)?.slug||rows[0]?.slug||"en");
-    document.documentElement.dataset.language=languageSelect.value;
-    applyLanguage(languageSelect.value);
-  }
+  if(countrySelect){const rows=[["Global","global"],["Bangladesh","bangladesh"],["Saudi Arabia","saudi-arabia"]],saved=localStorage.getItem("3b-country")||"global";countrySelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));countrySelect.value=rows.some(x=>x[1]===saved)?saved:"global";document.documentElement.dataset.country=countrySelect.value;}
+  if(languageSelect){const rows=[["English","en"],["Bangla","bn"],["Arabic","ar"]],saved=localStorage.getItem("3b-language")||"en";languageSelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));languageSelect.value=rows.some(x=>x[1]===saved)?saved:"en";document.documentElement.dataset.language=languageSelect.value;applyLanguage(languageSelect.value);}
 }
 countrySelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-country",countrySelect.value);
