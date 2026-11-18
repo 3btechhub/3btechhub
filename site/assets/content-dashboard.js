@@ -4,8 +4,7 @@ const slug=v=>String(v||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-
 const say=(n,t,k="")=>{n.textContent=t;n.dataset.kind=k;};
 const roles=["owner","admin","member","visitor"];
 export async function initDynamicDashboard(supabase,root,user){
- root.innerHTML='<div class="dashboard-workspace"><header class="dashboard-workspace-header"><h1>Dashboard</h1><span></span></header><nav id="notion-tabs" class="dashboard-module-nav" role="tablist" aria-label="Dashboard layouts"></nav><section id="notion-panel" class="dashboard-workspace-main" aria-live="polite"></section><div id="notion-admin" hidden></div></div>';
- root.querySelector("header span").textContent=user?.email||"";
+ root.innerHTML='<div class="dashboard-workspace"><nav id="notion-tabs" class="dashboard-module-nav" role="tablist" aria-label="Dashboard layouts"></nav><section id="notion-panel" class="dashboard-workspace-main" aria-live="polite"></section><div id="notion-admin" hidden></div></div>';
  const tabs=$("#notion-tabs",root),panel=$("#notion-panel",root),hidden=$("#notion-admin",root);
  const order=[["overview","Overview"],["info","Info"],["media","Media"],["relation","Relation"],["users","User"],["roles","Role"],["permissions","Permission"],["preference","Preference"],["setting","Setting"]];
  const adminNodes={};
