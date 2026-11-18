@@ -29,8 +29,16 @@ main{width:100%;min-height:100vh;padding:28px 16px 108px}
 .form-field{display:grid;gap:7px;min-width:0}
 .form-field.full{grid-column:1/-1}
 .form-field label{font-size:.9rem;color:var(--gray-700)}
-.form-field input,.form-field select{width:100%;min-height:48px;padding:12px 14px;border:1px solid var(--gray-200);border-radius:var(--radius-control);background:rgb(255 255 255 / 86%);color:var(--black);font:inherit;outline:none;box-shadow:inset 0 1px 3px rgb(0 0 0 / 3%)}
-.form-field input:focus,.form-field select:focus{border-color:var(--gray-500);box-shadow:0 0 0 3px rgb(0 0 0 / 6%)}
+.form-field input{width:100%;min-height:48px;padding:12px 14px;border:1px solid var(--gray-200);border-radius:var(--radius-control);background:rgb(255 255 255 / 86%);color:var(--black);font:inherit;outline:none;box-shadow:inset 0 1px 3px rgb(0 0 0 / 3%)}
+.form-field input:focus{border-color:var(--gray-500);box-shadow:0 0 0 3px rgb(0 0 0 / 6%)}
+.visibility-control{display:flex;align-items:center;gap:12px;min-height:48px}
+.visibility-control input{position:absolute;width:1px;height:1px;opacity:0}
+.visibility-switch{position:relative;width:48px;height:28px;border-radius:999px;background:var(--gray-200);transition:background 160ms ease;cursor:pointer}
+.visibility-switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgb(0 0 0 / 18%);transition:transform 160ms ease}
+.visibility-control input:checked + .visibility-switch{background:var(--black)}
+.visibility-control input:checked + .visibility-switch::after{transform:translateX(20px)}
+.visibility-control input:focus-visible + .visibility-switch{outline:3px solid var(--gray-500);outline-offset:3px}
+.visibility-state{color:var(--gray-700);font-size:.95rem}
 .form-note{margin:16px 0 0;color:var(--gray-500);font-size:.9rem;line-height:1.5}
 .records{margin-top:24px;padding-top:20px;border-top:1px solid var(--gray-200)}
 .records-title{margin:0;font-size:1rem;font-weight:700}
@@ -62,7 +70,7 @@ main{width:100%;min-height:100vh;padding:28px 16px 108px}
         <div class="form-grid">
           <div class="form-field full"><label for="service-name">Name</label><input id="service-name" name="name" type="text" placeholder="Service name" autocomplete="off"></div>
           <div class="form-field"><label for="service-slug">Slug</label><input id="service-slug" name="slug" type="text" placeholder="service-slug" autocomplete="off"></div>
-          <div class="form-field"><label for="service-visibility">Visibility</label><select id="service-visibility" name="visibility"><option value="show">Show</option><option value="hide">Hide</option></select></div>
+          <div class="form-field"><label for="service-visibility">Visibility</label><div class="visibility-control"><input id="service-visibility" name="visibility" type="checkbox" checked><label class="visibility-switch" for="service-visibility" aria-label="Toggle service visibility"></label><span class="visibility-state" id="visibility-state">Show</span></div></div>
         </div>
         <p class="form-note">Service records are not connected yet. The database currently has no public tables, so saving and loading records are unavailable.</p>
       </form>
@@ -87,6 +95,15 @@ const menuToggle=document.querySelector('.menu-toggle');
 const navigation=document.querySelector('#navigation');
 const pages=[...document.querySelectorAll('.page')];
 const links=[...document.querySelectorAll('.menu-link')];
+const serviceName=document.querySelector('#service-name');
+const serviceSlug=document.querySelector('#service-slug');
+const visibilityInput=document.querySelector('#service-visibility');
+const visibilityState=document.querySelector('#visibility-state');
+let slugEdited=false;
+function makeSlug(value){return value.normalize('NFKD').toLowerCase().trim().replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}
+serviceName.addEventListener('input',()=>{if(!slugEdited)serviceSlug.value=makeSlug(serviceName.value)});
+serviceSlug.addEventListener('input',()=>{slugEdited=true});
+visibilityInput.addEventListener('change',()=>{visibilityState.textContent=visibilityInput.checked?'Show':'Hide'});
 function setMenuOpen(open){menuToggle.setAttribute('aria-expanded',String(open));menuToggle.setAttribute('aria-label',open?'Close menu':'Open menu');navigation.hidden=!open}
 function showPage(){const pageId=location.hash.slice(1)||'home';const activePage=pages.find(page=>page.id===pageId)||pages[0];pages.forEach(page=>page.classList.toggle('is-active',page===activePage));links.forEach(link=>{if(link.hash==='#'+activePage.id)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});setMenuOpen(false)}
 menuToggle.addEventListener('click',()=>setMenuOpen(menuToggle.getAttribute('aria-expanded')!=='true'));
