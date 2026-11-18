@@ -11,7 +11,7 @@
     if(!menu.hidden&&kind==="logo")return;
     const nextKind=kind==="logo";
     showingLogo=nextKind;
-    button.style.setProperty("--menu-icon-transition",transitionMs+"ms");
+    button.style.setProperty("--menu-icon-transition",Math.max(150,Math.round(transitionMs/2))+"ms");
     button.classList.add("is-fading-icon");
     if(renderTimer)clearTimeout(renderTimer);
     renderTimer=setTimeout(()=>{
@@ -25,7 +25,7 @@
       if(next)button.replaceChildren(next);
       requestAnimationFrame(()=>button.classList.remove("is-fading-icon"));
       renderTimer=null;
-    },Math.max(120,Math.round(transitionMs/2)));
+    },window.matchMedia?.("(prefers-reduced-motion: reduce)").matches?0:Math.max(120,Math.round(transitionMs/2)));
   }
   function scheduleIdle(){
     clearTimers();
@@ -51,6 +51,7 @@
   button.addEventListener("click",event=>{
     event.stopPropagation();
     clearTimers();
+    if(renderTimer){clearTimeout(renderTimer);renderTimer=null;}
     const opening=menu.hidden;
     if(opening){
       menu.hidden=false;
