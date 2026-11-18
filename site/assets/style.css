@@ -1420,8 +1420,8 @@ textarea{min-height:calc(var(--control-height) * 2)}
   --text-medium:15px;
   --text-large:clamp(24px,3vw,34px);
   --control-height:42px;
-  --global-radius:8px;
-  --global-shadow:none;
+  --global-radius:var(--theme-radius,8px);
+  --global-shadow:var(--theme-shadow,none);
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
