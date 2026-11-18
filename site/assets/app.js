@@ -53,13 +53,13 @@ function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
 }
 function applyEnglishText(){applyLanguage(localStorage.getItem("3b-language")||"en");}
 const translationCache=new Map();let translationQueue=[],translationWorkers=0;
-function translationSource(text){if(/[\\u0600-\\u06FF]/.test(text))return "ar";if(/[\\u0980-\\u09FF]/.test(text))return "bn";return "en";}
+function translationSource(text){if(/[\u0600-\u06FF]/.test(text))return "ar";if(/[\u0980-\u09FF]/.test(text))return "bn";return "en";}
 function queueDynamicTranslations(root,target){
  if(!root||!["bn","ar"].includes(target))return;
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node,added=0;
  while((node=walker.nextNode())&&added<80){
   const raw=node.nodeValue||"",value=raw.trim(),parent=node.parentElement;
-  if(!value||value.length<2||value.length>240||new TextEncoder().encode(value).length>450||/^([\\d\\W_]+)$/.test(value)||!parent||value==="3B TECH HUB")continue;
+  if(!value||value.length<2||value.length>240||new TextEncoder().encode(value).length>450||/^([\d\W_]+)$/.test(value)||!parent||value==="3B TECH HUB")continue;
   if(parent.closest("script,style,textarea,input,select,option,code,pre,svg,[contenteditable='true']"))continue;
   const source=translationSource(value);if(source===target)continue;
   const map=target==="bn"?bnText:arText;if(map[value])continue;
