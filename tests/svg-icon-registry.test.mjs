@@ -93,3 +93,10 @@ test("region preferences store a configurable default language and RTL language 
   assert.match(dashboard, /Default Language/);
   assert.match(dashboard, /default_language/);
 });
+
+test("regional language codes use the correct base translation and text direction", () => {
+  const app = readFileSync("site/assets/app.js", "utf8");
+  assert.match(app, /baseLanguage=selected\.split\("-"\)\[0\]/);
+  assert.match(app, /baseLanguage==="ar"\?arText/);
+  assert.match(app, /\^\(ar\|fa\|he\|ur\|ps\|sd\|ug\|yi\)/);
+});
