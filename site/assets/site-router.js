@@ -1,4 +1,4 @@
-import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-alignment-20261118-8";
+import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-alignment-20261118-9";
 
 const BASE = "/3btechhub/";
 const main = document.getElementById("app-main");
