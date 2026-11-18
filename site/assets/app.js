@@ -213,14 +213,23 @@ function makeHomeCard(title,subtitle,onClick,imageUrl=""){
  if(subtitle){const s=document.createElement("p");s.textContent=subtitle;body.append(s);}
  card.append(visual,body);card.addEventListener("click",onClick);return card;
 }
-function openHomeType(type){homeListState={type};homeDetailStack.length=0;void renderHomeList();}
-function openHomeDetail(record){homeDetailStack.push(record);void renderHomeDetail();}
+function homeRouteSlug(value){return String(value||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
+function openHomeType(type){
+ const route="/3btechhub/home/list-view/"+homeRouteSlug(type||"General")+"/";
+ if(window.navigateSiteRoute){window.navigateSiteRoute(route);return;}
+ homeListState={type};homeDetailStack.length=0;void renderHomeList();
+}
+function openHomeDetail(record){
+ const route="/3btechhub/home/detail-view/"+homeRouteSlug(record?.slug||record?.name)+"/";
+ if(window.navigateSiteRoute){window.navigateSiteRoute(route);return;}
+ homeDetailStack.push(record);void renderHomeDetail();
+}
 async function renderHomeList(){
  const area=document.getElementById("home-module-area");if(!area||!homeListState)return;
  const {type}=homeListState;area.replaceChildren();area.hidden=false;
  const view=document.createElement("section");view.className="home-list-view";
  const header=document.createElement("div");header.className="home-list-heading";
- const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>{homeListState=null;void loadHomeCatalog();});
+ const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>window.navigateSiteRoute("/3btechhub/home/overview/"));
  const h=document.createElement("h1");h.textContent=type;header.append(back,h);view.append(header);
  const grid=document.createElement("div");grid.className="home-list-grid";
  homeInfoRows.filter(r=>(r.type||"General")===type).forEach(r=>{
@@ -235,7 +244,7 @@ async function renderHomeDetail(){
  const area=document.getElementById("home-module-area"),record=homeDetailStack[homeDetailStack.length-1];if(!area||!record)return;
  area.replaceChildren();area.hidden=false;
  const view=document.createElement("section");view.className="home-detail-view";
- const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else if(homeListState)void renderHomeList();else void loadHomeCatalog();});view.append(back);
+ const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>{if(homeListState)window.navigateSiteRoute("/3btechhub/home/list-view/"+homeRouteSlug(homeListState.type)+"/");else window.navigateSiteRoute("/3btechhub/home/overview/");});view.append(back);
  const {data:links,error:linkError}=await supabase.from("Relation").select("*").or("source_id.eq."+record.id+",target_id.eq."+record.id);
  const related=(links||[]).map(x=>({type:x.source_id===record.id?x.target_type:x.source_type,id:x.source_id===record.id?x.target_id:x.source_id}));
  const mediaLinks=related.filter(x=>x.type==="Media"),relatedInfo=related.filter(x=>x.type==="Info");
@@ -1695,12 +1704,13 @@ void applyPublicSiteSettings();
   const routeRoot=document.querySelector("#app-main");
   const routeLayout=routeRoot?.dataset.layout||"overview";
   const routeSlug=routeRoot?.dataset.recordSlug||"";
-  const toSlug=value=>String(value||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
   if(routeLayout==="list-view"&&routeSlug){
-    const item=homeInfoRows.find(row=>toSlug(row.type||"General")===routeSlug);
+    const item=homeInfoRows.find(row=>homeRouteSlug(row.type||"General")===routeSlug);
     if(item){homeListState={type:item.type||"General"};await renderHomeList();}
+    else{const area=document.getElementById("home-module-area");if(area){area.replaceChildren();const empty=document.createElement("p");empty.className="home-empty-state";empty.textContent="No matching list is available.";area.append(empty);}}
   }else if(routeLayout==="detail-view"&&routeSlug){
-    const item=homeInfoRows.find(row=>toSlug(row.slug||row.name)===routeSlug);
-    if(item){homeDetailStack.push(item);await renderHomeDetail();}
+    const item=homeInfoRows.find(row=>homeRouteSlug(row.slug||row.name)===routeSlug);
+    if(item){homeListState={type:item.type||"General"};homeDetailStack.push(item);await renderHomeDetail();}
+    else{const area=document.getElementById("home-module-area");if(area){area.replaceChildren();const empty=document.createElement("p");empty.className="home-empty-state";empty.textContent="No matching item is available.";area.append(empty);}}
   }
 }
