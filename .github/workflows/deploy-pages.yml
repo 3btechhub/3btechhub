@@ -6,11 +6,15 @@ on:
     paths:
       - "site/**"
       - ".github/workflows/deploy-pages.yml"
+      - "tests/**"
+      - "package.json"
   push:
     branches: [main]
     paths:
       - "site/**"
       - ".github/workflows/deploy-pages.yml"
+      - "tests/**"
+      - "package.json"
   workflow_dispatch:
 
 permissions:
