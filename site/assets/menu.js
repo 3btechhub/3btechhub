@@ -10,7 +10,6 @@
   function render(kind){
     if(!menu.hidden&&kind==="logo")return;
     const nextKind=kind==="logo";
-    if(showingLogo===nextKind&&button.querySelector(nextKind?".menu-logo":".menu-icon"))return;
     showingLogo=nextKind;
     button.style.setProperty("--menu-icon-transition",transitionMs+"ms");
     button.classList.add("is-fading-icon");
@@ -63,7 +62,6 @@
     }else closeMenu(true);
   });
   menu.addEventListener("click",event=>{
-    event.stopPropagation();
     if(event.target.closest("a.menu-link,button#logout-menu-link"))closeMenu();
   });
   document.addEventListener("click",event=>{
