@@ -74,7 +74,8 @@ export function applyRuntimeConfig(config, theme = "light", root = document.docu
 
   let applied = 0;
   const selectedTheme = theme === "dark" ? "dark" : "light";
-  const variant = ["classic","modern","future"].includes(root.dataset?.themeVariant) ? root.dataset.themeVariant : "classic";
+  const requestedVariant = String(root.dataset?.themeVariant || "classic").toLowerCase();
+  const variant = /^[a-z0-9][a-z0-9-]{0,39}$/.test(requestedVariant) && isPlainObject(config.theme_presets?.[requestedVariant]) ? requestedVariant : "classic";
   const preset = config.theme_presets?.[variant]?.[selectedTheme];
   const activeConfig = isPlainObject(preset) ? {...config,...preset} : config;
   const tokens = activeConfig.themes?.[selectedTheme];
