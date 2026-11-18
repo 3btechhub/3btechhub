@@ -1,5 +1,5 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-updates-20261118-2";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-alignment-20261118-5";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=nav-admin-20261118-1";
+import { initDynamicDashboard } from "./content-dashboard.js?v=nav-admin-20261118-1";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
@@ -39,9 +39,10 @@ const arText={"Home":"الرئيسية","Account":"الحساب","Profile":"ال
 const enText=Object.fromEntries(Object.entries(bnText).map(([english,bengali])=>[bengali,english]));
 const translationOriginals=new WeakMap();
 function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
- const selected=Object.hasOwn(translations,language)?language:"en",labels=translations[selected],textMap=selected==="bn"?bnText:selected==="ar"?arText:enText;
+ const selected=/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(String(language||""))?String(language).toLowerCase():"en",labels=translations[selected]||translations.en,textMap=selected==="bn"?bnText:selected==="ar"?arText:enText;
  translationQueue=[];
  document.documentElement.lang=selected;
+ document.documentElement.dir=selected==="ar"?"rtl":"ltr";
  document.querySelectorAll("[data-label]").forEach(element=>{const value=labels[element.dataset.label];if(!value)return;const textNode=[...element.childNodes].find(node=>node.nodeType===Node.TEXT_NODE);if(textNode)textNode.nodeValue=value;else element.append(document.createTextNode(value));});
  document.querySelectorAll("[placeholder]").forEach(element=>{const value=textMap[element.placeholder];if(value)element.placeholder=value;});
  document.querySelectorAll("[aria-label]").forEach(element=>{const value=textMap[element.getAttribute("aria-label")];if(value)element.setAttribute("aria-label",value);});
@@ -53,14 +54,14 @@ function applyEnglishText(){applyLanguage(localStorage.getItem("3b-language")||"
 const translationCache=new Map();let translationQueue=[],translationWorkers=0;
 function translationSource(text){if(/[\u0600-\u06FF]/.test(text))return "ar";if(/[\u0980-\u09FF]/.test(text))return "bn";return "en";}
 function queueDynamicTranslations(root,target){
- if(!root||!["bn","ar"].includes(target))return;
+ if(!root||!target||target==="en")return;
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node,added=0;
  while((node=walker.nextNode())&&added<80){
   const raw=node.nodeValue||"",value=raw.trim(),parent=node.parentElement;
   if(!value||value.length<2||value.length>240||new TextEncoder().encode(value).length>450||/^([\d\W_]+)$/.test(value)||!parent||value==="3B TECH HUB")continue;
   if(parent.closest("script,style,textarea,input,select,option,code,pre,svg,[contenteditable='true']"))continue;
   const source=translationSource(value);if(source===target)continue;
-  const map=target==="bn"?bnText:arText;if(map[value])continue;
+  const map=target==="bn"?bnText:target==="ar"?arText:{};if(map[value])continue;
   const key=target+"|"+source+"|"+value;if(translationCache.has(key))continue;
   const cached=localStorage.getItem("3b-translation:"+key);
   if(cached){translationCache.set(key,cached);node.nodeValue=raw.replace(value,cached);continue;}
@@ -395,8 +396,23 @@ if(themeSelect){
   });
 }
 async function loadMenuPreferences(){
-  if(regionSelect){const rows=[["Global","global"],["Bangladesh","bangladesh"],["Saudi Arabia","saudi-arabia"]],saved=localStorage.getItem("3b-region")||localStorage.getItem("3b-country")||"global";regionSelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));regionSelect.value=rows.some(x=>x[1]===saved)?saved:"global";document.documentElement.dataset.region=regionSelect.value;}
-  if(languageSelect){const rows=[["English","en"],["Bangla","bn"],["Arabic","ar"]],saved=localStorage.getItem("3b-language")||"en";languageSelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));languageSelect.value=rows.some(x=>x[1]===saved)?saved:"en";document.documentElement.dataset.language=languageSelect.value;applyLanguage(languageSelect.value);}
+  const {data:optionRow}=await supabase.from("Settings").select("setting_value").eq("setting_key","preference_options").maybeSingle();
+  const options=optionRow?.setting_value&&typeof optionRow.setting_value==="object"?optionRow.setting_value:{};
+  const regions=Array.isArray(options.regions)&&options.regions.length?options.regions:[{label:"Global",value:"global"},{label:"Bangladesh",value:"bangladesh"},{label:"Saudi Arabia",value:"saudi-arabia"}];
+  const languages=Array.isArray(options.languages)&&options.languages.length?options.languages:[{label:"English",value:"en"},{label:"Bangla",value:"bn"},{label:"Arabic",value:"ar"}];
+  if(regionSelect){
+    const saved=localStorage.getItem("3b-region")||localStorage.getItem("3b-country")||"global";
+    regionSelect.replaceChildren(...regions.map(item=>new Option(item.label,item.value)));
+    regionSelect.value=regions.some(item=>item.value===saved)?saved:regions[0].value;
+    document.documentElement.dataset.region=regionSelect.value;
+  }
+  if(languageSelect){
+    const saved=localStorage.getItem("3b-language")||"en";
+    languageSelect.replaceChildren(...languages.map(item=>new Option(item.label,item.value)));
+    languageSelect.value=languages.some(item=>item.value===saved)?saved:languages[0].value;
+    document.documentElement.dataset.language=languageSelect.value;
+    applyLanguage(languageSelect.value);
+  }
 }
 regionSelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-region",regionSelect.value);
@@ -411,6 +427,8 @@ languageSelect?.addEventListener("change",()=>{
   window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:languageSelect.value}}));
 });
 void loadMenuPreferences();
+window.addEventListener("site-preferences-updated",()=>void loadMenuPreferences());
+window.addEventListener("site-settings-updated",()=>{void window.__applyPublicSiteSettings?.();});
 const headerBrandLogo=document.querySelector(".brand-logo");
 if(headerBrandLogo){
   headerBrandLogo.setAttribute("role","button");headerBrandLogo.tabIndex=0;headerBrandLogo.setAttribute("aria-label","Go to Home");

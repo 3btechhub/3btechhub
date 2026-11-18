@@ -92,11 +92,6 @@ export function applyRuntimeConfig(config, theme = "light", root = document.docu
     }
   }
 
-  if (config.direction === "ltr" || config.direction === "rtl") {
-    root.dir = config.direction;
-    applied += 1;
-  }
-
   const palette = PALETTE_PRESETS[activeConfig.palette]?.[selectedTheme];
   if (palette) {
     for (const [key, cssVariable] of Object.entries(THEME_VARIABLES)) {
