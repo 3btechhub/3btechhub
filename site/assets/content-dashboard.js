@@ -23,11 +23,102 @@ export async function initDynamicDashboard(supabase,root,user){
  function listRow(host,title,detail,fn){const b=el("button","dashboard-record-row");b.type="button";b.append(el("strong","",title),el("small","",detail||""));b.onclick=fn;host.append(b);return b;}
  function sortable(row,id,rows,table,render){let dragged=null;row.draggable=true;row.addEventListener("dragstart",()=>{dragged=id;row.classList.add("is-dragging");});row.addEventListener("dragend",()=>{dragged=null;row.classList.remove("is-dragging");});row.addEventListener("dragover",e=>{if(dragged&&dragged!==id)e.preventDefault();});row.addEventListener("drop",async e=>{e.preventDefault();if(!dragged||dragged===id)return;const from=rows.findIndex(x=>x.id===dragged),to=rows.findIndex(x=>x.id===id);if(from<0||to<0)return;const [moved]=rows.splice(from,1);rows.splice(to,0,moved);dragged=null;const results=await Promise.all(rows.map((x,i)=>supabase.from(table).update({sort_order:(i+1)*10}).eq("id",x.id)));const failed=results.find(x=>x.error);if(failed)alert(failed.error.message);render();});}
  async function info(){
-  const p=start("info","Info"),f=el("form","content-editor-form");f.innerHTML='<h3>Add Info</h3><div class="module-form-grid"></div><div class="editor-actions"><button>Save</button><button type="button" class="secondary-button" data-cancel>Cancel</button><button type="button" class="secondary-button" data-delete hidden>Delete</button></div><p class="editor-message"></p>';const g=$(".module-form-grid",f),name=input(g,"Name","name","text","",true),type=input(g,"Type","type"),sl=input(g,"Slug","slug"),desc=input(g,"Description","description","textarea"),vis=visibilitySelect(g);name.oninput=()=>{if(!f.dataset.id)sl.value=slug(name.value);};const search=el("input");search.type="search";search.placeholder="Search by Name or Type";const toolbar=el("div","dashboard-toolbar");toolbar.append(search);const list=el("div","dashboard-record-list");p.append(f,toolbar,list);let rows=[];
-  function reset(){f.reset();f.dataset.id="";vis.value="show";$("h3",f).textContent="Add Info";f.querySelector(".editor-actions button").textContent="Save";$("[data-delete]",f).hidden=true;}
-  function edit(r){f.dataset.id=r.id;name.value=r.name;type.value=r.type||"";sl.value=r.slug||"";desc.value=r.description||"";vis.value=r.visibility||"show";$("h3",f).textContent="Edit Info";f.querySelector(".editor-actions button").textContent="Update";$("[data-delete]",f).hidden=false;f.scrollIntoView({behavior:"smooth",block:"start"});}
-  function render(){list.replaceChildren();const term=search.value.toLowerCase();const arr=rows.filter(r=>!term||r.name.toLowerCase().includes(term)||(r.type||"").toLowerCase().includes(term));if(!arr.length)list.append(el("p","muted","No records found."));arr.forEach(r=>{const row=listRow(list,r.name,(r.type||"")+(r.visibility==="hide"?" · Hidden":""),()=>edit(r));sortable(row,r.id,rows,"Info",render);});}
-  search.oninput=render;f.onsubmit=async e=>{e.preventDefault();const b=f.querySelector("button[type=submit]")||f.querySelector("button");b.disabled=true;try{const payload={name:name.value.trim(),type:type.value.trim(),slug:slug(sl.value),description:desc.value.trim(),visibility:vis.value};if(!payload.name||!payload.slug)throw Error("Name and Slug are required.");const r=f.dataset.id?await supabase.from("Info").update(payload).eq("id",f.dataset.id):await supabase.from("Info").insert({...payload,visibility_roles:["owner","admin","member","visitor"]});if(r.error)throw r.error;reset();say($(".editor-message",f),"Saved.","success");rows=await get("Info");render();}catch(e){say($(".editor-message",f),e.message,"error");}finally{b.disabled=false;}}; $("[data-cancel]",f).onclick=reset;$("[data-delete]",f).onclick=async()=>{if(!f.dataset.id||!confirm("Delete this Info?"))return;const id=f.dataset.id;const {error}=await supabase.from("Info").delete().eq("id",id);if(error){say($(".editor-message",f),error.message,"error");return;}reset();rows=await get("Info");render();};rows=await get("Info");render();
+  const p=start("info","Content"),f=el("form","content-editor-form");
+  f.innerHTML='<h3>Add Item</h3><div class="module-form-grid"></div><div class="editor-actions"><button type="submit">Create / Update</button><button type="button" class="secondary-button" data-cancel>Cancel</button><button type="button" class="secondary-button" data-delete hidden>Delete</button></div><p class="editor-message"></p>';
+  const g=$(".module-form-grid",f),categoryLabel=el("label","module-form-field");categoryLabel.append(el("span","","Category"));
+  const category=el("select");category.name="type";
+  const categories=["Service","Product","Info","Hub","Provider","Call","Whatsapp","Location","Map","Images"];
+  categories.forEach(value=>category.append(new Option(value,value)));
+  categoryLabel.append(category);g.append(categoryLabel);
+  const name=input(g,"Name","name","text","",true),slugField=input(g,"Slug","slug"),valueField=input(g,"Value","value"),description=input(g,"Description","description","textarea"),imageUrl=input(g,"Image URL","imageUrl","url"),file=input(g,"Upload Image","file");
+  file.accept="image/png,image/jpeg,image/webp,image/avif,image/gif";
+  const vis=visibilitySelect(g);
+  const special=new Set(["Call","Whatsapp","Location","Map"]);
+  function syncFields(){
+   const isSpecial=special.has(category.value),isImage=category.value==="Images";
+   slugField.closest("label").hidden=isSpecial||isImage;
+   valueField.closest("label").hidden=!isSpecial;
+   imageUrl.closest("label").hidden=!isImage;
+   file.closest("label").hidden=!isImage;
+  }
+  category.addEventListener("change",syncFields);
+  name.oninput=()=>{if(!f.dataset.id)slugField.value=slug(name.value);};
+  const search=el("input");search.type="search";search.placeholder="Filter items";
+  const toolbar=el("div","dashboard-toolbar");toolbar.append(search);
+  const list=el("div","dashboard-record-list");p.append(f,toolbar,list);
+  let rows=[];
+  function reset(){
+   f.reset();f.dataset.id="";vis.value="show";category.value="Service";
+   $("h3",f).textContent="Add Item";f.querySelector('[type="submit"]').textContent="Create / Update";
+   $("[data-delete]",f).hidden=true;syncFields();
+  }
+  function edit(r){
+   f.dataset.id=r.id;
+   if(![...category.options].some(o=>o.value===r.type))category.append(new Option(r.type,r.type));
+   category.value=r.type||"Service";name.value=r.name||"";slugField.value=r.slug||"";
+   description.value=r.description||"";vis.value=r.visibility||"show";
+   valueField.value=r.data?.value||"";
+   imageUrl.value=r.data?.image_url||r.data?.photo_url||"";
+   $("h3",f).textContent="Edit Item";f.querySelector('[type="submit"]').textContent="Update";
+   $("[data-delete]",f).hidden=false;syncFields();f.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  function render(){
+   list.replaceChildren();const term=search.value.trim().toLowerCase();
+   const filtered=rows.filter(r=>[r.name,r.type,r.slug,r.description,r.data?.value].some(v=>String(v||"").toLowerCase().includes(term)));
+   if(!filtered.length)list.append(el("p","muted","No records found."));
+   filtered.forEach(r=>{
+    const detail=[r.type,r.visibility==="hide"?"Hidden":""].filter(Boolean).join(" · ");
+    const row=listRow(list,r.name,detail,()=>edit(r));sortable(row,r.id,rows,"Info",render);
+   });
+  }
+  search.oninput=render;
+  f.onsubmit=async e=>{
+   e.preventDefault();const button=f.querySelector('[type="submit"]');button.disabled=true;
+   try{
+    const kind=category.value,isSpecial=special.has(kind),isImage=kind==="Images";
+    const payload={name:name.value.trim(),type:kind,slug:isSpecial||isImage?null:slug(slugField.value),description:description.value.trim(),visibility:vis.value,data:{}};
+    if(!payload.name)throw Error("Name is required.");
+    if(isSpecial&&!valueField.value.trim())throw Error("Value is required for this category.");
+    if(!isSpecial&&!isImage&&!payload.slug)throw Error("Slug is required.");
+    const existing=rows.find(r=>r.id===f.dataset.id);
+    payload.data={...(existing?.data||{})};
+    if(isSpecial)payload.data.value=valueField.value.trim();
+    else delete payload.data.value;
+    if(isImage){
+     let url=imageUrl.value.trim();
+     if(file.files[0]){
+      const image=file.files[0];
+      if(!/^image\/(png|jpeg|webp|avif|gif)$/.test(image.type)||image.size>10*1024*1024)throw Error("Choose a supported image under 10 MB.");
+      const path="content/"+Date.now()+"-"+image.name.replace(/[^a-z0-9._-]/gi,"-");
+      const uploaded=await supabase.storage.from("site-media").upload(path,image,{upsert:false,contentType:image.type});
+      if(uploaded.error)throw uploaded.error;
+      url=supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl;
+      payload.data.image_path=path;
+     }
+     if(url&&!/^https?:\/\//i.test(url))throw Error("Enter a valid image URL.");
+     if(url){payload.data.image_url=url;payload.data.photo_url=url;}
+    }else{delete payload.data.image_url;delete payload.data.image_path;}
+    const result=f.dataset.id
+     ?await supabase.from("Info").update(payload).eq("id",f.dataset.id)
+     :await supabase.from("Info").insert({...payload,visibility_roles:["owner","admin","member","visitor"]});
+    if(result.error)throw result.error;
+    reset();say($(".editor-message",f),"Saved.","success");rows=await get("Info");render();
+   }catch(error){say($(".editor-message",f),error.message||"Could not save item.","error");}
+   finally{button.disabled=false;}
+  };
+  $("[data-cancel]",f).onclick=reset;
+  $("[data-delete]",f).onclick=async()=>{
+   if(!f.dataset.id||!confirm("Delete this item? Its relation links will also be removed."))return;
+   const id=f.dataset.id;
+   const rel=await supabase.from("Relation").delete().or("source_id.eq."+id+",target_id.eq."+id);
+   if(rel.error){say($(".editor-message",f),rel.error.message,"error");return;}
+   const deleted=await supabase.from("Info").delete().eq("id",id);
+   if(deleted.error){say($(".editor-message",f),deleted.error.message,"error");return;}
+   reset();rows=await get("Info");render();
+  };
+  rows=await get("Info");
+  rows.forEach(r=>{if(r.type&&!categories.includes(r.type)&&![...category.options].some(o=>o.value===r.type))category.append(new Option(r.type,r.type));});
+  syncFields();render();
  }
  async function media(){
   const p=start("media","Media"),f=el("form","content-editor-form");f.innerHTML='<h3>Add Media</h3><div class="module-form-grid"></div><div class="editor-actions"><button>Save</button><button type="button" class="secondary-button" data-cancel>Cancel</button><button type="button" class="secondary-button" data-delete hidden>Delete</button></div><p class="editor-message"></p>';const g=$(".module-form-grid",f),name=input(g,"Name","name","text","",true),type=input(g,"Type","type"),sl=input(g,"Slug","slug"),desc=input(g,"Description","description","textarea"),file=input(g,"Image Uploader","file"),vis=visibilitySelect(g);file.accept="image/png,image/jpeg,image/webp,image/avif,image/gif";name.oninput=()=>{if(!f.dataset.id)sl.value=slug(name.value);};const search=el("input");search.type="search";search.placeholder="Search by Name or Type";const toolbar=el("div","dashboard-toolbar");toolbar.append(search);const list=el("div","dashboard-record-list");p.append(f,toolbar,list);let rows=[];
