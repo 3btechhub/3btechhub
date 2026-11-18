@@ -1,4 +1,4 @@
-import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-20261118-21";
+import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-20261118-22";
 import { parseSiteRoute } from "./route-map.js?v=notion-20261118-16";
 
 const BASE = "/3btechhub/";
