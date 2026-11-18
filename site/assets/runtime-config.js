@@ -74,7 +74,10 @@ export function applyRuntimeConfig(config, theme = "light", root = document.docu
 
   let applied = 0;
   const selectedTheme = theme === "dark" ? "dark" : "light";
-  const tokens = config.themes?.[selectedTheme];
+  const variant = ["classic","modern","future"].includes(root.dataset.themeVariant) ? root.dataset.themeVariant : "classic";
+  const preset = config.theme_presets?.[variant]?.[selectedTheme];
+  const activeConfig = isPlainObject(preset) ? {...config,...preset} : config;
+  const tokens = activeConfig.themes?.[selectedTheme];
 
   if (isPlainObject(tokens)) {
     for (const [key, cssVariable] of Object.entries(THEME_VARIABLES)) {
@@ -94,7 +97,7 @@ export function applyRuntimeConfig(config, theme = "light", root = document.docu
     applied += 1;
   }
 
-  const palette = PALETTE_PRESETS[config.palette]?.[selectedTheme];
+  const palette = PALETTE_PRESETS[activeConfig.palette]?.[selectedTheme];
   if (palette) {
     for (const [key, cssVariable] of Object.entries(THEME_VARIABLES)) {
       root.style.setProperty(cssVariable, palette[key]);
@@ -102,7 +105,7 @@ export function applyRuntimeConfig(config, theme = "light", root = document.docu
     }
   }
 
-  const size = SIZE_PRESETS[config.size];
+  const size = SIZE_PRESETS[activeConfig.size];
   if (size) {
     root.style.setProperty("--text-small", size.small);
     root.style.setProperty("--text-medium", size.medium);
