@@ -114,7 +114,7 @@ export async function initDynamicDashboard(supabase,root,user){
  Object.entries(adminMarkup).forEach(([key,html])=>{const holder=el("div");holder.innerHTML=html;adminPanels[key]=holder.firstElementChild;hidden.append(adminPanels[key]);});
  try{initExtendedDashboard(supabase,user?.role||"owner");}catch(error){console.error("Dashboard administration panels failed to initialize.",error);const notice=el("p","editor-message","Administration panels could not initialize: "+(error?.message||"Unknown error"));notice.setAttribute("role","alert");panel.append(notice);}
 
- const general=[["overview","Overview"],["relations","Relations"],["builder","Content Module Builder"],["customization","Customizations"],["settings","Settings"]];
+ const general=[["overview","Overview"],["info","Info"],["relations","Relation"],["customization","Preference"],["settings","Setting"]];
  function navGroup(name,items){
   const group=el("section","dashboard-nav-group");group.append(el("h2","",name));
   const list=el("div","dashboard-nav-items");
@@ -123,13 +123,14 @@ export async function initDynamicDashboard(supabase,root,user){
  }
  function drawTabs(){
   tabs.replaceChildren();
-  const all=[...general,...modules.filter(m=>m.status==="published").map(m=>["module:"+m.id,m.name]),["users","Users"],["roles","Roles"],["permissions","Permissions"]];
+  const media=modules.find(m=>m.module_key==="media");
+  const all=[...general,...(media?[["media","Media"]]:[]),["users","User"],["roles","Role"],["permissions","Permission"],["builder","Content Module Builder"],...modules.filter(m=>m.status==="published"&&m.module_key!=="media").map(m=>["module:"+m.id,m.name])];
   all.forEach(([key,title])=>{const b=el("button","dashboard-module-tab",title);b.type="button";b.role="tab";b.dataset.panelKey=key;b.addEventListener("click",()=>void open(key));tabs.append(b);});
  }
  function drawNav(){
   nav.replaceChildren();navGroup("GENERAL",general);
-  navGroup("CONTENT",modules.filter(m=>m.status==="published").map(m=>["module:"+m.id,m.name]));
-  navGroup("ADMINISTRATION",[["users","Users"],["roles","Roles"],["permissions","Permissions"]]);
+  navGroup("CONTENT",[["builder","Content Module Builder"],...modules.filter(m=>m.status==="published"&&m.module_key!=="media").map(m=>["module:"+m.id,m.name]),...modules.filter(m=>m.module_key==="media").map(m=>["media","Media"])]);
+  navGroup("ADMINISTRATION",[["users","User"],["roles","Role"],["permissions","Permission"]]);
   drawTabs();
  }
  drawNav();
@@ -139,9 +140,11 @@ export async function initDynamicDashboard(supabase,root,user){
   $$(".dashboard-module-tab",tabs).forEach(b=>{const active=b.dataset.panelKey===key;b.classList.toggle("is-active",active);b.setAttribute("aria-selected",String(active));});
   panel.replaceChildren();
   if(key==="overview")return overview();
+  if(key==="info")return infoPage();
+  if(key==="media"){const media=modules.find(m=>m.module_key==="media");if(media)return contentPage(media);return panel.append(el("p","muted","Media module is not configured."));}
   if(key==="relations")return relationsPage();
   if(key==="builder")return builderPage();
-  if(key==="customization")return customizationPage();
+  if(key==="customization"||key==="preference")return customizationPage();
   if(key==="settings")return settingsPage();
   if(adminPanels[key]){panel.append(adminPanels[key]);return;}
   if(key.startsWith("module:")){const m=modules.find(x=>x.id===key.slice(7));if(m)return contentPage(m);}
@@ -193,7 +196,23 @@ export async function initDynamicDashboard(supabase,root,user){
   for(const [name,run] of tests){const row=el("div","dashboard-health-row");row.append(el("span","",name));try{const result=await run();const failed=Boolean(result.error);row.append(el("strong",failed?"health-error":"health-ok",failed?"Unavailable":"Connected"));}catch{row.append(el("strong","health-error","Unavailable"));}health.append(row);}
   page.append(health);panel.append(page);
  }
- async function relationsPage(){
+ async function infoPage(){
+  const page=el("div","dashboard-page");page.append(el("h2","","Info"));
+  const search=el("input");search.type="search";search.placeholder="Search by Name or Type…";search.setAttribute("aria-label","Search Info by Name or Type");
+  const list=el("div","dashboard-record-list");const toolbar=el("div","dashboard-toolbar");toolbar.append(search);page.append(toolbar,list);panel.append(page);
+  const moduleById=new Map(modules.filter(m=>m.status==="published"&&m.module_key!=="media").map(m=>[m.id,m]));
+  const {data,error}=await supabase.from("content_items").select("id,title,module_id,slug,status").order("sort_order").order("title").limit(1000);
+  if(error){list.append(el("p","editor-message",error.message));return;}
+  const records=(data||[]).filter(item=>moduleById.has(item.module_id));
+  function render(){
+    const term=search.value.trim().toLocaleLowerCase();list.replaceChildren();
+    const matches=records.filter(item=>{const type=moduleById.get(item.module_id)?.name||"";return !term||String(item.title||"").toLocaleLowerCase().includes(term)||type.toLocaleLowerCase().includes(term);});
+    if(!matches.length){list.append(el("p","muted","No matching records."));return;}
+    for(const item of matches){const type=moduleById.get(item.module_id),row=el("button","dashboard-record-row");row.type="button";row.append(el("strong","",item.title||"Untitled"),el("small","",type.name));row.addEventListener("click",()=>void contentPage(type,item.id));list.append(row);}
+  }
+  search.addEventListener("input",render);render();
+}
+async function relationsPage(){
   const page=el("div","dashboard-page");page.append(el("h2","","Relations"),el("p","muted","Create and manage links between existing Content Items. Relationships are bidirectional; Items are never created here."));
   const form=el("form","content-editor-form");
   form.innerHTML='<h3 data-relation-form-title>Create Relation</h3><div class="module-form-grid"><label class="module-form-field"><span>Source Type</span><select name="sourceType" required></select></label><label class="module-form-field"><span>Source Name</span><select name="sourceName" required><option value="">Select Item</option></select></label><label class="module-form-field"><span>Target Type</span><select name="targetType" required></select></label><label class="module-form-field"><span>Target Name</span><select name="targetName" required><option value="">Select Item</option></select></label></div><div class="editor-actions"><button type="submit">Save Relation</button><button type="button" class="secondary-button" data-relation-cancel hidden>Cancel</button></div><p class="editor-message" role="status"></p>';
@@ -425,16 +444,17 @@ export async function initDynamicDashboard(supabase,root,user){
   });
   page.append(form);panel.append(page);
  }
- async function contentPage(module){
+ async function contentPage(module,selectedItemId=""){
   const page=el("div","dashboard-page");page.append(el("h2","",module.name),el("p","muted","Create and edit records. Relationships are bidirectional and independent."));
   const form=el("form","content-editor-form"),moduleFields=fields.filter(f=>f.module_id===module.id),relationFields=moduleFields.filter(f=>f.field_type==="relation");
   const optionIds=moduleFields.filter(f=>["select","radio","checkboxes"].includes(f.field_type)).map(f=>f.id),optionsMap=new Map();
   if(optionIds.length){const {data}=await supabase.from("module_field_options").select("*").in("field_id",optionIds).eq("is_active",true).order("sort_order");(data||[]).forEach(o=>{if(!optionsMap.has(o.field_id))optionsMap.set(o.field_id,[]);optionsMap.get(o.field_id).push(o);});}
   form.innerHTML='<h3 data-form-title>Add Item</h3><div class="module-form-grid" data-core></div><div class="module-form-grid" data-fields></div><div class="module-form-field"><strong>Visibility</strong><div class="module-related-options" data-visibility></div></div><div class="module-form-grid"><label class="module-form-field"><span>Status</span><select name="status"><option value="draft">Draft</option><option value="active">Active</option><option value="published">Published</option><option value="archived">Archived</option></select></label><label class="module-form-field"><span>Display Order</span><input name="sort_order" type="number" value="0"></label></div><div class="dashboard-item-relations"><h3>Related Items</h3><p class="muted">Choose related records from other Content Modules. The opposite form will show the same checked relationship.</p><div data-relations></div></div><div class="editor-actions"><button type="submit">Save Item</button><button type="button" class="secondary-button" data-cancel hidden>Cancel</button><button type="button" class="secondary-button" data-delete hidden>Delete Item</button></div><p class="editor-message" role="status"></p>';
   const core=$("[data-core]",form),dynamic=$("[data-fields]",form),visibility=$("[data-visibility]",form),relationHost=$("[data-relations]",form);
-  const title=fieldControl({field_key:"title",label:"Title",field_type:"text",is_required:true},""),slugField=moduleFields.find(f=>f.field_key==="slug")||{field_key:"slug",label:"Slug",field_type:"text"};
+  const title=fieldControl({field_key:"title",label:"Name",field_type:"text",is_required:true},""),slugField=moduleFields.find(f=>f.field_key==="slug")||{field_key:"slug",label:"Slug",field_type:"text"};
   const slug=fieldControl(slugField,"");title.querySelector("input").name="core_title";slug.querySelector("input").name="core_slug";core.append(title,slug);
   const editable=moduleFields.filter(f=>!["title","slug"].includes(f.field_key)&&f.field_type!=="relation");
+  if(!editable.some(f=>f.field_key==="description"))editable.unshift({field_key:"description",label:"Description",field_type:"textarea",is_required:false});
   for(const f of editable){
    const wrap=fieldControl(f,null,optionsMap.get(f.id)||[]),control=wrap.querySelector("[data-field-key]");
    if(["image","gallery","file"].includes(f.field_type)){
@@ -569,6 +589,7 @@ export async function initDynamicDashboard(supabase,root,user){
   $("[data-cancel]",form).addEventListener("click",resetForm);
   $("[data-delete]",form).addEventListener("click",async()=>{const id=form.dataset.editId;if(!id||!confirm("Delete this Content Item? Related links will be removed; other Items will remain."))return;const {error}=await supabase.from("content_items").delete().eq("id",id);if(error){$(".editor-message",form).textContent=error.message;return;}resetForm();await loadRecords();});
   await loadRecords();
+  if(selectedItemId){const selected=loadedRecords.find(item=>item.id===selectedItemId);if(selected)await editItem(selected);}
  }
  try{await open("overview");}catch(error){console.error("Dashboard overview failed to load.",error);panel.replaceChildren(el("h2","","Dashboard"),el("p","editor-message","Dashboard overview could not load: "+(error?.message||"Unknown error")));}
 }
