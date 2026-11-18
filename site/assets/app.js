@@ -352,10 +352,10 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
 const languageSelect=document.getElementById("language-select");
-const countrySelect=document.getElementById("country-select");
+const regionSelect=document.getElementById("country-select");
 const themeSelect=document.getElementById("theme-select");
 window.addEventListener("site-language-changed",event=>applyLanguage(event.detail?.language||"en"));
-window.addEventListener("site-country-changed",event=>{document.documentElement.dataset.country=event.detail?.country||"global";});
+window.addEventListener("site-region-changed",event=>{document.documentElement.dataset.region=event.detail?.country||"global";});
 window.addEventListener("site-theme-changed",event=>{document.documentElement.dataset.themeVariant=event.detail?.theme||"classic";applyRuntimeConfig(runtimeConfig,document.documentElement.dataset.theme||"light");});
 if(themeSelect){
   const savedVariant=localStorage.getItem("3b-theme-variant")||"classic";
@@ -369,13 +369,13 @@ if(themeSelect){
   });
 }
 async function loadMenuPreferences(){
-  if(countrySelect){const rows=[["Global","global"],["Bangladesh","bangladesh"],["Saudi Arabia","saudi-arabia"]],saved=localStorage.getItem("3b-country")||"global";countrySelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));countrySelect.value=rows.some(x=>x[1]===saved)?saved:"global";document.documentElement.dataset.country=countrySelect.value;}
+  if(regionSelect){const rows=[["Global","global"],["Bangladesh","bangladesh"],["Saudi Arabia","saudi-arabia"]],saved=localStorage.getItem("3b-region")||localStorage.getItem("3b-country")||"global";regionSelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));regionSelect.value=rows.some(x=>x[1]===saved)?saved:"global";document.documentElement.dataset.region=regionSelect.value;}
   if(languageSelect){const rows=[["English","en"],["Bangla","bn"],["Arabic","ar"]],saved=localStorage.getItem("3b-language")||"en";languageSelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));languageSelect.value=rows.some(x=>x[1]===saved)?saved:"en";document.documentElement.dataset.language=languageSelect.value;applyLanguage(languageSelect.value);}
 }
-countrySelect?.addEventListener("change",()=>{
-  localStorage.setItem("3b-country",countrySelect.value);
-  document.documentElement.dataset.country=countrySelect.value;
-  window.dispatchEvent(new CustomEvent("site-country-changed",{detail:{country:countrySelect.value}}));
+regionSelect?.addEventListener("change",()=>{
+  localStorage.setItem("3b-region",regionSelect.value);
+  document.documentElement.dataset.region=regionSelect.value;
+  window.dispatchEvent(new CustomEvent("site-region-changed",{detail:{country:regionSelect.value}}));
   void loadHomeCatalog();
 });
 languageSelect?.addEventListener("change",()=>{
@@ -388,7 +388,7 @@ void loadMenuPreferences();
 const headerBrandLogo=document.querySelector(".brand-logo");
 if(headerBrandLogo){
   headerBrandLogo.setAttribute("role","button");headerBrandLogo.tabIndex=0;headerBrandLogo.setAttribute("aria-label","Go to Home");
-  const activateBrand=()=>{if(document.querySelector('#app-main[data-view="dashboard"]')&&typeof window.__dashboardSidebarToggle==="function"){window.__dashboardSidebarToggle();return;}window.navigateSiteRoute(new URL("home/",ROOT_URL).pathname);};
+  const activateBrand=()=>window.navigateSiteRoute(new URL("home/",ROOT_URL).pathname);
   headerBrandLogo.addEventListener("click",activateBrand);
   headerBrandLogo.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();activateBrand();}});
 }
@@ -1127,11 +1127,11 @@ async function loadModuleRelationOptions(moduleName,form) {
     }
     if(!host.childElementCount)addTextElement(host,"small","muted","No available records yet.");
   }
-  const countrySelect=form.elements.namedItem("country_id");
-  if(countrySelect){
+  const regionSelect=form.elements.namedItem("country_id");
+  if(regionSelect){
     const {data,error}=await supabase.from("countries").select("id,name").order("name");
-    countrySelect.replaceChildren(new Option("— Select —",""));
-    if(!error)for(const item of data||[])countrySelect.append(new Option(item.name,item.id));
+    regionSelect.replaceChildren(new Option("— Select —",""));
+    if(!error)for(const item of data||[])regionSelect.append(new Option(item.name,item.id));
   }
   const locationSelect=form.elements.namedItem("location_id");
   if(locationSelect){
