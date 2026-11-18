@@ -1,7 +1,3 @@
-update public.languages
-set status = 'archived'
-where slug = 'ar' and status = 'active';
-
 drop policy if exists settings_public_read on public."Settings";
 create policy settings_public_read
 on public."Settings"
