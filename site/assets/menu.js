@@ -4,7 +4,14 @@
   const menu=document.querySelector("#site-menu");
   if(!button||!menu)return;
   const originalIcon=button.querySelector(".menu-icon")?.cloneNode(true);
-  let logoUrl="",logoTitle="3B TECH HUB",swapSeconds=5,transitionMs=1400;
+  let logoUrl="",logoTitle="3B TECH HUB",swapSeconds=5,transitionMs=1400,menuPlacement="bottom-end";
+  const placements=new Set(["top-start","top-end","bottom-start","bottom-end"]);
+  function applyPlacement(value){
+    const requested=String(value||"bottom-end").toLowerCase();
+    menuPlacement=placements.has(requested)?requested:"bottom-end";
+    button.dataset.placement=menuPlacement;
+    menu.dataset.placement=menuPlacement;
+  }
   let idleTimer=null,cycleTimer=null,renderTimer=null,showingLogo=false;
   const clearTimers=()=>{if(idleTimer)clearTimeout(idleTimer);if(cycleTimer)clearInterval(cycleTimer);idleTimer=null;cycleTimer=null;};
   function render(kind){
@@ -86,10 +93,12 @@
     const settings=data.navigationMenu||{};
     swapSeconds=Math.max(5,Math.min(60,Number(settings.logo_swap_interval_seconds)||5));
     transitionMs=Math.max(300,Math.min(5000,Number(settings.icon_transition_speed_ms)||1400));
+    applyPlacement(settings.position||settings.placement||"bottom-end");
     button.style.setProperty("--menu-icon-transition",Math.max(150,Math.round(transitionMs/2))+"ms");
     if(showingLogo&&!menu.hidden)render("icon");
     else if(showingLogo)render("logo");
     scheduleIdle();
   });
+  applyPlacement("bottom-end");
   scheduleIdle();
 })();
