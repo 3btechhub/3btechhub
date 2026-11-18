@@ -195,5 +195,6 @@ export async function initDynamicDashboard(supabase,root,user){
   p.append(f);
  }
  async function open(key){try{if(key==="overview")await overview();else if(key==="info")await info();else if(key==="media")await media();else if(key==="relation")await relation();else if(key==="preference")await preference();else if(key==="setting")await setting();else{const id=key==="users"?"#dashboard-admin-users":key==="roles"?"#dashboard-admin-roles":"#dashboard-admin-permissions";const node=adminNodes[key];const p=start(key,order.find(x=>x[0]===key)[1]);if(node)p.append(node);}}catch(e){panel.append(el("p","editor-message",e?.message||"Could not load layout."));}}
- await open("overview");
+ const requestedTab=root.dataset.initialTab||"overview";
+ await open(order.some(([key])=>key===requestedTab)?requestedTab:"overview");
 }
