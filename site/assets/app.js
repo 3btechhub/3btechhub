@@ -397,7 +397,7 @@ export async function resolveAuthRoute(requestedPath) {
   const first = parts[0] || "";
   const legacyRoutes = {
     login:"login", "create-account":"create-account", "forgot-password":"reset-password",
-    "reset-password":"reset-password", profile:"profile", "edit-profile":"edit-profile"
+    "reset-password":"reset-password", profile:"profile"
   };
   let accountRoute = first === "account" ? (parts[1] || "") : (legacyRoutes[first] || "");
   if (first !== "account" && !accountRoute) return url.pathname + url.search + url.hash;
@@ -409,8 +409,8 @@ export async function resolveAuthRoute(requestedPath) {
     (hashParams.get("type") === "recovery" || url.searchParams.get("recovery") === "1");
 
   let target = recoveryCallback ? "new-password" : (accountRoute || (session ? "profile" : "login"));
-  if (!["login","create-account","reset-password","verify","new-password","profile","edit-profile"].includes(target)) target = session ? "profile" : "login";
-  if (!session && ["profile","edit-profile","new-password"].includes(target)) target = "login";
+  if (!["login","create-account","reset-password","verify","new-password","profile"].includes(target)) target = session ? "profile" : "login";
+  if (!session && ["profile","new-password"].includes(target)) target = "login";
   if (session && ["login","create-account"].includes(target)) target = "profile";
   if (session && target === "reset-password" && !recoveryCallback) target = "profile";
 
