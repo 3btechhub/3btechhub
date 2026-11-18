@@ -49,6 +49,43 @@ function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
 function applyEnglishText(){applyLanguage(localStorage.getItem("3b-language")||"en");}
 const languageObserver=new MutationObserver(records=>{const map=(document.documentElement.lang||"en")==="bn"?bnText:enText;const translate=textNode=>{const raw=textNode.nodeValue||"",trimmed=raw.trim(),translated=map[trimmed];if(translated)textNode.nodeValue=raw.replace(trimmed,translated);};for(const record of records)for(const node of record.addedNodes){if(node.nodeType===Node.TEXT_NODE){translate(node);continue;}if(node.nodeType!==Node.ELEMENT_NODE)continue;const walker=document.createTreeWalker(node,NodeFilter.SHOW_TEXT);let textNode;while((textNode=walker.nextNode()))translate(textNode);}});
 languageObserver.observe(document.body,{childList:true,subtree:true});
+
+function enhanceInlineDropdowns(root=document){
+ const selects=root.matches?.("select")?[root]:[...(root.querySelectorAll?.("select")||[])];
+ for(const select of selects){
+  if(select.dataset.inlineDropdownReady==="true"){select._syncInlineDropdown?.();continue;}
+  if(!select.parentNode)continue;
+  select.dataset.inlineDropdownReady="true";
+  const wrapper=document.createElement("div");wrapper.className="inline-dropdown";
+  select.parentNode.insertBefore(wrapper,select);wrapper.append(select);
+  const trigger=document.createElement("button");trigger.type="button";trigger.className="inline-dropdown-trigger";trigger.setAttribute("aria-haspopup","listbox");trigger.setAttribute("aria-expanded","false");
+  const options=document.createElement("div");options.className="inline-dropdown-options";options.hidden=true;options.setAttribute("role","listbox");
+  wrapper.append(trigger,options);select.classList.add("inline-dropdown-native");select.tabIndex=-1;select.setAttribute("aria-hidden","true");
+  function close(){options.hidden=true;trigger.setAttribute("aria-expanded","false");}
+  function sync(){
+   const selected=select.options[select.selectedIndex];trigger.textContent=selected?.textContent?.trim()||"Select";trigger.disabled=select.disabled;
+   options.replaceChildren();
+   [...select.options].forEach(option=>{
+    const item=document.createElement("button");item.type="button";item.className="inline-dropdown-option";item.setAttribute("role","option");item.setAttribute("aria-selected",String(option.selected));item.disabled=option.disabled;item.textContent=option.textContent;
+    item.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();if(option.disabled)return;select.value=option.value;select.dispatchEvent(new Event("change",{bubbles:true}));close();trigger.focus();});
+    options.append(item);
+   });
+  }
+  trigger.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();const opening=options.hidden;document.querySelectorAll(".inline-dropdown-options:not([hidden])").forEach(list=>{if(list!==options){list.hidden=true;list.parentElement?.querySelector(".inline-dropdown-trigger")?.setAttribute("aria-expanded","false");}});options.hidden=!opening;trigger.setAttribute("aria-expanded",String(opening));});
+  trigger.addEventListener("keydown",event=>{if(event.key==="Escape"){close();trigger.focus();}});
+  select.addEventListener("change",sync);
+  const nativeValue=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,"value");
+  if(nativeValue?.get&&nativeValue?.set){try{Object.defineProperty(select,"value",{configurable:true,enumerable:true,get(){return nativeValue.get.call(this);},set(value){nativeValue.set.call(this,value);sync();}});}catch{}}
+  const observer=new MutationObserver(sync);observer.observe(select,{childList:true,subtree:true,attributes:true,attributeFilter:["disabled","label","value"]});
+  select._syncInlineDropdown=sync;sync();
+ }
+}
+enhanceInlineDropdowns(document);
+const inlineDropdownObserver=new MutationObserver(records=>{for(const record of records)for(const node of record.addedNodes){if(node.nodeType===Node.ELEMENT_NODE)enhanceInlineDropdowns(node);}});
+inlineDropdownObserver.observe(document.body,{childList:true,subtree:true});
+document.addEventListener("click",event=>{if(!event.target.closest(".inline-dropdown"))document.querySelectorAll(".inline-dropdown-options:not([hidden])").forEach(list=>{list.hidden=true;list.parentElement?.querySelector(".inline-dropdown-trigger")?.setAttribute("aria-expanded","false");});});
+window.addEventListener("site-language-changed",()=>document.querySelectorAll("select").forEach(select=>select._syncInlineDropdown?.()));
+
 let runtimeConfig = null;
 window.addEventListener("runtime-config-updated", (event) => {
   if (!event.detail || typeof event.detail !== "object") return;
