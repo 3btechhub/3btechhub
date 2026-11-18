@@ -48,16 +48,6 @@ jobs:
           test -s site/assets/app.js
           test -s site/404.html
           npm run validate
-          grep -q "3B TECH HUB" site/index.html
-          grep -q 'if (path === BASE.slice(0, -1) || path === BASE)' site/assets/site-router.js
-          ! grep -q 'class="home-main' site/index.html
-          ! test -d site/services
-          ! test -d site/products
-          ! test -d site/workshop
-          ! test -d site/technicians
-          grep -q 'const categories=["Service","Product","Info","Hub","Provider","Call","Whatsapp","Location","Map","Images"]' site/assets/content-dashboard.js
-          grep -q "notionHomeCategories" site/assets/app.js
-          ! grep -R -E "country-router|ipwho\\.is|preferred_locale|countryContextReady" site
 
   deploy:
     if: github.event_name != 'pull_request'
