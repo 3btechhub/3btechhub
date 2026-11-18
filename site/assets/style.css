@@ -1330,7 +1330,7 @@ textarea{min-height:calc(var(--control-height) * 2)}
 .site-header .site-menu{position:fixed;z-index:1000;inset-inline-start:auto;inset-inline-end:18px;inset-block-start:auto;inset-block-end:calc(76px + env(safe-area-inset-bottom));width:min(300px,calc(100vw - 28px));max-height:min(72vh,640px);overflow-y:auto;overscroll-behavior:contain}
 .site-header .site-menu:not([hidden]){animation:site-menu-rise .22s ease-out both}
 @keyframes site-menu-rise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
-@media(prefers-reduced-motion:reduce){.site-header .site-menu:not([hidden]){animation:none}}
+@media(prefers-reduced-motion:reduce){.site-header }
 
 
 /* Floating navigation menu: LTR bottom-right, RTL bottom-left. */
@@ -1358,7 +1358,7 @@ textarea{min-height:calc(var(--control-height) * 2)}
   stroke:currentColor;
   stroke-width:2;
   stroke-linecap:round;
-  transition:transform .28s ease,opacity .2s ease;
+  transition:transform var(--menu-icon-transition,1400ms) ease,opacity var(--menu-icon-transition,1400ms) ease;
   transform-origin:12px 12px;
 }
 .menu-trigger.is-open .menu-line-top{transform:translateY(6px) rotate(45deg)}
@@ -1387,9 +1387,9 @@ textarea{min-height:calc(var(--control-height) * 2)}
 .menu-logo{display:grid;place-items:center;width:100%;height:100%;border-radius:50%;overflow:hidden}
 .menu-logo img{width:100%;height:100%;object-fit:contain}
 .site-menu{transform-origin:bottom right}
-:root[dir="rtl"] .site-menu{transform-origin:bottom left}
+:root[dir="rtl"] :root[dir="rtl"] .site-menu{transform-origin:bottom left}
 .site-menu .menu-tool{display:flex;align-items:center;justify-content:space-between;gap:10px}
-@media(prefers-reduced-motion:reduce){.menu-trigger,.menu-trigger .menu-icon path{transition:none!important}.site-menu:not([hidden]){animation:none!important}}
+@media(prefers-reduced-motion:reduce){}
 
 /* Global loading skeletons */
 .skeleton{display:block;color:transparent!important;background:linear-gradient(100deg,var(--hover,#f1f1f1) 25%,var(--surface,#fff) 50%,var(--hover,#f1f1f1) 75%);background-size:220% 100%;animation:skeleton-shimmer 1.35s ease-in-out infinite;border-radius:8px;pointer-events:none}
