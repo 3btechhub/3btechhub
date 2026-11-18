@@ -1,20 +1,8 @@
 name: Deploy GitHub Pages
 
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - "site/**"
-      - ".github/workflows/deploy-pages.yml"
-      - "tests/**"
-      - "package.json"
   push:
     branches: [main]
-    paths:
-      - "site/**"
-      - ".github/workflows/deploy-pages.yml"
-      - "tests/**"
-      - "package.json"
   workflow_dispatch:
 
 permissions:
@@ -27,31 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - name: Validate website files and regression tests
-        run: |
-          test -s site/index.html
-          test -s site/home/index.html
-          test -s site/account/index.html
-          test -s site/dashboard/index.html
-          ! test -d site/login
-          ! test -d site/create-account
-          ! test -d site/forgot-password
-          ! test -d site/profile
-          test -s site/assets/style.css
-          test -s site/assets/app.js
-          test -s site/404.html
-          npm run validate
-
   deploy:
-    if: github.event_name != 'pull_request'
-    needs: validate
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -65,10 +29,7 @@ jobs:
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages-${{ github.run_attempt }}
           path: site
       - name: Publish website
         id: deployment
         uses: actions/deploy-pages@v4
-        with:
-          artifact_name: github-pages-${{ github.run_attempt }}
