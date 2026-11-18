@@ -14,7 +14,7 @@ export function initExtendedDashboard(supabase,role){
  async function ownerUsers(body){const {data,error}=await supabase.functions.invoke("owner-users",{body});if(error)throw new Error(error.message||"User administration request failed.");if(data?.error)throw new Error(data.error);return data;}
  async function loadLookups(){
   const [roleResult,permissionResult,userResult]=await Promise.all([
-   supabase.from("Roles").select("*").order("name"),
+   supabase.from("Roles").select("*").order("sort_order").order("name"),
    supabase.from("permissions").select("*").order("name"),
    ownerUsers({action:"list",page:1,perPage:50})
   ]);
