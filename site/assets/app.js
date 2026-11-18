@@ -352,7 +352,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
 });
 const ROOT_URL = new URL("https://3btechhub.github.io/3btechhub/");
 const languageSelect=document.getElementById("language-select");
-const regionSelect=document.getElementById("country-select");
+const regionSelect=document.getElementById("region-select");
 const themeSelect=document.getElementById("theme-select");
 window.addEventListener("site-language-changed",event=>applyLanguage(event.detail?.language||"en"));
 window.addEventListener("site-region-changed",event=>{document.documentElement.dataset.region=event.detail?.country||"global";});
@@ -421,9 +421,6 @@ export async function resolveAuthRoute(requestedPath) {
 }
 
 export async function initRoutePage() {
-  if (typeof window.__dashboardSidebarClose === "function") window.__dashboardSidebarClose();
-  window.__dashboardSidebarToggle = null;
-  window.__dashboardSidebarClose = null;
   window.__routeAuthSubscriptions?.forEach((subscription) => subscription.unsubscribe());
   window.__routeAuthSubscriptions = [];
   applyEnglishText();
