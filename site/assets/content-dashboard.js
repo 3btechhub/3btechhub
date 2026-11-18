@@ -16,7 +16,7 @@ export async function initDynamicDashboard(supabase,root,user){
  ];
  admin.forEach((h,i)=>{const d=el("div");d.innerHTML=h;const node=d.firstElementChild;adminNodes[["users","roles","permissions"][i]]=node;hidden.append(node);});
  try{initExtendedDashboard(supabase,user?.role||"owner");}catch(e){console.error(e);}
- order.forEach(([key,label])=>{const b=el("button","dashboard-module-tab",label);b.type="button";b.role="tab";b.dataset.key=key;b.onclick=()=>void open(key);tabs.append(b);});
+ order.forEach(([key,label])=>{const b=el("button","dashboard-module-tab",label);b.type="button";b.role="tab";b.dataset.key=key;b.onclick=()=>{const routeKey=key==="users"?"user":key==="roles"?"role":key==="permissions"?"permission":key;window.navigateSiteRoute("/3btechhub/dashboard/"+routeKey+"/");};tabs.append(b);});
  function start(key,title){tabs.querySelectorAll("button").forEach(b=>{const on=b.dataset.key===key;b.classList.toggle("is-active",on);b.setAttribute("aria-selected",String(on));});panel.replaceChildren();const p=el("div","dashboard-page");p.append(el("h2","",title));panel.append(p);return p;}
  function input(host,label,name,type="text",value="",required=false){const l=el("label","module-form-field");l.append(el("span","",label));const x=type==="textarea"?el("textarea"):el("input");if(type!=="textarea")x.type=type;if(type==="textarea")x.rows=3;x.name=name;x.value=value||"";if(required)x.required=true;l.append(x);host.append(l);return x;}
  function visibilitySelect(host){const l=el("label","module-form-field");l.append(el("span","","Visibility"));const x=el("select");x.name="visibility";x.append(new Option("Show","show"),new Option("Hide","hide"));l.append(x);host.append(l);return x;}
