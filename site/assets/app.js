@@ -200,7 +200,7 @@ applyRuntimeConfig(runtimeConfig, document.documentElement.dataset.theme);
 const homeDetailStack=[];
 let homeListState=null;
 let homeInfoRows=[];
-let homeMediaRows=[];
+let homeMediaRows=[];\nlet homeMediaByInfo=new Map();
 function hasValue(v){return v!==null&&v!==undefined&&v!==""&&(!Array.isArray(v)||v.length>0);}
 function titleCase(v){return String(v||"").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());}
 function makeHomeCard(title,subtitle,onClick,imageUrl=""){
