@@ -1885,3 +1885,48 @@ textarea{min-height:calc(var(--control-height) * 2)}
 .site-header .site-menu:not([hidden]){animation:site-menu-rise .22s ease-out both}
 @keyframes site-menu-rise{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
 @media(prefers-reduced-motion:reduce){.site-header .site-menu:not([hidden]){animation:none}}
+
+
+/* Floating navigation menu: LTR bottom-right, RTL bottom-left. */
+.menu-trigger{
+  position:fixed!important;
+  inset-inline-end:20px;
+  inset-inline-start:auto;
+  top:auto;
+  bottom:calc(18px + env(safe-area-inset-bottom,0px));
+  z-index:1001;
+  width:54px;
+  height:54px;
+  padding:14px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:var(--surface);
+  color:var(--page-text);
+  box-shadow:0 6px 24px #0002;
+}
+.menu-trigger .menu-icon{display:block;width:24px;height:24px;overflow:visible}
+.menu-trigger .menu-icon path{
+  fill:none;
+  stroke:currentColor;
+  stroke-width:2;
+  stroke-linecap:round;
+  transition:transform .28s ease,opacity .2s ease;
+  transform-origin:12px 12px;
+}
+.menu-trigger.is-open .menu-line-top{transform:translateY(6px) rotate(45deg)}
+.menu-trigger.is-open .menu-line-middle{opacity:0}
+.menu-trigger.is-open .menu-line-bottom{transform:translateY(-6px) rotate(-45deg)}
+.site-menu{
+  position:fixed!important;
+  inset-inline-end:20px;
+  inset-inline-start:auto;
+  top:auto;
+  bottom:calc(84px + env(safe-area-inset-bottom,0px));
+  z-index:1000;
+  width:min(260px,calc(100vw - 32px));
+  max-height:calc(100dvh - 112px);
+  overflow:auto;
+  overscroll-behavior:contain;
+}
