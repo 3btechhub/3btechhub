@@ -100,3 +100,14 @@ test("regional language codes use the correct base translation and text directio
   assert.match(app, /baseLanguage==="ar"\?arText/);
   assert.match(app, /\^\(ar\|fa\|he\|ur\|ps\|sd\|ug\|yi\)/);
 });
+
+test("User Role and Permission modules provide local search", () => {
+  const dashboard = readFileSync("site/assets/content-dashboard.js", "utf8");
+  const admin = readFileSync("site/assets/admin-extended.js", "utf8");
+  assert.match(dashboard, /users-search/);
+  assert.match(dashboard, /roles-search/);
+  assert.match(dashboard, /permissions-search/);
+  assert.match(admin, /usersSearch\?\.addEventListener/);
+  assert.match(admin, /rolesSearch\?\.addEventListener/);
+  assert.match(admin, /permissionsSearch\?\.addEventListener/);
+});
