@@ -79,6 +79,21 @@ main{width:100%;min-height:100vh;padding:28px 16px 108px}
         <p class="empty-state">No existing service information is available in the connected database.</p>
       </div>
     </section>
+    <section class="module-shell" aria-labelledby="product-title">
+      <h3 class="module-title" id="product-title">Product</h3>
+      <form aria-label="Product form">
+        <div class="form-grid">
+          <div class="form-field full"><label for="product-name">Name</label><input id="product-name" name="name" type="text" placeholder="Product name" autocomplete="off"></div>
+          <div class="form-field"><label for="product-slug">Slug</label><input id="product-slug" name="slug" type="text" placeholder="product-slug" autocomplete="off"></div>
+          <div class="form-field"><label for="product-visibility">Visibility</label><div class="visibility-control"><input id="product-visibility" name="visibility" type="checkbox" checked><label class="visibility-switch" for="product-visibility" aria-label="Toggle product visibility"></label><span class="visibility-state" id="product-visibility-state">Show</span></div></div>
+        </div>
+        <p class="form-note">Product records are not connected yet. The database currently has no public tables, so saving and loading records are unavailable.</p>
+      </form>
+      <div class="records">
+        <h4 class="records-title">Existing Information</h4>
+        <p class="empty-state">No existing product information is available in the connected database.</p>
+      </div>
+    </section>
   </section>
 </main>
 <nav class="menu-panel" id="navigation" aria-label="Main navigation" hidden>
@@ -99,11 +114,19 @@ const serviceName=document.querySelector('#service-name');
 const serviceSlug=document.querySelector('#service-slug');
 const visibilityInput=document.querySelector('#service-visibility');
 const visibilityState=document.querySelector('#visibility-state');
+const productName=document.querySelector('#product-name');
+const productSlug=document.querySelector('#product-slug');
+const productVisibility=document.querySelector('#product-visibility');
+const productVisibilityState=document.querySelector('#product-visibility-state');
 let slugEdited=false;
+let productSlugEdited=false;
 function makeSlug(value){return value.normalize('NFKD').toLowerCase().trim().replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')}
 serviceName.addEventListener('input',()=>{if(!slugEdited)serviceSlug.value=makeSlug(serviceName.value)});
 serviceSlug.addEventListener('input',()=>{slugEdited=true});
+productName.addEventListener('input',()=>{if(!productSlugEdited)productSlug.value=makeSlug(productName.value)});
+productSlug.addEventListener('input',()=>{productSlugEdited=true});
 visibilityInput.addEventListener('change',()=>{visibilityState.textContent=visibilityInput.checked?'Show':'Hide'});
+productVisibility.addEventListener('change',()=>{productVisibilityState.textContent=productVisibility.checked?'Show':'Hide'});
 function setMenuOpen(open){menuToggle.setAttribute('aria-expanded',String(open));menuToggle.setAttribute('aria-label',open?'Close menu':'Open menu');navigation.hidden=!open}
 function showPage(){const pageId=location.hash.slice(1)||'home';const activePage=pages.find(page=>page.id===pageId)||pages[0];pages.forEach(page=>page.classList.toggle('is-active',page===activePage));links.forEach(link=>{if(link.hash==='#'+activePage.id)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});setMenuOpen(false)}
 menuToggle.addEventListener('click',()=>setMenuOpen(menuToggle.getAttribute('aria-expanded')!=='true'));
