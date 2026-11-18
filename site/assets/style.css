@@ -1417,3 +1417,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .site-menu[data-placement$="end"]{inset-inline-end:18px!important;inset-inline-start:auto!important;transform-origin:top right}
 :dir(rtl) .site-menu[data-placement$="start"]{transform-origin:top right}
 :dir(rtl) .site-menu[data-placement$="end"]{transform-origin:top left}
+
+.menu-trigger[data-placement$="-middle"]{inset-inline-start:50%!important;inset-inline-end:auto!important;transform:translateX(-50%)}
+.site-menu[data-placement$="-middle"]{inset-inline-start:50%!important;inset-inline-end:auto!important;transform:translateX(-50%);transform-origin:top center}
