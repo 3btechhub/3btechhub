@@ -484,6 +484,12 @@ export async function resolveAuthRoute(requestedPath) {
   if (session && ["login","create-account"].includes(target)) target = "profile";
   if (session && target === "reset-password" && !recoveryCallback) target = "profile";
 
+  if(session&&target==="profile"){
+    const {data:roleRows,error:roleCheckError}=await supabase.from("user_roles").select("role").eq("user_id",session.user.id);
+    const registered=!roleCheckError&&(roleRows||[]).some(row=>["owner","admin","member"].includes(String(row.role||"").toLowerCase()));
+    if(!registered)target="login";
+  }
+
   const canonicalPath = new URL("account/" + target + "/", ROOT_URL).pathname;
   const canonical = first === "account" && parts.length === 2 && parts[1] === target && url.pathname === canonicalPath;
   return canonical ? (url.pathname + url.search + url.hash) : (canonicalPath + url.search + url.hash);
