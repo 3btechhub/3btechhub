@@ -1,4 +1,4 @@
-import { initExtendedDashboard } from "./admin-extended.js?v=notion-20261118-11";
+import { initExtendedDashboard } from "./admin-extended.js?v=notion-20261118-12";
 const $=(s,r=document)=>r.querySelector(s), el=(t,c="",v)=>{const n=document.createElement(t);if(c)n.className=c;if(v!==undefined)n.textContent=String(v);return n;};
 const slug=v=>String(v||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const say=(n,t,k="")=>{n.textContent=t;n.dataset.kind=k;};
@@ -76,7 +76,7 @@ export async function initDynamicDashboard(supabase,root,user){
   if(runtimeError||optionsError){p.append(el("p","editor-message",(runtimeError||optionsError).message));return;}
   const cfg=runtimeRow?.setting_value||{schema_version:1};
   const saved=optionsRow?.setting_value||{};
-  let regions=Array.isArray(saved.regions)&&saved.regions.length?saved.regions.map(x=>({...x})):[{label:"Global",value:"global"},{label:"Bangladesh",value:"bangladesh"},{label:"Saudi Arabia",value:"saudi-arabia"}];
+  let regions=Array.isArray(saved.regions)&&saved.regions.length?saved.regions.map(x=>({...x})):[{label:"Global",value:"global",default_language:"en"},{label:"Bangladesh",value:"bangladesh",default_language:"bn"},{label:"Saudi Arabia",value:"saudi-arabia",default_language:"ar"}];
   let languages=Array.isArray(saved.languages)&&saved.languages.length?saved.languages.map(x=>({...x})):[{label:"English",value:"en"},{label:"Bangla",value:"bn"},{label:"Arabic",value:"ar"}];
   let devices=Array.isArray(saved.devices)&&saved.devices.length?saved.devices.map(x=>({...x})):[{label:"Mobile",value:"mobile"},{label:"Tablet",value:"tablet"},{label:"Computer",value:"computer"}];
   let platforms=Array.isArray(saved.platforms)&&saved.platforms.length?saved.platforms.map(x=>({...x})):[{label:"Website",value:"website"},{label:"Android Application",value:"android-application"},{label:"iPhone Application",value:"iphone-application"},{label:"Computer Application",value:"computer-application"}];
@@ -88,10 +88,21 @@ export async function initDynamicDashboard(supabase,root,user){
    host.replaceChildren();
    items.forEach((item,index)=>{
     const row=el("div","dashboard-record-row");
-    const label=el("input");label.value=item.label;label.maxLength=80;label.setAttribute("aria-label",kind+" name");label.addEventListener("change",()=>{item.label=label.value.trim();});
-    const value=el("input");value.value=item.value;value.maxLength=kind==="Language"?12:80;value.setAttribute("aria-label",kind+" code");value.addEventListener("change",()=>{item.value=kind==="Language"?value.value.trim().toLowerCase():slug(value.value);});
-    const remove=el("button","secondary-button","Delete");remove.type="button";remove.addEventListener("click",()=>{items.splice(index,1);drawOptions(host,items,kind);});
-    row.append(label,value,remove);host.append(row);
+    const label=el("input");label.value=item.label;label.maxLength=80;label.setAttribute("aria-label",kind+" name");label.addEventListener("change",()=>{item.label=label.value.trim();if(kind==="Language")drawOptions(regionHost,regions,"Region");});
+    const value=el("input");value.value=item.value;value.maxLength=kind==="Language"?12:80;value.setAttribute("aria-label",kind+" code");value.addEventListener("change",()=>{item.value=kind==="Language"?value.value.trim().toLowerCase():slug(value.value);if(kind==="Language")drawOptions(regionHost,regions,"Region");});
+    let defaultField=null;
+    if(kind==="Region"){
+     defaultField=el("label","module-form-field");defaultField.append(el("span","","Default Language"));
+     const defaultLanguage=el("select");defaultLanguage.setAttribute("aria-label","Default Language");
+     languages.forEach(language=>defaultLanguage.append(new Option(language.label,language.value)));
+     const fallback=item.default_language||(item.value==="bangladesh"?"bn":item.value==="saudi-arabia"?"ar":"en");
+     defaultLanguage.value=languages.some(language=>language.value===fallback)?fallback:(languages[0]?.value||"en");
+     item.default_language=defaultLanguage.value;
+     defaultLanguage.addEventListener("change",()=>{item.default_language=defaultLanguage.value;});
+     defaultField.append(defaultLanguage);
+    }
+    const remove=el("button","secondary-button","Delete");remove.type="button";remove.addEventListener("click",()=>{items.splice(index,1);drawOptions(host,items,kind);if(kind==="Language")drawOptions(regionHost,regions,"Region");});
+    row.append(label,value);if(defaultField)row.append(defaultField);row.append(remove);host.append(row);
    });
    if(!items.length)host.append(el("p","muted","No records found."));
   }
@@ -116,12 +127,12 @@ export async function initDynamicDashboard(supabase,root,user){
   f.querySelector("[data-add-region]").onclick=()=>{
    const label=f.elements.regionLabel.value.trim(),value=slug(label);
    if(!label||!value||regions.some(x=>x.value===value)){say($(".editor-message",f),"Enter a unique Region name.","error");return;}
-   regions.push({label,value});f.elements.regionLabel.value="";drawOptions(regionHost,regions,"Region");
+   regions.push({label,value,default_language:languages.find(x=>x.value==="en")?.value||languages[0]?.value||"en"});f.elements.regionLabel.value="";drawOptions(regionHost,regions,"Region");
   };
   f.querySelector("[data-add-language]").onclick=()=>{
    const label=f.elements.languageLabel.value.trim(),value=f.elements.languageCode.value.trim().toLowerCase();
    if(!label||! /^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(value)||languages.some(x=>x.value===value)){say($(".editor-message",f),"Enter a unique language name and valid language code.","error");return;}
-   languages.push({label,value});f.elements.languageLabel.value="";f.elements.languageCode.value="";drawOptions(languageHost,languages,"Language");
+   languages.push({label,value});f.elements.languageLabel.value="";f.elements.languageCode.value="";drawOptions(languageHost,languages,"Language");drawOptions(regionHost,regions,"Region");
   };
   f.querySelector("[data-add-device]").onclick=()=>{
    const label=f.elements.deviceLabel.value.trim(),value=slug(label);
@@ -140,8 +151,8 @@ export async function initDynamicDashboard(supabase,root,user){
   };
   f.onsubmit=async e=>{
    e.preventDefault();
-   const cleanRegions=regions.filter(x=>x.label?.trim()&&x.value?.trim());
    const cleanLanguages=languages.filter(x=>x.label?.trim()&&/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(x.value||""));
+   const cleanRegions=regions.filter(x=>x.label?.trim()&&x.value?.trim()).map(item=>({...item,default_language:cleanLanguages.some(language=>language.value===item.default_language)?item.default_language:(cleanLanguages.find(language=>language.value==="en")?.value||cleanLanguages[0]?.value||"en")}));
    const cleanDevices=devices.filter(x=>x.label?.trim()&&x.value?.trim());
    const cleanPlatforms=platforms.filter(x=>x.label?.trim()&&x.value?.trim());
    const cleanThemes=themes.filter(x=>x.label?.trim()&&/^[a-z0-9][a-z0-9-]{0,39}$/.test(x.value||""));
