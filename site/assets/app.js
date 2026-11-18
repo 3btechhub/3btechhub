@@ -36,7 +36,7 @@ const translations = {
 };
 const bnText={"Home":"হোম","Account":"অ্যাকাউন্ট","Profile":"প্রোফাইল","Dashboard":"ড্যাশবোর্ড","Logout":"লগআউট","Language":"ভাষা","Country":"দেশ","Theme":"থিম","Loading page…":"পৃষ্ঠা লোড হচ্ছে…","Loading…":"লোড হচ্ছে…","Save Settings":"সেটিংস সংরক্ষণ","Save Global Style":"গ্লোবাল স্টাইল সংরক্ষণ","Save Customization":"কাস্টমাইজেশন সংরক্ষণ","Website Identity":"ওয়েবসাইট পরিচিতি","Website Title":"ওয়েবসাইটের শিরোনাম","Logo URL":"লোগোর URL","Logo URL (optional)":"লোগোর URL (ঐচ্ছিক)","Upload Website Logo":"ওয়েবসাইট লোগো আপলোড","Upload Website Favicon":"ওয়েবসাইট ফেভিকন আপলোড","Home Intro":"হোম পরিচিতি","Navigation Menu":"নেভিগেশন মেনু","Logo Swap Interval (seconds)":"লোগো পরিবর্তনের বিরতি (সেকেন্ড)","Icon Transition Speed (milliseconds)":"আইকন পরিবর্তনের গতি (মিলিসেকেন্ড)","Save":"সংরক্ষণ","Cancel":"বাতিল","Delete":"মুছুন","Search":"অনুসন্ধান","Name":"নাম","Slug":"স্লাগ","Type":"ধরন","Description":"বিবরণ","Visibility":"দৃশ্যমানতা","Show":"দেখান","Hide":"লুকান","Add Item":"আইটেম যোগ করুন","Save Item":"আইটেম সংরক্ষণ","Delete Item":"আইটেম মুছুন","Related Items":"সম্পর্কিত আইটেম","No records found.":"কোনো তথ্য পাওয়া যায়নি।","No records available.":"কোনো তথ্য নেই।","Settings saved.":"সেটিংস সংরক্ষিত হয়েছে।","Customization saved.":"কাস্টমাইজেশন সংরক্ষিত হয়েছে।","Global Style saved.":"গ্লোবাল স্টাইল সংরক্ষিত হয়েছে।","Overview":"সংক্ষিপ্ত বিবরণ","Relations":"সম্পর্কসমূহ","Customization":"কাস্টমাইজেশন","Users":"ব্যবহারকারীগণ","Roles":"রোলসমূহ","Permissions":"অনুমতিসমূহ","Create Account":"অ্যাকাউন্ট তৈরি","Reset Password":"পাসওয়ার্ড রিসেট","Verify":"যাচাই","New Password":"নতুন পাসওয়ার্ড","Login":"লগইন","Email":"ইমেইল","Password":"পাসওয়ার্ড","Current Password":"বর্তমান পাসওয়ার্ড","Confirm New Password":"নতুন পাসওয়ার্ড নিশ্চিত করুন","Update Password":"পাসওয়ার্ড আপডেট","Edit Profile":"প্রোফাইল সম্পাদনা","Change Password":"পাসওয়ার্ড পরিবর্তন","Send Reset Code":"রিসেট কোড পাঠান","Verification Code":"যাচাইকরণ কোড","Save Profile":"প্রোফাইল সংরক্ষণ"};
 const arText={"Home":"الرئيسية","Account":"الحساب","Profile":"الملف الشخصي","Dashboard":"لوحة التحكم","Logout":"تسجيل الخروج","Language":"اللغة","Country":"الدولة","Theme":"المظهر","Loading page…":"جارٍ تحميل الصفحة…","Loading…":"جارٍ التحميل…","Save Settings":"حفظ الإعدادات","Save Global Style":"حفظ النمط العام","Save Customization":"حفظ التخصيص","Website Identity":"هوية الموقع","Website Title":"عنوان الموقع","Logo URL":"رابط الشعار","Logo URL (optional)":"رابط الشعار (اختياري)","Upload Website Logo":"رفع شعار الموقع","Upload Website Favicon":"رفع أيقونة الموقع","Home Intro":"مقدمة الصفحة الرئيسية","Navigation Menu":"قائمة التنقل","Save":"حفظ","Cancel":"إلغاء","Delete":"حذف","Search":"بحث","Name":"الاسم","Slug":"المعرّف","Type":"النوع","Description":"الوصف","Visibility":"إمكانية الظهور","Show":"إظهار","Hide":"إخفاء","Add Item":"إضافة عنصر","Save Item":"حفظ العنصر","Delete Item":"حذف العنصر","Related Items":"العناصر المرتبطة","No records found.":"لم يتم العثور على سجلات.","No records available.":"لا توجد سجلات متاحة.","Settings saved.":"تم حفظ الإعدادات.","Customization saved.":"تم حفظ التخصيص.","Global Style saved.":"تم حفظ النمط العام.","Overview":"نظرة عامة","Relations":"العلاقات","Customization":"التخصيص","Users":"المستخدمون","Roles":"الأدوار","Permissions":"الصلاحيات","Create Account":"إنشاء حساب","Reset Password":"إعادة تعيين كلمة المرور","Verify":"تحقق","New Password":"كلمة المرور الجديدة","Login":"تسجيل الدخول","Email":"البريد الإلكتروني","Password":"كلمة المرور","Current Password":"كلمة المرور الحالية","Confirm New Password":"تأكيد كلمة المرور الجديدة","Update Password":"تحديث كلمة المرور","Edit Profile":"تعديل الملف الشخصي","Change Password":"تغيير كلمة المرور","Send Reset Code":"إرسال رمز إعادة التعيين","Verification Code":"رمز التحقق","Save Profile":"حفظ الملف الشخصي","Services":"الخدمات","Products":"المنتجات","Workshops":"مراكز الخدمة","Technicians":"الفنيون","Contacts":"جهات الاتصال","Countries":"الدول","Languages":"اللغات","Media":"الوسائط","What We Do":"ما نقدمه","Content Modules":"وحدات المحتوى","Activities List":"قائمة الأنشطة","Health Status":"حالة النظام","Data":"البيانات","Role":"الدور","Permission":"الصلاحية","Save Relation":"حفظ العلاقة","Create Relation":"إنشاء علاقة","Source Type":"نوع المصدر","Source Name":"اسم المصدر","Target Type":"نوع الهدف","Target Name":"اسم الهدف","Select Type":"اختر النوع","Select Item":"اختر عنصرًا","View All":"عرض الكل","Back":"رجوع"};
-const enText=Object.fromEntries(Object.entries(bnText).map(([english,bengali])=>[bengali,english]));
+const enText=Object.fromEntries([...Object.entries(bnText),...Object.entries(arText)].map(([english,translated])=>[translated,english]));
 const translationOriginals=new WeakMap();
 function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
  const selected=/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(String(language||""))?String(language).toLowerCase():"en",labels=translations[selected]||translations.en,textMap=selected==="bn"?bnText:selected==="ar"?arText:enText;
@@ -271,8 +271,8 @@ async function loadHomeCatalog(){
  const area=document.getElementById("home-module-area");if(!area)return;
  homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=true;
  const [infoResult,mediaResult,relationResult]=await Promise.all([
-  supabase.from("Info").select("id,name,type,slug,description,visibility_roles,sort_order,data,status").in("status",["active","published"]).order("sort_order").order("name").limit(1000),
-  supabase.from("Media").select("id,name,type,slug,description,image_path,image_url,visibility_roles,sort_order,status").in("status",["active","published"]).order("sort_order").limit(1000),
+  supabase.from("Info").select("id,name,type,slug,description,visibility,visibility_roles,sort_order,data,status").in("status",["active","published"]).eq("visibility","show").order("sort_order").order("name").limit(1000),
+  supabase.from("Media").select("id,name,type,slug,description,image_path,image_url,visibility,visibility_roles,sort_order,status").in("status",["active","published"]).eq("visibility","show").order("sort_order").limit(1000),
   supabase.from("Relation").select("source_type,source_id,target_type,target_id")
  ]);
  if(infoResult.error||mediaResult.error||relationResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error||relationResult.error);return;}
@@ -400,23 +400,43 @@ async function loadMenuPreferences(){
   const options=optionRow?.setting_value&&typeof optionRow.setting_value==="object"?optionRow.setting_value:{};
   const regions=Array.isArray(options.regions)&&options.regions.length?options.regions:[{label:"Global",value:"global"},{label:"Bangladesh",value:"bangladesh"},{label:"Saudi Arabia",value:"saudi-arabia"}];
   const languages=Array.isArray(options.languages)&&options.languages.length?options.languages:[{label:"English",value:"en"},{label:"Bangla",value:"bn"},{label:"Arabic",value:"ar"}];
+  const themes=Array.isArray(options.themes)&&options.themes.length?options.themes:[{label:"Classic",value:"classic"},{label:"Modern",value:"modern"},{label:"Future",value:"future"}];
   if(regionSelect){
     const saved=localStorage.getItem("3b-region")||localStorage.getItem("3b-country")||"global";
     regionSelect.replaceChildren(...regions.map(item=>new Option(item.label,item.value)));
-    regionSelect.value=regions.some(item=>item.value===saved)?saved:regions[0].value;
+    regionSelect.value=regions.some(item=>item.value===saved)?saved:(regions.find(item=>item.value==="global")?.value||regions[0].value);
     document.documentElement.dataset.region=regionSelect.value;
   }
   if(languageSelect){
-    const saved=localStorage.getItem("3b-language")||"en";
+    const saved=localStorage.getItem("3b-language");
+    const regionDefault=regionSelect?.value==="bangladesh"?"bn":regionSelect?.value==="saudi-arabia"?"ar":"en";
+    const preferred=saved||regionDefault;
     languageSelect.replaceChildren(...languages.map(item=>new Option(item.label,item.value)));
-    languageSelect.value=languages.some(item=>item.value===saved)?saved:languages[0].value;
+    languageSelect.value=languages.some(item=>item.value===preferred)?preferred:(languages[0]?.value||"en");
+    localStorage.setItem("3b-language",languageSelect.value);
     document.documentElement.dataset.language=languageSelect.value;
     applyLanguage(languageSelect.value);
+  }
+  if(themeSelect){
+    const saved=localStorage.getItem("3b-theme-variant")||"classic";
+    themeSelect.replaceChildren(...themes.map(item=>new Option(item.label,item.value)));
+    themeSelect.value=themes.some(item=>item.value===saved)?saved:(themes.find(item=>item.value==="classic")?.value||themes[0]?.value||"classic");
+    localStorage.setItem("3b-theme-variant",themeSelect.value);
+    document.documentElement.dataset.themeVariant=themeSelect.value;
+    applyRuntimeConfig(runtimeConfig,document.documentElement.dataset.theme||"light");
   }
 }
 regionSelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-region",regionSelect.value);
   document.documentElement.dataset.region=regionSelect.value;
+  const regionDefault=regionSelect.value==="bangladesh"?"bn":regionSelect.value==="saudi-arabia"?"ar":"en";
+  if(languageSelect&&[...languageSelect.options].some(option=>option.value===regionDefault)){
+    languageSelect.value=regionDefault;
+    localStorage.setItem("3b-language",regionDefault);
+    document.documentElement.dataset.language=regionDefault;
+    applyLanguage(regionDefault);
+    window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:regionDefault}}));
+  }
   window.dispatchEvent(new CustomEvent("site-region-changed",{detail:{region:regionSelect.value}}));
   void loadHomeCatalog();
 });
@@ -425,6 +445,12 @@ languageSelect?.addEventListener("change",()=>{
   document.documentElement.dataset.language=languageSelect.value;
   applyLanguage(languageSelect.value);
   window.dispatchEvent(new CustomEvent("site-language-changed",{detail:{language:languageSelect.value}}));
+});
+themeSelect?.addEventListener("change",()=>{
+  localStorage.setItem("3b-theme-variant",themeSelect.value);
+  document.documentElement.dataset.themeVariant=themeSelect.value;
+  applyRuntimeConfig(runtimeConfig,document.documentElement.dataset.theme||"light");
+  window.dispatchEvent(new CustomEvent("site-theme-changed",{detail:{theme:themeSelect.value}}));
 });
 void loadMenuPreferences();
 window.addEventListener("site-preferences-updated",()=>void loadMenuPreferences());
