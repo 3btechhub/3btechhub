@@ -275,12 +275,38 @@ async function loadHomeCatalog(){
   supabase.from("Relation").select("source_type,source_id,target_type,target_id")
  ]);
  if(infoResult.error||mediaResult.error||relationResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error||relationResult.error);return;}
- homeInfoRows=infoResult.data||[];
- homeMediaRows=mediaResult.data||[];
+ const allInfo=infoResult.data||[],allMedia=mediaResult.data||[],allRelations=relationResult.data||[];
+ const regionKey=localStorage.getItem("3b-region")||"global",regionName=regionKey==="saudi-arabia"?"Saudi Arabia":regionKey==="bangladesh"?"Bangladesh":"Global";
+ const infoById=new Map(allInfo.map(row=>[row.id,row]));
+ const countries=allInfo.filter(row=>(row.type||"").toLowerCase()==="countries");
+ const selectedCountry=countries.find(row=>row.name.toLowerCase()===regionName.toLowerCase());
+ const countryIdsByInfo=new Map(),locationIdsByInfo=new Map(),countryIdsByLocation=new Map();
+ for(const rel of allRelations){
+  if(rel.source_type!=="Info"||rel.target_type!=="Info")continue;
+  const a=infoById.get(rel.source_id),b=infoById.get(rel.target_id);if(!a||!b)continue;
+  if((a.type||"").toLowerCase()==="countries")countryIdsByInfo.set(b.id,[...(countryIdsByInfo.get(b.id)||[]),a.id]);
+  else if((b.type||"").toLowerCase()==="countries")countryIdsByInfo.set(a.id,[...(countryIdsByInfo.get(a.id)||[]),b.id]);
+  if((a.type||"").toLowerCase()==="location")locationIdsByInfo.set(b.id,[...(locationIdsByInfo.get(b.id)||[]),a.id]);
+  else if((b.type||"").toLowerCase()==="location")locationIdsByInfo.set(a.id,[...(locationIdsByInfo.get(a.id)||[]),b.id]);
+  if((a.type||"").toLowerCase()==="location"&&(b.type||"").toLowerCase()==="countries")countryIdsByLocation.set(a.id,[...(countryIdsByLocation.get(a.id)||[]),b.id]);
+  else if((b.type||"").toLowerCase()==="location"&&(a.type||"").toLowerCase()==="countries")countryIdsByLocation.set(b.id,[...(countryIdsByLocation.get(b.id)||[]),a.id]);
+ }
+ function visibleInRegion(row){
+  if((row.type||"").toLowerCase()==="countries")return regionKey==="global"||row.id===selectedCountry?.id;
+  const explicit=String(row.data?.country||"").trim().toLowerCase();
+  if(explicit&&explicit!=="global")return explicit===regionName.toLowerCase();
+  const countryIds=countryIdsByInfo.get(row.id)||[];
+  for(const locationId of locationIdsByInfo.get(row.id)||[])countryIds.push(...(countryIdsByLocation.get(locationId)||[]));
+  if(countryIds.length)return regionKey!=="global"&&Boolean(selectedCountry)&&countryIds.includes(selectedCountry.id);
+  return true;
+ }
+ homeInfoRows=allInfo.filter(visibleInRegion);
+ const visibleInfoIds=new Set(homeInfoRows.map(row=>row.id));
+ homeMediaRows=allMedia;
  homeMediaByInfo=new Map();
- for(const rel of relationResult.data||[]){
-  if(rel.source_type==="Info"&&rel.target_type==="Media"){const ids=homeMediaByInfo.get(rel.source_id)||[];ids.push(rel.target_id);homeMediaByInfo.set(rel.source_id,ids);}
-  else if(rel.source_type==="Media"&&rel.target_type==="Info"){const ids=homeMediaByInfo.get(rel.target_id)||[];ids.push(rel.source_id);homeMediaByInfo.set(rel.target_id,ids);}
+ for(const rel of allRelations){
+  if(rel.source_type==="Info"&&rel.target_type==="Media"&&visibleInfoIds.has(rel.source_id)){const ids=homeMediaByInfo.get(rel.source_id)||[];ids.push(rel.target_id);homeMediaByInfo.set(rel.source_id,ids);}
+  else if(rel.source_type==="Media"&&rel.target_type==="Info"&&visibleInfoIds.has(rel.target_id)){const ids=homeMediaByInfo.get(rel.target_id)||[];ids.push(rel.source_id);homeMediaByInfo.set(rel.target_id,ids);}
  }
  const grouped=new Map();
  for(const row of homeInfoRows){const type=String(row.type||"General").trim()||"General";if(!grouped.has(type))grouped.set(type,[]);grouped.get(type).push(row);}
