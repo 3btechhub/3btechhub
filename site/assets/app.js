@@ -566,12 +566,11 @@ if (form && accountMode!=="profile") {
       : recoveryNewPassword ? "Set Password"
       : "Login";
 
-    forgot.textContent = recoveryStart ? "Login" : "Reset Password";
-    toggle.textContent = signup || recoveryStart ? "Login" : "Create Account";
-    if (recoveryStart) toggle.textContent = "Create Account";
+    forgot.textContent = recoveryStart || recoveryFlow ? "Login" : "Reset Password";
+    toggle.textContent = signup ? "Login" : "Create Account";
 
-    forgot.hidden = recoveryFlow;
-    toggle.hidden = recoveryFlow;
+    forgot.hidden = false;
+    toggle.hidden = false;
     nameInput.hidden = !signup;
     nameInput.required = signup;
     emailInput.hidden = recoveryFlow;
@@ -593,14 +592,12 @@ if (form && accountMode!=="profile") {
   }
 
   toggle.addEventListener("click", () => {
-    if (["recovery-verify","recovery","recovery-new-password"].includes(mode)) return;
     const target = mode === "signup" ? "account/login/" : "account/create-account/";
     window.navigateSiteRoute(new URL(target, ROOT_URL).pathname);
   });
 
   forgot.addEventListener("click", () => {
-    if (["recovery-verify","recovery","recovery-new-password"].includes(mode)) return;
-    const target = mode === "recovery-start" ? "account/login/" : "account/reset-password/";
+    const target = mode === "recovery-start" || ["recovery-verify","recovery","recovery-new-password"].includes(mode) ? "account/login/" : "account/reset-password/";
     window.navigateSiteRoute(new URL(target, ROOT_URL).pathname);
   });
 
