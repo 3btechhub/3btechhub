@@ -96,3 +96,15 @@ test("runtime configuration supports user-created theme presets", () => {
   assert.equal(root.values.get("--page-bg"), "#111111");
   assert.equal(root.values.get("--control-height"), "48px");
 });
+
+test("runtime configuration falls back to the first remaining theme preset", () => {
+  const root = makeRoot();
+  root.dataset.themeVariant = "classic";
+  applyRuntimeConfig({
+    theme_presets: {
+      modern: { light: { palette: "black", size: "medium" } },
+      future: { light: { palette: "neutral-gray", size: "large" } }
+    }
+  }, "light", root);
+  assert.equal(root.values.get("--page-bg"), "#111111");
+});
