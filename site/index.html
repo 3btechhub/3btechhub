@@ -22,22 +22,18 @@
 </header>
 <button class="menu-trigger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="site-menu"><svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path class="menu-line menu-line-top" d="M4 6h16"/><path class="menu-line menu-line-middle" d="M4 12h16"/><path class="menu-line menu-line-bottom" d="M4 18h16"/></svg></button>
 <nav class="site-menu" id="site-menu" aria-label="Site menu" hidden>
-    <div class="menu-brand"><div class="menu-brand-logo"><span class="brand-mark">3B</span></div><span class="menu-brand-title">3B TECH HUB</span></div>
     <div class="menu-section menu-primary">
       <a class="menu-link" href="/3btechhub/home/" id="home-menu-link" data-icon="home" data-label="home">Home</a>
       <a class="menu-link" href="/3btechhub/account/profile/" id="profile-menu-link" data-icon="user" hidden>Profile</a>
-      <a class="menu-link" href="/3btechhub/account/login/" id="login-menu-link" data-icon="user" >Account</a>
+      <a class="menu-link" href="/3btechhub/dashboard/" id="dashboard-menu-link" data-icon="chart" data-label="dashboard" hidden>Dashboard</a>
       <button class="menu-link" type="button" id="logout-menu-link" data-icon="logout" data-label="logout" hidden>Logout</button>
     </div>
     <div class="menu-divider" role="separator"></div>
     <div class="menu-tools">
-      <label class="menu-tool theme-tool">Theme <select id="theme-select" aria-label="Theme"><option value="classic">Classic</option><option value="modern">Modern</option><option value="future">Future</option></select></label>
-      <button class="menu-tool" id="theme-toggle" type="button" aria-label="Switch to dark mode"><span class="theme-icon" data-icon="moon"></span><span>Dark / Light</span></button>
+      <label class="menu-tool" data-icon="mapPin">Country <select id="region-select" aria-label="Country"><option value="global" selected>Global</option><option value="bangladesh">Bangladesh</option><option value="saudi-arabia">Saudi Arabia</option></select></label>
       <label class="menu-tool" data-icon="globe">Language <select id="language-select" aria-label="Language"><option value="en" selected>English</option><option value="bn">Bangla</option><option value="ar">Arabic</option></select></label>
-      <label class="menu-tool" data-icon="mapPin">Country <select id="region-select" aria-label="Region"><option value="global" selected>Global</option><option value="bangladesh">Bangladesh</option><option value="saudi-arabia">Saudi Arabia</option></select></label>
+      <button class="menu-tool" id="theme-toggle" type="button" aria-label="Switch to dark mode"><span class="theme-icon" data-icon="moon"></span><span>Dark / Light</span></button>
     </div>
-    <div class="menu-divider" role="separator"></div>
-    <div class="menu-section menu-secondary"><a class="menu-link" href="/3btechhub/dashboard/" id="dashboard-menu-link" data-icon="chart" data-label="dashboard" hidden>Dashboard</a></div>
   </nav>
 <main id="app-main" aria-live="polite"><p>Loading page…</p></main>
 <footer class="site-footer"><span>© 2026 3B TECH HUB. All rights reserved.</span></footer>
