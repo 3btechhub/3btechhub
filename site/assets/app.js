@@ -42,7 +42,7 @@ function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
  const selected=/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(String(language||""))?String(language).toLowerCase():"en",labels=translations[selected]||translations.en,textMap=selected==="bn"?bnText:selected==="ar"?arText:enText;
  translationQueue=[];
  document.documentElement.lang=selected;
- document.documentElement.dir=selected==="ar"?"rtl":"ltr";
+ document.documentElement.dir=/^(ar|fa|he|ur|ps|sd|ug|yi)(-|$)/i.test(selected)?"rtl":"ltr";
  document.querySelectorAll("[data-label]").forEach(element=>{const value=labels[element.dataset.label];if(!value)return;const textNode=[...element.childNodes].find(node=>node.nodeType===Node.TEXT_NODE);if(textNode)textNode.nodeValue=value;else element.append(document.createTextNode(value));});
  document.querySelectorAll("[placeholder]").forEach(element=>{const value=textMap[element.placeholder];if(value)element.placeholder=value;});
  document.querySelectorAll("[aria-label]").forEach(element=>{const value=textMap[element.getAttribute("aria-label")];if(value)element.setAttribute("aria-label",value);});
@@ -403,18 +403,19 @@ if(themeSelect){
 async function loadMenuPreferences(){
   const {data:optionRow}=await supabase.from("Settings").select("setting_value").eq("setting_key","preference_options").maybeSingle();
   const options=optionRow?.setting_value&&typeof optionRow.setting_value==="object"?optionRow.setting_value:{};
-  const regions=Array.isArray(options.regions)&&options.regions.length?options.regions:[{label:"Global",value:"global"},{label:"Bangladesh",value:"bangladesh"},{label:"Saudi Arabia",value:"saudi-arabia"}];
+  const regions=Array.isArray(options.regions)&&options.regions.length?options.regions:[{label:"Global",value:"global",default_language:"en"},{label:"Bangladesh",value:"bangladesh",default_language:"bn"},{label:"Saudi Arabia",value:"saudi-arabia",default_language:"ar"}];
+  const defaultLanguageForRegion=item=>item?.default_language||(item?.value==="bangladesh"?"bn":item?.value==="saudi-arabia"?"ar":"en");
   const languages=Array.isArray(options.languages)&&options.languages.length?options.languages:[{label:"English",value:"en"},{label:"Bangla",value:"bn"},{label:"Arabic",value:"ar"}];
   const themes=Array.isArray(options.themes)&&options.themes.length?options.themes:[{label:"Classic",value:"classic"},{label:"Modern",value:"modern"},{label:"Future",value:"future"}];
   if(regionSelect){
     const saved=localStorage.getItem("3b-region")||localStorage.getItem("3b-country")||"global";
-    regionSelect.replaceChildren(...regions.map(item=>new Option(item.label,item.value)));
+    regionSelect.replaceChildren(...regions.map(item=>{const option=new Option(item.label,item.value);option.dataset.defaultLanguage=defaultLanguageForRegion(item);return option;}));
     regionSelect.value=regions.some(item=>item.value===saved)?saved:(regions.find(item=>item.value==="global")?.value||regions[0].value);
     document.documentElement.dataset.region=regionSelect.value;
   }
   if(languageSelect){
     const saved=localStorage.getItem("3b-language");
-    const regionDefault=regionSelect?.value==="bangladesh"?"bn":regionSelect?.value==="saudi-arabia"?"ar":"en";
+    const regionDefault=defaultLanguageForRegion(regions.find(item=>item.value===regionSelect?.value));
     const preferred=saved||regionDefault;
     languageSelect.replaceChildren(...languages.map(item=>new Option(item.label,item.value)));
     languageSelect.value=languages.some(item=>item.value===preferred)?preferred:(languages[0]?.value||"en");
@@ -434,7 +435,7 @@ async function loadMenuPreferences(){
 regionSelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-region",regionSelect.value);
   document.documentElement.dataset.region=regionSelect.value;
-  const regionDefault=regionSelect.value==="bangladesh"?"bn":regionSelect.value==="saudi-arabia"?"ar":"en";
+  const regionDefault=regionSelect.selectedOptions?.[0]?.dataset.defaultLanguage||"en";
   if(languageSelect&&[...languageSelect.options].some(option=>option.value===regionDefault)){
     languageSelect.value=regionDefault;
     localStorage.setItem("3b-language",regionDefault);
