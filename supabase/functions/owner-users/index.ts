@@ -2,7 +2,8 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const allowedOrigins=new Set(["https://3btechhub.github.io"]),primaryOwnerEmail="3btechhub@gmail.com",redirectTo="https://3btechhub.github.io/3btechhub/account/";
 function response(body:unknown,status:number,origin:string|null){const h:Record<string,string>={"Content-Type":"application/json","Vary":"Origin"};if(origin&&allowedOrigins.has(origin)){h["Access-Control-Allow-Origin"]=origin;h["Access-Control-Allow-Headers"]="authorization, apikey, content-type, x-client-info";h["Access-Control-Allow-Methods"]="POST, OPTIONS";}return new Response(JSON.stringify(body),{status,headers:h});}
 async function audit(_admin:ReturnType<typeof createClient>,_actor:string,_action:string,_id:string,_metadata:Record<string,unknown>={}){return null;}
-function uuid(v:unknown):v is string{return typeof v==="string"&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);}\nfunction slugify(v:string){return v.normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"user";}
+function uuid(v:unknown):v is string{return typeof v==="string"&&/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);}
+function slugify(v:string){return v.normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"user";}
 function roleArray(v:unknown):v is string[]{return Array.isArray(v)&&v.length>0&&v.length<=20&&v.every(x=>typeof x==="string"&&/^[a-z0-9][a-z0-9_-]{1,63}$/.test(x))&&new Set(v).size===v.length;}
 Deno.serve(async(req:Request)=>{
  const origin=req.headers.get("Origin");if(origin&&!allowedOrigins.has(origin))return response({error:"Origin not allowed."},403,null);if(req.method==="OPTIONS")return response({ok:true},200,origin);if(req.method!=="POST")return response({error:"Method not allowed."},405,origin);
