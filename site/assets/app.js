@@ -39,7 +39,7 @@ const arText={"Home":"الرئيسية","Account":"الحساب","Profile":"ال
 const enText=Object.fromEntries([...Object.entries(bnText),...Object.entries(arText)].map(([english,translated])=>[translated,english]));
 const translationOriginals=new WeakMap();
 function applyLanguage(language=localStorage.getItem("3b-language")||"en"){
- const selected=/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(String(language||""))?String(language).toLowerCase():"en",labels=translations[selected]||translations.en,textMap=selected==="bn"?bnText:selected==="ar"?arText:enText;
+ const selected=/^[a-z]{2,3}(?:-[a-z0-9]{2,8})*$/i.test(String(language||""))?String(language).toLowerCase():"en",baseLanguage=selected.split("-")[0],labels=translations[selected]||translations[baseLanguage]||translations.en,textMap=baseLanguage==="bn"?bnText:baseLanguage==="ar"?arText:enText;
  translationQueue=[];
  document.documentElement.lang=selected;
  document.documentElement.dir=/^(ar|fa|he|ur|ps|sd|ug|yi)(-|$)/i.test(selected)?"rtl":"ltr";
@@ -90,7 +90,7 @@ async function runTranslationQueue(){
  }finally{translationWorkers--;if(translationQueue.length)runTranslationQueue();}
 }
 const languageObserver=new MutationObserver(records=>{
- const lang=document.documentElement.lang||"en",map=lang==="bn"?bnText:lang==="ar"?arText:enText;
+ const lang=document.documentElement.lang||"en",baseLanguage=lang.split("-")[0],map=baseLanguage==="bn"?bnText:baseLanguage==="ar"?arText:enText;
  for(const record of records)for(const node of record.addedNodes){
   if(node.nodeType===Node.TEXT_NODE){if(!translationOriginals.has(node))translationOriginals.set(node,node.nodeValue||"");const raw=translationOriginals.get(node),trimmed=raw.trim(),translated=map[trimmed];node.nodeValue=translated?raw.replace(trimmed,translated):raw;queueDynamicTranslations(node.parentElement,lang);continue;}
   if(node.nodeType!==Node.ELEMENT_NODE)continue;
