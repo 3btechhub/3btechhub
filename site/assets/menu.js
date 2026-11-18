@@ -5,9 +5,14 @@
   if(!button||!menu)return;
   const originalIcon=button.querySelector(".menu-icon")?.cloneNode(true);
   let logoUrl="",logoTitle="3B TECH HUB",swapSeconds=5,transitionMs=1400,menuPlacement="bottom-end";
-  const placements=new Set(["top-start","top-end","bottom-start","bottom-end"]);
+  const placements=new Set(["top-start","top-end","bottom-start","bottom-end","top-middle","bottom-middle"]);
   function applyPlacement(value){
-    const requested=String(value||"bottom-end").toLowerCase();
+    let requested;
+    if(value&&typeof value==="object"){
+      const vertical=value.vertical==="top"?"top":"bottom";
+      const horizontal=value.horizontal==="start"?"start":"end";
+      requested=value.alignment==="middle"?vertical+"-middle":vertical+"-"+horizontal;
+    }else requested=String(value||"bottom-end").toLowerCase();
     menuPlacement=placements.has(requested)?requested:"bottom-end";
     button.dataset.placement=menuPlacement;
     menu.dataset.placement=menuPlacement;
