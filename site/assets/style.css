@@ -233,8 +233,8 @@ body{background:var(--page-bg);color:var(--page-text);font-size:var(--text-mediu
 
 /* Homepage identity sections */
 .home-company-section,.home-technicians-section{margin:54px 0 0;padding-top:30px;border-top:1px solid var(--line)}
-.home-section-heading{margin:0 0 20px}
-.home-section-heading h2{margin:0;font-size:var(--text-large);grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:24px;align-items:center}
+.home-section-heading{margin:0 0 20px;text-align:center}
+.home-section-heading h2{margin:0;font-size:var(--text-large);font-weight:700;text-align:center;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:24px;align-items:center}
 .company-profile-content>img{width:100%;max-height:340px;object-fit:cover;border-radius:12px;background:var(--hover)}
 .company-profile-details h3{margin:0 0 10px;font-size:var(--text-large);color:var(--muted);line-height:1.7;white-space:pre-line}
 .company-contact-links{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
@@ -680,8 +680,8 @@ button[data-size="large"],input[data-size="large"],select[data-size="large"],tex
   gap:11px;
 }
 /* Content item cards show only image/icon and title, in the logical start position. */
-.home-content-card{direction:inherit;flex-direction:row}
-.home-content-card-body{text-align:start}
+.home-content-card{direction:inherit;flex-direction:column;justify-content:center;text-align:center}
+.home-content-card-body{text-align:center;width:100%}
 .home-content-card p{display:none}
 .home-content-card{
   display:flex;
@@ -720,7 +720,7 @@ button[data-size="large"],input[data-size="large"],select[data-size="large"],tex
   overflow-wrap:anywhere;
   font-size:var(--text-medium);
   line-height:1.4;
-  font-weight:650;
+  font-weight:700;
 }
 .home-content-card p{
   margin:5px 0 0;
@@ -1641,7 +1641,7 @@ body {
 .dashboard-page>h2{margin:0 0 6px;font-size:1.45rem}
 .dashboard-page>p{margin:0 0 20px}
 .dashboard-overview-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:18px 0 24px}
-.dashboard-overview-card{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-height:90px;padding:16px;border:1px solid var(--border,#d9dee7);border-radius:13px;background:var(--surface,#fff);color:inherit;text-align:left}
+.dashboard-overview-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;min-height:90px;padding:16px;border:1px solid var(--border,#d9dee7);border-radius:13px;background:var(--surface,#fff);color:inherit;text-align:left}
 button.dashboard-overview-card{cursor:pointer}
 .dashboard-overview-card strong{font-size:1.7rem}
 .dashboard-health-panel{border:1px solid var(--border,#d9dee7);border-radius:14px;padding:16px;background:var(--surface,#fff)}
