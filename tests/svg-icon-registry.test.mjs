@@ -84,3 +84,12 @@ test("navigation menu keeps configured transitions and RTL/LTR placement", () =>
   assert.match(menu, /logo_swap_interval_seconds/);
   assert.match(menu, /icon_transition_speed_ms/);
 });
+
+test("region preferences store a configurable default language and RTL language codes", () => {
+  const app = readFileSync("site/assets/app.js", "utf8");
+  const dashboard = readFileSync("site/assets/content-dashboard.js", "utf8");
+  assert.match(app, /defaultLanguageForRegion/);
+  assert.match(app, /\^\(ar\|fa\|he\|ur\|ps\|sd\|ug\|yi\)/);
+  assert.match(dashboard, /Default Language/);
+  assert.match(dashboard, /default_language/);
+});
