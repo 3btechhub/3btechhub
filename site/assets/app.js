@@ -1,6 +1,6 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-14";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-14";
-import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js?v=notion-20261118-14";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-15";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-15";
+import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js?v=notion-20261118-15";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
 const accountMenuLink = document.querySelector("#login-menu-link");
@@ -479,7 +479,8 @@ export async function resolveAuthRoute(requestedPath) {
       const fallback=roles.some(role=>["owner","admin","member"].includes(role))?"account/profile/":"account/login/";
       return new URL(fallback,ROOT_URL).pathname+url.search+url.hash;
     }
-    return new URL("dashboard/",ROOT_URL).pathname+url.search+url.hash;
+    const dashboardPath=parts.length===2?("dashboard/"+parts[1]+"/"):"dashboard/";
+    return new URL(dashboardPath,ROOT_URL).pathname+url.search+url.hash;
   }
   const legacyRoutes = {};
   let accountRoute = first === "account" ? (parts[1] || "") : (legacyRoutes[first] || "");
@@ -914,6 +915,8 @@ if (ownerDashboard) {
         if (!session) window.navigateSiteRoute(new URL("account/login/", ROOT_URL).pathname, { replace: true });
       });
       window.__routeAuthSubscriptions.push(dashboardAuthListener.data.subscription);
+      const dashboardRoot=document.querySelector(".dashboard-shell");
+      if(dashboardRoot)dashboardRoot.dataset.initialTab=document.querySelector("#app-main")?.dataset.dashboardTab||"overview";
       await initDynamicDashboard(supabase, ownerDashboard, {...authData.user,role:currentDashboardRole});
       return;
       const ownerEmail = document.querySelector("#dashboard-owner-email");
@@ -1688,5 +1691,16 @@ if(ownerDashboard&&currentDashboardRole==="owner")initExtendedDashboard(supabase
 // Load only published records for the five public homepage sections.
 window.__applyPublicSiteSettings=applyPublicSiteSettings;
 void applyPublicSiteSettings();
-  void loadHomeCatalog();
+  await loadHomeCatalog();
+  const routeRoot=document.querySelector("#app-main");
+  const routeLayout=routeRoot?.dataset.layout||"overview";
+  const routeSlug=routeRoot?.dataset.recordSlug||"";
+  const toSlug=value=>String(value||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  if(routeLayout==="list-view"&&routeSlug){
+    const item=homeInfoRows.find(row=>toSlug(row.type||"General")===routeSlug);
+    if(item){homeListState={type:item.type||"General"};await renderHomeList();}
+  }else if(routeLayout==="detail-view"&&routeSlug){
+    const item=homeInfoRows.find(row=>toSlug(row.slug||row.name)===routeSlug);
+    if(item){homeDetailStack.push(item);await renderHomeDetail();}
+  }
 }
