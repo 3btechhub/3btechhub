@@ -133,13 +133,13 @@ export async function initDynamicDashboard(supabase,root,user){
  async function overview(){
   const p=start("overview","Overview"),grid=el("div","dashboard-overview-grid");
   p.append(grid);
-  const summary=[["Info","Info"],["Media","Media"],["User","Users"],["Role","Roles"],["Permission","permissions"]];
+  const summary=[["Content",["Info","Media"]],["Account",["Users"]]];
   const cards=summary.map(([label])=>{
    const card=el("div","dashboard-overview-card"),value=el("strong","skeleton dashboard-skeleton-value"," ");
    card.append(el("span","",label),value);grid.append(card);return value;
   });
-  const counts=await Promise.all(summary.map(([,table])=>supabase.from(table).select("id",{count:"exact",head:true})));
-  counts.forEach((result,index)=>{cards[index].classList.remove("skeleton","dashboard-skeleton-value");cards[index].textContent=result.error?"—":String(result.count??0);});
+  const counts=await Promise.all(summary.map(([,tables])=>Promise.all(tables.map(table=>supabase.from(table).select("id",{count:"exact",head:true})))));
+  counts.forEach((results,index)=>{cards[index].classList.remove("skeleton","dashboard-skeleton-value");cards[index].textContent=results.some(result=>result.error)?"—":String(results.reduce((total,result)=>total+(result.count??0),0));});
   const activity=el("section","dashboard-activity-panel");activity.append(el("h3","","Activities List"));
   const activitySkeleton=el("p","skeleton dashboard-skeleton-line"," ");activitySkeleton.setAttribute("aria-hidden","true");activity.append(activitySkeleton);p.append(activity);
   const health=el("section","dashboard-activity-panel");health.append(el("h3","","Health Status"));
