@@ -12,10 +12,10 @@ test("runtime configuration applies allowlisted theme and layout values", () => 
   const applied = applyRuntimeConfig({
     schema_version: 1,
     themes: { light: { page_bg: "#ffffff", page_text: "#111111", font_family: "Arial, sans-serif" } },
-    layout: { content_max_width: "1120px", header_min_height: "68px" }
+    layout: { content_max_width: "1120px" }
   }, "light", root);
 
-  assert.equal(applied, 5);
+  assert.equal(applied, 4);
   assert.equal(root.values.get("--page-bg"), "#ffffff");
   assert.equal(root.values.get("--font-family"), "Arial, sans-serif");
   assert.equal(root.values.get("--content-max-width"), "1120px");
@@ -41,7 +41,7 @@ test("unsafe values and unknown keys are ignored", () => {
   assert.equal(applied, 0);
   assert.equal(root.values.size, 0);
   assert.equal(isSafeRuntimeValue("page_bg", "expression(alert(1))"), false);
-  assert.equal(isSafeRuntimeValue("header_min_height", "12px"), true);
+  assert.equal(isSafeRuntimeValue("content_max_width", "1120px"), true);
 });
 
 test("invalid configuration input is a safe no-op", () => {
