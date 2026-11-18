@@ -1,9 +1,10 @@
-import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-20261118-14";
+import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-20261118-15";
+import { parseSiteRoute } from "./route-map.js?v=notion-20261118-15";
 
 const BASE = "/3btechhub/";
 const main = document.getElementById("app-main");
-const viewFiles = { home:"home.html", account:"account.html", dashboard:"dashboard.html" };
-const titles = { home:"3B TECH HUB", account:"Account | 3B TECH HUB", dashboard:"Dashboard | 3B TECH HUB" };
+const viewFiles = { home:"home.html", account:"account.html", dashboard:"dashboard.html", fallback:"fallback.html" };
+const titles = { home:"3B TECH HUB", account:"Account | 3B TECH HUB", dashboard:"Dashboard | 3B TECH HUB", fallback:"Page not found | 3B TECH HUB" };
 
 function normalizedPath(value) {
   const url = new URL(value, window.location.origin);
@@ -14,18 +15,9 @@ function normalizedPath(value) {
 }
 function routeDetails(path) {
   const pathname = new URL(path, window.location.origin).pathname;
-  const parts = pathname.slice(BASE.length).split("/").filter(Boolean);
-  const first = parts[0] || "";
-  const legacy = {};
-  if (first === "account") {
-    const child = parts[1] || "login";
-    const modes = { login:"login", "create-account":"signup", "reset-password":"recovery-start", verify:"recovery-verify", "new-password":"recovery-new-password", profile:"profile" };
-    return { view:"account", authMode:modes[child] || "login" };
-  }
-  if (legacy[first]) return { view:"account", authMode:legacy[first] };
-  if (["home","dashboard"].includes(first)) return { view:first };
-  return { view:"home" };
+  return parseSiteRoute(pathname, BASE);
 }
+
 function resolveFragmentLinks(container, routePath) {
   for (const anchor of container.querySelectorAll("a[href]")) {
     const raw = anchor.getAttribute("href");
@@ -53,10 +45,13 @@ async function renderRoute(requestedPath, { replace = false } = {}) {
   main.dataset.view = details.view;
   if (details.module) main.dataset.module=details.module; else delete main.dataset.module;
   if (details.recordKey) main.dataset.recordKey=details.recordKey; else delete main.dataset.recordKey;
+  if (details.recordSlug) main.dataset.recordSlug=details.recordSlug; else delete main.dataset.recordSlug;
+  if (details.layout) main.dataset.layout=details.layout; else delete main.dataset.layout;
+  if (details.dashboardTab) main.dataset.dashboardTab=details.dashboardTab; else delete main.dataset.dashboardTab;
   if (details.authMode) main.dataset.authMode=details.authMode; else delete main.dataset.authMode;
   main.innerHTML = source.innerHTML;
   resolveFragmentLinks(main, path);
-  document.title = titles[details.view];
+  document.title = titles[details.view] || titles.fallback;
   document.documentElement.lang = "en";
   const homeLink = document.getElementById("home-menu-link");
   if (homeLink) homeLink.hidden = false;
