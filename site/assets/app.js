@@ -381,7 +381,7 @@ const languageSelect=document.getElementById("language-select");
 const regionSelect=document.getElementById("region-select");
 const themeSelect=document.getElementById("theme-select");
 window.addEventListener("site-language-changed",event=>applyLanguage(event.detail?.language||"en"));
-window.addEventListener("site-region-changed",event=>{document.documentElement.dataset.region=event.detail?.country||"global";});
+window.addEventListener("site-region-changed",event=>{document.documentElement.dataset.region=event.detail?.region||"global";});
 window.addEventListener("site-theme-changed",event=>{document.documentElement.dataset.themeVariant=event.detail?.theme||"classic";applyRuntimeConfig(runtimeConfig,document.documentElement.dataset.theme||"light");});
 if(themeSelect){
   const savedVariant=localStorage.getItem("3b-theme-variant")||"classic";
@@ -401,7 +401,7 @@ async function loadMenuPreferences(){
 regionSelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-region",regionSelect.value);
   document.documentElement.dataset.region=regionSelect.value;
-  window.dispatchEvent(new CustomEvent("site-region-changed",{detail:{country:regionSelect.value}}));
+  window.dispatchEvent(new CustomEvent("site-region-changed",{detail:{region:regionSelect.value}}));
   void loadHomeCatalog();
 });
 languageSelect?.addEventListener("change",()=>{
