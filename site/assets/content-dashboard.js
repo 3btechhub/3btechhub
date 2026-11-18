@@ -1,4 +1,4 @@
-import { initExtendedDashboard } from "./admin-extended.js?v=nav-admin-20261118-1";
+import { initExtendedDashboard } from "./admin-extended.js?v=notion-20261118-4";
 const $=(s,r=document)=>r.querySelector(s), el=(t,c="",v)=>{const n=document.createElement(t);if(c)n.className=c;if(v!==undefined)n.textContent=String(v);return n;};
 const slug=v=>String(v||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const say=(n,t,k="")=>{n.textContent=t;n.dataset.kind=k;};
