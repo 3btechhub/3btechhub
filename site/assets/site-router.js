@@ -1,5 +1,5 @@
-import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-20261118-15";
-import { parseSiteRoute } from "./route-map.js?v=notion-20261118-15";
+import { initRoutePage, resolveAuthRoute } from "./app.js?v=notion-20261118-16";
+import { parseSiteRoute } from "./route-map.js?v=notion-20261118-16";
 
 const BASE = "/3btechhub/";
 const main = document.getElementById("app-main");
