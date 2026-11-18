@@ -1,5 +1,5 @@
 import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-15";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-24";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261119-1";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js?v=notion-20261118-15";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
@@ -234,6 +234,9 @@ function makeHomeCard(title,subtitle,onClick,imageUrl=""){
  card.append(visual,body);card.addEventListener("click",onClick);return card;
 }
 function homeRouteSlug(value){return String(value||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");}
+const homeCategoryAliases={"Services":"Service","Service Type":"Service","Products":"Product","Workshops":"Hub","Technicians":"Provider","Contacts":"Call"};
+function homeCategoryName(value){const name=String(value||"").trim();return homeCategoryAliases[name]||name;}
+const notionHomeCategories=new Set(["Service","Product","Info","Hub","Provider","Call","Whatsapp","Location","Map","Images"]);
 function openHomeType(type){
  const route="/3btechhub/home/list-view/"+homeRouteSlug(type||"General")+"/";
  if(window.navigateSiteRoute){window.navigateSiteRoute(route);return;}
@@ -251,9 +254,9 @@ async function renderHomeList(){
  const header=document.createElement("div");header.className="home-list-heading";
  const h=document.createElement("h1");h.textContent=type;header.append(h);view.append(header);
  const grid=document.createElement("div");grid.className="home-list-grid";
- homeInfoRows.filter(r=>(r.type||"General")===type).forEach(r=>{
+ homeInfoRows.filter(r=>homeCategoryName(r.type||"General")===type).forEach(r=>{
   const data=r.data||{},media=homeMediaRows.find(m=>(homeMediaByInfo.get(r.id)||[]).includes(m.id));
-  const image=media?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
+  const image=media?.image_url||data.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
   grid.append(makeHomeCard(r.name,r.description,()=>openHomeDetail(r),image));
  });
  if(!grid.childElementCount)grid.append(document.createTextNode("No items available."));
@@ -267,7 +270,7 @@ async function renderHomeDetail(){
  const related=(links||[]).map(x=>({type:x.source_id===record.id?x.target_type:x.source_type,id:x.source_id===record.id?x.target_id:x.source_id}));
  const mediaLinks=related.filter(x=>x.type==="Media"),relatedInfo=related.filter(x=>x.type==="Info");
  const mediaFromRelation=homeMediaRows.find(m=>mediaLinks.some(x=>x.id===m.id));
- const data=record.data||{},imageUrl=mediaFromRelation?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
+ const data=record.data||{},imageUrl=mediaFromRelation?.image_url||data.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
  const visual=document.createElement("div");visual.className="home-detail-visual";
  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.name||"";visual.append(img);}
  else visual.append(getItemFallbackIcon(record.name||record.type,"info"));
@@ -317,7 +320,7 @@ async function loadHomeCatalog(){
  }
  area.replaceChildren();
  const grouped=new Map();
- for(const row of homeInfoRows){const type=String(row.type||"General").trim()||"General";if(!grouped.has(type))grouped.set(type,[]);grouped.get(type).push(row);}
+ for(const row of homeInfoRows){const type=homeCategoryName(row.type||"General");if(!notionHomeCategories.has(type))continue;if(!grouped.has(type))grouped.set(type,[]);grouped.get(type).push(row);}
  const grid=document.createElement("div");grid.className="home-card-grid";
  for(const [type,records] of grouped){grid.append(makeHomeCard(type,"",()=>openHomeType(type)));}
  if(grid.childElementCount){const section=document.createElement("section");section.className="home-catalog-section";section.append(grid);area.append(section);}else{const empty=document.createElement("p");empty.className="home-empty-state";empty.textContent="No content available.";area.append(empty);}
@@ -852,7 +855,7 @@ void applyPublicSiteSettings();
   const routeLayout=routeRoot?.dataset.layout||"overview";
   const routeSlug=routeRoot?.dataset.recordSlug||"";
   if(routeLayout==="list-view"&&routeSlug){
-    const item=homeInfoRows.find(row=>homeRouteSlug(row.type||"General")===routeSlug);
+    const item=homeInfoRows.find(row=>notionHomeCategories.has(homeCategoryName(row.type||""))&&homeRouteSlug(homeCategoryName(row.type))===routeSlug);
     if(item){homeListState={type:item.type||"General"};await renderHomeList();}
     else{const area=document.getElementById("home-module-area");if(area){area.replaceChildren();const empty=document.createElement("p");empty.className="home-empty-state";empty.textContent="No matching list is available.";area.append(empty);}}
   }else if(routeLayout==="detail-view"&&routeSlug){
