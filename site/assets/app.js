@@ -197,178 +197,93 @@ applyRuntimeConfig(runtimeConfig, document.documentElement.dataset.theme);
 
 
 
-const homeDetailStack = [];
-let homeListState = null;
-
-function renderHomeCard(module, record, onSelect) {
-  const title=record.title||"";
-  const card=document.createElement("button");card.type="button";card.className="home-content-card";
-  const visual=document.createElement("div");visual.className="home-content-visual"+(module.module_key==="technicians"?" home-content-visual--person":"");
-  visual.append(getItemFallbackIcon(title,module.module_key));
-  const photo=record.field_values?.photo_url||(Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls[0]:"");
-  if(photo){const image=document.createElement("img");image.src=photo;image.alt="";image.loading="lazy";image.addEventListener("error",()=>image.remove(),{once:true});visual.append(image);}
-  const body=document.createElement("div");body.className="home-content-card-body";
-  if(title){const heading=document.createElement("h3");heading.textContent=title;body.append(heading);}
-  card.append(visual,body);card.addEventListener("click",onSelect);return card;
+const homeDetailStack=[];
+let homeListState=null;
+let homeInfoRows=[];
+let homeMediaRows=[];
+function hasValue(v){return v!==null&&v!==undefined&&v!==""&&(!Array.isArray(v)||v.length>0);}
+function titleCase(v){return String(v||"").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());}
+function makeHomeCard(title,subtitle,onClick,imageUrl=""){
+ const card=document.createElement("button");card.type="button";card.className="home-content-card";
+ const visual=document.createElement("div");visual.className="home-content-visual";
+ if(imageUrl){const img=document.createElement("img");img.src=imageUrl;img.alt="";img.loading="lazy";img.addEventListener("error",()=>img.remove(),{once:true});visual.append(img);}
+ else visual.append(getItemFallbackIcon(title,"info"));
+ const body=document.createElement("div");body.className="home-content-card-body";
+ const h=document.createElement("h3");h.textContent=title;body.append(h);
+ if(subtitle){const s=document.createElement("p");s.textContent=subtitle;body.append(s);}
+ card.append(visual,body);card.addEventListener("click",onClick);return card;
 }
-
-function openHomeDetail(module,record){
-  homeDetailStack.push({module,record});
-  void renderHomeDetail();
+function openHomeType(type){homeListState={type};homeDetailStack.length=0;void renderHomeList();}
+function openHomeDetail(record){homeDetailStack.push(record);void renderHomeDetail();}
+async function renderHomeList(){
+ const area=document.getElementById("home-module-area");if(!area||!homeListState)return;
+ const {type}=homeListState;area.replaceChildren();area.hidden=false;
+ const view=document.createElement("section");view.className="home-list-view";
+ const header=document.createElement("div");header.className="home-list-heading";
+ const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>{homeListState=null;void loadHomeCatalog();});
+ const h=document.createElement("h1");h.textContent=type;header.append(back,h);view.append(header);
+ const grid=document.createElement("div");grid.className="home-list-grid";
+ homeInfoRows.filter(r=>(r.type||"General")===type).forEach(r=>{
+  const data=r.data||{},media=homeMediaRows.find(m=>m.id===r.id);
+  const image=media?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
+  grid.append(makeHomeCard(r.name,r.description,()=>openHomeDetail(r),image));
+ });
+ if(!grid.childElementCount)grid.append(document.createTextNode("No items available."));
+ view.append(grid);area.append(view);
 }
-
 async function renderHomeDetail(){
-  const area=document.getElementById("home-module-area");
-  const current=homeDetailStack[homeDetailStack.length-1];
-  if(!area||!current)return;
-  const {module,record}=current;area.replaceChildren();area.hidden=false;
-  const view=document.createElement("section");view.className="home-detail-view";
-  const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
-  back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else if(homeListState)renderHomeList(homeListState.module,homeListState.records,homeListState.title);else void loadHomeCatalog();});
-  const top=document.createElement("div");top.className="home-detail-heading";top.append(back);view.append(top);
-  const gallery=Array.isArray(record.field_values?.gallery_urls)?record.field_values.gallery_urls:[];
-  const imageUrl=record.field_values?.photo_url||gallery[0]||"";
-  const visual=document.createElement("div");visual.className="home-detail-visual";
-  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.title||"";visual.append(img);}
-  else visual.append(getItemFallbackIcon(record.title||module.name,module.module_key));
-  view.append(visual);
-  const heading=document.createElement("h1");heading.textContent=record.title||"Details";view.append(heading);
-  const description=typeof record.field_values?.description==="string"?record.field_values.description.trim():"";
-  if(description){const summary=document.createElement("p");summary.className="home-detail-description";summary.textContent=description;view.append(summary);}
-  const fieldsResult=await supabase.from("module_fields").select("*").eq("module_id",module.id).eq("is_active",true).order("sort_order");
-  const fieldHost=document.createElement("div");fieldHost.className="home-detail-fields";
-  const skip=new Set(["title","slug","description","photo_url","gallery_urls","visibility_roles"]);
-  for(const field of fieldsResult.data||[]){
-    if(skip.has(field.field_key)||field.field_type==="relation")continue;
-    const value=record.field_values?.[field.field_key];
-    if(value===null||value===undefined||value==="")continue;
-    if(field.field_type==="image"){
-      const img=document.createElement("img");img.className="home-detail-inline-image";img.src=String(value);img.alt=field.label;fieldHost.append(img);continue;
-    }
-    if(field.field_type==="gallery"&&Array.isArray(value)){
-      const galleryHost=document.createElement("div");galleryHost.className="home-detail-gallery";
-      value.forEach(url=>{const img=document.createElement("img");img.src=String(url);img.alt=field.label;img.loading="lazy";galleryHost.append(img);});
-      fieldHost.append(galleryHost);continue;
-    }
-    const row=document.createElement("div");row.className="home-detail-field";
-    const label=document.createElement("strong");label.textContent=field.label||field.field_key;
-    let content;
-    if(field.field_type==="url"&&/^https?:\/\//i.test(String(value))){
-      content=document.createElement("a");content.href=String(value);content.target="_blank";content.rel="noopener noreferrer";content.textContent=String(value);
-    }else if(field.field_type==="email"){
-      content=document.createElement("a");content.href="mailto:"+String(value);content.textContent=String(value);
-    }else if(field.field_type==="phone"){
-      content=document.createElement("a");content.href="tel:"+String(value);content.textContent=String(value);
-    }else{
-      content=document.createElement("span");content.textContent=Array.isArray(value)?value.join(", "):typeof value==="object"?JSON.stringify(value):String(value);
-    }
-    row.append(label,content);fieldHost.append(row);
-  }
-  if(gallery.length>1){const galleryHost=document.createElement("div");galleryHost.className="home-detail-gallery";gallery.slice(1).forEach(url=>{const img=document.createElement("img");img.src=url;img.alt=record.title||"";img.loading="lazy";galleryHost.append(img);});fieldHost.append(galleryHost);}
-  if(fieldHost.childElementCount)view.append(fieldHost);
-  const {data:relations,error:relationError}=await supabase.from("relations").select("item_a_id,item_b_id").or("item_a_id.eq."+record.id+",item_b_id.eq."+record.id);
-  const relatedIds=[...new Set((relations||[]).map(r=>r.item_a_id===record.id?r.item_b_id:r.item_a_id))];
-  if(!relationError&&relatedIds.length){
-    const {data:related}=await supabase.from("content_items").select("id,title,slug,module_id,status,visibility_roles,field_values").in("id",relatedIds);
-    const moduleIds=[...new Set((related||[]).map(item=>item.module_id))];
-    const {data:relatedModules}=await supabase.from("modules").select("*").in("id",moduleIds);
-    const moduleById=new Map((relatedModules||[]).map(item=>[item.id,item]));
-    const grouped=new Map();
-    for(const item of related||[]){const relatedModule=moduleById.get(item.module_id);if(!relatedModule)continue;if(!grouped.has(relatedModule.id))grouped.set(relatedModule,[]);grouped.get(relatedModule).push(item);}
-    for(const [relatedModule,items] of grouped){
-      const section=document.createElement("section");section.className="home-related-section";const h2=document.createElement("h2");h2.textContent="Related "+relatedModule.name;section.append(h2);
-      const grid=document.createElement("div");grid.className="home-card-grid";
-      items.forEach(item=>grid.append(renderHomeCard(relatedModule,item,()=>openHomeDetail(relatedModule,item))));
-      section.append(grid);view.append(section);
-    }
-  }
-  area.append(view);
+ const area=document.getElementById("home-module-area"),record=homeDetailStack[homeDetailStack.length-1];if(!area||!record)return;
+ area.replaceChildren();area.hidden=false;
+ const view=document.createElement("section");view.className="home-detail-view";
+ const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";back.addEventListener("click",()=>{homeDetailStack.pop();if(homeDetailStack.length)void renderHomeDetail();else if(homeListState)void renderHomeList();else void loadHomeCatalog();});view.append(back);
+ const {data:links,error:linkError}=await supabase.from("Relation").select("*").or("source_id.eq."+record.id+",target_id.eq."+record.id);
+ const related=(links||[]).map(x=>({type:x.source_id===record.id?x.target_type:x.source_type,id:x.source_id===record.id?x.target_id:x.source_id}));
+ const mediaLinks=related.filter(x=>x.type==="Media"),relatedInfo=related.filter(x=>x.type==="Info");
+ const mediaFromRelation=homeMediaRows.find(m=>mediaLinks.some(x=>x.id===m.id));
+ const data=record.data||{},fallbackMedia=homeMediaRows.find(m=>m.id===record.id);
+ const imageUrl=mediaFromRelation?.image_url||fallbackMedia?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
+ const visual=document.createElement("div");visual.className="home-detail-visual";
+ if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.name||"";visual.append(img);}
+ else visual.append(getItemFallbackIcon(record.name||record.type,"info"));
+ view.append(visual);
+ const heading=document.createElement("h1");heading.textContent=record.name||"Details";view.append(heading);
+ if(record.description){const summary=document.createElement("p");summary.className="home-detail-description";summary.textContent=record.description;view.append(summary);}
+ const fieldHost=document.createElement("div");fieldHost.className="home-detail-fields";
+ const hiddenKeys=new Set(["description","photo_url","gallery_urls","image_url","image_path","visibility_roles","_legacy_source","_legacy_id","_module_key"]);
+ for(const [key,value] of Object.entries(data)){
+  if(hiddenKeys.has(key)||key.startsWith("_")||!hasValue(value))continue;
+  if(typeof value==="string"&&/^https?:\/\//i.test(value)&&/\.(png|jpe?g|webp|gif|svg)(\?|$)/i.test(value))continue;
+  const row=document.createElement("div");row.className="home-detail-field";
+  const label=document.createElement("strong");label.textContent=titleCase(key);
+  const content=document.createElement("span");content.textContent=Array.isArray(value)?value.join(", "):typeof value==="object"?JSON.stringify(value):String(value);
+  row.append(label,content);fieldHost.append(row);
+ }
+ if(fieldHost.childElementCount)view.append(fieldHost);
+ if(!linkError&&relatedInfo.length){
+  const ids=relatedInfo.map(x=>x.id),relatedRows=homeInfoRows.filter(x=>ids.includes(x.id));
+  const section=document.createElement("section");section.className="home-related-section";section.append(document.createElement("h2"));section.querySelector("h2").textContent="Related Information";
+  const grid=document.createElement("div");grid.className="home-card-grid";
+  relatedRows.forEach(r=>grid.append(makeHomeCard(r.name,r.type,()=>openHomeDetail(r),r.data?.photo_url||"")));
+  section.append(grid);if(grid.childElementCount)view.append(section);
+ }
+ area.append(view);
 }
-
-function renderHomeList(module,records,title) {
-  const area=document.getElementById("home-module-area");if(!area)return;
-  homeListState={module,records,title};homeDetailStack.length=0;area.replaceChildren();area.hidden=false;
-  const view=document.createElement("section");view.className="home-list-view";
-  const header=document.createElement("div");header.className="home-list-heading";
-  const back=document.createElement("button");back.type="button";back.className="home-detail-back";back.textContent="← Back";
-  back.addEventListener("click",()=>{homeListState=null;void loadHomeCatalog();});
-  const heading=document.createElement("h1");heading.textContent=title||module.name;header.append(back,heading);view.append(header);
-  const list=document.createElement("div");list.className="home-list-grid";
-  records.forEach(record=>list.append(renderHomeCard(module,record,()=>openHomeDetail(module,record))));
-  view.append(list);area.append(view);
+async function loadHomeCatalog(){
+ const area=document.getElementById("home-module-area");if(!area)return;
+ homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=true;
+ const [infoResult,mediaResult]=await Promise.all([
+  supabase.from("Info").select("id,name,type,slug,description,visibility_roles,sort_order,data,status").in("status",["active","published"]).order("sort_order").order("name").limit(1000),
+  supabase.from("Media").select("id,name,type,slug,description,image_path,image_url,visibility_roles,sort_order,status").in("status",["active","published"]).order("sort_order").limit(1000)
+ ]);
+ if(infoResult.error||mediaResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error);return;}
+ homeInfoRows=(infoResult.data||[]).filter(r=>(r.visibility_roles||[]).includes("visitor")||currentUserRole==="owner"||currentUserRole==="admin");
+ homeMediaRows=(mediaResult.data||[]).filter(r=>(r.visibility_roles||[]).includes("visitor")||currentUserRole==="owner"||currentUserRole==="admin");
+ const grouped=new Map();
+ for(const row of homeInfoRows){const type=String(row.type||"General").trim()||"General";if(!grouped.has(type))grouped.set(type,[]);grouped.get(type).push(row);}
+ const grid=document.createElement("div");grid.className="home-card-grid";
+ for(const [type,records] of grouped){grid.append(makeHomeCard(type,records.length+" items",()=>openHomeType(type)));}
+ if(grid.childElementCount){const section=document.createElement("section");section.className="home-catalog-section";section.append(grid);area.append(section);area.hidden=false;}
 }
-async function loadHomeCatalog() {
-  const area=document.getElementById("home-module-area");
-  if(!area)return;
-  homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=true;
-  const [{data:setting,error:settingsError},{data:moduleRows,error:moduleError}]=await Promise.all([
-    supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","home_modules").maybeSingle(),
-    supabase.from("modules").select("*").eq("status","published").order("sort_order").order("name")
-  ]);
-  if(settingsError||moduleError)return;
-  if(setting&&!(setting.visibility_roles||[]).includes("visitor"))return;
-  const savedModules=Array.isArray(setting?.setting_value?.modules)?setting.setting_value.modules:[];
-  const savedByKey=new Map(savedModules.filter(item=>item&&typeof item.key==="string").map(item=>[item.key,item]));
-  const selectedRegion=document.documentElement.dataset.country||localStorage.getItem("3b-country")||"global";
-  const countryModule=(moduleRows||[]).find(item=>item.module_key==="countries");
-  let regionAllowedIds=null,regionLinkedIds=new Set();
-  if(countryModule){
-    const {data:countryItems}=await supabase.from("content_items").select("id,title").eq("module_id",countryModule.id).in("status",["active","published"]);
-    const countryBySlug=new Map((countryItems||[]).map(item=>[String(item.title||"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""),item.id]));
-    const selectedCountryId=countryBySlug.get(selectedRegion);
-    const globalCountryId=countryBySlug.get("global");
-    const targetCountryIds=[...new Set([selectedCountryId,selectedRegion==="global"?null:globalCountryId].filter(Boolean))];
-    const allCountryIds=[...new Set((countryItems||[]).map(item=>item.id))];
-    if(targetCountryIds.length&&allCountryIds.length){
-      const [fromCountry,toCountry]=await Promise.all([
-        supabase.from("relations").select("item_a_id,item_b_id").in("item_a_id",allCountryIds),
-        supabase.from("relations").select("item_a_id,item_b_id").in("item_b_id",allCountryIds)
-      ]);
-      if(!fromCountry.error&&!toCountry.error){
-        for(const link of [...(fromCountry.data||[]),...(toCountry.data||[])]){
-          const countryId=allCountryIds.includes(link.item_a_id)?link.item_a_id:link.item_b_id;
-          const itemId=countryId===link.item_a_id?link.item_b_id:link.item_a_id;
-          regionLinkedIds.add(itemId);
-          if(targetCountryIds.includes(countryId))regionAllowedIds??=new Set();
-          if(targetCountryIds.includes(countryId))regionAllowedIds.add(itemId);
-        }
-      }
-    }
-  }
-  const configured=(moduleRows||[]).map((module,index)=>{
-    const saved=savedByKey.get(module.module_key);
-    return {module,title:typeof saved?.title==="string"&&saved.title.trim()?saved.title.trim():module.name,
-      sort_order:Number(saved?.sort_order)||Number(module.sort_order)||((index+1)*10),
-      visibility_roles:Array.isArray(saved?.visibility_roles)?saved.visibility_roles:["owner","visitor"]};
-  }).filter(item=>item.visibility_roles.includes("visitor"))
-    .sort((left,right)=>left.sort_order-right.sort_order);
-  for(const config of configured){
-    const module=config.module;
-    try{
-      const {data,error}=await supabase.from("content_items").select("id,title,slug,status,visibility_roles,field_values")
-        .eq("module_id",module.id).in("status",["active","published"]).order("sort_order").order("created_at",{ascending:false}).limit(200);
-      if(error)continue;
-      const records=(data||[]).filter(record=>(record.visibility_roles||[]).includes("visitor"))
-        .filter(record=>String(record.title||"").trim())
-        .filter(record=>!regionLinkedIds.has(record.id)||!regionAllowedIds||regionAllowedIds.has(record.id));
-      if(!records.length)continue;
-      const section=document.createElement("section");section.className="home-catalog-section";
-      const heading=document.createElement("div");heading.className="home-section-heading";
-      const h2=document.createElement("h2");h2.textContent=config.title;
-      heading.append(h2);section.append(heading);
-      const grid=document.createElement("div");grid.className="home-card-grid";
-      records.slice(0,3).forEach(record=>grid.append(renderHomeCard(module,record,()=>openHomeDetail(module,record))));
-      if(records.length>3){
-        const more=document.createElement("button");more.type="button";more.className="home-content-card home-view-all-card";
-        more.textContent="View All";more.setAttribute("aria-label","View all "+config.title);
-        more.addEventListener("click",()=>renderHomeList(module,records,config.title));grid.append(more);
-      }
-      section.append(grid);area.append(section);
-    }catch(error){console.error("Could not load homepage module.",module.module_key,error);}
-  }
-  area.hidden=area.childElementCount===0;
-}
-
 async function applyPublicSiteSettings() {
   const [{data:profileData},{data:websiteData},{data:introData},{data:navigationData}] = await Promise.all([
     supabase.from("Settings").select("setting_value,visibility_roles").eq("setting_key","site_profile").maybeSingle(),
