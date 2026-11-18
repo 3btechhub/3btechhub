@@ -48,7 +48,7 @@ export function initExtendedDashboard(supabase,role){
  const usersSearch=document.getElementById("users-search");
  function renderUsers(){
   if(!ul)return;
-  ul.replaceChildren();checks(uro,roleOptions());
+  ul.replaceChildren();
   const term=(usersSearch?.value||"").trim().toLowerCase();
   const filtered=users.filter(user=>[user.full_name,user.email,...(user.roles||[])].some(value=>String(value||"").toLowerCase().includes(term)));
   for(const user of filtered)tap(ul,(user.full_name||user.email)+" · "+user.email,()=>{
@@ -66,7 +66,7 @@ export function initExtendedDashboard(supabase,role){
   });
   if(!filtered.length)ul.append(el("p","muted","No records found."));
  }
- async function loadUsers(){if(!ul)return;await loadLookups();renderUsers();}
+ async function loadUsers(){if(!ul)return;await loadLookups();checks(uro,roleOptions());checks(upo,permissionOptions());renderUsers();}
  usersSearch?.addEventListener("input",renderUsers);
  function resetUsers(){
   reset(uf,"users-form-title","Add user",()=>{
@@ -124,13 +124,13 @@ export function initExtendedDashboard(supabase,role){
  const rolesSearch=document.getElementById("roles-search");
  function renderRoles(){
   if(!rl)return;
-  checks(rpo,permissionOptions());checks(ruo,userOptions());rl.replaceChildren();
+  rl.replaceChildren();
   const term=(rolesSearch?.value||"").trim().toLowerCase();
   const filtered=roles.filter(item=>[item.name,item.slug,item.description].some(value=>String(value||"").toLowerCase().includes(term)));
   for(const item of filtered)tap(rl,item.name,async()=>{rf.dataset.editId=item.id;rf.elements.title.value=item.name||"";rf.elements.slug.value=item.slug||"";rf.elements.type.value=item.is_system?"system":"custom";rf.elements.description.value=item.description||"";rf.elements.visibility.value=item.is_active?"show":"hide";rf.elements.slug.readOnly=Boolean(item.is_system);rf.elements.type.disabled=Boolean(item.is_system);rf.elements.visibility.disabled=item.slug==="owner";const [permissionResult,userRoleResult]=await Promise.all([supabase.from("role_permissions").select("permission_id").eq("role_id",item.id),supabase.from("user_roles").select("user_id").eq("role",item.slug)]);if(permissionResult.error)throw permissionResult.error;if(userRoleResult.error)throw userRoleResult.error;checks(rpo,permissionOptions(),(permissionResult.data||[]).map(row=>row.permission_id));checks(ruo,userOptions(),(userRoleResult.data||[]).map(row=>row.user_id));document.getElementById("roles-form-title").textContent="Edit role";document.getElementById("roles-cancel").hidden=false;document.getElementById("roles-delete").hidden=Boolean(item.is_system);document.getElementById("roles-submit").disabled=item.slug==="owner";rf.scrollIntoView({behavior:"smooth",block:"start"});});
   if(!filtered.length)rl.append(el("p","muted","No records found."));
  }
- async function loadRoles(){if(!rl)return;await loadLookups();renderRoles();}
+ async function loadRoles(){if(!rl)return;await loadLookups();checks(rpo,permissionOptions());checks(ruo,userOptions());renderRoles();}
  rolesSearch?.addEventListener("input",renderRoles);
  function resetRoles(){reset(rf,"roles-form-title","Add role",()=>{document.getElementById("roles-cancel").hidden=true;document.getElementById("roles-delete").hidden=true;document.getElementById("roles-submit").disabled=false;rf.elements.type.value="custom";rf.elements.visibility.value="show";rf.elements.slug.readOnly=false;rf.elements.type.disabled=false;rf.elements.visibility.disabled=false;checks(rpo,permissionOptions());checks(ruo,userOptions());});}
  rf?.addEventListener("submit",async event=>{event.preventDefault();const button=document.getElementById("roles-submit");button.disabled=true;say("roles-message","Saving…");try{const title=rf.elements.title.value.trim(),id=rf.dataset.editId,permissionIds=checked(rpo),selectedUsers=new Set(checked(ruo)),description=rf.elements.description.value.trim(),requestedSlug=slug(rf.elements.slug.value||title),visible=rf.elements.visibility.value==="show";if(!title)throw new Error("Name is required.");if(!requestedSlug)throw new Error("Slug is required.");let roleId=id,roleSlug;if(id){const existing=roles.find(item=>item.id===id);if(!existing)throw new Error("Role not found.");if(existing.is_system&&requestedSlug!==existing.slug)throw new Error("System role slugs are protected.");roleSlug=existing.slug;const payload={name:title,description,is_active:existing.slug==="owner"?existing.is_active:visible,slug:existing.is_system?existing.slug:requestedSlug};const {error}=await supabase.from("Roles").update(payload).eq("id",id);if(error)throw error;}else{if(rf.elements.type.value==="system")throw new Error("New roles must be Custom.");roleSlug=requestedSlug;const {data,error}=await supabase.from("Roles").insert({name:title,slug:roleSlug,description,is_active:visible,is_system:false}).select("id").single();if(error)throw error;roleId=data.id;}
@@ -148,13 +148,13 @@ export function initExtendedDashboard(supabase,role){
 const permissionsSearch=document.getElementById("permissions-search");
 function renderPermissions(){
  if(!pl)return;
- checks(puo,userOptions());checks(pro,roleOptions());pl.replaceChildren();
+ pl.replaceChildren();
  const term=(permissionsSearch?.value||"").trim().toLowerCase();
  const filtered=permissions.filter(item=>[item.name,item.permission_key,item.action,item.description].some(value=>String(value||"").toLowerCase().includes(term)));
  for(const item of filtered)tap(pl,item.name,async()=>{pf.dataset.editId=item.id;pf.elements.title.value=item.name||"";pf.elements.slug.value=item.permission_key||"";setPermissionType(item.action||"read");pf.elements.description.value=item.description||"";pf.elements.visibility.value=item.is_active?"show":"hide";const [roleResult,userResult]=await Promise.all([supabase.from("role_permissions").select("role_id").eq("permission_id",item.id),supabase.from("user_permissions").select("user_id").eq("permission_id",item.id)]);if(roleResult.error)throw roleResult.error;if(userResult.error)throw userResult.error;const roleIds=new Set((roleResult.data||[]).map(row=>row.role_id));checks(pro,roles.filter(role=>role.slug!=="owner").map(role=>({value:role.id,label:role.name})),[...roleIds]);checks(puo,userOptions(),(userResult.data||[]).map(row=>row.user_id));document.getElementById("permission-form-title").textContent="Edit permission";document.getElementById("permission-cancel").hidden=false;document.getElementById("permission-delete").hidden=false;pf.scrollIntoView({behavior:"smooth",block:"start"});});
  if(!filtered.length)pl.append(el("p","muted","No records found."));
 }
-async function loadPermissions(){if(!pl)return;await loadLookups();renderPermissions();}
+async function loadPermissions(){if(!pl)return;await loadLookups();checks(puo,userOptions());checks(pro,roleOptions());renderPermissions();}
 permissionsSearch?.addEventListener("input",renderPermissions);
  function resetPermission(){reset(pf,"permission-form-title","Add permission",()=>{document.getElementById("permission-cancel").hidden=true;document.getElementById("permission-delete").hidden=true;setPermissionType("read");pf.elements.visibility.value="show";checks(puo,userOptions());checks(pro,roleOptions());});}
  pf?.addEventListener("submit",async event=>{event.preventDefault();const button=document.getElementById("permission-submit");button.disabled=true;say("permission-message","Saving…");try{const title=pf.elements.title.value.trim(),id=pf.dataset.editId,selectedUsers=new Set(checked(puo)),selectedRoleIds=checked(pro),permissionKey=pf.elements.slug.value.trim(),action=pf.elements.type.value,description=pf.elements.description.value.trim(),isActive=pf.elements.visibility.value==="show";if(!title||!permissionKey)throw new Error("Name and Slug are required.");let permissionId=id;if(id){const existing=permissions.find(item=>item.id===id);if(!existing)throw new Error("Permission not found.");const {error}=await supabase.from("permissions").update({name:title,permission_key:permissionKey,action,description,is_active:isActive}).eq("id",id);if(error)throw error;}else{const {data,error}=await supabase.from("permissions").insert({name:title,permission_key:permissionKey,resource:"content",action,description,is_active:isActive}).select("id").single();if(error)throw error;permissionId=data.id;}
