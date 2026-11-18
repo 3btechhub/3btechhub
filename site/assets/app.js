@@ -387,6 +387,12 @@ async function applyPublicSiteSettings() {
   window.dispatchEvent(new CustomEvent("site-brand-settings-updated",{detail:{logoUrl:settings.logo_url||"",title:websiteTitle,navigationMenu:settings.navigation_menu||{}}}));
 }
 
+// Load the configured Website Logo, Website Title and Favicon on every page load.
+window.__applyPublicSiteSettings = applyPublicSiteSettings;
+void applyPublicSiteSettings().catch(error => {
+  console.error("Could not load website identity settings.", error);
+});
+
 if (logoutMenuLink) logoutMenuLink.addEventListener("click", async () => {
   logoutMenuLink.disabled = true;
   const { error } = await supabase.auth.signOut();
