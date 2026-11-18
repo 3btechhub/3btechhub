@@ -1850,3 +1850,30 @@ textarea{min-height:calc(var(--control-height) * 2)}
 .inline-dropdown-option{width:100%;min-height:38px;padding:8px 10px;border:0;border-radius:6px;background:transparent;color:var(--page-text);text-align:start;cursor:pointer}
 .inline-dropdown-option[aria-selected="true"],.inline-dropdown-option:hover{background:var(--hover)}
 .inline-dropdown-option:disabled{opacity:.5;cursor:not-allowed}
+
+
+/* Notion: floating navigation menu follows the global LTR/RTL direction. */
+.menu-trigger{
+  position:fixed;
+  inset-inline-end:18px;
+  inset-inline-start:auto;
+  top:auto;
+  bottom:18px;
+  z-index:1200;
+  width:52px;
+  height:52px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:var(--surface);
+  box-shadow:0 4px 18px #00000018;
+}
+.site-menu{
+  position:fixed;
+  inset-inline-end:18px;
+  inset-inline-start:auto;
+  top:auto;
+  bottom:82px;
+  z-index:1199;
+  max-height:calc(100dvh - 110px);
+  overflow-y:auto;
+}
