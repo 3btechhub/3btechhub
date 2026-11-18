@@ -1,4 +1,4 @@
-import { initExtendedDashboard } from "./admin-extended.js?v=notion-20261118-4";
+import { initExtendedDashboard } from "./admin-extended.js?v=notion-20261118-5";
 const $=(s,r=document)=>r.querySelector(s), el=(t,c="",v)=>{const n=document.createElement(t);if(c)n.className=c;if(v!==undefined)n.textContent=String(v);return n;};
 const slug=v=>String(v||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const say=(n,t,k="")=>{n.textContent=t;n.dataset.kind=k;};
@@ -40,7 +40,33 @@ export async function initDynamicDashboard(supabase,root,user){
  async function relation(){
   const p=start("relation","Relation"),f=el("form","content-editor-form");f.innerHTML='<h3>Create Relation</h3><div class="module-form-grid"><label class="module-form-field"><span>Source Type</span><select name="st"><option>Info</option><option>Media</option></select></label><label class="module-form-field"><span>Source Name</span><select name="si"></select></label><label class="module-form-field"><span>Target Type</span><select name="tt"><option>Info</option><option>Media</option></select></label><label class="module-form-field"><span>Target Name</span><select name="ti"></select></label></div><div class="editor-actions"><button type="submit">Save Relation</button><button type="button" class="secondary-button" data-cancel>Cancel</button></div><p class="editor-message"></p>';const st=f.elements.st,si=f.elements.si,tt=f.elements.tt,ti=f.elements.ti;async function fill(t,s){s.replaceChildren(new Option("Select Name",""));(await get(t.value)).filter(r=>r.visibility!=="hide").forEach(r=>s.append(new Option(r.name,r.id)));}st.onchange=()=>fill(st,si);tt.onchange=()=>fill(tt,ti);await Promise.all([fill(st,si),fill(tt,ti)]);const search=el("input");search.type="search";search.placeholder="Search existing relations";const toolbar=el("div","dashboard-toolbar");toolbar.append(search);const list=el("div","dashboard-relation-list");p.append(f,toolbar,list);let rows=[];async function load(){const {data,error}=await supabase.from("Relation").select("*").order("sort_order");if(error)throw error;rows=data||[];const ids=[...new Set(rows.flatMap(r=>[r.source_id,r.target_id]))];const [a,b]=await Promise.all([supabase.from("Info").select("id,name,type").in("id",ids),supabase.from("Media").select("id,name,type").in("id",ids)]);const map=new Map([...(a.data||[]),...(b.data||[])].map(r=>[r.id,r]));list.replaceChildren();const term=search.value.toLowerCase();rows.filter(r=>[map.get(r.source_id)?.name,map.get(r.target_id)?.name,map.get(r.source_id)?.type,map.get(r.target_id)?.type].some(v=>String(v||"").toLowerCase().includes(term))).forEach(r=>{const row=el("div","dashboard-record-row");row.append(el("strong","",map.get(r.source_id)?.name||"Missing"),el("small","",r.source_type+" → "+r.target_type+" → "+(map.get(r.target_id)?.name||"Missing")));const d=el("button","secondary-button","Delete");d.onclick=async()=>{const {error}=await supabase.from("Relation").delete().eq("id",r.id);if(error)alert(error.message);else load();};row.append(d);row.addEventListener("click",async e=>{if(e.target===d)return;st.value=r.source_type;tt.value=r.target_type;await Promise.all([fill(st,si),fill(tt,ti)]);si.value=r.source_id;ti.value=r.target_id;f.dataset.id=r.id;$("h3",f).textContent="Edit Relation";f.querySelector("[type=submit]").textContent="Update Relation";});sortable(row,r.id,rows,"Relation",load);list.append(row);});if(!list.childElementCount)list.append(el("p","muted","No relations found."));}search.oninput=load;f.onsubmit=async e=>{e.preventDefault();if(!si.value||!ti.value||si.value===ti.value){say($(".editor-message",f),"Select two different existing items.","error");return;}const payload={source_type:st.value,source_id:si.value,target_type:tt.value,target_id:ti.value,sort_order:(rows.length+1)*10};const result=f.dataset.id?await supabase.from("Relation").update(payload).eq("id",f.dataset.id):await supabase.from("Relation").upsert(payload,{onConflict:"source_type,source_id,target_type,target_id"});const error=result.error;say($(".editor-message",f),error?.message||"Saved.",error?"error":"success");if(!error){f.reset();delete f.dataset.id;$("h3",f).textContent="Create Relation";f.querySelector("[type=submit]").textContent="Save Relation";load();}};f.querySelector("[data-cancel]").onclick=()=>{f.reset();delete f.dataset.id;$("h3",f).textContent="Create Relation";f.querySelector("[type=submit]").textContent="Save Relation";};await load();
  }
- async function overview(){const p=start("overview","Overview"),grid=el("div","dashboard-overview-grid");p.append(grid);for(const [label,table] of [["Info","Info"],["Media","Media"],["User","Users"],["Role","Roles"],["Permission","permissions"]]){const {count,error}=await supabase.from(table).select("id",{count:"exact",head:true});const c=el("div","dashboard-overview-card");c.append(el("span","",label),el("strong","",error?"—":count??0));grid.append(c);}for(const title of ["Activities List","Health Status"]){const s=el("section","dashboard-activity-panel");s.append(el("h3","",title));if(title==="Health Status"){const {error}=await supabase.from("Info").select("id",{head:true,count:"exact"});s.append(el("p","",error?"Database unavailable":"Database connected"));}else{const [a,b]=await Promise.all([supabase.from("Info").select("name,updated_at").order("updated_at",{ascending:false}).limit(5),supabase.from("Media").select("name,updated_at").order("updated_at",{ascending:false}).limit(5)]);[...(a.data||[]).map(x=>({...x,t:"Info"})),...(b.data||[]).map(x=>({...x,t:"Media"}))].sort((x,y)=>String(y.updated_at).localeCompare(String(x.updated_at))).slice(0,8).forEach(x=>s.append(el("p","",x.t+" · "+x.name)));}p.append(s);}}
+ async function overview(){
+  const p=start("overview","Overview"),grid=el("div","dashboard-overview-grid");
+  p.append(grid);
+  const summary=[["Info","Info"],["Media","Media"],["User","Users"],["Role","Roles"],["Permission","permissions"]];
+  const cards=summary.map(([label])=>{
+   const card=el("div","dashboard-overview-card"),value=el("strong","skeleton dashboard-skeleton-value"," ");
+   card.append(el("span","",label),value);grid.append(card);return value;
+  });
+  const counts=await Promise.all(summary.map(([,table])=>supabase.from(table).select("id",{count:"exact",head:true})));
+  counts.forEach((result,index)=>{cards[index].classList.remove("skeleton","dashboard-skeleton-value");cards[index].textContent=result.error?"—":String(result.count??0);});
+  const activity=el("section","dashboard-activity-panel");activity.append(el("h3","","Activities List"));
+  const activitySkeleton=el("p","skeleton dashboard-skeleton-line"," ");activitySkeleton.setAttribute("aria-hidden","true");activity.append(activitySkeleton);p.append(activity);
+  const health=el("section","dashboard-activity-panel");health.append(el("h3","","Health Status"));
+  const healthSkeleton=el("p","skeleton dashboard-skeleton-line"," ");healthSkeleton.setAttribute("aria-hidden","true");health.append(healthSkeleton);p.append(health);
+  const [a,b,db]=await Promise.all([
+   supabase.from("Info").select("name,updated_at").order("updated_at",{ascending:false}).limit(5),
+   supabase.from("Media").select("name,updated_at").order("updated_at",{ascending:false}).limit(5),
+   supabase.from("Info").select("id",{head:true,count:"exact"})
+  ]);
+  activity.replaceChildren(el("h3","","Activities List"));
+  const records=[...(a.data||[]).map(x=>({...x,t:"Info"})),...(b.data||[]).map(x=>({...x,t:"Media"}))]
+   .sort((x,y)=>String(y.updated_at).localeCompare(String(x.updated_at))).slice(0,8);
+  if(records.length)records.forEach(x=>activity.append(el("p","",x.t+" · "+x.name)));
+  else activity.append(el("p","muted","No activity available."));
+  health.replaceChildren(el("h3","","Health Status"));
+  health.append(el("p",db.error?"health-error":"health-ok",db.error?"Database unavailable":"Database connected"));
+ }
  async function preference(){
   const p=start("preference","Preference");
   const [{data:runtimeRow,error:runtimeError},{data:optionsRow,error:optionsError}]=await Promise.all([
