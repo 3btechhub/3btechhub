@@ -1469,3 +1469,116 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media(prefers-reduced-motion:reduce){
   :root[data-ui-style="float"] *{transition:none!important;transform:none!important}
 }
+
+
+/* Unified premium card system — Home, catalogue, details and Dashboard. */
+:root{
+  --data-card-radius:16px;
+  --data-card-shadow:0 5px 18px rgba(0,0,0,.065),0 1px 3px rgba(0,0,0,.035);
+  --data-card-shadow-hover:0 12px 28px rgba(0,0,0,.105),0 3px 8px rgba(0,0,0,.045);
+}
+.home-content-card,
+.home-taxonomy-card,
+.home-content-more-card,
+.dashboard-card,
+.dashboard-function-card,
+.dashboard-summary-card,
+.dashboard-overview-card,
+.dashboard-record-row,
+.dashboard-relation-row,
+.module-record-row{
+  border:1px solid color-mix(in srgb,var(--line) 82%,transparent);
+  border-radius:var(--data-card-radius);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 97%,white),var(--surface));
+  box-shadow:var(--data-card-shadow);
+  transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease,background .2s ease;
+}
+.home-content-card,
+.home-taxonomy-card,
+.home-content-more-card,
+.dashboard-function-card,
+.dashboard-summary-card,
+.dashboard-overview-card{
+  overflow:hidden;
+}
+.home-content-visual{
+  border-radius:12px;
+  background:color-mix(in srgb,var(--hover) 82%,var(--surface));
+}
+.home-content-card-body h3,
+.home-taxonomy-card strong,
+.dashboard-function-card h2{
+  letter-spacing:-.015em;
+}
+.dashboard-record-row,
+.dashboard-relation-row{
+  padding:14px;
+}
+.dashboard-card{padding:18px}
+.dashboard-summary-card,
+.dashboard-overview-card{padding:18px}
+.dashboard-function-card{padding:16px}
+@media(hover:hover) and (pointer:fine){
+  .home-content-card:hover,
+  .home-taxonomy-card:hover,
+  .home-content-more-card:hover,
+  .dashboard-card:hover,
+  .dashboard-function-card:hover,
+  .dashboard-summary-card:hover,
+  .dashboard-overview-card:hover,
+  .dashboard-record-row:hover,
+  .dashboard-relation-row:hover,
+  .module-record-row:hover{
+    transform:translateY(-3px);
+    border-color:color-mix(in srgb,var(--page-text) 22%,var(--line));
+    box-shadow:var(--data-card-shadow-hover);
+  }
+}
+.home-content-card:focus-visible,
+.home-taxonomy-card:focus-visible,
+.home-content-more-card:focus-visible,
+.dashboard-summary-card:focus-visible,
+.dashboard-overview-card:focus-visible,
+.dashboard-record-row:focus-visible,
+.module-record-row:focus-visible{
+  outline:2px solid var(--page-text);
+  outline-offset:3px;
+}
+:root[data-ui-style="shadow"] .home-content-card,
+:root[data-ui-style="shadow"] .home-taxonomy-card,
+:root[data-ui-style="shadow"] .home-content-more-card,
+:root[data-ui-style="shadow"] .dashboard-summary-card,
+:root[data-ui-style="shadow"] .dashboard-overview-card,
+:root[data-ui-style="shadow"] .dashboard-function-card,
+:root[data-ui-style="shadow"] .dashboard-record-row,
+:root[data-ui-style="shadow"] .dashboard-relation-row,
+:root[data-ui-style="shadow"] .module-record-row{
+  box-shadow:var(--data-card-shadow-hover);
+}
+:root[data-ui-style="water-drop"] .home-content-card,
+:root[data-ui-style="water-drop"] .home-taxonomy-card,
+:root[data-ui-style="water-drop"] .home-content-more-card,
+:root[data-ui-style="water-drop"] .dashboard-summary-card,
+:root[data-ui-style="water-drop"] .dashboard-overview-card,
+:root[data-ui-style="water-drop"] .dashboard-function-card,
+:root[data-ui-style="water-drop"] .dashboard-record-row,
+:root[data-ui-style="water-drop"] .dashboard-relation-row,
+:root[data-ui-style="water-drop"] .module-record-row{
+  border-radius:18px;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 94%,white),var(--surface));
+  box-shadow:8px 8px 20px rgba(0,0,0,.075),-5px -5px 16px rgba(255,255,255,.38),inset 1px 1px 2px rgba(255,255,255,.55);
+}
+@media(max-width:600px){
+  .home-content-card,
+  .home-taxonomy-card,
+  .home-content-more-card,
+  .dashboard-summary-card,
+  .dashboard-overview-card{border-radius:14px}
+  .dashboard-card{padding:15px}
+}
+@media(prefers-reduced-motion:reduce){
+  .home-content-card,.home-taxonomy-card,.home-content-more-card,
+  .dashboard-card,.dashboard-function-card,.dashboard-summary-card,
+  .dashboard-overview-card,.dashboard-record-row,.dashboard-relation-row,
+  .module-record-row{transition:none}
+}
