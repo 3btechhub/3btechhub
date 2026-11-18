@@ -200,7 +200,8 @@ applyRuntimeConfig(runtimeConfig, document.documentElement.dataset.theme);
 const homeDetailStack=[];
 let homeListState=null;
 let homeInfoRows=[];
-let homeMediaRows=[];\nlet homeMediaByInfo=new Map();
+let homeMediaRows=[];
+let homeMediaByInfo=new Map();
 function hasValue(v){return v!==null&&v!==undefined&&v!==""&&(!Array.isArray(v)||v.length>0);}
 function titleCase(v){return String(v||"").replace(/_/g," ").replace(/\b\w/g,c=>c.toUpperCase());}
 function makeHomeCard(title,subtitle,onClick,imageUrl=""){
@@ -224,7 +225,7 @@ async function renderHomeList(){
  const h=document.createElement("h1");h.textContent=type;header.append(back,h);view.append(header);
  const grid=document.createElement("div");grid.className="home-list-grid";
  homeInfoRows.filter(r=>(r.type||"General")===type).forEach(r=>{
-  const data=r.data||{},media=homeMediaRows.find(m=>m.id===r.id);
+  const data=r.data||{},media=homeMediaRows.find(m=>(homeMediaByInfo.get(r.id)||[]).includes(m.id));
   const image=media?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
   grid.append(makeHomeCard(r.name,r.description,()=>openHomeDetail(r),image));
  });
@@ -240,8 +241,7 @@ async function renderHomeDetail(){
  const related=(links||[]).map(x=>({type:x.source_id===record.id?x.target_type:x.source_type,id:x.source_id===record.id?x.target_id:x.source_id}));
  const mediaLinks=related.filter(x=>x.type==="Media"),relatedInfo=related.filter(x=>x.type==="Info");
  const mediaFromRelation=homeMediaRows.find(m=>mediaLinks.some(x=>x.id===m.id));
- const data=record.data||{},fallbackMedia=homeMediaRows.find(m=>m.id===record.id);
- const imageUrl=mediaFromRelation?.image_url||fallbackMedia?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
+ const data=record.data||{},imageUrl=mediaFromRelation?.image_url||data.photo_url||(Array.isArray(data.gallery_urls)?data.gallery_urls[0]:"");
  const visual=document.createElement("div");visual.className="home-detail-visual";
  if(imageUrl){const img=document.createElement("img");img.className="home-detail-image";img.src=imageUrl;img.alt=record.name||"";visual.append(img);}
  else visual.append(getItemFallbackIcon(record.name||record.type,"info"));
@@ -271,13 +271,19 @@ async function renderHomeDetail(){
 async function loadHomeCatalog(){
  const area=document.getElementById("home-module-area");if(!area)return;
  homeDetailStack.length=0;homeListState=null;area.replaceChildren();area.hidden=true;
- const [infoResult,mediaResult]=await Promise.all([
+ const [infoResult,mediaResult,relationResult]=await Promise.all([
   supabase.from("Info").select("id,name,type,slug,description,visibility_roles,sort_order,data,status").in("status",["active","published"]).order("sort_order").order("name").limit(1000),
-  supabase.from("Media").select("id,name,type,slug,description,image_path,image_url,visibility_roles,sort_order,status").in("status",["active","published"]).order("sort_order").limit(1000)
+  supabase.from("Media").select("id,name,type,slug,description,image_path,image_url,visibility_roles,sort_order,status").in("status",["active","published"]).order("sort_order").limit(1000),
+  supabase.from("Relation").select("source_type,source_id,target_type,target_id")
  ]);
- if(infoResult.error||mediaResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error);return;}
- homeInfoRows=(infoResult.data||[]).filter(r=>(r.visibility_roles||[]).includes("visitor")||currentUserRole==="owner"||currentUserRole==="admin");
- homeMediaRows=(mediaResult.data||[]).filter(r=>(r.visibility_roles||[]).includes("visitor")||currentUserRole==="owner"||currentUserRole==="admin");
+ if(infoResult.error||mediaResult.error||relationResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error||relationResult.error);return;}
+ homeInfoRows=infoResult.data||[];
+ homeMediaRows=mediaResult.data||[];
+ homeMediaByInfo=new Map();
+ for(const rel of relationResult.data||[]){
+  if(rel.source_type==="Info"&&rel.target_type==="Media"){const ids=homeMediaByInfo.get(rel.source_id)||[];ids.push(rel.target_id);homeMediaByInfo.set(rel.source_id,ids);}
+  else if(rel.source_type==="Media"&&rel.target_type==="Info"){const ids=homeMediaByInfo.get(rel.target_id)||[];ids.push(rel.source_id);homeMediaByInfo.set(rel.target_id,ids);}
+ }
  const grouped=new Map();
  for(const row of homeInfoRows){const type=String(row.type||"General").trim()||"General";if(!grouped.has(type))grouped.set(type,[]);grouped.get(type).push(row);}
  const grid=document.createElement("div");grid.className="home-card-grid";
