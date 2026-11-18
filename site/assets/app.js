@@ -708,6 +708,8 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
       return;
     }
     currentUser = data.user;
+    const primaryOwner=currentUser.email?.toLowerCase()==="3btechhub@gmail.com";
+    if(primaryOwner)profile.querySelectorAll('[data-edit-field="name"],[data-edit-field="email"]').forEach(button=>{button.hidden=true;button.disabled=true;});
     const name = currentUser.user_metadata?.display_name || currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || "";
     setProfileValue("name", name, "Name");
     setProfileValue("email", currentUser.email || "", "Email");
@@ -751,11 +753,15 @@ if (profile && ["profile","edit-profile"].includes(accountMode)) {
         throw new Error("To change password, enter current password, new password, and confirmation.");
       }
 
-      const { data: nameData, error: nameError } = await supabase.auth.updateUser({
-        data: { ...(currentUser.user_metadata || {}), display_name: name || null },
-      });
-      if (nameError) throw nameError;
-      currentUser = nameData.user;
+      const primaryOwner=currentUser.email?.toLowerCase()==="3btechhub@gmail.com";
+      if(primaryOwner&&(name!==(currentUser.user_metadata?.display_name||currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||"")||email!==currentUser.email))throw new Error("The primary Owner identity cannot be changed.");
+      if(!primaryOwner){
+        const { data: nameData, error: nameError } = await supabase.auth.updateUser({
+          data: { ...(currentUser.user_metadata || {}), display_name: name || null },
+        });
+        if (nameError) throw nameError;
+        currentUser = nameData.user;
+      }
 
       const { error: phoneError } = await supabase.from("Users").update(
         { phone: phone || null },
