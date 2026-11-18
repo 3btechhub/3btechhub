@@ -61,7 +61,7 @@ function queueDynamicTranslations(root,target){
   if(!value||value.length<2||value.length>240||new TextEncoder().encode(value).length>450||/^([\d\W_]+)$/.test(value)||!parent||value==="3B TECH HUB")continue;
   if(parent.closest("script,style,textarea,input,select,option,code,pre,svg,[contenteditable='true']"))continue;
   const source=translationSource(value);if(source===target)continue;
-  const map=target==="bn"?bnText:arText;if(map[value])continue;
+  const map=target==="bn"?bnText:target==="ar"?arText:{};if(map[value])continue;
   const key=target+"|"+source+"|"+value;if(translationCache.has(key))continue;
   const cached=localStorage.getItem("3b-translation:"+key);
   if(cached){translationCache.set(key,cached);node.nodeValue=raw.replace(value,cached);continue;}
