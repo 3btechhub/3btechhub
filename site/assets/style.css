@@ -1401,3 +1401,7 @@ textarea{min-height:calc(var(--control-height) * 2)}
 .dashboard-skeleton-line{height:14px;width:min(65%,280px);margin:12px 0}
 .home-empty-state{width:100%;padding:24px 12px;text-align:center;color:var(--muted);grid-column:1/-1}
 @media(prefers-reduced-motion:reduce){.skeleton{animation:none}}
+
+/* Navigation Menu opens from the logical inline edge in both writing directions. */
+.site-menu{transform-origin:bottom right}
+:dir(rtl) .site-menu{transform-origin:bottom left}
