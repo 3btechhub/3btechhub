@@ -3,7 +3,6 @@ import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-1
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js?v=notion-20261118-15";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
-const accountMenuLink = document.querySelector("#login-menu-link");
 const profileMenuLink = document.querySelector("#profile-menu-link");
 const dashboardMenuLink = document.querySelector("#dashboard-menu-link");
 const themeToggle = document.querySelector("#theme-toggle");
