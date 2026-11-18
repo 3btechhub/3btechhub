@@ -6,296 +6,94 @@
 <meta name="theme-color" content="#ffffff">
 <title>3B TECH HUB</title>
 <style>
-  :root {
-    color-scheme: light;
-    --white: #fff;
-    --black: #111;
-    --gray-50: #fafafa;
-    --gray-100: #f3f3f3;
-    --gray-200: #e7e7e7;
-    --gray-500: #777;
-    --radius-panel: 24px;
-    --radius-control: 999px;
-    --shadow-soft: 0 12px 34px rgb(17 17 17 / 8%);
-    --shadow-float: 0 10px 28px rgb(17 17 17 / 18%);
-    --font-normal: 1rem;
-    --font-heading: clamp(1.5rem, 5vw, 2rem);
-    --space-page: 24px;
-    font-family: Arial, sans-serif;
-    font-size: var(--font-normal);
-    background: var(--white);
-    color: var(--black);
-  }
-
-  * { box-sizing: border-box; }
-
-  body {
-    min-width: 280px;
-    min-height: 100vh;
-    margin: 0;
-    background:
-      radial-gradient(ellipse at 50% -12%, #f1f1f1 0, transparent 48%),
-      var(--white);
-  }
-
-  main {
-    width: 100%;
-    min-height: 100vh;
-    padding: var(--space-page) 16px 104px;
-  }
-
-  .page { display: none; }
-  .page.is-active { display: block; }
-
-  h1, .page-title {
-    margin: 0;
-    text-align: center;
-    font-size: var(--font-heading);
-    line-height: 1.25;
-    font-weight: 700;
-  }
-
-  .module-shell {
-    width: 100%;
-    max-width: 720px;
-    min-height: 150px;
-    margin: 28px auto 0;
-    padding: 22px;
-    overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 96%);
-    border-radius: var(--radius-panel);
-    background:
-      radial-gradient(ellipse at 18% 0%, rgb(255 255 255 / 100%), transparent 58%),
-      radial-gradient(ellipse at 100% 100%, rgb(225 225 225 / 30%), transparent 52%),
-      linear-gradient(145deg, #fff 8%, #f7f7f7 58%, #eeeeee 100%);
-    box-shadow: var(--shadow-soft), inset 0 1px 0 #fff, inset 0 -1px 0 rgb(255 255 255 / 70%);
-  }
-
-  .module-title {
-    margin: 0;
-    font-size: var(--font-heading);
-    line-height: 1.25;
-    font-weight: 700;
-  }
-
-  .module-fields {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    margin-top: 22px;
-  }
-
-  .field-item {
-    min-width: 0;
-    padding: 12px;
-    border: 1px solid rgb(255 255 255 / 96%);
-    border-radius: 16px;
-    background: linear-gradient(145deg, rgb(255 255 255 / 96%), rgb(242 242 242 / 90%));
-    box-shadow: 0 4px 14px rgb(17 17 17 / 5%), inset 0 1px 0 #fff;
-    font-size: var(--font-normal);
-    overflow-wrap: anywhere;
-  }
-
-  .field-label {
-    display: block;
-    color: var(--gray-500);
-    font-size: .78rem;
-    margin-bottom: 5px;
-  }
-
-  .field-value {
-    display: block;
-    font-weight: 600;
-  }
-
-  .empty-state {
-    margin: 18px 0 0;
-    color: var(--gray-500);
-    font-size: var(--font-normal);
-  }
-
-  .menu-panel {
-    position: fixed;
-    right: 20px;
-    bottom: 88px;
-    z-index: 9;
-    display: grid;
-    min-width: 180px;
-    gap: 4px;
-    padding: 8px;
-    border: 1px solid rgb(255 255 255 / 96%);
-    border-radius: var(--radius-panel);
-    background:
-      radial-gradient(ellipse at 18% 0%, rgb(255 255 255 / 100%), transparent 58%),
-      linear-gradient(145deg, rgb(255 255 255 / 98%), rgb(242 242 242 / 96%));
-    box-shadow: var(--shadow-soft), inset 0 1px 0 #fff;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-  }
-
-  .menu-panel[hidden] { display: none; }
-
-  .menu-link {
-    display: block;
-    padding: 12px 14px;
-    border-radius: 14px;
-    color: inherit;
-    font-size: var(--font-normal);
-    text-decoration: none;
-  }
-
-  .menu-link:hover,
-  .menu-link:focus-visible,
-  .menu-link[aria-current="page"] {
-    background: var(--gray-100);
-    outline: none;
-  }
-
-  .menu-toggle {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    z-index: 10;
-    display: grid;
-    width: 56px;
-    height: 56px;
-    place-items: center;
-    padding: 0;
-    border: 1px solid rgb(255 255 255 / 48%);
-    border-radius: var(--radius-control);
-    background:
-      radial-gradient(ellipse at 28% 10%, rgb(255 255 255 / 36%), transparent 44%),
-      linear-gradient(145deg, #333, var(--black) 72%);
-    color: var(--white);
-    cursor: pointer;
-    box-shadow: var(--shadow-float), inset 0 1px 1px rgb(255 255 255 / 28%), inset 0 -2px 4px rgb(0 0 0 / 28%);
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .menu-toggle:focus-visible {
-    outline: 3px solid var(--gray-500);
-    outline-offset: 4px;
-  }
-
-  .menu-toggle svg {
-    width: 24px;
-    height: 24px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2;
-    stroke-linecap: round;
-  }
-
-  .menu-toggle .close-icon { display: none; }
-  .menu-toggle[aria-expanded="true"] .menu-icon { display: none; }
-  .menu-toggle[aria-expanded="true"] .close-icon { display: block; }
-
-  @media (max-width: 420px) {
-    .module-shell { padding: 18px; }
-    .module-fields { gap: 7px; }
-    .field-item { padding: 10px 8px; }
-  }
-
-  @media (prefers-reduced-motion: no-preference) {
-    .menu-toggle {
-      transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
-    }
-    .menu-toggle:hover { filter: brightness(1.08); }
-    .menu-toggle:active { transform: scale(.94); }
-    .menu-panel { animation: menu-appear 150ms ease-out; }
-    @keyframes menu-appear {
-      from { opacity: 0; transform: translateY(6px) scale(.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-  }
+:root {
+  color-scheme: light;
+  --white:#fff; --black:#111; --gray-50:#fafafa; --gray-100:#f2f2f2;
+  --gray-200:#e5e5e5; --gray-500:#777; --gray-700:#444;
+  --radius-card:26px; --radius-control:18px; --radius-pill:999px;
+  --shadow-soft:0 14px 38px rgb(17 17 17 / 8%);
+  --shadow-float:0 12px 30px rgb(17 17 17 / 20%);
+  --font-normal:1rem; --font-heading:clamp(1.55rem,5vw,2rem);
+  --space-page:24px; font-family:Arial,sans-serif; font-size:var(--font-normal);
+  background:var(--white); color:var(--black);
+}
+*{box-sizing:border-box}
+body{min-width:280px;min-height:100vh;margin:0;background:radial-gradient(ellipse at 50% -12%,#eee 0,transparent 48%),var(--white)}
+main{width:100%;min-height:100vh;padding:28px 16px 108px}
+.site-title{margin:0 auto 30px;text-align:center;font-size:var(--font-heading);line-height:1.25;font-weight:700}
+.page{display:none}.page.is-active{display:block}
+.page-title{margin:0;text-align:center;font-size:var(--font-heading);line-height:1.25}
+.module-shell{width:100%;max-width:720px;margin:28px auto 0;padding:22px;overflow:hidden;border:1px solid #fff;border-radius:var(--radius-card);background:radial-gradient(ellipse at 16% 0%,#fff,transparent 58%),radial-gradient(ellipse at 100% 100%,rgb(220 220 220 / 35%),transparent 54%),linear-gradient(145deg,#fff 8%,#f7f7f7 58%,#ededed 100%);box-shadow:var(--shadow-soft),inset 0 1px 0 #fff,inset 0 -1px 0 rgb(255 255 255 / 70%)}
+.module-title{margin:0 0 20px;font-size:var(--font-heading);line-height:1.25}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-field{display:grid;gap:7px;min-width:0}
+.form-field.full{grid-column:1/-1}
+.form-field label{font-size:.9rem;color:var(--gray-700)}
+.form-field input,.form-field select{width:100%;min-height:48px;padding:12px 14px;border:1px solid var(--gray-200);border-radius:var(--radius-control);background:rgb(255 255 255 / 86%);color:var(--black);font:inherit;outline:none;box-shadow:inset 0 1px 3px rgb(0 0 0 / 3%)}
+.form-field input:focus,.form-field select:focus{border-color:var(--gray-500);box-shadow:0 0 0 3px rgb(0 0 0 / 6%)}
+.form-note{margin:16px 0 0;color:var(--gray-500);font-size:.9rem;line-height:1.5}
+.records{margin-top:24px;padding-top:20px;border-top:1px solid var(--gray-200)}
+.records-title{margin:0;font-size:1rem;font-weight:700}
+.empty-state{margin:12px 0 0;padding:16px;border:1px solid rgb(255 255 255 / 95%);border-radius:20px;background:linear-gradient(145deg,#fff,#f1f1f1);color:var(--gray-500);line-height:1.5}
+.menu-panel{position:fixed;right:20px;bottom:88px;z-index:9;display:grid;min-width:180px;gap:4px;padding:8px;border:1px solid #fff;border-radius:24px;background:radial-gradient(ellipse at 18% 0%,#fff,transparent 58%),linear-gradient(145deg,rgb(255 255 255 / 98%),rgb(242 242 242 / 96%));box-shadow:var(--shadow-soft),inset 0 1px 0 #fff;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.menu-panel[hidden]{display:none}
+.menu-link{display:block;padding:12px 14px;border-radius:14px;color:inherit;text-decoration:none}
+.menu-link:hover,.menu-link:focus-visible,.menu-link[aria-current=page]{background:var(--gray-100);outline:none}
+.menu-toggle{position:fixed;right:20px;bottom:20px;z-index:10;display:grid;width:58px;height:58px;place-items:center;padding:0;border:1px solid rgb(255 255 255 / 48%);border-radius:var(--radius-pill);background:radial-gradient(ellipse at 28% 10%,rgb(255 255 255 / 36%),transparent 44%),linear-gradient(145deg,#333,var(--black) 72%);color:var(--white);cursor:pointer;box-shadow:var(--shadow-float),inset 0 1px 1px rgb(255 255 255 / 28%),inset 0 -2px 4px rgb(0 0 0 / 28%);-webkit-tap-highlight-color:transparent}
+.menu-toggle:focus-visible{outline:3px solid var(--gray-500);outline-offset:4px}
+.menu-toggle svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.menu-toggle .close-icon{display:none}
+.menu-toggle[aria-expanded=true] .menu-icon{display:none}
+.menu-toggle[aria-expanded=true] .close-icon{display:block}
+@media(max-width:480px){main{padding-top:22px}.module-shell{padding:18px}.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}}
+@media(prefers-reduced-motion:no-preference){.menu-toggle{transition:transform 160ms ease,box-shadow 160ms ease,filter 160ms ease}.menu-toggle:hover{filter:brightness(1.08)}.menu-toggle:active{transform:scale(.94)}.menu-panel{animation:menu-appear 150ms ease-out}@keyframes menu-appear{from{opacity:0;transform:translateY(6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}}
 </style>
 </head>
 <body>
-  <main>
-    <section class="page is-active" id="home" aria-labelledby="home-title">
-      <h1 id="home-title">3B TECH HUB</h1>
-    </section>
-
-    <section class="page" id="account" aria-labelledby="account-title">
-      <h2 class="page-title" id="account-title">Account</h2>
-    </section>
-
-    <section class="page" id="dashboard" aria-labelledby="dashboard-title">
-      <h2 class="page-title" id="dashboard-title">Dashboard</h2>
-      <section class="module-shell" aria-labelledby="service-module-title">
-        <h3 class="module-title" id="service-module-title">Service</h3>
-        <div class="module-fields" aria-label="Service module fields">
-          <div class="field-item">
-            <span class="field-label">Field</span>
-            <span class="field-value">Name</span>
-          </div>
-          <div class="field-item">
-            <span class="field-label">Field</span>
-            <span class="field-value">Slug</span>
-          </div>
-          <div class="field-item">
-            <span class="field-label">Field</span>
-            <span class="field-value">Visibility</span>
-          </div>
+<main>
+  <h1 class="site-title">3B TECH HUB</h1>
+  <section class="page is-active" id="home" aria-label="Home"></section>
+  <section class="page" id="account" aria-labelledby="account-title"><h2 class="page-title" id="account-title">Account</h2></section>
+  <section class="page" id="dashboard" aria-labelledby="dashboard-title">
+    <h2 class="page-title" id="dashboard-title">Dashboard</h2>
+    <section class="module-shell" aria-labelledby="service-title">
+      <h3 class="module-title" id="service-title">Service</h3>
+      <form aria-label="Service form">
+        <div class="form-grid">
+          <div class="form-field full"><label for="service-name">Name</label><input id="service-name" name="name" type="text" placeholder="Service name" autocomplete="off"></div>
+          <div class="form-field"><label for="service-slug">Slug</label><input id="service-slug" name="slug" type="text" placeholder="service-slug" autocomplete="off"></div>
+          <div class="form-field"><label for="service-visibility">Visibility</label><select id="service-visibility" name="visibility"><option value="show">Show</option><option value="hide">Hide</option></select></div>
         </div>
-        <p class="empty-state">No services yet.</p>
-      </section>
+        <p class="form-note">Service records are not connected yet. The database currently has no public tables, so saving and loading records are unavailable.</p>
+      </form>
+      <div class="records">
+        <h4 class="records-title">Existing Information</h4>
+        <p class="empty-state">No existing service information is available in the connected database.</p>
+      </div>
     </section>
-  </main>
-
-  <nav class="menu-panel" id="navigation" aria-label="Main navigation" hidden>
-    <a class="menu-link" href="#home" aria-current="page">Home</a>
-    <a class="menu-link" href="#account">Account</a>
-    <a class="menu-link" href="#dashboard">Dashboard</a>
-  </nav>
-
-  <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navigation">
-    <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 6h16M4 12h16M4 18h16"></path>
-    </svg>
-    <svg class="close-icon" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="m6 6 12 12M18 6 6 18"></path>
-    </svg>
-  </button>
-
-  <script>
-    const menuToggle = document.querySelector('.menu-toggle');
-    const navigation = document.querySelector('#navigation');
-    const pages = [...document.querySelectorAll('.page')];
-    const links = [...document.querySelectorAll('.menu-link')];
-
-    function setMenuOpen(open) {
-      menuToggle.setAttribute('aria-expanded', String(open));
-      menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-      navigation.hidden = !open;
-    }
-
-    function showPage() {
-      const pageId = location.hash.slice(1) || 'home';
-      const activePage = pages.find(page => page.id === pageId) || pages[0];
-
-      pages.forEach(page => page.classList.toggle('is-active', page === activePage));
-      links.forEach(link => {
-        if (link.hash === '#' + activePage.id) {
-          link.setAttribute('aria-current', 'page');
-        } else {
-          link.removeAttribute('aria-current');
-        }
-      });
-      setMenuOpen(false);
-    }
-
-    menuToggle.addEventListener('click', () => {
-      setMenuOpen(menuToggle.getAttribute('aria-expanded') !== 'true');
-    });
-
-    links.forEach(link => link.addEventListener('click', () => setMenuOpen(false)));
-    window.addEventListener('hashchange', showPage);
-    document.addEventListener('keydown', event => {
-      if (event.key === 'Escape') setMenuOpen(false);
-    });
-
-    showPage();
-  </script>
+  </section>
+</main>
+<nav class="menu-panel" id="navigation" aria-label="Main navigation" hidden>
+  <a class="menu-link" href="#home" aria-current="page">Home</a>
+  <a class="menu-link" href="#account">Account</a>
+  <a class="menu-link" href="#dashboard">Dashboard</a>
+</nav>
+<button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navigation">
+  <svg class="menu-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>
+  <svg class="close-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+</button>
+<script>
+const menuToggle=document.querySelector('.menu-toggle');
+const navigation=document.querySelector('#navigation');
+const pages=[...document.querySelectorAll('.page')];
+const links=[...document.querySelectorAll('.menu-link')];
+function setMenuOpen(open){menuToggle.setAttribute('aria-expanded',String(open));menuToggle.setAttribute('aria-label',open?'Close menu':'Open menu');navigation.hidden=!open}
+function showPage(){const pageId=location.hash.slice(1)||'home';const activePage=pages.find(page=>page.id===pageId)||pages[0];pages.forEach(page=>page.classList.toggle('is-active',page===activePage));links.forEach(link=>{if(link.hash==='#'+activePage.id)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current')});setMenuOpen(false)}
+menuToggle.addEventListener('click',()=>setMenuOpen(menuToggle.getAttribute('aria-expanded')!=='true'));
+links.forEach(link=>link.addEventListener('click',()=>setMenuOpen(false)));
+window.addEventListener('hashchange',showPage);
+document.addEventListener('keydown',event=>{if(event.key==='Escape')setMenuOpen(false)});
+showPage();
+</script>
 </body>
 </html>
