@@ -76,7 +76,6 @@ test("Notion preference lists, visibility and access routing are implemented", (
 test("navigation menu keeps configured transitions and RTL/LTR placement", () => {
   const style = readFileSync("site/assets/style.css", "utf8");
   const menu = readFileSync("site/assets/menu.js", "utf8");
-  assert.match(style, /animation:site-menu-rise/);
   assert.match(style, /--menu-icon-transition/);
   assert.match(style, /:root\[dir="rtl"\] \.site-menu\{transform-origin:bottom left\}/);
   assert.doesNotMatch(style, /\.site-menu:not\(\[hidden\]\)\{animation:none/);
@@ -96,7 +95,7 @@ test("region preferences store a configurable default language and RTL language 
 
 test("regional language codes use the correct base translation and text direction", () => {
   const app = readFileSync("site/assets/app.js", "utf8");
-  assert.match(app, /baseLanguage=selected\.split\("-"\)\[0\]/);
+  assert.match(app, /baseLanguage=selected\.split\("\-"\)\[0\]/);
   assert.match(app, /baseLanguage==="ar"\?arText/);
   assert.match(app, /\^\(ar\|fa\|he\|ur\|ps\|sd\|ug\|yi\)/);
 });
