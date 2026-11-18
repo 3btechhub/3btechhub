@@ -4,7 +4,7 @@ import { applyRuntimeConfig, isSafeRuntimeValue, loadRuntimeConfig } from "../si
 
 function makeRoot() {
   const values = new Map();
-  return { values, style: { setProperty: (key, value) => values.set(key, value) } };
+  return { values, dataset: {}, style: { setProperty: (key, value) => values.set(key, value) } };
 }
 
 test("runtime configuration applies allowlisted theme and layout values", () => {
@@ -76,4 +76,23 @@ test("runtime config loader fails closed when setting is unavailable", async () 
 test("runtime theme colors reject non-monochrome values", () => {
   assert.equal(isSafeRuntimeValue("page_bg", "#ff0000"), false);
   assert.equal(isSafeRuntimeValue("page_bg", "#111111"), true);
+});
+
+test("runtime configuration supports user-created theme presets", () => {
+  const root = makeRoot();
+  root.dataset.themeVariant = "custom-brand";
+  applyRuntimeConfig({
+    schema_version: 1,
+    palette: "white",
+    size: "medium",
+    theme_presets: {
+      "custom-brand": {
+        light: { palette: "black", size: "large" },
+        dark: { palette: "neutral-gray", size: "small" }
+      }
+    }
+  }, "light", root);
+
+  assert.equal(root.values.get("--page-bg"), "#111111");
+  assert.equal(root.values.get("--control-height"), "48px");
 });
