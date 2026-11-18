@@ -91,7 +91,7 @@ function appendSafeRegistrySvg(target,source){
 }
 export async function loadSvgIconRegistry(supabase){
  try{
-  const {data,error}=await supabase.from("site_settings").select("setting_value").eq("setting_key","global_svg_icons").eq("is_public",true).maybeSingle();
+  const {data,error}=await supabase.from("Settings").select("setting_value").eq("setting_key","icon_registry").maybeSingle();
   if(error||!data?.setting_value?.icons)return false;
   const next=Object.create(null);
   for(const [key,value] of Object.entries(data.setting_value.icons)){
