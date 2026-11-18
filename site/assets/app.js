@@ -302,31 +302,7 @@ async function loadHomeCatalog(){
  ]);
  if(infoResult.error||mediaResult.error||relationResult.error){console.error("Could not load Notion Info/Media data.",infoResult.error||mediaResult.error||relationResult.error);area.replaceChildren();const error=document.createElement("p");error.className="home-empty-state";error.textContent="Unable to load content.";area.append(error);return;}
  const allInfo=infoResult.data||[],allMedia=mediaResult.data||[],allRelations=relationResult.data||[];
- const regionKey=localStorage.getItem("3b-region")||"global",regionName=regionKey==="saudi-arabia"?"Saudi Arabia":regionKey==="bangladesh"?"Bangladesh":"Global";
- const infoById=new Map(allInfo.map(row=>[row.id,row]));
- const countries=allInfo.filter(row=>(row.type||"").toLowerCase()==="countries");
- const selectedCountry=countries.find(row=>row.name.toLowerCase()===regionName.toLowerCase());
- const countryIdsByInfo=new Map(),locationIdsByInfo=new Map(),countryIdsByLocation=new Map();
- for(const rel of allRelations){
-  if(rel.source_type!=="Info"||rel.target_type!=="Info")continue;
-  const a=infoById.get(rel.source_id),b=infoById.get(rel.target_id);if(!a||!b)continue;
-  if((a.type||"").toLowerCase()==="countries")countryIdsByInfo.set(b.id,[...(countryIdsByInfo.get(b.id)||[]),a.id]);
-  else if((b.type||"").toLowerCase()==="countries")countryIdsByInfo.set(a.id,[...(countryIdsByInfo.get(a.id)||[]),b.id]);
-  if((a.type||"").toLowerCase()==="location")locationIdsByInfo.set(b.id,[...(locationIdsByInfo.get(b.id)||[]),a.id]);
-  else if((b.type||"").toLowerCase()==="location")locationIdsByInfo.set(a.id,[...(locationIdsByInfo.get(a.id)||[]),b.id]);
-  if((a.type||"").toLowerCase()==="location"&&(b.type||"").toLowerCase()==="countries")countryIdsByLocation.set(a.id,[...(countryIdsByLocation.get(a.id)||[]),b.id]);
-  else if((b.type||"").toLowerCase()==="location"&&(a.type||"").toLowerCase()==="countries")countryIdsByLocation.set(b.id,[...(countryIdsByLocation.get(b.id)||[]),a.id]);
- }
- function visibleInRegion(row){
-  if((row.type||"").toLowerCase()==="countries")return regionKey==="global"||row.id===selectedCountry?.id;
-  const explicit=String(row.data?.country||"").trim().toLowerCase();
-  if(explicit&&explicit!=="global")return explicit===regionName.toLowerCase();
-  const countryIds=countryIdsByInfo.get(row.id)||[];
-  for(const locationId of locationIdsByInfo.get(row.id)||[])countryIds.push(...(countryIdsByLocation.get(locationId)||[]));
-  if(countryIds.length)return regionKey!=="global"&&Boolean(selectedCountry)&&countryIds.includes(selectedCountry.id);
-  return true;
- }
- homeInfoRows=allInfo.filter(visibleInRegion);
+ homeInfoRows=allInfo;
  const visibleInfoIds=new Set(homeInfoRows.map(row=>row.id));
  homeMediaRows=allMedia;
  homeMediaByInfo=new Map();
