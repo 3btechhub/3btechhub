@@ -59,3 +59,16 @@ test("all 17 service, product and workshop items resolve to distinct SVG assets"
   assert.equal(new Set(resolved).size, 17, "every content item must use a unique icon");
   for (const key of resolved) assert.ok(iconNames.has(key), "missing registered SVG: " + key);
 });
+
+test("Notion preference lists, visibility and access routing are implemented", () => {
+  const dashboard = readFileSync("site/assets/content-dashboard.js", "utf8");
+  const app = readFileSync("site/assets/app.js", "utf8");
+  const icons = readFileSync("site/assets/icon-utils.js", "utf8");
+  assert.match(dashboard, /preference-devices/);
+  assert.match(dashboard, /preference-platforms/);
+  assert.match(dashboard, /visibilitySelect\(g\)/);
+  assert.match(dashboard, /cleanThemes/);
+  assert.match(app, /if\(first==="dashboard"\)/);
+  assert.match(app, /registered/);
+  assert.match(icons, /from\("Settings"\).*icon_registry/);
+});
