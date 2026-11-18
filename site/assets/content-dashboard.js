@@ -1,4 +1,4 @@
-import { initExtendedDashboard } from "./admin-extended.js?v=notion-20261118-9";
+import { initExtendedDashboard } from "./admin-extended.js?v=notion-20261118-10";
 const $=(s,r=document)=>r.querySelector(s), el=(t,c="",v)=>{const n=document.createElement(t);if(c)n.className=c;if(v!==undefined)n.textContent=String(v);return n;};
 const slug=v=>String(v||"").normalize("NFKD").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
 const say=(n,t,k="")=>{n.textContent=t;n.dataset.kind=k;};
@@ -81,7 +81,6 @@ export async function initDynamicDashboard(supabase,root,user){
   let devices=Array.isArray(saved.devices)&&saved.devices.length?saved.devices.map(x=>({...x})):[{label:"Mobile",value:"mobile"},{label:"Tablet",value:"tablet"},{label:"Computer",value:"computer"}];
   let platforms=Array.isArray(saved.platforms)&&saved.platforms.length?saved.platforms.map(x=>({...x})):[{label:"Website",value:"website"},{label:"Android Application",value:"android-application"},{label:"iPhone Application",value:"iphone-application"},{label:"Computer Application",value:"computer-application"}];
   let themes=Array.isArray(saved.themes)&&saved.themes.length?saved.themes.map(x=>({...x})):[{label:"Classic",value:"classic"},{label:"Modern",value:"modern"},{label:"Future",value:"future"}];
-  if(!themes.some(x=>x.value==="classic"))themes.unshift({label:"Classic",value:"classic"});
   const f=el("form","content-editor-form");
   f.innerHTML='<h3>Region</h3><div id="preference-regions" class="dashboard-record-list"></div><div class="module-form-grid"><label class="module-form-field"><span>New Region</span><input name="regionLabel" maxlength="80"></label><button type="button" data-add-region>Add Region</button></div><h3>Language</h3><div id="preference-languages" class="dashboard-record-list"></div><div class="module-form-grid"><label class="module-form-field"><span>New Language</span><input name="languageLabel" maxlength="80"></label><label class="module-form-field"><span>Language Code</span><input name="languageCode" maxlength="12" placeholder="en"></label><button type="button" data-add-language>Add Language</button></div><h3>Device</h3><div id="preference-devices" class="dashboard-record-list"></div><div class="module-form-grid"><label class="module-form-field"><span>New Device</span><input name="deviceLabel" maxlength="80"></label><button type="button" data-add-device>Add Device</button></div><h3>Platform</h3><div id="preference-platforms" class="dashboard-record-list"></div><div class="module-form-grid"><label class="module-form-field"><span>New Platform</span><input name="platformLabel" maxlength="80"></label><button type="button" data-add-platform>Add Platform</button></div><h3>Themes</h3><div id="preference-themes" class="dashboard-record-list"></div><div class="module-form-grid"><label class="module-form-field"><span>New Theme</span><input name="themeLabel" maxlength="40"></label><button type="button" data-add-theme>Add Theme</button></div><div class="module-form-grid"><label class="module-form-field"><span>Preset</span><select name="variant"></select></label><label class="module-form-field"><span>Mode</span><select name="mode"><option value="light">Light</option><option value="dark">Dark</option></select></label><label class="module-form-field"><span>Color</span><select name="palette"><option value="white">White</option><option value="black">Black</option><option value="neutral-gray">Neutral Gray</option></select></label><label class="module-form-field"><span>Size</span><select name="size"><option value="small">Small</option><option value="medium">Medium</option><option value="large">Large</option></select></label></div><div class="editor-actions"><button type="submit">Save Preference</button></div><p class="editor-message"></p>';
   const regionHost=$("#preference-regions",f),languageHost=$("#preference-languages",f),deviceHost=$("#preference-devices",f),platformHost=$("#preference-platforms",f),themeHost=$("#preference-themes",f),variantSelect=f.elements.variant;
@@ -102,8 +101,8 @@ export async function initDynamicDashboard(supabase,root,user){
     const row=el("div","dashboard-record-row");
     const label=el("input");label.value=item.label;label.maxLength=40;label.setAttribute("aria-label","Theme name");label.addEventListener("change",()=>{item.label=label.value.trim()||item.value;variantSelect.replaceChildren(...themes.map(theme=>new Option(theme.label,theme.value)));variantSelect.value=item.value;});
     const key=el("small","",item.value);
-    const remove=el("button","secondary-button","Delete");remove.type="button";remove.disabled=item.value==="classic"||themes.length===1;
-    remove.addEventListener("click",()=>{if(item.value==="classic"||themes.length===1)return;themes.splice(index,1);if(variantSelect.value===item.value)variantSelect.value="classic";drawThemes();});
+    const remove=el("button","secondary-button","Delete");remove.type="button";remove.disabled=themes.length===1;
+    remove.addEventListener("click",()=>{if(themes.length===1)return;themes.splice(index,1);if(variantSelect.value===item.value)variantSelect.value=themes[0]?.value||"";drawThemes();});
     row.append(label,key,remove);themeHost.append(row);
    });
    variantSelect.replaceChildren(...themes.map(item=>new Option(item.label,item.value)));
@@ -111,7 +110,7 @@ export async function initDynamicDashboard(supabase,root,user){
   }
   drawOptions(regionHost,regions,"Region");drawOptions(languageHost,languages,"Language");drawOptions(deviceHost,devices,"Device");drawOptions(platformHost,platforms,"Platform");drawThemes();
   const savedVariant=localStorage.getItem("3b-theme-variant")||"classic";
-  variantSelect.value=themes.some(item=>item.value===savedVariant)?savedVariant:"classic";
+  variantSelect.value=themes.some(item=>item.value===savedVariant)?savedVariant:(themes.find(item=>item.value==="classic")?.value||themes[0]?.value||"");
   f.elements.mode.value=document.documentElement.dataset.theme||"light";
   f.elements.palette.value=cfg.palette||"white";f.elements.size.value=cfg.size||"medium";
   f.querySelector("[data-add-region]").onclick=()=>{
@@ -146,11 +145,11 @@ export async function initDynamicDashboard(supabase,root,user){
    const cleanDevices=devices.filter(x=>x.label?.trim()&&x.value?.trim());
    const cleanPlatforms=platforms.filter(x=>x.label?.trim()&&x.value?.trim());
    const cleanThemes=themes.filter(x=>x.label?.trim()&&/^[a-z0-9][a-z0-9-]{0,39}$/.test(x.value||""));
-   if(!cleanRegions.length||!cleanLanguages.length||!cleanDevices.length||!cleanPlatforms.length||!cleanThemes.some(x=>x.value==="classic")){say($(".editor-message",f),"Keep at least one Region, Language and the default Classic Theme.","error");return;}
+   if(!cleanRegions.length||!cleanLanguages.length||!cleanDevices.length||!cleanPlatforms.length||!cleanThemes.length){say($(".editor-message",f),"Keep at least one Region, Language and the default Classic Theme.","error");return;}
    const themePresets={...(cfg.theme_presets||{})};
    for(const key of Object.keys(themePresets))if(!cleanThemes.some(item=>item.value===key))delete themePresets[key];
    for(const item of cleanThemes)if(!themePresets[item.value])themePresets[item.value]={light:{palette:cfg.palette||"white",size:cfg.size||"medium"},dark:{palette:cfg.palette||"white",size:cfg.size||"medium"}};
-   const selectedVariant=cleanThemes.some(item=>item.value===variantSelect.value)?variantSelect.value:"classic";
+   const selectedVariant=cleanThemes.some(item=>item.value===variantSelect.value)?variantSelect.value:cleanThemes[0].value;
    themePresets[selectedVariant]={...(themePresets[selectedVariant]||{}),[f.elements.mode.value]:{palette:f.elements.palette.value,size:f.elements.size.value}};
    const next={...cfg,schema_version:1,palette:f.elements.palette.value,size:f.elements.size.value,theme_presets:themePresets};
    const [optionSave,themeSave]=await Promise.all([
