@@ -1420,3 +1420,52 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 .menu-trigger[data-placement$="-middle"]{inset-inline-start:50%!important;inset-inline-end:auto!important;translate:-50% 0}
 .site-menu[data-placement$="-middle"]{inset-inline-start:50%!important;inset-inline-end:auto!important;translate:-50% 0;transform-origin:top center}
+
+
+/* Global interaction styles: Shadow, Float and Water Drop Feel */
+:root[data-ui-style="shadow"] .dashboard-card,
+:root[data-ui-style="shadow"] .site-menu,
+:root[data-ui-style="shadow"] .content-editor-form,
+:root[data-ui-style="shadow"] .auth-form input,
+:root[data-ui-style="shadow"] .auth-form>button[type=submit]{
+  box-shadow:0 5px 18px rgba(0,0,0,.09),0 1px 3px rgba(0,0,0,.05);
+}
+:root[data-ui-style="float"] .dashboard-card,
+:root[data-ui-style="float"] .site-menu,
+:root[data-ui-style="float"] .content-editor-form,
+:root[data-ui-style="float"] .auth-form input,
+:root[data-ui-style="float"] .auth-form>button[type=submit]{
+  transition:transform .22s ease,box-shadow .22s ease;
+}
+:root[data-ui-style="float"] .dashboard-card:hover,
+:root[data-ui-style="float"] .content-editor-form:hover,
+:root[data-ui-style="float"] .auth-form input:focus,
+:root[data-ui-style="float"] .auth-form>button[type=submit]:hover{
+  transform:translateY(-3px);
+  box-shadow:0 12px 26px rgba(0,0,0,.12);
+}
+:root[data-ui-style="water-drop"] .dashboard-card,
+:root[data-ui-style="water-drop"] .site-menu,
+:root[data-ui-style="water-drop"] .content-editor-form{
+  border-radius:18px;
+  border-color:color-mix(in srgb,var(--line) 72%,white);
+  background:linear-gradient(145deg,color-mix(in srgb,var(--surface) 96%,white),var(--surface));
+  box-shadow:8px 8px 20px rgba(0,0,0,.09),-6px -6px 18px rgba(255,255,255,.58),inset 1px 1px 2px rgba(255,255,255,.72),inset -1px -1px 2px rgba(0,0,0,.035);
+}
+:root[data-ui-style="water-drop"] .auth-form input,
+:root[data-ui-style="water-drop"] .auth-form>button[type=submit],
+:root[data-ui-style="water-drop"] .content-editor-form input,
+:root[data-ui-style="water-drop"] .content-editor-form select,
+:root[data-ui-style="water-drop"] .content-editor-form textarea,
+:root[data-ui-style="water-drop"] .content-editor-form button{
+  border-radius:14px;
+  box-shadow:inset 2px 2px 5px rgba(0,0,0,.07),inset -2px -2px 5px rgba(255,255,255,.62),0 3px 8px rgba(0,0,0,.045);
+}
+:root[data-ui-style="water-drop"] .dashboard-card,
+:root[data-ui-style="water-drop"] .content-editor-form,
+:root[data-ui-style="water-drop"] .site-menu{
+  backdrop-filter:blur(8px);
+}
+@media(prefers-reduced-motion:reduce){
+  :root[data-ui-style="float"] *{transition:none!important;transform:none!important}
+}
