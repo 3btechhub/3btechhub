@@ -591,13 +591,15 @@ if (form && accountMode!=="profile") {
     if (recoveryVerify) otpInput.focus();
   }
 
-  toggle.addEventListener("click", () => {
+  toggle.addEventListener("click", async () => {
     const target = mode === "signup" ? "account/login/" : "account/create-account/";
+    if(mode==="recovery-new-password")await supabase.auth.signOut();
     window.navigateSiteRoute(new URL(target, ROOT_URL).pathname);
   });
 
-  forgot.addEventListener("click", () => {
+  forgot.addEventListener("click", async () => {
     const target = mode === "recovery-start" || ["recovery-verify","recovery","recovery-new-password"].includes(mode) ? "account/login/" : "account/reset-password/";
+    if(mode==="recovery-new-password")await supabase.auth.signOut();
     window.navigateSiteRoute(new URL(target, ROOT_URL).pathname);
   });
 
