@@ -401,10 +401,7 @@ export async function resolveAuthRoute(requestedPath) {
   if (!url.pathname.startsWith(basePath)) return url.pathname + url.search + url.hash;
   const parts = url.pathname.slice(basePath.length).split("/").filter(Boolean);
   const first = parts[0] || "";
-  const legacyRoutes = {
-    login:"login", "create-account":"create-account", "forgot-password":"reset-password",
-    "reset-password":"reset-password", profile:"profile"
-  };
+  const legacyRoutes = {};
   let accountRoute = first === "account" ? (parts[1] || "") : (legacyRoutes[first] || "");
   if (first !== "account" && !accountRoute) return url.pathname + url.search + url.hash;
 
