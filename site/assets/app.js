@@ -396,8 +396,23 @@ if(themeSelect){
   });
 }
 async function loadMenuPreferences(){
-  if(regionSelect){const rows=[["Global","global"],["Bangladesh","bangladesh"],["Saudi Arabia","saudi-arabia"]],saved=localStorage.getItem("3b-region")||localStorage.getItem("3b-country")||"global";regionSelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));regionSelect.value=rows.some(x=>x[1]===saved)?saved:"global";document.documentElement.dataset.region=regionSelect.value;}
-  if(languageSelect){const rows=[["English","en"],["Bangla","bn"],["Arabic","ar"]],saved=localStorage.getItem("3b-language")||"en";languageSelect.replaceChildren(...rows.map(([label,value])=>new Option(label,value)));languageSelect.value=rows.some(x=>x[1]===saved)?saved:"en";document.documentElement.dataset.language=languageSelect.value;applyLanguage(languageSelect.value);}
+  const {data:optionRow}=await supabase.from("Settings").select("setting_value").eq("setting_key","preference_options").maybeSingle();
+  const options=optionRow?.setting_value&&typeof optionRow.setting_value==="object"?optionRow.setting_value:{};
+  const regions=Array.isArray(options.regions)&&options.regions.length?options.regions:[{label:"Global",value:"global"},{label:"Bangladesh",value:"bangladesh"},{label:"Saudi Arabia",value:"saudi-arabia"}];
+  const languages=Array.isArray(options.languages)&&options.languages.length?options.languages:[{label:"English",value:"en"},{label:"Bangla",value:"bn"},{label:"Arabic",value:"ar"}];
+  if(regionSelect){
+    const saved=localStorage.getItem("3b-region")||localStorage.getItem("3b-country")||"global";
+    regionSelect.replaceChildren(...regions.map(item=>new Option(item.label,item.value)));
+    regionSelect.value=regions.some(item=>item.value===saved)?saved:regions[0].value;
+    document.documentElement.dataset.region=regionSelect.value;
+  }
+  if(languageSelect){
+    const saved=localStorage.getItem("3b-language")||"en";
+    languageSelect.replaceChildren(...languages.map(item=>new Option(item.label,item.value)));
+    languageSelect.value=languages.some(item=>item.value===saved)?saved:languages[0].value;
+    document.documentElement.dataset.language=languageSelect.value;
+    applyLanguage(languageSelect.value);
+  }
 }
 regionSelect?.addEventListener("change",()=>{
   localStorage.setItem("3b-region",regionSelect.value);
