@@ -1,5 +1,5 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-6";
-import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-6";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-20261118-7";
+import { initDynamicDashboard } from "./content-dashboard.js?v=notion-20261118-7";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
 const siteMenu = document.querySelector("#site-menu");
@@ -468,6 +468,18 @@ export async function resolveAuthRoute(requestedPath) {
   if (!url.pathname.startsWith(basePath)) return url.pathname + url.search + url.hash;
   const parts = url.pathname.slice(basePath.length).split("/").filter(Boolean);
   const first = parts[0] || "";
+  if(first==="dashboard"){
+    const {data:dashboardSessionData,error:dashboardSessionError}=await supabase.auth.getSession();
+    const dashboardSession=dashboardSessionError?null:dashboardSessionData?.session||null;
+    if(!dashboardSession)return new URL("account/login/",ROOT_URL).pathname+url.search+url.hash;
+    const {data:dashboardRoleRows,error:dashboardRoleError}=await supabase.from("user_roles").select("role").eq("user_id",dashboardSession.user.id);
+    const roles=(dashboardRoleRows||[]).map(row=>String(row.role||"").toLowerCase());
+    if(dashboardRoleError||!roles.some(role=>["owner","admin"].includes(role))){
+      const fallback=roles.some(role=>["owner","admin","member"].includes(role))?"account/profile/":"account/login/";
+      return new URL(fallback,ROOT_URL).pathname+url.search+url.hash;
+    }
+    return new URL("dashboard/",ROOT_URL).pathname+url.search+url.hash;
+  }
   const legacyRoutes = {};
   let accountRoute = first === "account" ? (parts[1] || "") : (legacyRoutes[first] || "");
   if (first !== "account" && !accountRoute) return url.pathname + url.search + url.hash;
