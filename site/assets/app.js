@@ -1,4 +1,4 @@
-import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=notion-updates-20261118-2";
+import { applyRuntimeConfig, loadRuntimeConfig } from "./runtime-config.js?v=nav-admin-20261118-1";
 import { initDynamicDashboard } from "./content-dashboard.js?v=nav-admin-20261118-1";
 import { createIcon, getModuleIcon, getItemFallbackIcon, loadSvgIconRegistry } from "./icon-utils.js";
 const menuButton = document.querySelector(".menu-trigger");
