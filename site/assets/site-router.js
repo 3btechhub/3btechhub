@@ -34,6 +34,9 @@ async function renderRoute(requestedPath, { replace = false } = {}) {
     return renderRoute(path, { replace:true });
   }
   const details = routeDetails(path);
+  main.setAttribute("aria-busy","true");
+  const skeletonCount=details.view==="home"?6:details.view==="dashboard"?4:2;
+  main.innerHTML=`<section class="layout-skeleton" aria-label="Loading layout" aria-hidden="true"><div class="layout-skeleton-heading skeleton"></div><div class="layout-skeleton-subheading skeleton"></div><div class="layout-skeleton-grid">${Array.from({length:skeletonCount},()=>'<div class="layout-skeleton-card"><span class="skeleton layout-skeleton-visual"></span><span class="skeleton layout-skeleton-line"></span><span class="skeleton layout-skeleton-line short"></span></div>').join("")}</div><div class="layout-skeleton-panel"><span class="skeleton layout-skeleton-line"></span><span class="skeleton layout-skeleton-line"></span></div></section>`;
   const response = await fetch(BASE + "views/" + viewFiles[details.view], { cache:"no-store" });
   if (!response.ok) throw new Error("Could not load the requested page.");
   const parsed = new DOMParser().parseFromString(await response.text(), "text/html");
@@ -63,6 +66,7 @@ async function renderRoute(requestedPath, { replace = false } = {}) {
   } else if (robotsMeta) robotsMeta.remove();
   window.siteCurrentRoute = path;
   await initRoutePage();
+  main.removeAttribute("aria-busy");
   window.scrollTo({ top:0, behavior:"auto" });
   if (replace) history.replaceState({ route:path }, "", path);
 }
@@ -71,7 +75,7 @@ window.navigateSiteRoute = (target, options = {}) => {
   if (!path) return;
   if (options.replace) history.replaceState({ route:path }, "", path);
   else history.pushState({ route:path }, "", path);
-  void renderRoute(path).catch((error) => { console.error("Website route could not be rendered.", error); main.textContent = "This page could not be loaded. Please refresh and try again."; });
+  void renderRoute(path).catch((error) => { console.error("Website route could not be rendered.", error); main.removeAttribute("aria-busy"); main.textContent = "This page could not be loaded. Please refresh and try again."; });
 };
 document.addEventListener("click", (event) => {
   const anchor = event.target.closest("a[href]");
@@ -95,5 +99,6 @@ try {
   await renderRoute(initialPath, { replace:true });
 } catch (error) {
   console.error("Website route could not be rendered.", error);
+  main.removeAttribute("aria-busy");
   main.textContent = "This page could not be loaded. Please refresh and try again.";
 }
