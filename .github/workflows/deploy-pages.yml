@@ -29,6 +29,7 @@ jobs:
       - name: Upload website artifact
         uses: actions/upload-pages-artifact@v3
         with:
+          # Publish the current main branch website from the site directory.
           path: site
       - name: Publish website
         id: deployment
