@@ -40,7 +40,8 @@ const supabase=createClient('https://sburxeuxkrilbfppxylm.supabase.co','sb_publi
 const $=s=>document.querySelector(s);
 const menuToggle=$('.menu-toggle'),navigation=$('#navigation'),pages=[...document.querySelectorAll('.page')],links=[...document.querySelectorAll('.menu-link')];
 let currentUser=null,currentRole=null,pendingRoute=null,services=[],products=[],relations=[],authRevision=0,activeRoute=null,dashboardLoadRevision=0;
-document.querySelector('#users-panel').append(document.querySelector('#owner-users-panel'));\nconst slugify=value=>value.normalize('NFKD').toLowerCase().trim().replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+document.querySelector('#users-panel').append(document.querySelector('#owner-users-panel'));
+const slugify=value=>value.normalize('NFKD').toLowerCase().trim().replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
 function bindSlug(nameId,slugId){const name=$(nameId),slug=$(slugId);let manual=false;slug.addEventListener('input',()=>manual=true);name.addEventListener('input',()=>{if(!manual)slug.value=slugify(name.value)});return()=>{manual=false}}
 const resetServiceSlug=bindSlug('#service-name','#service-slug'),resetProductSlug=bindSlug('#product-name','#product-slug'),resetRelationSlug=bindSlug('#relation-name','#relation-slug');
 function setMenu(open){menuToggle.setAttribute('aria-expanded',String(open));menuToggle.setAttribute('aria-label',open?'Close menu':'Open menu');navigation.hidden=!open}
