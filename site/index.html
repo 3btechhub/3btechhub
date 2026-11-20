@@ -182,7 +182,7 @@ $('#relation-form').addEventListener('submit',async e=>{
  const existing=relations.find(r=>r.source_type===sourceType&&r.source_id===sourceId);
  const selectedByKind=new Map(relationKinds.map(k=>[k.kind,[...form.querySelectorAll('[name=relation_'+k.kind+']:checked')].map(x=>x.value).filter(x=>!(sourceType===k.sourceType&&x===sourceId))]));
  const previousByKind=new Map(relationKinds.map(k=>[k.kind,(existing?.[k.table]||[]).map(x=>x[k.key]).filter(Boolean)]));
- const row={name:source.name,slug:source.slug,is_visible:true,content_status:'draft',name_translations:source.name_translations||{},visible_to:relationRoles,visible_regions:relationRegions,source_type:sourceType,source_id:sourceId,updated_at:new Date().toISOString()};
+ const row={name:source.name,slug:source.slug,is_visible:true,content_status:'draft',visible_to:relationRoles,visible_regions:relationRegions,source_type:sourceType,source_id:sourceId,updated_at:new Date().toISOString()};
  const saved=await supabase.from('relations').upsert(row,{onConflict:'source_type,source_id'}).select('id').single();
  if(saved.error){setStatus('#dashboard-status',saved.error.message);return}
  const relationId=saved.data.id;
