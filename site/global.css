@@ -320,66 +320,6 @@ html.dashboard-page.authenticated body{visibility:visible}
   .dashboard__actions .button{flex:1 1 100%}
 }
 
-/* Global interaction and surface styles */
-:root {
-  --effect-water-highlight: rgba(255, 255, 255, .42);
-  --effect-water-shadow: rgba(0, 0, 0, .045);
-  --effect-material-shadow: 0 3px 12px rgba(0, 0, 0, .07), inset 0 1px 0 rgba(255, 255, 255, .48);
-  --effect-bubble-highlight: rgba(255, 255, 255, .55);
-  --effect-float-distance: 2px;
-  --effect-flow-duration: 220ms;
-}
-:root[data-theme="dark"] {
-  --effect-water-highlight: rgba(255, 255, 255, .055);
-  --effect-water-shadow: rgba(0, 0, 0, .16);
-  --effect-material-shadow: 0 3px 14px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .035);
-  --effect-bubble-highlight: rgba(255, 255, 255, .08);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --effect-water-highlight: rgba(255, 255, 255, .055);
-    --effect-water-shadow: rgba(0, 0, 0, .16);
-    --effect-material-shadow: 0 3px 14px rgba(0, 0, 0, .24), inset 0 1px 0 rgba(255, 255, 255, .035);
-    --effect-bubble-highlight: rgba(255, 255, 255, .08);
-  }
-}
-/* Material feel: consistent depth for primary surfaces */
-:where(.home__type, .dashboard__panel, .account-panel, .dialog) {
-  background-color: var(--color-surface-raised);
-  box-shadow: var(--effect-material-shadow);
-}
-/* Water-drop feel: soft glossy highlight on content tiles */
-:where(.home__item, .dashboard__item) {
-  background-image: radial-gradient(ellipse at 18% 0%, var(--effect-water-highlight), transparent 68%);
-  box-shadow: inset 0 1px 0 var(--effect-water-highlight), 0 2px 7px var(--effect-water-shadow);
-  transition: transform var(--effect-flow-duration) ease, box-shadow var(--effect-flow-duration) ease, background-color var(--effect-flow-duration) ease;
-}
-/* Bubble feel: rounded controls with a restrained top highlight */
-:where(.dashboard__tab, .button, .badge, .floating-navigation__toggle) {
-  background-image: linear-gradient(180deg, var(--effect-bubble-highlight), transparent 78%);
-  box-shadow: inset 0 1px 0 var(--effect-bubble-highlight);
-}
-/* Float: gentle lift on interactive surfaces */
-:where(.home__item, .dashboard__item, .button, .floating-navigation__toggle) {
-  transition: transform var(--effect-flow-duration) ease, box-shadow var(--effect-flow-duration) ease, background-color var(--effect-flow-duration) ease;
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  :where(.home__item, .dashboard__item, .button, .floating-navigation__toggle):hover {
-    transform: translateY(calc(-1 * var(--effect-float-distance)));
-    box-shadow: var(--shadow-soft);
-  }
-}
-/* Flow: shared smooth state changes for global interactive components */
-:where(.dashboard__tab, .dashboard__item, .home__item, .button, .floating-navigation__list, .floating-navigation__toggle) {
-  transition-duration: var(--effect-flow-duration);
-}
-@media (prefers-reduced-motion: reduce) {
-  :where(.home__item, .dashboard__item, .button, .floating-navigation__toggle) {
-    transform: none !important;
-  }
-}
-
-
 /* Page access visibility states */
 html.account-page:not(.account-ready) body { visibility: hidden; }
 html.account-page.account-ready body { visibility: visible; }
@@ -425,119 +365,6 @@ html.dashboard-page.authenticated body { visibility: visible; }
   box-shadow: none;
 }
 
-
-/* Advanced global visual effects */
-:root {
-  --effect-depth-1: 0 2px 5px rgba(0,0,0,.055), 0 8px 20px rgba(0,0,0,.065);
-  --effect-depth-2: 0 5px 12px rgba(0,0,0,.07), 0 18px 42px rgba(0,0,0,.11);
-  --effect-depth-3: 0 12px 28px rgba(0,0,0,.12), 0 28px 64px rgba(0,0,0,.16);
-  --effect-inset-light: inset 0 1px 0 rgba(255,255,255,.82), inset 0 -1px 0 rgba(0,0,0,.035);
-  --effect-glass-border: rgba(255,255,255,.58);
-  --effect-glass-blur: 16px;
-  --effect-flow-ease: cubic-bezier(.2,.75,.25,1);
-  --effect-float-distance: 5px;
-  --effect-flow-duration: 360ms;
-}
-:root[data-theme="dark"] {
-  --effect-depth-1: 0 2px 7px rgba(0,0,0,.22), 0 9px 24px rgba(0,0,0,.24);
-  --effect-depth-2: 0 6px 16px rgba(0,0,0,.28), 0 20px 46px rgba(0,0,0,.34);
-  --effect-depth-3: 0 14px 32px rgba(0,0,0,.38), 0 32px 70px rgba(0,0,0,.44);
-  --effect-inset-light: inset 0 1px 0 rgba(255,255,255,.11), inset 0 -1px 0 rgba(0,0,0,.22);
-  --effect-glass-border: rgba(255,255,255,.12);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --effect-depth-1: 0 2px 7px rgba(0,0,0,.22), 0 9px 24px rgba(0,0,0,.24);
-    --effect-depth-2: 0 6px 16px rgba(0,0,0,.28), 0 20px 46px rgba(0,0,0,.34);
-    --effect-depth-3: 0 14px 32px rgba(0,0,0,.38), 0 32px 70px rgba(0,0,0,.44);
-    --effect-inset-light: inset 0 1px 0 rgba(255,255,255,.11), inset 0 -1px 0 rgba(0,0,0,.22);
-    --effect-glass-border: rgba(255,255,255,.12);
-  }
-}
-
-/* Material: layered surfaces with translucent depth */
-:where(.home__type, .dashboard__panel, .account-panel, .dialog, .floating-navigation__list) {
-  border-color: color-mix(in srgb, var(--color-border) 72%, transparent);
-  box-shadow: var(--effect-depth-1), var(--effect-inset-light);
-  -webkit-backdrop-filter: blur(var(--effect-glass-blur)) saturate(1.18);
-  backdrop-filter: blur(var(--effect-glass-blur)) saturate(1.18);
-}
-:where(.home__type, .dashboard__panel, .account-panel, .dialog) {
-  background-image: linear-gradient(145deg, rgba(255,255,255,.20), transparent 48%);
-}
-
-/* Water drop: curved specular reflection and liquid depth */
-:where(.home__item, .dashboard__item) {
-  position: relative;
-  overflow: hidden;
-  border-color: color-mix(in srgb, var(--color-border) 68%, white);
-  background-color: var(--color-surface-raised);
-  background-image:
-    radial-gradient(ellipse 85% 58% at 18% -12%, rgba(255,255,255,.82), transparent 68%),
-    radial-gradient(ellipse 70% 46% at 100% 115%, rgba(90,130,170,.10), transparent 72%),
-    linear-gradient(155deg, rgba(255,255,255,.24), transparent 54%);
-  box-shadow: var(--effect-depth-1), inset 0 1px 1px rgba(255,255,255,.72), inset 0 -1px 2px rgba(0,0,0,.055);
-}
-
-/* Bubble: convex highlight, rounded edge and inner reflection */
-:where(.dashboard__tabs .dashboard__tab, .button, .badge, .floating-navigation__toggle) {
-  background-image:
-    radial-gradient(ellipse 82% 72% at 24% 0%, rgba(255,255,255,.72), transparent 72%),
-    linear-gradient(180deg, rgba(255,255,255,.22), transparent 62%);
-  box-shadow: var(--effect-depth-1), inset 0 1px 1px rgba(255,255,255,.72), inset 0 -1px 1px rgba(0,0,0,.06);
-}
-:where(.dashboard__tabs .dashboard__tab[aria-selected="true"], .button--primary) {
-  background-image: linear-gradient(180deg, rgba(255,255,255,.24), transparent 72%);
-  box-shadow: var(--effect-depth-1), inset 0 1px 0 rgba(255,255,255,.38), inset 0 -2px 3px rgba(0,0,0,.12);
-}
-
-/* Shadow: consistent depth hierarchy */
-:where(.home__type, .dashboard__panel, .account-panel, .dialog) { box-shadow: var(--effect-depth-1); }
-:where(.home__item, .dashboard__item, .button, .floating-navigation__toggle) { box-shadow: var(--effect-depth-1); }
-
-/* Float + Flow: responsive lift and fluid transitions */
-:where(.home__item, .dashboard__item, .button, .dashboard__tab, .floating-navigation__toggle) {
-  transform: translate3d(0,0,0);
-  transition:
-    transform var(--effect-flow-duration) var(--effect-flow-ease),
-    box-shadow var(--effect-flow-duration) var(--effect-flow-ease),
-    border-color var(--effect-flow-duration) var(--effect-flow-ease),
-    background-color var(--effect-flow-duration) var(--effect-flow-ease),
-    color var(--effect-flow-duration) var(--effect-flow-ease),
-    filter var(--effect-flow-duration) var(--effect-flow-ease);
-  will-change: transform;
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  :where(.home__item, .dashboard__item, .button, .dashboard__tabs .dashboard__tab, .floating-navigation__toggle):hover {
-    transform: translate3d(0, calc(-1 * var(--effect-float-distance)), 0);
-    box-shadow: var(--effect-depth-2);
-    filter: saturate(1.06);
-  }
-}
-:where(.home__item, .dashboard__item, .button, .dashboard__tabs .dashboard__tab):active {
-  transform: translate3d(0,1px,0) scale(.985);
-  box-shadow: inset 0 2px 5px rgba(0,0,0,.10);
-}
-:where(.home__item, .dashboard__item, .button, .dashboard__tabs .dashboard__tab):focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-focus) 24%, transparent), var(--effect-depth-2);
-}
-.dashboard__subtabs .dashboard__tab {
-  background-image: none;
-  box-shadow: none;
-  will-change: auto;
-}
-.dashboard__subtabs .dashboard__tab:hover,
-.dashboard__subtabs .dashboard__tab:active {
-  transform: none;
-  box-shadow: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  :where(.home__item, .dashboard__item, .button, .dashboard__tab, .floating-navigation__toggle) {
-    transition: none !important;
-    transform: none !important;
-    will-change: auto;
-  }
-}
 
 /* GitHub Pages deployment retry trigger */
 
@@ -602,137 +429,6 @@ html.dashboard-page.authenticated body { visibility: visible; }
 .dashboard__item-name{display:block;min-width:0;font-weight:600;overflow-wrap:anywhere}
 .dashboard__item-meta{display:block;color:var(--color-muted);font-size:.78rem;line-height:1.4;overflow-wrap:anywhere}
 .dashboard__item-thumb{display:block;flex:0 0 56px;width:56px;height:56px;object-fit:cover;border:1px solid var(--color-border);border-radius:var(--radius-small);background:var(--color-surface-muted)}
-
-
-/* Premium interaction refinement — visual styling only */
-:root {
-  --effect-interaction-ease: cubic-bezier(.18,.72,.22,1);
-  --effect-interaction-time: 260ms;
-  --effect-focus-ring: 0 0 0 3px color-mix(in srgb, var(--color-focus) 22%, transparent);
-}
-
-/* Clearer depth hierarchy for the three main page surfaces */
-:where(.home__type, .dashboard__panel, .account-panel) {
-  transition:
-    border-color var(--effect-interaction-time) var(--effect-interaction-ease),
-    box-shadow var(--effect-interaction-time) var(--effect-interaction-ease),
-    background-color var(--effect-interaction-time) var(--effect-interaction-ease);
-}
-
-/* Tactile response for content tiles and dashboard selections */
-.home__item,
-.dashboard__item {
-  transition:
-    transform var(--effect-interaction-time) var(--effect-interaction-ease),
-    border-color var(--effect-interaction-time) var(--effect-interaction-ease),
-    box-shadow var(--effect-interaction-time) var(--effect-interaction-ease),
-    background-color var(--effect-interaction-time) var(--effect-interaction-ease);
-}
-.dashboard__item[aria-current="true"] {
-  border-color: var(--color-text);
-  box-shadow: var(--effect-focus-ring), var(--effect-depth-1);
-  background-color: var(--color-surface-raised);
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .home__item:hover,
-  .dashboard__item:hover {
-    border-color: color-mix(in srgb, var(--color-text) 34%, var(--color-border));
-    box-shadow: var(--effect-depth-2), inset 0 1px 0 var(--effect-glass-border);
-  }
-}
-
-/* Image gallery: subtle image-only zoom, without changing card dimensions */
-.home__image {
-  transform: scale(1);
-  transition: transform 420ms var(--effect-interaction-ease), filter 420ms var(--effect-interaction-ease);
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .home__item--image:hover .home__image {
-    transform: scale(1.035);
-    filter: saturate(1.06);
-  }
-}
-
-/* More legible active states for main and secondary dashboard tabs */
-.dashboard__tabs .dashboard__tab {
-  position: relative;
-  isolation: isolate;
-  transition:
-    transform var(--effect-interaction-time) var(--effect-interaction-ease),
-    box-shadow var(--effect-interaction-time) var(--effect-interaction-ease),
-    background-color var(--effect-interaction-time) var(--effect-interaction-ease),
-    color var(--effect-interaction-time) var(--effect-interaction-ease);
-}
-.dashboard__tabs .dashboard__tab[aria-selected="true"] {
-  box-shadow: var(--effect-depth-2), inset 0 1px 0 rgba(255,255,255,.32);
-}
-.dashboard__subtabs .dashboard__tab {
-  transition: color var(--effect-interaction-time) var(--effect-interaction-ease),
-    border-color var(--effect-interaction-time) var(--effect-interaction-ease);
-}
-.dashboard__subtabs .dashboard__tab[aria-selected="true"] {
-  font-weight: 700;
-}
-
-/* Input focus feedback */
-:where(input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea) {
-  transition:
-    border-color var(--effect-interaction-time) var(--effect-interaction-ease),
-    box-shadow var(--effect-interaction-time) var(--effect-interaction-ease),
-    background-color var(--effect-interaction-time) var(--effect-interaction-ease);
-}
-:where(input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea):focus {
-  border-color: var(--color-focus);
-  box-shadow: var(--effect-focus-ring);
-  outline: none;
-}
-.dashboard__field:focus-within > label {
-  color: var(--color-text);
-}
-
-/* Menu surface keeps its existing icon and layout; only refines open/close feel */
-.floating-navigation__list {
-  transform-origin: bottom right;
-  transition:
-    opacity var(--effect-interaction-time) var(--effect-interaction-ease),
-    transform var(--effect-interaction-time) var(--effect-interaction-ease),
-    visibility var(--effect-interaction-time) var(--effect-interaction-ease),
-    box-shadow var(--effect-interaction-time) var(--effect-interaction-ease);
-}
-.floating-navigation__list a,
-.floating-navigation__theme {
-  transition: background-color var(--effect-interaction-time) var(--effect-interaction-ease),
-    transform var(--effect-interaction-time) var(--effect-interaction-ease);
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .floating-navigation__list a:hover,
-  .floating-navigation__theme:hover {
-    transform: translateX(2px);
-  }
-}
-
-/* Preserve comfortable touch targets and avoid hover-only effects on touch devices */
-@media (pointer: coarse) {
-  .dashboard__tabs .dashboard__tab { min-height: 44px; }
-  .dashboard__subtabs .dashboard__tab { min-height: 42px; }
-  .home__map-link { min-height: 42px; }
-}
-
-/* Accessibility: all refinements respect reduced-motion preferences */
-@media (prefers-reduced-motion: reduce) {
-  .home__image,
-  .home__item,
-  .dashboard__item,
-  .dashboard__tabs .dashboard__tab,
-  .dashboard__subtabs .dashboard__tab,
-  .floating-navigation__list,
-  .floating-navigation__list a,
-  .floating-navigation__theme,
-  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]), select, textarea) {
-    transition: none !important;
-    transform: none !important;
-  }
-}
 
 
 /* Compact, balanced sizing — retain readable text and comfortable touch targets */
@@ -1169,130 +865,6 @@ h3 { font-size: 18px; }
 }
 
 
-/* Item cards — clearer hierarchy, richer depth and responsive feedback */
-.home__item,
-.dashboard__item {
-  isolation: isolate;
-  border: 1px solid color-mix(in srgb, var(--color-border) 76%, var(--color-text) 24%);
-  background-color: var(--color-surface-raised);
-  box-shadow:
-    0 2px 5px rgba(0,0,0,.035),
-    0 8px 18px rgba(0,0,0,.055),
-    inset 0 1px 0 var(--effect-glass-border);
-}
-.home__item::before,
-.dashboard__item::before {
-  content: "";
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 3px;
-  border-radius: inherit;
-  background: var(--color-text);
-  opacity: .22;
-  transform: scaleY(.38);
-  transform-origin: center;
-  transition: opacity 260ms var(--effect-interaction-ease), transform 260ms var(--effect-interaction-ease);
-}
-.home__item::after,
-.dashboard__item::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(ellipse at 0% 0%, var(--effect-water-highlight), transparent 62%);
-  opacity: .8;
-}
-.home__item-title {
-  position: relative;
-  z-index: 1;
-  font-weight: 700;
-  letter-spacing: -.02em;
-  line-height: 1.38;
-}
-.home__item:not(.home__item--image) {
-  min-height: 82px;
-  justify-content: center;
-  padding: 14px 14px 14px 17px;
-}
-.dashboard__item {
-  position: relative;
-  overflow: hidden;
-  border-radius: 13px;
-  padding-left: 15px;
-}
-.dashboard__item[aria-current="true"]::before {
-  opacity: 1;
-  transform: scaleY(1);
-}
-.dashboard__item[aria-current="true"] {
-  border-color: var(--color-text);
-  background: var(--color-surface-raised);
-}
-.dashboard__item-thumb {
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.10);
-  transition: transform 320ms var(--effect-interaction-ease), box-shadow 320ms var(--effect-interaction-ease);
-}
-.home__item--image {
-  padding: 8px;
-  border-radius: 16px;
-}
-.home__item--image .home__image {
-  border-radius: 11px;
-}
-.home__item--image .home__image-caption {
-  padding: 3px 5px 5px;
-  font-weight: 700;
-  letter-spacing: -.01em;
-}
-.home__location {
-  align-items: center;
-  padding: 8px 9px;
-  border: 1px solid var(--color-border);
-  border-radius: 11px;
-  background: var(--color-surface);
-}
-.home__location-pin {
-  background: var(--color-surface-raised);
-  box-shadow: inset 0 1px 0 var(--effect-glass-border), 0 2px 6px rgba(0,0,0,.06);
-}
-.home__map-link {
-  border-color: color-mix(in srgb, var(--color-border) 65%, var(--color-text) 35%);
-  box-shadow: inset 0 1px 0 var(--effect-glass-border), 0 2px 7px rgba(0,0,0,.045);
-  font-weight: 700;
-}
-@media (hover: hover) and (prefers-reduced-motion: no-preference) {
-  .home__item:hover::before,
-  .dashboard__item:hover::before {
-    opacity: .8;
-    transform: scaleY(1);
-  }
-  .home__item:hover .home__image,
-  .dashboard__item:hover .dashboard__item-thumb {
-    transform: scale(1.045);
-  }
-  .home__item:hover {
-    border-color: color-mix(in srgb, var(--color-text) 42%, var(--color-border));
-  }
-}
-@media (max-width: 520px) {
-  .home__item:not(.home__item--image) {
-    min-height: 72px;
-    padding: 11px 10px 11px 14px;
-  }
-  .home__item--image { padding: 7px; }
-  .dashboard__item { padding-left: 13px; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .home__item::before,
-  .dashboard__item::before,
-  .dashboard__item-thumb {
-    transition: none !important;
-  }
-}
-
-
 /* SVG icon library manager */
 .site-icon-preview{display:flex;align-items:center;justify-content:center;width:64px;height:64px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface-raised);color:var(--color-text)}
 .site-icon-preview svg{width:42px;height:42px;max-width:100%}
@@ -1448,33 +1020,14 @@ html[dir="ltr"] :where(.dashboard__item, .dashboard__option,
 }
 
 
-/* Card cleanup: remove inset shading, glossy overlays and decorative edge marks. */
-.home__item,
-.dashboard__item {
-  position: relative;
-  background-image: none !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .045) !important;
-}
+/* Decorative card overlays are intentionally disabled; surfaces use the global system. */
 .home__item::before,
 .home__item::after,
 .dashboard__item::before,
 .dashboard__item::after {
-  content: none !important;
-  display: none !important;
+  content: none;
+  display: none;
 }
-.home__item .site-icon,
-.dashboard__item .site-icon {
-  width: 22px;
-  height: 22px;
-  color: var(--color-text);
-}
-.home__item .site-icon svg,
-.dashboard__item .site-icon svg {
-  width: 100%;
-  height: 100%;
-}
-
-
 /* Explicit physical fallbacks for direction-aware floating navigation. */
 html[dir="ltr"] .floating-navigation {
   right: 22px !important;
@@ -1757,3 +1310,177 @@ html.site-preferences-pending .floating-navigation {
 .dashboard__detail-preview{width:100%;min-width:0;max-width:760px;margin-inline:auto}
 .dashboard__detail-preview .content__related-item{cursor:default}
 @media(max-width:520px){.content__related-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* =========================================================
+   3B TECH HUB — GLOBAL DESIGN SYSTEM
+   Shared visual rules for Home, Account, Content and Dashboard.
+   Page-specific rules above control layout only.
+   ========================================================= */
+:root {
+  --ds-border: var(--color-border);
+  --ds-surface: var(--color-surface-raised);
+  --ds-surface-muted: var(--color-surface);
+  --ds-text: var(--color-text);
+  --ds-muted: var(--color-muted);
+  --ds-radius-control: var(--radius-medium);
+  --ds-radius-card: var(--radius-large);
+  --ds-shadow-surface: 0 1px 3px rgba(0, 0, 0, .055);
+  --ds-shadow-interactive: 0 1px 2px rgba(0, 0, 0, .045);
+  --ds-focus: 0 0 0 3px color-mix(in srgb, var(--color-focus) 22%, transparent);
+  --ds-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+:root[data-theme="dark"] {
+  --ds-shadow-surface: 0 1px 3px rgba(0, 0, 0, .22);
+  --ds-shadow-interactive: 0 1px 3px rgba(0, 0, 0, .18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --ds-shadow-surface: 0 1px 3px rgba(0, 0, 0, .22);
+    --ds-shadow-interactive: 0 1px 3px rgba(0, 0, 0, .18);
+  }
+}
+
+/* One shared surface treatment; each page retains its own layout and spacing. */
+:where(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list) {
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-card);
+  background-color: var(--ds-surface);
+  background-image: none;
+  box-shadow: var(--ds-shadow-surface);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+/* One shared item/card treatment across public content and dashboard lists. */
+:where(.home__item, .dashboard__item, .content__item, .content__related-item, .dashboard__field-order-row, .dashboard__relation-group) {
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-control);
+  background-color: var(--ds-surface-muted);
+  background-image: none;
+  color: var(--ds-text);
+  box-shadow: var(--ds-shadow-interactive);
+}
+
+/* Shared form containers use the same surface language. */
+:where(.dashboard__manager-form, .account-field, .dashboard__option, .dashboard__role-options > label) {
+  border-color: var(--ds-border);
+  border-radius: var(--ds-radius-control);
+  background-color: var(--ds-surface-muted);
+  color: var(--ds-text);
+  box-shadow: none;
+}
+
+/* Shared controls; size and page-specific placement remain unchanged. */
+:where(button, .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab) {
+  border-color: var(--ds-border);
+  border-radius: var(--ds-radius-control);
+  color: var(--ds-text);
+  background-color: var(--ds-surface);
+  background-image: none;
+  box-shadow: none;
+  transition: var(--ds-transition), transform var(--transition-fast);
+}
+:where(.button--primary, .dashboard__tabs .dashboard__tab[aria-selected="true"]) {
+  border-color: var(--color-accent);
+  background-color: var(--color-accent);
+  color: var(--color-accent-contrast);
+  background-image: none;
+  box-shadow: none;
+}
+:where(.button--secondary) {
+  background-color: var(--ds-surface-muted);
+}
+:where(.button--ghost) {
+  background-color: transparent;
+}
+
+/* Dashboard main tabs retain their intentional pill navigation shape. */
+.dashboard__tabs .dashboard__tab {
+  border-radius: var(--radius-pill);
+}
+.dashboard__subtabs .dashboard__tab {
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Shared field styling for all page and dashboard forms. */
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  border-color: var(--ds-border);
+  border-radius: var(--ds-radius-control);
+  background-color: var(--ds-surface);
+  color: var(--ds-text);
+  box-shadow: none;
+  transition: var(--ds-transition);
+}
+:where(input[type="checkbox"], input[type="radio"]) {
+  accent-color: var(--color-accent);
+}
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):focus-visible {
+  border-color: var(--color-focus);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+/* Unified interaction states with no decorative lift or glossy effects. */
+:where(button:not(:disabled), .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle) {
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--ds-transition), transform var(--transition-fast);
+}
+:where(.button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab):hover {
+  border-color: var(--color-focus);
+}
+:where(.home__item, .dashboard__item, .content__item, .content__related-item):hover {
+  border-color: var(--color-focus);
+}
+:where(button, .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+:where(button:not(:disabled), .button, .dashboard__tab):active {
+  transform: translateY(1px);
+}
+:where(button:disabled, .button:disabled) {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+/* Shared typography and icon alignment. */
+:where(.home__item-title, .dashboard__item-name, .content__related-item strong) {
+  color: var(--ds-text);
+  font-weight: 600;
+}
+:where(.home__status, .dashboard__status, .dashboard__hint, .dashboard__item-meta, .content__empty, .content__related-item small) {
+  color: var(--ds-muted);
+}
+:where([data-site-icon], .site-icon) {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  vertical-align: middle;
+}
+:where([data-site-icon].site-icon svg, .site-icon svg) {
+  display: block;
+  width: 1.2em;
+  height: 1.2em;
+  max-width: 100%;
+}
+
+/* Consistent media bounds and small-screen safety. */
+:where(.home__image, .content__image, .dashboard__item-thumb) {
+  max-width: 100%;
+}
+:where(.home__item-title, .home__image-caption, .content__field, .dashboard__item-name, .dashboard__item-meta) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(button, .button, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle) {
+    transition: none;
+    transform: none;
+  }
+}
