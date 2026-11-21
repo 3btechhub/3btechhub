@@ -24,6 +24,10 @@
   }
   .account-panel[hidden] { display: none; }
   .account-panel .button { width: 100%; }
+  .profile-name {
+    text-align: center;
+    font-weight: 600;
+  }
   .profile-email {
     overflow-wrap: anywhere;
     text-align: center;
@@ -39,7 +43,9 @@
   </form>
 
   <section class="account-panel" id="profile-panel" hidden>
+    <p class="profile-name" id="profile-name"></p>
     <p class="profile-email" id="profile-email"></p>
+    <p class="profile-email" id="account-status"></p>
     <button class="button button--primary" id="logout-button" type="button">Logout</button>
   </section>
 </main>
@@ -54,7 +60,9 @@
   const form = document.getElementById("login-form");
   const loginButton = document.getElementById("login-button");
   const profilePanel = document.getElementById("profile-panel");
+  const profileName = document.getElementById("profile-name");
   const profileEmail = document.getElementById("profile-email");
+  const accountStatus = document.getElementById("account-status");
   const logoutButton = document.getElementById("logout-button");
 
   const params = new URLSearchParams(window.location.search);
@@ -77,9 +85,12 @@
 
   function showAccount(session) {
     const userEmail = session?.user?.email || "";
+    const fullName = session?.user?.user_metadata?.full_name || "";
     form.hidden = Boolean(session);
     profilePanel.hidden = !session;
+    profileName.textContent = fullName;
     profileEmail.textContent = userEmail;
+    accountStatus.textContent = params.get("access") === "denied" ? "This account does not have Dashboard access." : "";
     document.documentElement.classList.add("account-ready");
   }
 
