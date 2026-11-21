@@ -6,6 +6,32 @@
 <link rel="stylesheet" href="../global.css">
 <link rel="stylesheet" href="../navigation.css">
 <script src="../navigation.js" defer></script>
+<title>Dashboard</title>
+<style>
+  body { visibility: hidden; }
+  html.authenticated body { visibility: visible; }
+</style>
+<script type="module">
+  import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.1";
+
+  const supabase = createClient(
+    "https://sburxeuxkrilbfppxylm.supabase.co",
+    "sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT"
+  );
+
+  const accountUrl = new URL("../account/", window.location.href);
+
+  try {
+    const { data: { session }, error } = await supabase.auth.getSession();
+    if (error || !session) {
+      window.location.replace(accountUrl.href);
+    } else {
+      document.documentElement.classList.add("authenticated");
+    }
+  } catch (_) {
+    window.location.replace(accountUrl.href);
+  }
+</script>
 </head>
 <body>
 </body>
