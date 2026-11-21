@@ -26,8 +26,8 @@ function startDashboard(){
  const say=(m,bad=false)=>{status.textContent=m;status.dataset.state=bad?"error":m?"success":"info"};
  const iconize=(button,key)=>{const icon=document.createElement("span");icon.dataset.siteIcon=key;icon.setAttribute("aria-hidden","true");button.append(icon)};
  const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel"].forEach(id=>$(id).disabled=v);$("content-roles").querySelectorAll("input").forEach(input=>input.disabled=v);$("content-delete").disabled=v||!state.selected};
- function tabButton(name,active,onSelect){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";const iconKey={Content:"dashboard.content",Administration:"dashboard.administration",Settings:"dashboard.settings","Existed List":"action.search","Create Form":"action.create","Relation Form":"dashboard.content",User:"field.name",Role:"dashboard.administration",Permission:"field.visibility",Region:"field.location",Direction:"layout.home",Language:"field.name",Theme:"theme.dark","Home Page Section Management":"layout.home","SVG Icons":"field.image"}[name];const label=document.createElement("span");label.textContent=name;b.append(label);if(iconKey){const icon=document.createElement("span");icon.dataset.siteIcon=iconKey;icon.setAttribute("aria-hidden","true");b.append(icon)}b.setAttribute("aria-selected",String(active===name));b.addEventListener("click",()=>onSelect(name));return b}
- function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Direction","Language","Theme","Home Page Section Management","SVG Icons"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
+ function tabButton(name,active,onSelect){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";const iconKey={Content:"dashboard.content",Administration:"dashboard.administration",Settings:"dashboard.settings","Existed List":"action.search","Create Form":"action.create","Relation Form":"dashboard.content",User:"field.name",Role:"dashboard.administration",Permission:"field.visibility",Region:"field.location",Direction:"layout.home",Language:"field.name",Theme:"theme.dark","Home Page Section Management":"layout.home","Details Page Field Order":"dashboard.settings","SVG Icons":"field.image"}[name];const label=document.createElement("span");label.textContent=name;b.append(label);if(iconKey){const icon=document.createElement("span");icon.dataset.siteIcon=iconKey;icon.setAttribute("aria-hidden","true");b.append(icon)}b.setAttribute("aria-selected",String(active===name));b.addEventListener("click",()=>onSelect(name));return b}
+ function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Direction","Language","Theme","Home Page Section Management","Details Page Field Order","SVG Icons"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
 
  async function callUserAdmin(body){const {data,error}=await supabase.functions.invoke("owner-users",{body});if(error)throw error;return data}
  function managerShell(panel,kind){
@@ -179,6 +179,65 @@ function startDashboard(){
   panel.__globalRefresh=load;
   load().catch(err=>say(err.message,true));
  }
+
+ function renderDetailsFieldOrderManager(panel){
+  panel.replaceChildren();
+  const title=document.createElement("h2");title.textContent="Details Page Field Order";
+  const hint=document.createElement("p");hint.className="dashboard__hint";hint.textContent="Choose a content type, then arrange its available detail fields. Drag rows or choose a position.";
+  const typeWrap=document.createElement("div");typeWrap.className="dashboard__field";
+  const typeLabel=document.createElement("label");typeLabel.textContent="Type";typeLabel.htmlFor="details-field-order-type";
+  const typeSelect=document.createElement("select");typeSelect.id="details-field-order-type";typeSelect.setAttribute("aria-label","Type");
+  types.forEach(type=>{const option=document.createElement("option");option.value=type;option.textContent=type;typeSelect.append(option)});
+  typeWrap.append(typeLabel,typeSelect);
+  const list=document.createElement("div");list.className="dashboard__field-order-list";list.setAttribute("aria-label","Field display order");
+  const empty=document.createElement("p");empty.className="dashboard__hint";empty.hidden=true;
+  const actions=document.createElement("div");actions.className="dashboard__actions";
+  const save=document.createElement("button");save.type="button";save.className="button button--primary";save.textContent="Save Order";iconize(save,"action.save");actions.append(save);
+  const result=document.createElement("p");result.className="dashboard__hint";result.setAttribute("role","status");
+  panel.append(title,hint,typeWrap,list,empty,actions,result);
+  const options={Services:[],Products:[],Providers:[["skills","Skills"]],Hubs:[["location","Location"],["map","View Location"]],Contacts:[["label","Label"],["value","Value"]],Images:[["image_url","Image"]],Videos:[["file_title","File Title"],["image_url","Open Video"]]};
+  let order=[],draggedKey="";
+  const move=(key,index)=>{const from=order.indexOf(key);if(from<0)return;const next=[...order];next.splice(from,1);next.splice(Math.max(0,Math.min(index,next.length)),0,key);order=next;renderRows()};
+  const renderRows=()=>{
+   list.replaceChildren();empty.hidden=order.length>0;
+   empty.textContent=options[typeSelect.value].length?"No fields available.":"This Type has no additional detail fields. Name is displayed as the heading.";
+   order.forEach((key,index)=>{
+    const row=document.createElement("div");row.className="dashboard__field-order-row";row.draggable=true;row.dataset.fieldKey=key;
+    const grip=document.createElement("span");grip.className="dashboard__field-order-grip";grip.dataset.siteIcon="action.move";grip.setAttribute("aria-hidden","true");
+    const name=document.createElement("span");name.className="dashboard__field-order-name";name.textContent=options[typeSelect.value].find(x=>x[0]===key)?.[1]||key;
+    const position=document.createElement("select");position.className="dashboard__field-order-position";position.setAttribute("aria-label",name.textContent+" position");
+    order.forEach((_,i)=>{const option=document.createElement("option");option.value=String(i);option.textContent=String(i+1);position.append(option)});
+    position.value=String(index);position.addEventListener("change",()=>move(key,Number(position.value)));
+    row.append(grip,name,position);
+    row.addEventListener("dragstart",e=>{draggedKey=key;row.classList.add("is-dragging");e.dataTransfer?.setData("text/plain",key);if(e.dataTransfer)e.dataTransfer.effectAllowed="move"});
+    row.addEventListener("dragend",()=>{draggedKey="";row.classList.remove("is-dragging");list.querySelectorAll(".is-drop-target").forEach(x=>x.classList.remove("is-drop-target"))});
+    row.addEventListener("dragover",e=>{e.preventDefault();row.classList.add("is-drop-target")});
+    row.addEventListener("dragleave",()=>row.classList.remove("is-drop-target"));
+    row.addEventListener("drop",e=>{e.preventDefault();row.classList.remove("is-drop-target");const sourceKey=draggedKey||e.dataTransfer?.getData("text/plain");if(sourceKey&&sourceKey!==key)move(sourceKey,order.indexOf(key))});
+    list.append(row);
+   });
+   window.siteIcons?.apply();
+  };
+  const load=async()=>{
+   result.textContent="Loading…";save.disabled=true;const type=typeSelect.value;
+   try{
+    const {data,error}=await supabase.from("content_type_field_orders").select("field_order").eq("content_type",type).maybeSingle();if(error)throw error;
+    const available=options[type].map(x=>x[0]),stored=Array.isArray(data?.field_order)?data.field_order:[];
+    order=[...stored.filter(x=>available.includes(x)),...available.filter(x=>!stored.includes(x))];
+    renderRows();result.textContent=data?"Saved order loaded":"Default order";
+   }catch(error){result.textContent="Could not load order";say(error.message,true)}
+   finally{save.disabled=false}
+  };
+  typeSelect.addEventListener("change",()=>load());
+  save.addEventListener("click",async()=>{
+   save.disabled=true;result.textContent="Saving…";
+   try{const {error}=await supabase.from("content_type_field_orders").upsert({content_type:typeSelect.value,field_order:order,updated_at:new Date().toISOString()},{onConflict:"content_type"});if(error)throw error;result.textContent="Saved";say(typeSelect.value+" field order saved")}
+   catch(error){result.textContent="Could not save";say(error.message,true)}
+   finally{save.disabled=false}
+  });
+  panel.__globalRefresh=load;load();
+ }
+
  function renderSvgIconManager(panel){
   const ui=managerShell(panel,"SVG Icon Library"),form=ui.form;
   const key=field(form,"Unique icon key");
@@ -278,11 +337,12 @@ function startDashboard(){
   else if(name==="Direction")renderPreferenceManager(panel,"direction","Direction",[{value:"ltr",label:"LTR"},{value:"rtl",label:"RTL"}]);
   else if(name==="Language")renderPreferenceManager(panel,"language","Language",[{value:"en",label:"English"},{value:"bn",label:"Bangla"},{value:"ar",label:"Arabic"}]);
   else if(name==="Home Page Section Management")renderHomePageManager(panel);
+  else if(name==="Details Page Field Order")renderDetailsFieldOrderManager(panel);
   else if(name==="SVG Icons")renderSvgIconManager(panel);
  }
 
  function showSubtab(name){state.subtab=name;renderSubtabs();if(state.tab==="Content"){ $("existed-list-panel").hidden=name!=="Existed List";$("create-form-panel").hidden=name!=="Create Form";$("relation-form-panel").hidden=name!=="Relation Form";if(name==="Existed List")loadContent();if(name==="Relation Form")loadRelationItems();if(name==="Create Form"){say("");loadContentRoleOptions().catch(err=>say(err.message,true))}}else{const prefix=state.tab==="Administration"?"admin":"settings";document.querySelectorAll("[data-subtab-panel]").forEach(p=>{p.hidden=p.dataset.group!==prefix||p.dataset.subtab!==name;if(!p.hidden)renderManagementPanel(p)});}}
- function showTab(name){state.tab=name;const mainTabs=["Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Content"){if(!["Existed List","Create Form","Relation Form"].includes(state.subtab))state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Direction","Language","Theme","Home Page Section Management","SVG Icons"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
+ function showTab(name){state.tab=name;const mainTabs=["Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Content"){if(!["Existed List","Create Form","Relation Form"].includes(state.subtab))state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Direction","Language","Theme","Home Page Section Management","Details Page Field Order","SVG Icons"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
  async function loadContentRoleOptions(){
   const {data,error}=await supabase.from("roles").select("name").order("name");
   if(error)throw error;
@@ -404,6 +464,7 @@ function startDashboard(){
 <section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Language" hidden><h2>Language</h2></section>
 <section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Theme" hidden><h2>Theme</h2></section>
 <section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Home Page Section Management" hidden><h2>Home Page Section Management</h2></section>
+<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Details Page Field Order" hidden><h2>Details Page Field Order</h2></section>
 <section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="SVG Icons" hidden><h2>SVG Icons</h2></section>
 </section>
 <p class="dashboard__status" id="status" role="status" aria-live="polite"></p>
