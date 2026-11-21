@@ -20,7 +20,7 @@ const typeIcon={Services:"module.services",Products:"module.products",Providers:
 const publicImageUrl=path=>{if(!path)return "";if(/^https?:\/\//i.test(path))return path;return supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl};
 function element(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node}
 function itemLink(item){const a=element("a","content__item",item.name||"");a.href="?type="+encodeURIComponent(item.type)+"&id="+encodeURIComponent(item.id);return a}
-function renderDetail(item,configuredOrder){
+function renderDetail(item,configuredOrder,relatedItems=[]){
  const wrap=element("article","content__detail");
  const icon=element("span","content__detail-icon");icon.dataset.siteIcon=typeIcon[item.type]||"module.services";icon.setAttribute("aria-hidden","true");wrap.append(icon);
  wrap.append(element("h1","content__title",item.name||""));
@@ -33,6 +33,9 @@ function renderDetail(item,configuredOrder){
   if(key==="map"&&item.map){const a=element("a","content__external",label);a.href=item.map;a.target="_blank";a.rel="noopener noreferrer";wrap.append(a);return}
   if(item[key]){const p=element("p","content__field");p.append(element("strong","",label+": "),document.createTextNode(item[key]));wrap.append(p)}
  });
+ const relatedHeading=element("h2","content__related-title","Related Information");wrap.append(relatedHeading);
+ if(!relatedItems.length){wrap.append(element("p","content__empty","No related information"))}
+ else{const group=element("div","content__related-list");relatedItems.forEach(related=>{const a=element("a","content__related-item");a.href="?type="+encodeURIComponent(related.type)+"&id="+encodeURIComponent(related.id);a.append(element("small","",related.type),element("strong","",related.name||""));group.append(a)});wrap.append(group)}
  const back=element("a","content__back","Back to "+item.type);back.href="?type="+encodeURIComponent(item.type);wrap.append(back);root.append(wrap);
  document.title=(item.name||"Details")+" · 3B TECH HUB";window.siteIcons?.apply();
 }
@@ -44,7 +47,13 @@ async function render(){
     supabase.from("content").select("id,type,name,slug,skills,label,value,image_url,file_title,location,map").eq("id",id).eq("type",type).maybeSingle(),
     supabase.from("content_type_field_orders").select("field_order").eq("content_type",type).maybeSingle()
    ]);
-   if(error)throw error;if(orderError)throw orderError;if(!data){status.textContent="Item not found.";return}renderDetail(data,orderData?.field_order);return;
+   if(error)throw error;if(orderError)throw orderError;if(!data){status.textContent="Item not found.";return}
+   const {data:relations,error:relationError}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+id+",target_id.eq."+id);
+   if(relationError)throw relationError;
+   const relatedIds=(relations||[]).map(r=>r.source_id===id?r.target_id:r.source_id);
+   let relatedItems=[];
+   if(relatedIds.length){const {data:relatedData,error:relatedError}=await supabase.from("content").select("id,type,name").in("id",relatedIds).order("type").order("name");if(relatedError)throw relatedError;relatedItems=relatedData||[]}
+   renderDetail(data,orderData?.field_order,relatedItems);return;
   }
   const {data,error}=await supabase.from("content").select("id,type,name").eq("type",type).order("created_at",{ascending:false});
   if(error)throw error;
