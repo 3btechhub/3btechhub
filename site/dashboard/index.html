@@ -183,24 +183,51 @@ function startDashboard(){
  function renderDetailsFieldOrderManager(panel){
   panel.replaceChildren();
   const title=document.createElement("h2");title.textContent="Details Page Field Order";
-  const hint=document.createElement("p");hint.className="dashboard__hint";hint.textContent="Choose a content type, then arrange its available detail fields. Drag rows or choose a position.";
+  const hint=document.createElement("p");hint.className="dashboard__hint";hint.textContent="Select a Type and an existing item to preview its real Details Page, including related information. Reorder the available fields, then save.";
   const typeWrap=document.createElement("div");typeWrap.className="dashboard__field";
   const typeLabel=document.createElement("label");typeLabel.textContent="Type";typeLabel.htmlFor="details-field-order-type";
   const typeSelect=document.createElement("select");typeSelect.id="details-field-order-type";typeSelect.setAttribute("aria-label","Type");
   types.forEach(type=>{const option=document.createElement("option");option.value=type;option.textContent=type;typeSelect.append(option)});
   typeWrap.append(typeLabel,typeSelect);
+  const itemWrap=document.createElement("div");itemWrap.className="dashboard__field";
+  const itemLabel=document.createElement("label");itemLabel.textContent="Preview Item";itemLabel.htmlFor="details-preview-item";
+  const itemSelect=document.createElement("select");itemSelect.id="details-preview-item";itemSelect.setAttribute("aria-label","Preview Item");
+  itemWrap.append(itemLabel,itemSelect);
+  const listTitle=document.createElement("h3");listTitle.textContent="Field Order";
   const list=document.createElement("div");list.className="dashboard__field-order-list";list.setAttribute("aria-label","Field display order");
   const empty=document.createElement("p");empty.className="dashboard__hint";empty.hidden=true;
+  const previewTitle=document.createElement("h3");previewTitle.textContent="Details Page Preview";
+  const preview=document.createElement("div");preview.className="dashboard__detail-preview content__detail";preview.setAttribute("aria-live","polite");
   const actions=document.createElement("div");actions.className="dashboard__actions";
   const save=document.createElement("button");save.type="button";save.className="button button--primary";save.textContent="Save Order";iconize(save,"action.save");actions.append(save);
   const result=document.createElement("p");result.className="dashboard__hint";result.setAttribute("role","status");
-  panel.append(title,hint,typeWrap,list,empty,actions,result);
+  panel.append(title,hint,typeWrap,itemWrap,listTitle,list,empty,previewTitle,preview,actions,result);
   const options={Services:[],Products:[],Providers:[["skills","Skills"]],Hubs:[["location","Location"],["map","View Location"]],Contacts:[["label","Label"],["value","Value"]],Images:[["image_url","Image"]],Videos:[["file_title","File Title"],["image_url","Open Video"]]};
-  let order=[],draggedKey="";
-  const move=(key,index)=>{const from=order.indexOf(key);if(from<0)return;const next=[...order];next.splice(from,1);next.splice(Math.max(0,Math.min(index,next.length)),0,key);order=next;renderRows()};
+  const iconKeys={Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"};
+  let order=[],draggedKey="",items=[],relatedItems=[],currentItem=null;
+  const move=(key,index)=>{const from=order.indexOf(key);if(from<0)return;const next=[...order];next.splice(from,1);next.splice(Math.max(0,Math.min(index,next.length)),0,key);order=next;renderRows();renderPreview()};
+  const publicImageUrl=path=>{if(!path)return "";if(/^https?:\/\//i.test(path))return path;return supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl};
+  const renderPreview=()=>{
+   preview.replaceChildren();
+   if(!currentItem){const p=document.createElement("p");p.className="content__empty";p.textContent="No existing item is available for this Type.";preview.append(p);return}
+   const icon=document.createElement("span");icon.className="content__detail-icon";icon.dataset.siteIcon=iconKeys[currentItem.type]||"module.services";icon.setAttribute("aria-hidden","true");preview.append(icon);
+   const heading=document.createElement("h1");heading.className="content__title";heading.textContent=currentItem.name||"";preview.append(heading);
+   const available=options[currentItem.type]||[];
+   order.forEach(key=>{
+    const label=available.find(([field])=>field===key)?.[1]||key;
+    if(key==="image_url"&&currentItem.type==="Images"&&currentItem.image_url){const img=document.createElement("img");img.className="content__image";img.src=publicImageUrl(currentItem.image_url);img.alt=currentItem.name||"";img.loading="lazy";preview.append(img);return}
+    if(key==="image_url"&&currentItem.type==="Videos"&&currentItem.image_url){const a=document.createElement("span");a.className="content__external";a.textContent="Open Video";preview.append(a);return}
+    if(key==="map"&&currentItem.map){const a=document.createElement("span");a.className="content__external";a.textContent=label;preview.append(a);return}
+    if(currentItem[key]){const p=document.createElement("p");p.className="content__field";const strong=document.createElement("strong");strong.textContent=label+": ";p.append(strong,document.createTextNode(currentItem[key]));preview.append(p)}
+   });
+   const relatedHeading=document.createElement("h2");relatedHeading.className="content__related-title";relatedHeading.textContent="Related Information";preview.append(relatedHeading);
+   if(!relatedItems.length){const p=document.createElement("p");p.className="content__empty";p.textContent="No related information";preview.append(p)}
+   else{const group=document.createElement("div");group.className="content__related-list";relatedItems.forEach(item=>{const a=document.createElement("span");a.className="content__related-item";const type=document.createElement("small");type.textContent=item.type;const name=document.createElement("strong");name.textContent=item.name;a.append(type,name);group.append(a)});preview.append(group)}
+   window.siteIcons?.apply();
+  };
   const renderRows=()=>{
    list.replaceChildren();empty.hidden=order.length>0;
-   empty.textContent=options[typeSelect.value].length?"No fields available.":"This Type has no additional detail fields. Name is displayed as the heading.";
+   empty.textContent=options[typeSelect.value].length?"No additional fields are available for this Type.":"This Type has no additional fields. Related information is still shown in the preview.";
    order.forEach((key,index)=>{
     const row=document.createElement("div");row.className="dashboard__field-order-row";row.draggable=true;row.dataset.fieldKey=key;
     const grip=document.createElement("span");grip.className="dashboard__field-order-grip";grip.setAttribute("aria-hidden","true");
@@ -218,17 +245,36 @@ function startDashboard(){
    });
    window.siteIcons?.apply();
   };
+  const loadPreviewItem=async()=>{
+   const itemId=itemSelect.value;currentItem=items.find(x=>x.id===itemId)||null;relatedItems=[];
+   if(currentItem){
+    const {data:relations,error}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+currentItem.id+",target_id.eq."+currentItem.id);
+    if(error)throw error;
+    const ids=(relations||[]).map(r=>r.source_id===currentItem.id?r.target_id:r.source_id);
+    if(ids.length){const {data,error:itemsError}=await supabase.from("content").select("id,type,name").in("id",ids).order("type").order("name");if(itemsError)throw itemsError;relatedItems=data||[]}
+   }
+   renderPreview();
+  };
+  const loadTypeItems=async()=>{
+   const type=typeSelect.value;itemSelect.replaceChildren();
+   const {data,error}=await supabase.from("content").select("id,type,name,skills,label,value,image_url,file_title,location,map").eq("type",type).order("created_at",{ascending:false});
+   if(error)throw error;items=data||[];
+   const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Select an existing item";itemSelect.append(placeholder);
+   items.forEach(item=>{const option=document.createElement("option");option.value=item.id;option.textContent=item.name;itemSelect.append(option)});
+   itemSelect.value=items[0]?.id||"";await loadPreviewItem();
+  };
   const load=async()=>{
    result.textContent="Loading…";save.disabled=true;const type=typeSelect.value;
    try{
     const {data,error}=await supabase.from("content_type_field_orders").select("field_order").eq("content_type",type).maybeSingle();if(error)throw error;
     const available=options[type].map(x=>x[0]),stored=Array.isArray(data?.field_order)?data.field_order:[];
     order=[...stored.filter(x=>available.includes(x)),...available.filter(x=>!stored.includes(x))];
-    renderRows();result.textContent=data?"Saved order loaded":"Default order";
-   }catch(error){result.textContent="Could not load order";say(error.message,true)}
+    renderRows();await loadTypeItems();result.textContent=data?"Saved order loaded":"Default order";
+   }catch(error){result.textContent="Could not load preview";say(error.message,true)}
    finally{save.disabled=false}
   };
   typeSelect.addEventListener("change",()=>load());
+  itemSelect.addEventListener("change",()=>loadPreviewItem().catch(error=>say(error.message,true)));
   save.addEventListener("click",async()=>{
    save.disabled=true;result.textContent="Saving…";
    try{const {error}=await supabase.from("content_type_field_orders").upsert({content_type:typeSelect.value,field_order:order,updated_at:new Date().toISOString()},{onConflict:"content_type"});if(error)throw error;result.textContent="Saved";say(typeSelect.value+" field order saved")}
@@ -237,7 +283,6 @@ function startDashboard(){
   });
   panel.__globalRefresh=load;load();
  }
-
  function renderSvgIconManager(panel){
   const ui=managerShell(panel,"SVG Icon Library"),form=ui.form;
   const key=field(form,"Unique icon key");
