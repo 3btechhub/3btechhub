@@ -20,12 +20,13 @@
     <p class="profile-name" id="profile-name"></p>
     <p class="profile-email" id="profile-email"></p>
     <p class="profile-email" id="account-status"></p>
-    <button class="button button--primary" id="logout-button" type="button">Logout</button>
+    <button class="button button--primary" id="logout-button" type="button"><span data-site-icon="action.logout"></span>Logout</button>
   </section>
 </main>
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.1";
   import { connectGlobalRealtime } from "../realtime.js";
+  import { initSiteIcons } from "../icons.js";
 
   const supabase = createClient(
     "https://sburxeuxkrilbfppxylm.supabase.co",
@@ -33,6 +34,7 @@
   );
 
   connectGlobalRealtime(supabase);
+  initSiteIcons(supabase);
 
   const form = document.getElementById("login-form");
   const loginButton = document.getElementById("login-button");
