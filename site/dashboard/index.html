@@ -60,7 +60,7 @@ function startDashboard(){
    if(type==="Videos"){const title=add("content-file-title","File Title","text",item.file_title);title.readOnly=true;title.placeholder="Set automatically from uploaded file";file.addEventListener("change",()=>{title.value=file.files?.[0]?.name||item.file_title||""})}
   }
  }
- function resetContent(){state.selected=null;state.slugEdited=false;$("content-form").reset();$("content-name").value="";$("content-visible").checked=true;renderTypeFields($("content-form-type").value);$("content-delete").disabled=true;renderContentList()}
+ function resetContent(){const type=$("content-form-type").value;state.selected=null;state.slugEdited=false;$("content-form").reset();$("content-form-type").value=type;$("content-name").value="";$("content-visible").checked=true;renderTypeFields(type);$("content-delete").disabled=true;renderContentList()}
  function editContent(item){state.selected=item.id;state.slugEdited=true;$("content-name").value=item.name;$("content-type").value=item.type;$("content-form-type").value=item.type;$("content-visible").checked=item.is_visible;renderTypeFields(item.type,item);$("content-delete").disabled=false;renderContentList();say("Item loaded")}
  $("content-type").addEventListener("change",()=>{ $("content-form-type").value=$("content-type").value;resetContent()});
  $("content-form-type").addEventListener("change",()=>{state.selected=null;state.slugEdited=false;renderTypeFields($("content-form-type").value);$("content-delete").disabled=true;renderContentList()});
@@ -73,7 +73,7 @@ function startDashboard(){
   if(error)throw error;return data.path;
  }
  $("content-form").addEventListener("submit",async e=>{
-  e.preventDefault();if(state.busy)return;const type=$("content-form-type").value,name=$("content-name").value.trim();let slug=$("content-slug")?.value.trim().toLowerCase()||name.toLowerCase().normalize("NFKD").replace(/[\\u0300-\\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").replace(/-{2,}/g,"-");
+  e.preventDefault();if(state.busy)return;const type=$("content-form-type").value,name=$("content-name").value.trim();let slug=$("content-slug")?.value.trim().toLowerCase()||name.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").replace(/-{2,}/g,"-");
   if(["Services","Products","Providers"].includes(type)&&(!slug||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))){say("Enter a valid slug.",true);return}
   if(!name){say("Enter a name.",true);return}
   setBusy(true);
