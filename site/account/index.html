@@ -25,11 +25,14 @@
 </main>
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.1";
+  import { connectGlobalRealtime } from "../realtime.js";
 
   const supabase = createClient(
     "https://sburxeuxkrilbfppxylm.supabase.co",
     "sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT"
   );
+
+  connectGlobalRealtime(supabase);
 
   const form = document.getElementById("login-form");
   const loginButton = document.getElementById("login-button");
@@ -67,6 +70,11 @@
     accountStatus.textContent = params.get("access") === "denied" ? "This account does not have Dashboard access." : "";
     document.documentElement.classList.add("account-ready");
   }
+
+  window.addEventListener("3b:global-update", async () => {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (!error && user) showAccount({ user });
+  });
 
   function continueToTarget() {
     if (!returnTarget) return false;
