@@ -1746,3 +1746,14 @@ html.site-preferences-pending .floating-navigation {
 .dashboard__field-order-grip{display:flex;align-items:center;justify-content:center;width:18px;height:28px;color:var(--color-muted);cursor:grab;touch-action:pan-y;background:radial-gradient(circle,currentColor 1.35px,transparent 1.55px) 0 0/7px 7px}
 .dashboard__field-order-name{min-width:0;overflow-wrap:anywhere}
 .dashboard__field-order-position{min-height:38px;padding:var(--space-1) var(--space-2);text-align:center}
+
+
+/* Related content shared by dashboard preview and public Details Pages */
+.content__related-title{margin:var(--space-3) 0 0;text-align:center;font-size:var(--font-size-lg)}
+.content__related-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:var(--space-2);min-width:0}
+.content__related-item{display:flex;flex-direction:column;gap:5px;min-width:0;padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-surface);color:var(--color-text);text-decoration:none;overflow-wrap:anywhere}
+.content__related-item small{color:var(--color-muted);font-size:var(--font-size-xs)}
+.content__related-item strong{font-weight:600}
+.dashboard__detail-preview{width:100%;min-width:0;max-width:760px;margin-inline:auto}
+.dashboard__detail-preview .content__related-item{cursor:default}
+@media(max-width:520px){.content__related-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
