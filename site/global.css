@@ -1342,7 +1342,7 @@ html.site-preferences-pending .floating-navigation {
 }
 
 /* One shared surface treatment; each page retains its own layout and spacing. */
-:where(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list) {
+:is(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list) {
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-card);
   background-color: var(--ds-surface);
@@ -1353,7 +1353,7 @@ html.site-preferences-pending .floating-navigation {
 }
 
 /* One shared item/card treatment across public content and dashboard lists. */
-:where(.home__item, .dashboard__item, .content__item, .content__related-item, .dashboard__field-order-row, .dashboard__relation-group) {
+:is(.home__item, .dashboard__item, .content__item, .content__related-item, .dashboard__field-order-row, .dashboard__relation-group) {
   border: 1px solid var(--ds-border);
   border-radius: var(--ds-radius-control);
   background-color: var(--ds-surface-muted);
@@ -1363,7 +1363,7 @@ html.site-preferences-pending .floating-navigation {
 }
 
 /* Shared form containers use the same surface language. */
-:where(.dashboard__manager-form, .account-field, .dashboard__option, .dashboard__role-options > label) {
+:is(.dashboard__manager-form, .account-field, .dashboard__option, .dashboard__role-options > label) {
   border-color: var(--ds-border);
   border-radius: var(--ds-radius-control);
   background-color: var(--ds-surface-muted);
@@ -1372,7 +1372,7 @@ html.site-preferences-pending .floating-navigation {
 }
 
 /* Shared controls; size and page-specific placement remain unchanged. */
-:where(button, .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab) {
+:is(button, .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab) {
   border-color: var(--ds-border);
   border-radius: var(--ds-radius-control);
   color: var(--ds-text);
@@ -1381,17 +1381,17 @@ html.site-preferences-pending .floating-navigation {
   box-shadow: none;
   transition: var(--ds-transition), transform var(--transition-fast);
 }
-:where(.button--primary, .dashboard__tabs .dashboard__tab[aria-selected="true"]) {
+:is(.button--primary, .dashboard__tabs .dashboard__tab[aria-selected="true"]) {
   border-color: var(--color-accent);
   background-color: var(--color-accent);
   color: var(--color-accent-contrast);
   background-image: none;
   box-shadow: none;
 }
-:where(.button--secondary) {
+:is(.button--secondary) {
   background-color: var(--ds-surface-muted);
 }
-:where(.button--ghost) {
+:is(.button--ghost) {
   background-color: transparent;
 }
 
@@ -1406,7 +1406,7 @@ html.site-preferences-pending .floating-navigation {
 }
 
 /* Shared field styling for all page and dashboard forms. */
-:where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+:is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
   border-color: var(--ds-border);
   border-radius: var(--ds-radius-control);
   background-color: var(--ds-surface);
@@ -1414,10 +1414,10 @@ html.site-preferences-pending .floating-navigation {
   box-shadow: none;
   transition: var(--ds-transition);
 }
-:where(input[type="checkbox"], input[type="radio"]) {
+:is(input[type="checkbox"], input[type="radio"]) {
   accent-color: var(--color-accent);
 }
-:where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):focus-visible {
+:is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):focus-visible {
   border-color: var(--color-focus);
   outline: 2px solid var(--color-focus);
   outline-offset: 1px;
@@ -1425,37 +1425,37 @@ html.site-preferences-pending .floating-navigation {
 }
 
 /* Unified interaction states with no decorative lift or glossy effects. */
-:where(button:not(:disabled), .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle) {
+:is(button:not(:disabled), .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle) {
   -webkit-tap-highlight-color: transparent;
   transition: var(--ds-transition), transform var(--transition-fast);
 }
-:where(.button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab):hover {
+:is(.button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab):hover {
   border-color: var(--color-focus);
 }
-:where(.home__item, .dashboard__item, .content__item, .content__related-item):hover {
+:is(.home__item, .dashboard__item, .content__item, .content__related-item):hover {
   border-color: var(--color-focus);
 }
-:where(button, .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle):focus-visible {
+:is(button, .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle):focus-visible {
   outline: 2px solid var(--color-focus);
   outline-offset: 2px;
 }
-:where(button:not(:disabled), .button, .dashboard__tab):active {
+:is(button:not(:disabled), .button, .dashboard__tab):active {
   transform: translateY(1px);
 }
-:where(button:disabled, .button:disabled) {
+:is(button:disabled, .button:disabled) {
   opacity: .6;
   cursor: not-allowed;
 }
 
 /* Shared typography and icon alignment. */
-:where(.home__item-title, .dashboard__item-name, .content__related-item strong) {
+:is(.home__item-title, .dashboard__item-name, .content__related-item strong) {
   color: var(--ds-text);
   font-weight: 600;
 }
-:where(.home__status, .dashboard__status, .dashboard__hint, .dashboard__item-meta, .content__empty, .content__related-item small) {
+:is(.home__status, .dashboard__status, .dashboard__hint, .dashboard__item-meta, .content__empty, .content__related-item small) {
   color: var(--ds-muted);
 }
-:where([data-site-icon], .site-icon) {
+:is([data-site-icon], .site-icon) {
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
@@ -1463,7 +1463,7 @@ html.site-preferences-pending .floating-navigation {
   line-height: 0;
   vertical-align: middle;
 }
-:where([data-site-icon].site-icon svg, .site-icon svg) {
+:is([data-site-icon].site-icon svg, .site-icon svg) {
   display: block;
   width: 1.2em;
   height: 1.2em;
@@ -1471,15 +1471,15 @@ html.site-preferences-pending .floating-navigation {
 }
 
 /* Consistent media bounds and small-screen safety. */
-:where(.home__image, .content__image, .dashboard__item-thumb) {
+:is(.home__image, .content__image, .dashboard__item-thumb) {
   max-width: 100%;
 }
-:where(.home__item-title, .home__image-caption, .content__field, .dashboard__item-name, .dashboard__item-meta) {
+:is(.home__item-title, .home__image-caption, .content__field, .dashboard__item-name, .dashboard__item-meta) {
   min-width: 0;
   overflow-wrap: anywhere;
 }
 @media (prefers-reduced-motion: reduce) {
-  :where(button, .button, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle) {
+  :is(button, .button, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle) {
     transition: none;
     transform: none;
   }
