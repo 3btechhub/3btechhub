@@ -1185,6 +1185,7 @@ html.site-preferences-pending .floating-navigation {
   --component-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 :is(.size-small, [data-size="small"]) { --component-control-height: var(--component-control-height-small); --component-padding-inline: 10px; --component-padding-block: 7px; }
+:is(.size-medium, [data-size="medium"]) { --component-control-height: 44px; --component-padding-inline: 14px; --component-padding-block: 10px; }
 :is(.size-big, [data-size="big"]) { --component-control-height: var(--component-control-height-big); --component-padding-inline: 18px; --component-padding-block: 14px; }
 
 /* One shared surface/card style. Page classes below are layout hooks only. */
