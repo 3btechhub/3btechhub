@@ -10,30 +10,305 @@
 <style>
   body { visibility: hidden; }
   html.authenticated body { visibility: visible; }
+  .dashboard { padding-block: 28px 100px; }
+  .dashboard__tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:20px; }
+  .dashboard__tab { flex:0 0 auto; min-height:42px; padding:9px 16px; border:1px solid var(--color-border); border-radius:var(--radius-pill); background:var(--color-surface-raised); color:var(--color-text); font-weight:600; }
+  .dashboard__tab[aria-selected="true"] { background:var(--color-accent); color:var(--color-accent-contrast); border-color:var(--color-accent); }
+  .dashboard__layout { display:grid; grid-template-columns:minmax(230px,.8fr) minmax(0,1.4fr); gap:20px; align-items:start; }
+  .dashboard__panel { min-width:0; padding:20px; border:1px solid var(--color-border); border-radius:var(--radius-large); background:var(--color-surface-raised); }
+  .dashboard__panel h2 { font-size:20px; margin-bottom:16px; }
+  .dashboard__list { display:grid; gap:8px; max-height:65vh; overflow:auto; }
+  .dashboard__item { width:100%; display:flex; justify-content:space-between; gap:12px; padding:12px; border:1px solid var(--color-border); border-radius:var(--radius-medium); background:var(--color-surface); color:var(--color-text); text-align:left; }
+  .dashboard__item[aria-current="true"] { border-color:var(--color-text); }
+  .dashboard__item small { display:block; color:var(--color-muted); overflow-wrap:anywhere; }
+  .dashboard__field { display:grid; gap:6px; margin-bottom:16px; }
+  .dashboard__visibility { display:flex; align-items:center; gap:10px; margin:6px 0 20px; font-size:14px; }
+  .dashboard__visibility input { width:18px; height:18px; min-height:0; }
+  .dashboard__relations { display:grid; gap:14px; margin:16px 0 22px; }
+  .dashboard__relation-group { padding:12px; border:1px solid var(--color-border); border-radius:var(--radius-medium); }
+  .dashboard__relation-group h3 { font-size:15px; margin-bottom:10px; }
+  .dashboard__relation-options { display:grid; gap:8px; }
+  .dashboard__relation-option { display:flex; align-items:center; gap:10px; margin:0; font-weight:400; }
+  .dashboard__relation-option input { width:18px; height:18px; min-height:0; }
+  .dashboard__actions { display:flex; flex-wrap:wrap; gap:8px; }
+  .dashboard__status { min-height:22px; margin:0 0 12px; color:var(--color-muted); font-size:14px; }
+  .dashboard__empty { padding:22px 10px; color:var(--color-muted); text-align:center; }
+  @media(max-width:720px) { .dashboard__layout { grid-template-columns:1fr; } .dashboard__list { max-height:280px; } }
 </style>
 <script type="module">
   import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.1";
-
   const supabase = createClient(
     "https://sburxeuxkrilbfppxylm.supabase.co",
     "sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT"
   );
-
   const accountUrl = new URL("../account/", window.location.href);
   accountUrl.searchParams.set("returnTo", window.location.href);
-
-  try {
-    const { data: { session }, error } = await supabase.auth.getSession();
-    if (error || !session) {
-      window.location.replace(accountUrl.href);
-    } else {
-      document.documentElement.classList.add("authenticated");
-    }
-  } catch (_) {
+  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError || !session) {
     window.location.replace(accountUrl.href);
+  } else {
+    document.documentElement.classList.add("authenticated");
+    startDashboard();
+  }
+
+  function startDashboard() {
+    const types = ["services", "products", "providers", "hubs"];
+    const labels = { services:"Services", products:"Products", providers:"Providers", hubs:"Hubs" };
+    const $ = id => document.getElementById(id);
+    const state = { type:"services", itemId:null, items:[], selectedRelations:new Set(), busy:false };
+    const tabs = $("content-tabs");
+    const list = $("existing-list");
+    const form = $("content-form");
+    const relationArea = $("relation-groups");
+    const status = $("form-status");
+    const saveButton = $("save-button");
+    const deleteButton = $("delete-button");
+
+    function setStatus(message, isError=false) {
+      status.textContent = message;
+      status.style.color = isError ? "#c0392b" : "var(--color-muted)";
+    }
+    function setBusy(value) {
+      state.busy = value;
+      saveButton.disabled = value;
+      deleteButton.disabled = value || !state.itemId;
+    }
+    function makeTab(type) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "dashboard__tab";
+      button.textContent = labels[type];
+      button.setAttribute("aria-selected", String(state.type === type));
+      button.addEventListener("click", async () => {
+        if (state.busy) return;
+        state.type = type;
+        state.itemId = null;
+        state.selectedRelations.clear();
+        $("item-name").value = "";
+        $("item-slug").value = "";
+        $("item-visible").checked = true;
+        deleteButton.disabled = true;
+        renderTabs();
+        await refreshItems();
+        renderRelations();
+        setStatus("");
+      });
+      return button;
+    }
+    function renderTabs() {
+      tabs.replaceChildren(...types.map(makeTab));
+    }
+    async function refreshItems() {
+      const { data, error } = await supabase.from("content_items")
+        .select("id,type,name,slug,is_visible,created_at")
+        .eq("type", state.type)
+        .order("created_at", { ascending:false });
+      if (error) { setStatus(error.message, true); return; }
+      state.items = data || [];
+      renderList();
+    }
+    function renderList() {
+      list.replaceChildren();
+      if (!state.items.length) {
+        const empty = document.createElement("div");
+        empty.className = "dashboard__empty";
+        empty.textContent = "No existing items";
+        list.append(empty);
+        return;
+      }
+      state.items.forEach(item => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "dashboard__item";
+        button.setAttribute("aria-current", String(state.itemId === item.id));
+        const text = document.createElement("span");
+        text.textContent = item.name;
+        const meta = document.createElement("small");
+        meta.textContent = item.slug + (item.is_visible ? "" : " · Hidden");
+        text.append(meta);
+        button.append(text);
+        button.addEventListener("click", () => loadItem(item.id));
+        list.append(button);
+      });
+    }
+    async function renderRelations() {
+      relationArea.replaceChildren();
+      const { data, error } = await supabase.from("content_items")
+        .select("id,type,name,slug")
+        .order("name", { ascending:true });
+      if (error) { setStatus(error.message, true); return; }
+      types.forEach(type => {
+        const group = document.createElement("section");
+        group.className = "dashboard__relation-group";
+        const heading = document.createElement("h3");
+        heading.textContent = labels[type];
+        const options = document.createElement("div");
+        options.className = "dashboard__relation-options";
+        const candidates = (data || []).filter(item => item.type === type && item.id !== state.itemId);
+        if (!candidates.length) {
+          const empty = document.createElement("small");
+          empty.className = "text-muted";
+          empty.textContent = "No existing items";
+          options.append(empty);
+        }
+        candidates.forEach(item => {
+          const label = document.createElement("label");
+          label.className = "dashboard__relation-option";
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = item.id;
+          checkbox.checked = state.selectedRelations.has(item.id);
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) state.selectedRelations.add(item.id);
+            else state.selectedRelations.delete(item.id);
+          });
+          const name = document.createElement("span");
+          name.textContent = item.name;
+          label.append(checkbox, name);
+          options.append(label);
+        });
+        group.append(heading, options);
+        relationArea.append(group);
+      });
+    }
+    async function loadItem(id) {
+      setStatus("Loading…");
+      const { data: item, error } = await supabase.from("content_items")
+        .select("id,type,name,slug,is_visible").eq("id", id).single();
+      if (error) { setStatus(error.message, true); return; }
+      state.itemId = item.id;
+      state.type = item.type;
+      $("item-name").value = item.name;
+      $("item-slug").value = item.slug;
+      $("item-visible").checked = item.is_visible;
+      const { data: relations, error: relationError } = await supabase.from("content_relations")
+        .select("item_a_id,item_b_id")
+        .or("item_a_id.eq." + id + ",item_b_id.eq." + id);
+      if (relationError) { setStatus(relationError.message, true); return; }
+      state.selectedRelations = new Set((relations || []).map(r => r.item_a_id === id ? r.item_b_id : r.item_a_id));
+      renderTabs();
+      renderList();
+      deleteButton.disabled = false;
+      await renderRelations();
+      setStatus("Item loaded");
+    }
+    function normalizePair(a,b) { return a < b ? {item_a_id:a,item_b_id:b} : {item_a_id:b,item_b_id:a}; }
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      if (state.busy) return;
+      const name = $("item-name").value.trim();
+      const slug = $("item-slug").value.trim().toLowerCase();
+      if (!name || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+        setStatus("Enter a name and a valid lowercase slug (example: tv-repair).", true);
+        return;
+      }
+      setBusy(true);
+      setStatus("Saving…");
+      const payload = { type:state.type, name, slug, is_visible:$("item-visible").checked };
+      let itemId = state.itemId;
+      let result;
+      if (itemId) result = await supabase.from("content_items").update(payload).eq("id", itemId).select("id").single();
+      else result = await supabase.from("content_items").insert(payload).select("id").single();
+      if (result.error) {
+        setStatus(result.error.message, true);
+        setBusy(false);
+        return;
+      }
+      itemId = result.data.id;
+      const { error: deleteRelationsError } = await supabase.from("content_relations")
+        .delete().or("item_a_id.eq." + itemId + ",item_b_id.eq." + itemId);
+      if (deleteRelationsError) {
+        state.itemId = itemId;
+        setStatus("Item saved, but relations could not be refreshed: " + deleteRelationsError.message, true);
+        setBusy(false);
+        return;
+      }
+      const rows = [...state.selectedRelations].filter(id => id !== itemId).map(id => normalizePair(itemId,id));
+      if (rows.length) {
+        const { error: insertRelationsError } = await supabase.from("content_relations").insert(rows);
+        if (insertRelationsError) {
+          state.itemId = itemId;
+          setStatus("Item saved, but relations could not be saved: " + insertRelationsError.message, true);
+          setBusy(false);
+          return;
+        }
+      }
+      state.itemId = itemId;
+      await refreshItems();
+      await renderRelations();
+      renderList();
+      deleteButton.disabled = false;
+      setStatus("Saved");
+      setBusy(false);
+    });
+    $("cancel-button").addEventListener("click", async () => {
+      if (state.busy) return;
+      state.itemId = null;
+      state.selectedRelations.clear();
+      form.reset();
+      $("item-visible").checked = true;
+      deleteButton.disabled = true;
+      await refreshItems();
+      await renderRelations();
+      setStatus("");
+    });
+    deleteButton.addEventListener("click", async () => {
+      if (!state.itemId || state.busy || !window.confirm("Delete this item and its relations?")) return;
+      setBusy(true);
+      const { error } = await supabase.from("content_items").delete().eq("id", state.itemId);
+      if (error) setStatus(error.message, true);
+      else {
+        state.itemId = null;
+        state.selectedRelations.clear();
+        form.reset();
+        $("item-visible").checked = true;
+        await refreshItems();
+        await renderRelations();
+        setStatus("Deleted");
+      }
+      setBusy(false);
+    });
+    renderTabs();
+    refreshItems();
+    renderRelations();
+    deleteButton.disabled = true;
   }
 </script>
 </head>
 <body>
+<main class="container dashboard">
+  <header class="page-header">
+    <h1>Dashboard</h1>
+  </header>
+  <nav class="dashboard__tabs" id="content-tabs" aria-label="Content types"></nav>
+  <div class="dashboard__layout">
+    <section class="dashboard__panel" aria-labelledby="existing-heading">
+      <h2 id="existing-heading">Existed List</h2>
+      <div class="dashboard__list" id="existing-list"><p class="dashboard__empty">Loading…</p></div>
+    </section>
+    <section class="dashboard__panel" aria-labelledby="form-heading">
+      <h2 id="form-heading">Create Form</h2>
+      <form id="content-form">
+        <div class="dashboard__field">
+          <label for="item-name">Name</label>
+          <input id="item-name" name="name" type="text" maxlength="160" required autocomplete="off">
+        </div>
+        <div class="dashboard__field">
+          <label for="item-slug">Slug</label>
+          <input id="item-slug" name="slug" type="text" maxlength="180" required pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off">
+        </div>
+        <label class="dashboard__visibility"><input id="item-visible" type="checkbox" checked> Visibility</label>
+        <h2>Relation Form</h2>
+        <div class="dashboard__relations" id="relation-groups"></div>
+        <p class="dashboard__status" id="form-status" role="status" aria-live="polite"></p>
+        <div class="dashboard__actions">
+          <button class="button button--primary" id="save-button" type="submit">Save</button>
+          <button class="button button--secondary" id="cancel-button" type="button">Cancel</button>
+          <button class="button button--secondary" id="delete-button" type="button" disabled>Delete</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</main>
 </body>
 </html>
