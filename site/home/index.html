@@ -53,8 +53,8 @@ function makeItem(item){
  const itemIcon=document.createElement("span");
  itemIcon.dataset.siteIcon=({Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"})[item.type]||"";
  itemIcon.setAttribute("aria-hidden","true");
- if(itemIcon.dataset.siteIcon)card.append(itemIcon);
  card.append(title);
+ if(itemIcon.dataset.siteIcon)card.append(itemIcon);
  if(item.type==="Hubs"){
   if(item.location){
    const location=document.createElement("p");
