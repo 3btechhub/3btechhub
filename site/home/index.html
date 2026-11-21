@@ -9,10 +9,12 @@
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.119.1";
 import {connectGlobalRealtime} from "../realtime.js";
+import {initSiteIcons} from "../icons.js";
 const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
 const root=document.getElementById("home-types");
 const status=document.getElementById("home-status");
 connectGlobalRealtime(supabase);
+initSiteIcons(supabase);
 let renderVersion=0;
 const showError=message=>{status.textContent=message};
 const publicImageUrl=path=>{
@@ -90,7 +92,10 @@ async function renderHome(){
   const card=document.createElement("section");
   card.className="home__type";
   const heading=document.createElement("h2");
-  heading.textContent=section.content_type;
+  heading.className="home__type-title";
+  const iconKey={Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"}[section.content_type];
+  if(iconKey){const icon=document.createElement("span");icon.dataset.siteIcon=iconKey;heading.append(icon)}
+  heading.append(document.createTextNode(section.content_type));
   const list=document.createElement("div");
   list.className="home__items";
   if(section.content_type==="Images")list.classList.add("home__items--gallery");
