@@ -68,7 +68,6 @@
   --color-accent-contrast: #ffffff;
   --color-focus: #555555;
   --color-overlay: rgba(0, 0, 0, 0.48);
-  --shadow-soft: 0 4px 18px rgba(0, 0, 0, 0.08);
   --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.14);
 }
 
@@ -1276,8 +1275,6 @@ width: 18px;
 :root {
 }
 :root[data-theme="dark"] {
---ds-shadow-surface: 0 1px 3px rgba(0, 0, 0, .22);
-  --ds-shadow-interactive: 0 1px 3px rgba(0, 0, 0, .18);
   color-scheme: dark;
   --color-background: #111111;
   --color-surface: #1b1b1b;
@@ -1289,17 +1286,13 @@ width: 18px;
   --color-accent-contrast: #111111;
   --color-focus: #bbbbbb;
   --color-overlay: rgba(0, 0, 0, 0.7);
-  --shadow-soft: 0 4px 18px rgba(0, 0, 0, 0.32);
   --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.45);
   --color-surface-muted: #292929;
   --color-success: #78c995;
   --color-danger: #ff8585;
-  --color-warning: #e7bd68;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
---ds-shadow-surface: 0 1px 3px rgba(0, 0, 0, .22);
-    --ds-shadow-interactive: 0 1px 3px rgba(0, 0, 0, .18);
   color-scheme: dark;
   --color-background: #111111;
   --color-surface: #1b1b1b;
@@ -1311,12 +1304,10 @@ width: 18px;
   --color-accent-contrast: #111111;
   --color-focus: #bbbbbb;
   --color-overlay: rgba(0, 0, 0, 0.7);
-  --shadow-soft: 0 4px 18px rgba(0, 0, 0, 0.32);
   --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.45);
   --color-surface-muted: #292929;
   --color-success: #78c995;
   --color-danger: #ff8585;
-  --color-warning: #e7bd68;
 }
 }/* One shared surface treatment; each page retains its own layout and spacing. *//* One shared item/card treatment across public content and dashboard lists. *//* Shared form containers use the same surface language. *//* Shared controls; size and page-specific placement remain unchanged. */
 :is(.button--secondary) {
