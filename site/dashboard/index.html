@@ -66,7 +66,7 @@ function startDashboard(){
  const state={tab:"Content",subtab:"Existed List",items:[],roles:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
  const tabs=$("dashboard-tabs"),status=$("status");
  const say=(m,bad=false)=>{status.textContent=m;status.style.color=bad?"#c0392b":"var(--color-muted)"};
- const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel","content-roles"].forEach(id=>$(id).disabled=v);$("content-delete").disabled=v||!state.selected};
+ const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel"].forEach(id=>$(id).disabled=v);$("content-roles").querySelectorAll("input").forEach(input=>input.disabled=v);$("content-delete").disabled=v||!state.selected};
  function tabButton(name,active,onSelect){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";b.textContent=name;b.setAttribute("aria-selected",String(active===name));b.addEventListener("click",()=>onSelect(name));return b}
  function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Language","Theme","Home Page Section Management"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
 
@@ -231,11 +231,11 @@ function startDashboard(){
   const {data,error}=await supabase.from("roles").select("name").order("name");
   if(error)throw error;
   state.roles=data||[];
-  const select=$("content-roles");select.replaceChildren();
-  state.roles.forEach(role=>{const option=document.createElement("option");option.value=role.name;option.textContent=role.name;select.append(option)});
+  const root=$("content-roles");root.replaceChildren();
+  state.roles.forEach(role=>{const label=document.createElement("label");label.className="dashboard__option";const checkbox=document.createElement("input");checkbox.type="checkbox";checkbox.value=role.name;const text=document.createElement("span");text.textContent=role.name;label.append(checkbox,text);root.append(label)});
   setContentRoles(["Owner"]);
  }
- function setContentRoles(names){const selected=new Set(names||[]);$("content-roles").querySelectorAll("option").forEach(option=>option.selected=selected.has(option.value))}
+ function setContentRoles(names){const selected=new Set(names||[]);$("content-roles").querySelectorAll('input[type="checkbox"]').forEach(input=>input.checked=selected.has(input.value))}
  async function loadAll(){const {data,error}=await supabase.from("content").select("id,type,name,slug,skills,label,value,image_url,file_title,location,map,created_at").order("created_at",{ascending:false});if(error){say(error.message,true);return false}state.items=data||[];return true}
  function renderContentList(){const root=$("content-list");root.replaceChildren();const filter=$("content-type").value;const list=state.items.filter(x=>filter==="All"||x.type===filter);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const s=document.createElement("span");s.textContent=item.name;if(item.type!=="Contacts"){const meta=document.createElement("small");meta.textContent=item.slug||("ID: "+item.id.slice(0,8));s.append(meta)}b.append(s);b.addEventListener("click",()=>editContent(item));root.append(b)})}
  async function loadContent(){if(await loadAll())renderContentList()}
@@ -276,7 +276,7 @@ function startDashboard(){
   if(!name){say("Enter a name.",true);return}
   setBusy(true);
   try{
-   const selectedRoles=[...$("content-roles").selectedOptions].map(option=>option.value);
+   const selectedRoles=[...$("content-roles").querySelectorAll('input[type="checkbox"]:checked')].map(input=>input.value);
    if(!selectedRoles.length)throw new Error("Select at least one Role for visibility.");
    const payload={name,type,updated_at:new Date().toISOString(),slug:type==="Contacts"?null:slug,location:type==="Hubs"?$("content-location").value.trim()||null:null,map:type==="Hubs"?$("content-map").value.trim()||null:null,skills:type==="Providers"?$("content-skills").value.trim()||null:null,label:type==="Contacts"?$("content-label").value.trim()||null:null,value:type==="Contacts"?$("content-value").value:null,image_url:["Images","Videos"].includes(type)?await uploadSelectedFile(type,slug||name.toLowerCase().replace(/[^a-z0-9]+/g,"-")):null,file_title:type==="Videos"?($("content-upload").files[0]?.name||$("content-file-title").value||null):null};
    const wasUpdate=!!state.selected;let contentId=state.selected;
@@ -313,7 +313,7 @@ function startDashboard(){
 <div id="content-fields" hidden>
 <div class="dashboard__field"><input id="content-name" placeholder="Name" aria-label="Name" maxlength="160" required autocomplete="off"></div>
 <div id="type-fields"></div>
-<div class="dashboard__field"><label for="content-roles">Visibility — Roles</label><select id="content-roles" multiple size="3" required></select><small class="dashboard__hint">Select one or more existing Roles.</small></div>
+<div class="dashboard__field"><label>Visibility — Roles</label><div id="content-roles" class="dashboard__role-options"></div><small class="dashboard__hint">Select one or more existing Roles.</small></div>
 <div class="dashboard__actions"><button class="button button--primary" id="content-save" type="submit">Save</button><button class="button button--secondary" id="content-cancel" type="button">Cancel</button><button class="button button--secondary" id="content-delete" type="button" disabled>Delete</button></div>
 </div></form></section>
 <section id="relation-form-panel" class="dashboard__panel" hidden><h2>Relation Form</h2>
