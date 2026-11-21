@@ -10,7 +10,6 @@
   --color-accent-contrast: #ffffff;
   --color-focus: #555555;
   --color-overlay: rgba(0, 0, 0, 0.48);
-  --shadow-soft: 0 4px 18px rgba(0, 0, 0, 0.08);
   --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.14);
   --component-floating-toggle-size: 58px;
   --component-location-marker-size: 25px;
@@ -40,26 +39,10 @@
   --space-8: 26px;
   --space-10: 32px;
   --space-12: 40px;
-  --control-height: 42px;
   --transition-fast: 160ms ease;
   --transition-base: 220ms ease;
-  --effect-glass-blur: 10px;
-  --effect-flow-duration: 240ms;
-  --effect-float-distance: 2px;
-  --control-border: var(--color-border);
-  --control-background: var(--color-surface-raised);
-  --control-text: var(--color-text);
-  --component-border-radius: var(--radius-medium);
   --component-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
-  --ds-border: var(--color-border);
-  --ds-surface: var(--color-surface-raised);
   --ds-surface-muted: var(--color-surface);
-  --ds-text: var(--color-text);
-  --ds-muted: var(--color-muted);
-  --ds-radius-control: var(--radius-medium);
-  --ds-radius-card: var(--radius-large);
-  --ds-focus: 0 0 0 3px color-mix(in srgb, var(--color-focus) 22%, transparent);
-  --ds-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   --component-control-height-small: 36px;
   --component-control-height-big: 52px;
   --component-radius: var(--radius-medium);
@@ -1141,7 +1124,6 @@ display:inline-flex;align-items:center;gap:8px
   --color-surface-muted: #eeeeee;
   --color-success: #237a45;
   --color-danger: #c0392b;
-  --color-warning: #946200;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -1292,8 +1274,6 @@ width: 18px;
    Page-specific rules above control layout only.
    ========================================================= */
 :root {
-  --ds-shadow-surface: 0 1px 3px rgba(0, 0, 0, .055);
-  --ds-shadow-interactive: 0 1px 2px rgba(0, 0, 0, .045);
 }
 :root[data-theme="dark"] {
 --ds-shadow-surface: 0 1px 3px rgba(0, 0, 0, .22);
