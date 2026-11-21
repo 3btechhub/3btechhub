@@ -1332,3 +1332,114 @@ html[dir="ltr"] textarea,
 html[dir="ltr"] select { text-align: left; }
 html[dir="rtl"] .home__item::before,
 html[dir="rtl"] .dashboard__item::before { inset: 0 0 0 auto; }
+
+/* Complete site-wide LTR / RTL layout */
+html[dir="ltr"] {
+  direction: ltr;
+}
+html[dir="rtl"] {
+  direction: rtl;
+}
+html[dir="ltr"] body,
+html[dir="rtl"] body {
+  direction: inherit;
+  text-align: start;
+}
+
+/* Let all normal page structures inherit the selected inline direction. */
+:where(header, footer, main, nav, aside, section, article, form, fieldset,
+       .container, .page-shell, .home, .dashboard, .account-layout,
+       .account-panel, .home__type, .home__items, .dashboard__panel,
+       .dashboard__manager-form, .dashboard__relation-groups) {
+  direction: inherit;
+}
+:where(h1, h2, h3, h4, h5, h6, p, label, legend, li, th, td,
+       .page-header, .home__type-title, .home__item-title,
+       .home__item-caption, .dashboard__item-info, .dashboard__item-name,
+       .dashboard__item-meta, .dashboard__status, .dashboard__hint,
+       .dashboard__empty, .text-muted) {
+  text-align: start;
+}
+
+/* Inline flex and grid content follow the page direction automatically. */
+:where(.cluster, .button, .badge, .dashboard__tabs, .dashboard__subtabs,
+       .dashboard__tab, .dashboard__item, .dashboard__option,
+       .dashboard__actions, .home__item, .home__location,
+       .home__map-link, .home__type-title, .account-panel .button,
+       .floating-navigation__list a, .floating-navigation__theme) {
+  direction: inherit;
+}
+
+/* Inputs follow the selected direction while preserving centered fields. */
+html[dir="ltr"] :where(input:not([type="checkbox"]):not([type="radio"]),
+                         select, textarea) {
+  direction: ltr;
+  text-align: start;
+}
+html[dir="rtl"] :where(input:not([type="checkbox"]):not([type="radio"]),
+                         select, textarea) {
+  direction: rtl;
+  text-align: start;
+}
+:where(input[type="checkbox"], input[type="radio"]) {
+  margin-inline: 0;
+}
+
+/* Replace physical page-edge positioning with logical inline edges. */
+.floating-navigation {
+  inset-inline: auto 22px;
+  right: auto;
+  left: auto;
+}
+.floating-navigation__list {
+  inset-inline: auto 0;
+  right: auto;
+  left: auto;
+  transform-origin: bottom inline-end;
+}
+.floating-navigation__list a,
+.floating-navigation__theme {
+  text-align: start;
+}
+@media (max-width: 480px) {
+  .floating-navigation {
+    inset-inline-end: 16px;
+    right: auto;
+    left: auto;
+  }
+}
+
+/* Direction-aware card accents, padding and item alignment. */
+.home__item::before,
+.dashboard__item::before {
+  inset-inline: 0 auto;
+  left: auto;
+  right: auto;
+}
+.home__item:not(.home__item--image) {
+  padding-inline: 17px 14px;
+}
+.dashboard__item {
+  padding-inline: 15px 12px;
+  text-align: start;
+}
+@media (max-width: 520px) {
+  .home__item:not(.home__item--image) {
+    padding-inline: 14px 10px;
+  }
+  .dashboard__item {
+    padding-inline: 13px 8px;
+  }
+}
+
+/* Avoid physical left/right alignment leaking into nested page widgets. */
+html[dir="rtl"] :where(.dashboard__item, .dashboard__option,
+                       .dashboard__field, .dashboard__manager-form,
+                       .home__location, .home__map-link) {
+  text-align: start;
+}
+html[dir="ltr"] :where(.dashboard__item, .dashboard__option,
+                       .dashboard__field, .dashboard__manager-form,
+                       .home__location, .home__map-link) {
+  text-align: start;
+}
