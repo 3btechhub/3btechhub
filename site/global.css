@@ -1297,3 +1297,11 @@ h3 { font-size: 18px; }
 .site-icon-preview{display:flex;align-items:center;justify-content:center;width:64px;height:64px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface-raised);color:var(--color-text)}
 .site-icon-preview svg{width:42px;height:42px;max-width:100%}
 .dashboard__manager-form textarea[name="svg_code"]{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.5;min-height:150px}
+
+/* Database-managed SVG icons */
+.site-icon{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;line-height:0}
+.site-icon svg{display:block;width:1.25em;height:1.25em;max-width:none}
+.floating-navigation__list a .site-icon,.floating-navigation__theme .site-icon{width:18px;height:18px}
+.floating-navigation__toggle .site-icon{width:23px;height:23px}
+.home__type-title{display:flex;align-items:center;gap:9px}
+.home__type-title .site-icon{width:20px;height:20px}
