@@ -1541,3 +1541,7 @@ html.site-preferences-pending .floating-navigation {
 .account-field>[data-site-icon]{color:var(--color-muted);width:18px;height:18px}
 .account-field>input{flex:1;min-width:0;border:0;background:transparent}
 .account-field>input:focus{outline:0;box-shadow:none}
+
+
+/* Consistent spacing for automatically attached name icons */
+.site-icon--automatic{margin-inline-start:.42em;vertical-align:middle}
