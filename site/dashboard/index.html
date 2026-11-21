@@ -26,8 +26,8 @@ html.authenticated body{visibility:visible}
 .dashboard__field{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-2);width:100%;min-width:0;margin:0 0 var(--space-3)}
 .dashboard__field>label{margin:0}
 .dashboard__field>input,.dashboard__field>select,.dashboard__field>textarea{width:100%;min-width:0}
-.dashboard__visibility,.dashboard__option{display:flex;align-items:center;gap:var(--space-3);margin:0;font-size:var(--font-size-sm)}
-.dashboard__visibility input,.dashboard__option input{width:18px;height:18px;min-height:18px;flex:0 0 auto}
+.dashboard__option{display:flex;align-items:center;gap:var(--space-3);margin:0;font-size:var(--font-size-sm)}
+.dashboard__option input{width:18px;height:18px;min-height:18px;flex:0 0 auto}
 .dashboard__actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-2);width:100%}
 .dashboard__actions .button{flex:0 1 auto}
 .dashboard__status{min-height:22px;margin:0;color:var(--color-muted);font-size:var(--font-size-sm);overflow-wrap:anywhere}
@@ -48,7 +48,6 @@ html.authenticated body{visibility:visible}
 #content-fields[hidden]{display:none}
 #type-fields{display:grid;gap:var(--space-3);width:100%}
 #type-fields .dashboard__field{margin:0}
-#content-visible{margin:0}
 @media(max-width:720px){
   .dashboard{padding-block:var(--space-4) var(--space-10)}
   .dashboard__panel{padding:var(--space-3)}
@@ -71,10 +70,10 @@ else if(session.user.id!==OWNER_ID){const deniedUrl=new URL("../account/",window
 else{document.documentElement.classList.add("authenticated");startDashboard()}
 function startDashboard(){
  const types=["Services","Products","Providers","Hubs","Contacts","Images","Videos"],$=id=>document.getElementById(id);
- const state={tab:"Overview",subtab:"",items:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
+ const state={tab:"Overview",subtab:"",items:[],roles:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
  const tabs=$("dashboard-tabs"),status=$("status");
  const say=(m,bad=false)=>{status.textContent=m;status.style.color=bad?"#c0392b":"var(--color-muted)"};
- const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel"].forEach(id=>$(id).disabled=v);$("content-delete").disabled=v||!state.selected};
+ const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel","content-roles"].forEach(id=>$(id).disabled=v);$("content-delete").disabled=v||!state.selected};
  function tabButton(name,active,onSelect){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";b.textContent=name;b.setAttribute("aria-selected",String(active===name));b.addEventListener("click",()=>onSelect(name));return b}
  function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Language","Theme","Home Page Section Management"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
 
@@ -197,19 +196,56 @@ function startDashboard(){
   del.addEventListener("click",async()=>{if(!form.dataset.id||!confirm("Delete this user account?"))return;try{await callUserAdmin({action:"delete",userId:form.dataset.id});form.hidden=true;ui.hide.hidden=true;form.reset();form.dataset.id="";form.dataset.edit="";email.disabled=false;del.hidden=true;await load();say("User deleted")}catch(err){say(err.message,true)}});
   load().catch(err=>say(err.message,true));
  }
+ function renderHomePageManager(panel){
+  panel.replaceChildren();
+  const title=document.createElement("h2");title.textContent="Home Page Section Management";
+  const hint=document.createElement("p");hint.className="dashboard__hint";hint.textContent="Choose which content type cards appear on the Home Page.";
+  const list=document.createElement("div");list.className="dashboard__list";
+  panel.append(title,hint,list);
+  const load=async()=>{
+   const {data,error}=await supabase.from("homepage_type_settings").select("content_type,is_enabled,sort_order").order("sort_order");
+   if(error)throw error;
+   list.replaceChildren();
+   (data||[]).forEach(item=>{
+    const row=document.createElement("div");row.className="dashboard__item";
+    const label=document.createElement("span");label.textContent=item.content_type;
+    const select=document.createElement("select");select.setAttribute("aria-label",item.content_type+" home page display");
+    [["true","Show"],["false","Hide"]].forEach(([value,text])=>{const option=document.createElement("option");option.value=value;option.textContent=text;select.append(option)});
+    select.value=String(item.is_enabled);
+    select.addEventListener("change",async()=>{
+     select.disabled=true;
+     try{const {error}=await supabase.from("homepage_type_settings").update({is_enabled:select.value==="true",updated_at:new Date().toISOString()}).eq("content_type",item.content_type);if(error)throw error;say(item.content_type+" card updated")}
+     catch(err){select.value=String(item.is_enabled);say(err.message,true)}
+     finally{select.disabled=false}
+    });
+    row.append(label,select);list.append(row);
+   });
+  };
+  load().catch(err=>say(err.message,true));
+ }
  function renderManagementPanel(panel){
   if(panel.dataset.initialized==="true")return;panel.dataset.initialized="true";
   const name=panel.dataset.subtab;
   if(name==="User")renderUserManager(panel);
   else if(name==="Role")renderRoleManager(panel);
   else if(name==="Permission"||["Region","Language","Theme"].includes(name))renderSimpleManager(panel,name);
+  else if(name==="Home Page Section Management")renderHomePageManager(panel);
  }
 
  function showSubtab(name){state.subtab=name;renderSubtabs();if(state.tab==="Content"){ $("existed-list-panel").hidden=name!=="Existed List";$("create-form-panel").hidden=name!=="Create Form";$("relation-form-panel").hidden=name!=="Relation Form";if(name==="Existed List")loadContent();if(name==="Relation Form")loadRelationItems();if(name==="Create Form")say("");}else{const prefix=state.tab==="Administration"?"admin":"settings";document.querySelectorAll("[data-subtab-panel]").forEach(p=>{p.hidden=p.dataset.group!==prefix||p.dataset.subtab!==name;if(!p.hidden)renderManagementPanel(p)});}}
  function showTab(name){state.tab=name;const mainTabs=["Overview","Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("overview-panel").hidden=name!=="Overview";$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Overview")renderOverview();if(name==="Content"){if(!["Existed List","Create Form","Relation Form"].includes(state.subtab))state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Language","Theme","Home Page Section Management"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
- async function loadAll(){const {data,error}=await supabase.from("content").select("id,type,name,slug,is_visible,skills,label,value,image_url,file_title,location,map,created_at").order("created_at",{ascending:false});if(error){say(error.message,true);return false}state.items=data||[];return true}
+ async function loadContentRoleOptions(){
+  const {data,error}=await supabase.from("roles").select("name").order("name");
+  if(error)throw error;
+  state.roles=data||[];
+  const select=$("content-roles");select.replaceChildren();
+  state.roles.forEach(role=>{const option=document.createElement("option");option.value=role.name;option.textContent=role.name;select.append(option)});
+  setContentRoles(["Owner"]);
+ }
+ function setContentRoles(names){const selected=new Set(names||[]);$("content-roles").querySelectorAll("option").forEach(option=>option.selected=selected.has(option.value))}
+ async function loadAll(){const {data,error}=await supabase.from("content").select("id,type,name,slug,skills,label,value,image_url,file_title,location,map,created_at").order("created_at",{ascending:false});if(error){say(error.message,true);return false}state.items=data||[];return true}
  function renderOverview(){const root=$("overview-stats");root.replaceChildren();[{name:"All Content",count:state.items.length},...types.map(type=>({name:type,count:state.items.filter(x=>x.type===type).length}))].forEach(x=>{const card=document.createElement("button");card.type="button";card.className="dashboard__stat dashboard__item";card.addEventListener("click",()=>{showTab("Content");showSubtab("Existed List");$("content-type").value=x.name==="All Content"?"All":x.name;renderContentList();$("content-list").scrollIntoView({behavior:"smooth",block:"start"})});const label=document.createElement("span");label.textContent=x.name;const n=document.createElement("strong");n.textContent=x.count;card.append(label,n);root.append(card)})}
- function renderContentList(){const root=$("content-list");root.replaceChildren();const filter=$("content-type").value;const list=state.items.filter(x=>filter==="All"||x.type===filter);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const s=document.createElement("span");s.textContent=item.name;const meta=document.createElement("small");meta.textContent=(item.slug||("ID: "+item.id.slice(0,8)))+(item.is_visible?"":" · Hidden");s.append(meta);b.append(s);b.addEventListener("click",()=>editContent(item));root.append(b)})}
+ function renderContentList(){const root=$("content-list");root.replaceChildren();const filter=$("content-type").value;const list=state.items.filter(x=>filter==="All"||x.type===filter);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const s=document.createElement("span");s.textContent=item.name;const meta=document.createElement("small");meta.textContent=item.slug||("ID: "+item.id.slice(0,8));s.append(meta);b.append(s);b.addEventListener("click",()=>editContent(item));root.append(b)})}
  async function loadContent(){if(await loadAll())renderContentList()}
  function makeField(id,placeholder,type="text"){const wrap=document.createElement("div");wrap.className="dashboard__field";const input=document.createElement("input");input.id=id;input.type=type;input.placeholder=placeholder;input.setAttribute("aria-label",placeholder);input.autocomplete="off";wrap.append(input);return wrap}
  function renderTypeFields(type,item={}){
@@ -230,10 +266,10 @@ function startDashboard(){
    if(type==="Videos"){const title=add("content-file-title","File Title","text",item.file_title);title.readOnly=true;title.placeholder="Set automatically from uploaded file";file.addEventListener("change",()=>{title.value=file.files?.[0]?.name||item.file_title||""})}
   }
  }
- function resetContent(){const type=$("content-form-type").value;state.selected=null;state.slugEdited=false;$("content-form").reset();$("content-form-type").value=type;$("content-name").value="";$("content-visible").checked=true;$("content-fields").hidden=!type;renderTypeFields(type);$("content-delete").disabled=true;renderContentList()}
- function editContent(item){state.selected=item.id;state.slugEdited=true;$("content-form").hidden=false;$("create-hide").hidden=false;$("content-fields").hidden=false;$("content-name").value=item.name;$("content-type").value=item.type;$("content-form-type").value=item.type;$("content-visible").checked=item.is_visible;renderTypeFields(item.type,item);$("content-delete").disabled=false;renderContentList();say("Item loaded")}
+ function resetContent(){const type=$("content-form-type").value;state.selected=null;state.slugEdited=false;$("content-form").reset();$("content-form-type").value=type;$("content-name").value="";setContentRoles(["Owner"]);$("content-fields").hidden=!type;renderTypeFields(type);$("content-delete").disabled=true;renderContentList()}
+ async function editContent(item){state.selected=item.id;state.slugEdited=true;$("content-form").hidden=false;$("create-hide").hidden=false;$("content-fields").hidden=false;$("content-name").value=item.name;$("content-type").value=item.type;$("content-form-type").value=item.type;renderTypeFields(item.type,item);$("content-delete").disabled=false;renderContentList();const {data,error}=await supabase.from("content_visibility").select("role_name").eq("content_id",item.id);if(error){say(error.message,true);return}setContentRoles((data||[]).map(x=>x.role_name));say("Item loaded")}
  $("content-type").addEventListener("change",()=>{ $("content-form-type").value=$("content-type").value;resetContent()});
- $("content-form-type").addEventListener("change",()=>{state.selected=null;state.slugEdited=false;const hasType=!!$("content-form-type").value;$("content-fields").hidden=!hasType;if(hasType){$("content-name").value="";$("content-visible").checked=true;renderTypeFields($("content-form-type").value)}else $("type-fields").replaceChildren();$("content-delete").disabled=true;renderContentList()});
+ $("content-form-type").addEventListener("change",()=>{state.selected=null;state.slugEdited=false;const hasType=!!$("content-form-type").value;$("content-fields").hidden=!hasType;if(hasType){$("content-name").value="";setContentRoles(["Owner"]);renderTypeFields($("content-form-type").value)}else $("type-fields").replaceChildren();$("content-delete").disabled=true;renderContentList()});
  $("content-name").addEventListener("input",()=>{if(state.slugEdited)return;const slug=$("content-slug");if(slug)slug.value=$("content-name").value.trim().toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").replace(/-{2,}/g,"-")});
  $("type-fields").addEventListener("input",e=>{if(e.target.id==="content-slug")state.slugEdited=true});
  async function uploadSelectedFile(type,slug){
@@ -248,13 +284,19 @@ function startDashboard(){
   if(!name){say("Enter a name.",true);return}
   setBusy(true);
   try{
-   const payload={name,type,is_visible:$("content-visible").checked,updated_at:new Date().toISOString(),slug:type==="Contacts"?null:slug,location:type==="Hubs"?$("content-location").value.trim()||null:null,map:type==="Hubs"?$("content-map").value.trim()||null:null,skills:type==="Providers"?$("content-skills").value.trim()||null:null,label:type==="Contacts"?$("content-label").value.trim()||null:null,value:type==="Contacts"?$("content-value").value:null,image_url:["Images","Videos"].includes(type)?await uploadSelectedFile(type,slug||name.toLowerCase().replace(/[^a-z0-9]+/g,"-")):null,file_title:type==="Videos"?($("content-upload").files[0]?.name||$("content-file-title").value||null):null};
-   const q=state.selected?supabase.from("content").update(payload).eq("id",state.selected):supabase.from("content").insert(payload);
-   const {error}=await q;if(error)throw error;say(state.selected?"Updated":"Created");$("content-type").value=type;resetContent();await loadContent();
+   const selectedRoles=[...$("content-roles").selectedOptions].map(option=>option.value);
+   if(!selectedRoles.length)throw new Error("Select at least one Role for visibility.");
+   const payload={name,type,updated_at:new Date().toISOString(),slug:type==="Contacts"?null:slug,location:type==="Hubs"?$("content-location").value.trim()||null:null,map:type==="Hubs"?$("content-map").value.trim()||null:null,skills:type==="Providers"?$("content-skills").value.trim()||null:null,label:type==="Contacts"?$("content-label").value.trim()||null:null,value:type==="Contacts"?$("content-value").value:null,image_url:["Images","Videos"].includes(type)?await uploadSelectedFile(type,slug||name.toLowerCase().replace(/[^a-z0-9]+/g,"-")):null,file_title:type==="Videos"?($("content-upload").files[0]?.name||$("content-file-title").value||null):null};
+   const wasUpdate=!!state.selected;let contentId=state.selected;
+   if(wasUpdate){const {error}=await supabase.from("content").update(payload).eq("id",contentId);if(error)throw error}
+   else{const {data,error}=await supabase.from("content").insert(payload).select("id").single();if(error)throw error;contentId=data.id}
+   const {error:clearError}=await supabase.from("content_visibility").delete().eq("content_id",contentId);if(clearError)throw clearError;
+   const {error:visibilityError}=await supabase.from("content_visibility").insert(selectedRoles.map(role_name=>({content_id:contentId,role_name})));if(visibilityError)throw visibilityError;
+   say(wasUpdate?"Updated":"Created");$("content-type").value=type;resetContent();await loadContent();
   }catch(error){say(error.message||"Could not save content.",true)}finally{setBusy(false)}
  });
  $("content-cancel").addEventListener("click",()=>{resetContent();say("")});
- $("create-toggle").addEventListener("click",()=>{$("content-form").hidden=false;$("create-hide").hidden=false;$("content-form-type").value="";$("content-fields").hidden=true;$("content-name").value="";$("type-fields").replaceChildren();state.selected=null;$("content-delete").disabled=true;say("")});
+ $("create-toggle").addEventListener("click",()=>{$("content-form").hidden=false;$("create-hide").hidden=false;$("content-form-type").value="";$("content-fields").hidden=true;$("content-name").value="";setContentRoles(["Owner"]);$("type-fields").replaceChildren();state.selected=null;$("content-delete").disabled=true;say("")});
  $("create-hide").addEventListener("click",()=>{$("content-form").hidden=true;$("content-form-type").value="";$("content-fields").hidden=true;$("type-fields").replaceChildren();state.selected=null;$("content-delete").disabled=true;renderContentList();say("")});
  $("content-delete").addEventListener("click",async()=>{if(!state.selected||state.busy||!confirm("Delete this item and its relations?"))return;setBusy(true);const {error}=await supabase.from("content").delete().eq("id",state.selected);if(error)say(error.message,true);else{say("Deleted");resetContent();await loadContent()}setBusy(false)});
  function fillSelect(select,items,placeholder){select.replaceChildren();const p=document.createElement("option");p.value="";p.textContent=placeholder;select.append(p);items.forEach(item=>{const o=document.createElement("option");o.value=item.id;o.textContent=item.name;select.append(o)})}
@@ -265,7 +307,7 @@ function startDashboard(){
  async function renderTargets(){const area=$("target-section"),groups=$("target-groups"),existing=$("relation-existing");groups.replaceChildren();existing.replaceChildren();if(!state.sourceId){area.hidden=true;return}area.hidden=false;const {data,error}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+state.sourceId+",target_id.eq."+state.sourceId);if(error){say(error.message,true);return}state.related=new Set((data||[]).map(r=>r.source_id===state.sourceId?r.target_id:r.source_id));types.forEach(type=>{const section=document.createElement("section");section.className="dashboard__relation-group";const h=document.createElement("h3");h.textContent=type;const options=document.createElement("div");options.className="dashboard__relation-options";const candidates=state.items.filter(x=>x.type===type&&x.id!==state.sourceId);if(!candidates.length){const empty=document.createElement("small");empty.textContent="No existing items";options.append(empty)}candidates.forEach(item=>{const label=document.createElement("label");label.className="dashboard__option";const cb=document.createElement("input");cb.type="checkbox";cb.checked=state.related.has(item.id);cb.value=item.id;cb.addEventListener("change",()=>{if(cb.checked)state.related.add(item.id);else state.related.delete(item.id);renderExistingRelations()});const span=document.createElement("span");span.textContent=item.name;label.append(cb,span);options.append(label)});section.append(h,options);groups.append(section)});renderExistingRelations()}
  function renderExistingRelations(){const root=$("relation-existing");root.replaceChildren();const names=state.items.filter(x=>state.related.has(x.id));if(!names.length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No selected relations";root.append(p);return}names.forEach(x=>{const p=document.createElement("p");p.textContent=x.type+" — "+x.name;root.append(p)})}
  $("relation-save").addEventListener("click",async()=>{if(!state.sourceId||state.busy){say("Select a source item first.",true);return}setBusy(true);const source=state.sourceId;const {data:oldRows,error:readError}=await supabase.from("relation").select("id,source_id,target_id").or("source_id.eq."+source+",target_id.eq."+source);if(readError){say(readError.message,true);setBusy(false);return}const oldMap=new Map((oldRows||[]).map(r=>[r.source_id===source?r.target_id:r.source_id,r.id]));const remove=[...oldMap].filter(([id])=>!state.related.has(id)).map(([,id])=>id);const add=[...state.related].filter(id=>!oldMap.has(id)).map(id=>({source_id:source,target_id:id}));let failure=null;if(remove.length){const {error}=await supabase.from("relation").delete().in("id",remove);failure=error}if(!failure&&add.length){const {error}=await supabase.from("relation").insert(add);failure=error}say(failure?failure.message:"Relations saved",!!failure);setBusy(false);if(!failure)await renderTargets()});
- $("content-form-type").value="";$("content-form").hidden=true;$("create-hide").hidden=true;$("content-fields").hidden=true;loadAll().then(ok=>{if(ok){renderOverview();showTab("Overview")}});
+ $("content-form-type").value="";$("content-form").hidden=true;$("create-hide").hidden=true;$("content-fields").hidden=true;loadContentRoleOptions().then(()=>loadAll()).then(ok=>{if(ok){renderOverview();showTab("Overview")}}).catch(err=>say(err.message,true));
 }
 </script>
 </head>
@@ -283,7 +325,7 @@ function startDashboard(){
 <div id="content-fields" hidden>
 <div class="dashboard__field"><input id="content-name" placeholder="Name" aria-label="Name" maxlength="160" required autocomplete="off"></div>
 <div id="type-fields"></div>
-<label class="dashboard__visibility"><input id="content-visible" type="checkbox" checked> Visibility</label>
+<div class="dashboard__field"><label for="content-roles">Visibility — Roles</label><select id="content-roles" multiple size="3" required></select><small class="dashboard__hint">Select one or more existing Roles.</small></div>
 <div class="dashboard__actions"><button class="button button--primary" id="content-save" type="submit">Save</button><button class="button button--secondary" id="content-cancel" type="button">Cancel</button><button class="button button--secondary" id="content-delete" type="button" disabled>Delete</button></div>
 </div></form></section>
 <section id="relation-form-panel" class="dashboard__panel" hidden><h2>Relation Form</h2>
