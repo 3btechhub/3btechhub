@@ -1,4 +1,5 @@
 (()=> {
+  document.documentElement.classList.add("site-preferences-pending");
   const script = document.currentScript;
   const base = new URL(".", script.src);
   const menu = document.createElement("nav");
@@ -67,4 +68,4 @@
   document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
   menu.querySelectorAll("a").forEach(link => link.addEventListener("click", close));
 })();
-Promise.all([import("https://esm.sh/@supabase/supabase-js@2.119.1"),import("./icons.js"),import("./preferences.js")]).then(([{createClient},{initSiteIcons},{initSitePreferences}])=>{const client=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");window.siteIcons=initSiteIcons(client);initSitePreferences(client)}).catch(error=>console.warn("Global site settings unavailable:",error));
+Promise.all([import("https://esm.sh/@supabase/supabase-js@2.119.1"),import("./icons.js"),import("./preferences.js")]).then(([{createClient},{initSiteIcons},{initSitePreferences}])=>{const client=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");window.siteIcons=initSiteIcons(client);initSitePreferences(client)}).catch(error=>{console.warn("Global site settings unavailable:",error);document.documentElement.setAttribute("dir","ltr");document.documentElement.classList.remove("site-preferences-pending");});
