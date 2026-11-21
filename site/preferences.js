@@ -9,6 +9,7 @@ export function initSitePreferences(supabase){
   root.setAttribute("lang",language);
   root.dataset.direction=direction;
   root.dataset.language=language;
+  document.documentElement.classList.remove("site-preferences-pending");
   window.dispatchEvent(new CustomEvent("3b:preferences-applied",{detail:{direction,language}}));
  }
  async function refresh(){
