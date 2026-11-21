@@ -72,7 +72,7 @@ export function initSiteIcons(supabase) {
     [/\b(theme|dark mode)\b/, "theme.dark"]
   ];
 
-  const namedSelector = "h1,h2,h3,h4,h5,h6,button,a,label,[role='button'],.dashboard__item-name,.content__field > strong,.home__image-caption,.home__type-link,.content__title,.content__back,.content__home,.content__external,.home__view-all-card,.home__map-link";
+  const namedSelector = "h1,h2,h3,h4,h5,h6,button,a,label,[role='button'],.dashboard__item-name,.content__field > strong,.home__image-caption,.home__type-link,.content__title,.content__item,.content__back,.content__home,.content__external,.home__view-all-card,.home__map-link";
 
   function readName(target) {
     return [...target.childNodes]
