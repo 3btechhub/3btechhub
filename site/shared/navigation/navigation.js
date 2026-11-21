@@ -1,1 +1,0 @@
-// Navigation links are initialized by the shared application loader.
