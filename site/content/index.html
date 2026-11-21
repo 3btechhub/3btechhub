@@ -14,26 +14,37 @@ const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publi
 connectGlobalRealtime(supabase);initSiteIcons(supabase);
 const root=document.getElementById("content-root"),status=document.getElementById("content-status");
 const params=new URLSearchParams(location.search),type=params.get("type"),id=params.get("id");
-const fields=[["skills","Skills"],["label","Label"],["value","Value"],["file_title","File Title"],["location","Location"]];
+const fieldOptions={Services:[],Products:[],Providers:[["skills","Skills"]],Hubs:[["location","Location"],["map","View Location"]],Contacts:[["label","Label"],["value","Value"]],Images:[["image_url","Image"]],Videos:[["file_title","File Title"],["image_url","Open Video"]]};
+const defaultFieldOrder=type=>(fieldOptions[type]||[]).map(([key])=>key);
+const typeIcon={Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"};
 const publicImageUrl=path=>{if(!path)return "";if(/^https?:\/\//i.test(path))return path;return supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl};
 function element(tag,cls,text){const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node}
 function itemLink(item){const a=element("a","content__item",item.name||"");a.href="?type="+encodeURIComponent(item.type)+"&id="+encodeURIComponent(item.id);return a}
-function renderDetail(item){
+function renderDetail(item,configuredOrder){
  const wrap=element("article","content__detail");
+ const icon=element("span","content__detail-icon");icon.dataset.siteIcon=typeIcon[item.type]||"module.services";icon.setAttribute("aria-hidden","true");wrap.append(icon);
  wrap.append(element("h1","content__title",item.name||""));
- if(item.image_url){const img=element("img","content__image");img.src=publicImageUrl(item.image_url);img.alt=item.name||"";img.loading="lazy";wrap.append(img)}
- fields.forEach(([key,label])=>{if(item[key]){const p=element("p","content__field");p.append(element("strong","",label+": "),document.createTextNode(item[key]));wrap.append(p)}});
- if(item.type==="Hubs"&&item.map){const a=element("a","content__external","View Location");a.href=item.map;a.target="_blank";a.rel="noopener noreferrer";wrap.append(a)}
- if(item.type==="Videos"&&item.image_url){const a=element("a","content__external","Open Video");a.href=publicImageUrl(item.image_url);a.target="_blank";a.rel="noopener noreferrer";wrap.append(a)}
+ const available=fieldOptions[item.type]||[],saved=Array.isArray(configuredOrder)?configuredOrder:defaultFieldOrder(item.type);
+ const order=[...saved.filter(key=>available.some(([field])=>field===key)),...available.map(([key])=>key).filter(key=>!saved.includes(key))];
+ order.forEach(key=>{
+  const label=available.find(([field])=>field===key)?.[1]||key;
+  if(key==="image_url"&&item.type==="Images"&&item.image_url){const img=element("img","content__image");img.src=publicImageUrl(item.image_url);img.alt=item.name||"";img.loading="lazy";wrap.append(img);return}
+  if(key==="image_url"&&item.type==="Videos"&&item.image_url){const a=element("a","content__external","Open Video");a.href=publicImageUrl(item.image_url);a.target="_blank";a.rel="noopener noreferrer";wrap.append(a);return}
+  if(key==="map"&&item.map){const a=element("a","content__external",label);a.href=item.map;a.target="_blank";a.rel="noopener noreferrer";wrap.append(a);return}
+  if(item[key]){const p=element("p","content__field");p.append(element("strong","",label+": "),document.createTextNode(item[key]));wrap.append(p)}
+ });
  const back=element("a","content__back","Back to "+item.type);back.href="?type="+encodeURIComponent(item.type);wrap.append(back);root.append(wrap);
- document.title=(item.name||"Details")+" · 3B TECH HUB";
+ document.title=(item.name||"Details")+" · 3B TECH HUB";window.siteIcons?.apply();
 }
 async function render(){
  try{
   if(!type){status.textContent="Content type not specified.";return}
   if(id){
-   const {data,error}=await supabase.from("content").select("id,type,name,slug,skills,label,value,image_url,file_title,location,map").eq("id",id).eq("type",type).maybeSingle();
-   if(error)throw error;if(!data){status.textContent="Item not found.";return}renderDetail(data);return;
+   const [{data,error},{data:orderData,error:orderError}]=await Promise.all([
+    supabase.from("content").select("id,type,name,slug,skills,label,value,image_url,file_title,location,map").eq("id",id).eq("type",type).maybeSingle(),
+    supabase.from("content_type_field_orders").select("field_order").eq("content_type",type).maybeSingle()
+   ]);
+   if(error)throw error;if(orderError)throw orderError;if(!data){status.textContent="Item not found.";return}renderDetail(data,orderData?.field_order);return;
   }
   const {data,error}=await supabase.from("content").select("id,type,name").eq("type",type).order("created_at",{ascending:false});
   if(error)throw error;
