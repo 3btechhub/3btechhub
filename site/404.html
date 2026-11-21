@@ -54,7 +54,7 @@ const supabase=createClient('https://sburxeuxkrilbfppxylm.supabase.co','sb_publi
 const $=s=>document.querySelector(s);
 const SITE_BASE=location.hostname.endsWith('github.io')?'/3btechhub':'';
 const sitePath=path=>SITE_BASE+path;
-document.querySelectorAll('a[href^="/3btechhub/"]').forEach(a=>a.setAttribute('href',a.getAttribute('href').replace('/3btechhub','')));
+document.querySelectorAll('a[href^="/3btechhub/"]').forEach(a=>a.setAttribute('href',sitePath(a.getAttribute('href').replace('/3btechhub',''))));
 const menuToggle=$('.menu-toggle'),navigation=$('#navigation'),pages=[...document.querySelectorAll('.page')],links=[...document.querySelectorAll('.menu-link')];
 let currentUser=null,currentRole=null,pendingRoute=null,authRedirecting=false,services=[],products=[],hubs=[],providers=[],relations=[],contacts=[],mediaItems=[],roles=[],permissions=[],rolePermissions=[],regions=[],languages=[],themes=[],activities=[],userCount=0,authRevision=0,activeRoute=null,dashboardLoadRevision=0;
 
