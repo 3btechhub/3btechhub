@@ -1395,11 +1395,14 @@ html[dir="rtl"] :where(input:not([type="checkbox"]):not([type="radio"]),
   inset-inline: auto 0;
   right: auto;
   left: auto;
-  transform-origin: bottom inline-end;
+  transform-origin: bottom right;
 }
 .floating-navigation__list a,
 .floating-navigation__theme {
   text-align: start;
+}
+html[dir="rtl"] .floating-navigation__list {
+  transform-origin: bottom left;
 }
 @media (max-width: 480px) {
   .floating-navigation {
