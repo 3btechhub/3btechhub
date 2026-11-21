@@ -1305,3 +1305,30 @@ h3 { font-size: 18px; }
 .floating-navigation__toggle .site-icon{width:23px;height:23px}
 .home__type-title{display:flex;align-items:center;gap:9px}
 .home__type-title .site-icon{width:20px;height:20px}
+
+
+/* Global direction: text leads, its icon follows in the inline direction */
+.floating-navigation__list a,
+.floating-navigation__theme,
+.dashboard__tab,
+.home__type-title,
+.account-panel .button {
+  flex-direction: row;
+}
+.floating-navigation__list a,
+.floating-navigation__theme,
+.dashboard__tab,
+.account-panel .button {
+  display: inline-flex;
+  align-items: center;
+}
+html[dir="rtl"] body { text-align: start; }
+html[dir="ltr"] body { text-align: start; }
+html[dir="rtl"] input,
+html[dir="rtl"] textarea,
+html[dir="rtl"] select { text-align: right; }
+html[dir="ltr"] input,
+html[dir="ltr"] textarea,
+html[dir="ltr"] select { text-align: left; }
+html[dir="rtl"] .home__item::before,
+html[dir="rtl"] .dashboard__item::before { inset: 0 0 0 auto; }
