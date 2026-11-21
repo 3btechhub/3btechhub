@@ -183,3 +183,24 @@ label, .label { display: inline-block; margin-bottom: var(--space-1); color: var
   html { scroll-behavior: auto; }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* Global layout and spacing normalization */
+:where(main, section, article, aside, nav, form, fieldset, figure) { min-width: 0; }
+:where(button, input, select, textarea, img, video, iframe) { max-width: 100%; }
+:where(img, video, iframe) { display: block; }
+:where(input, select, textarea) { min-width: 0; }
+:where(form) { width: 100%; }
+:where(button, input, select, textarea) { line-height: 1.4; }
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+  display: block;
+  width: 100%;
+  min-height: var(--control-height);
+}
+:where(textarea) { min-height: 112px; }
+:where(button, .button) { min-width: 0; white-space: normal; }
+:where(p, h1, h2, h3, h4, h5, h6) { overflow-wrap: anywhere; }
+:where(.container, .page-shell) { min-width: 0; }
+@media (max-width: 640px) {
+  :root { --page-gutter: 16px; }
+  :where(.section) { padding-block: var(--space-6); }
+}
