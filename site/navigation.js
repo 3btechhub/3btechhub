@@ -6,9 +6,9 @@
   menu.setAttribute("aria-label", "Main navigation");
   menu.innerHTML = `
     <ul class="floating-navigation__list" id="page-navigation">
-      <li><a href="${new URL("home/", base).href}"><span data-site-icon="nav.home"></span>Home</a></li>
-      <li><a href="${new URL("account/", base).href}"><span data-site-icon="nav.account"></span>Account</a></li>
-      <li><a href="${new URL("dashboard/", base).href}"><span data-site-icon="nav.dashboard"></span>Dashboard</a></li>
+      <li><a href="${new URL("home/", base).href}"><span class="floating-navigation__label">Home</span><span data-site-icon="nav.home"></span></a></li>
+      <li><a href="${new URL("account/", base).href}"><span class="floating-navigation__label">Account</span><span data-site-icon="nav.account"></span></a></li>
+      <li><a href="${new URL("dashboard/", base).href}"><span class="floating-navigation__label">Dashboard</span><span data-site-icon="nav.dashboard"></span></a></li>
       <li class="floating-navigation__separator" aria-hidden="true"></li>
       <li><button class="floating-navigation__theme" type="button" aria-label="Switch to dark mode">
         <span class="floating-navigation__theme-label">Dark mode</span>
@@ -67,4 +67,4 @@
   document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
   menu.querySelectorAll("a").forEach(link => link.addEventListener("click", close));
 })();
-Promise.all([import("https://esm.sh/@supabase/supabase-js@2.119.1"),import("./icons.js")]).then(([{createClient},{initSiteIcons}])=>{const client=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");window.siteIcons=initSiteIcons(client)}).catch(error=>console.warn("SVG icon loader unavailable:",error));
+Promise.all([import("https://esm.sh/@supabase/supabase-js@2.119.1"),import("./icons.js"),import("./preferences.js")]).then(([{createClient},{initSiteIcons},{initSitePreferences}])=>{const client=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");window.siteIcons=initSiteIcons(client);initSitePreferences(client)}).catch(error=>console.warn("Global site settings unavailable:",error));
