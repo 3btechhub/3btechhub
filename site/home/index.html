@@ -6,7 +6,49 @@
 <link rel="stylesheet" href="../global.css">
 <link rel="stylesheet" href="../navigation.css">
 <script src="../navigation.js" defer></script>
+<title>3B TECH HUB</title>
+<style>
+.home{width:100%;padding-block:var(--space-6) var(--space-12)}
+.home__types{display:grid;gap:var(--space-4);width:100%}
+.home__type{display:grid;gap:var(--space-3);min-width:0;padding:var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-large);background:var(--color-surface-raised)}
+.home__type h2{margin:0;font-size:var(--font-size-lg)}
+.home__items{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:var(--space-3);width:100%}
+.home__item{display:flex;align-items:center;min-width:0;min-height:64px;padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-surface);color:var(--color-text);overflow-wrap:anywhere}
+.home__empty{margin:0;padding:var(--space-3);color:var(--color-muted);font-size:var(--font-size-sm)}
+.home__status{margin:0;color:var(--color-muted);font-size:var(--font-size-sm)}
+@media(max-width:720px){.home{padding-block:var(--space-4) var(--space-10)}.home__type{padding:var(--space-3)}}
+</style>
+<script type="module">
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2.119.1";
+const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
+const root=document.getElementById("home-types");
+const status=document.getElementById("home-status");
+const showError=message=>{status.textContent=message};
+async function renderHome(){
+ const [{data:sections,error:sectionError},{data:items,error:itemError}]=await Promise.all([
+  supabase.from("homepage_type_settings").select("content_type,sort_order").eq("is_enabled",true).order("sort_order"),
+  supabase.from("content").select("id,type,name").order("created_at",{ascending:false})
+ ]);
+ if(sectionError||itemError){showError((sectionError||itemError).message||"Unable to load Home Page.");return}
+ root.replaceChildren();
+ (sections||[]).forEach(section=>{
+  const card=document.createElement("section");card.className="home__type";
+  const heading=document.createElement("h2");heading.textContent=section.content_type;
+  const list=document.createElement("div");list.className="home__items";
+  const matching=(items||[]).filter(item=>item.type===section.content_type);
+  if(!matching.length){const empty=document.createElement("p");empty.className="home__empty";empty.textContent="No items available";list.append(empty)}
+  matching.forEach(item=>{const itemCard=document.createElement("article");itemCard.className="home__item";itemCard.textContent=item.name;list.append(itemCard)});
+  card.append(heading,list);root.append(card);
+ });
+}
+renderHome();
+</script>
 </head>
 <body>
+<main class="container home">
+<header class="page-header"><h1>3B TECH HUB</h1></header>
+<div class="home__types" id="home-types"></div>
+<p class="home__status" id="home-status" role="status" aria-live="polite"></p>
+</main>
 </body>
 </html>
