@@ -57,6 +57,24 @@
   const profileEmail = document.getElementById("profile-email");
   const logoutButton = document.getElementById("logout-button");
 
+  const params = new URLSearchParams(window.location.search);
+  const requestedTarget = params.get("returnTo");
+  const siteBase = new URL("../", window.location.href);
+  let returnTarget = null;
+
+  if (requestedTarget) {
+    try {
+      const candidate = new URL(requestedTarget, window.location.href);
+      if (candidate.origin === window.location.origin &&
+          candidate.pathname.startsWith(siteBase.pathname) &&
+          candidate.pathname !== new URL("account/", siteBase).pathname) {
+        returnTarget = candidate;
+      }
+    } catch (_) {}
+  }
+
+  let navigatingToTarget = false;
+
   function showAccount(session) {
     const userEmail = session?.user?.email || "";
     form.hidden = Boolean(session);
@@ -65,19 +83,26 @@
     document.documentElement.classList.add("account-ready");
   }
 
+  function continueToTarget() {
+    if (!returnTarget) return false;
+    navigatingToTarget = true;
+    window.location.replace(returnTarget.href);
+    return true;
+  }
+
   form.addEventListener("submit", async event => {
     event.preventDefault();
     if (!form.reportValidity()) return;
 
     loginButton.disabled = true;
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: form.elements.email.value.trim(),
         password: form.elements.password.value
       });
 
       if (error) throw error;
-      window.location.assign(new URL("../dashboard/", window.location.href).href);
+      if (!continueToTarget()) showAccount(data.session);
     } catch (error) {
       alert(error?.message || "Login failed. Please try again.");
     } finally {
@@ -99,9 +124,16 @@
   });
 
   const { data: { session }, error } = await supabase.auth.getSession();
-  showAccount(error ? null : session);
+
+  if (!error && session && continueToTarget()) {
+    // Keep the account page hidden while returning to the requested page.
+  } else {
+    showAccount(error ? null : session);
+  }
 
   supabase.auth.onAuthStateChange((_event, nextSession) => {
+    if (navigatingToTarget) return;
+    if (nextSession && continueToTarget()) return;
     showAccount(nextSession);
   });
 </script>
