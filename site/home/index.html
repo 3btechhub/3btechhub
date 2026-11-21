@@ -99,10 +99,14 @@ async function renderHome(){
   card.className="home__type";
   const heading=document.createElement("h2");
   heading.className="home__type-title";
+  const typeLink=document.createElement("a");
+  typeLink.className="home__type-link";
+  typeLink.href="../content/?type="+encodeURIComponent(section.content_type);
+  typeLink.append(document.createElement("span"));
+  typeLink.firstChild.textContent=section.content_type;
   const iconKey={Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"}[section.content_type];
-  heading.append(document.createElement("span"));
-  heading.firstChild.textContent=section.content_type;
-  if(iconKey){const icon=document.createElement("span");icon.dataset.siteIcon=iconKey;heading.append(icon)}
+  if(iconKey){const icon=document.createElement("span");icon.dataset.siteIcon=iconKey;typeLink.append(icon)}
+  heading.append(typeLink)
   const list=document.createElement("div");
   list.className="home__items";
   if(section.content_type==="Images")list.classList.add("home__items--gallery");
