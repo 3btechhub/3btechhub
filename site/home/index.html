@@ -8,9 +8,12 @@
 <title>3B TECH HUB</title>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.119.1";
+import {connectGlobalRealtime} from "../realtime.js";
 const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
 const root=document.getElementById("home-types");
 const status=document.getElementById("home-status");
+connectGlobalRealtime(supabase);
+let renderVersion=0;
 const showError=message=>{status.textContent=message};
 const publicImageUrl=path=>{
  if(!path)return "";
@@ -73,10 +76,12 @@ function makeItem(item){
  return card;
 }
 async function renderHome(){
+ const currentVersion=++renderVersion;
  const [{data:sections,error:sectionError},{data:items,error:itemError}]=await Promise.all([
   supabase.from("homepage_type_settings").select("content_type,sort_order").eq("is_enabled",true).order("sort_order"),
   supabase.from("content").select("id,type,name,image_url,location,map").order("created_at",{ascending:false})
  ]);
+ if(currentVersion!==renderVersion)return;
  if(sectionError||itemError){showError((sectionError||itemError).message||"Unable to load Home Page.");return}
  root.replaceChildren();
  (sections||[]).forEach(section=>{
@@ -95,6 +100,7 @@ async function renderHome(){
  });
 }
 renderHome();
+window.addEventListener("3b:global-update",()=>renderHome());
 </script>
 </head>
 <body>
