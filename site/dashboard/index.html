@@ -48,7 +48,7 @@ function startDashboard(){
  function renderOverview(){const root=$("overview-stats");root.replaceChildren();[{name:"All Content",count:state.items.length},...types.map(type=>({name:type,count:state.items.filter(x=>x.type===type).length}))].forEach(x=>{const card=document.createElement("button");card.type="button";card.className="dashboard__stat dashboard__item";card.addEventListener("click",()=>{showTab("Content");$("content-type").value=x.name==="All Content"?"All":x.name;renderContentList();$("content-list").scrollIntoView({behavior:"smooth",block:"start"})});const n=document.createElement("strong");n.textContent=x.count;const label=document.createElement("span");label.textContent=x.name;card.append(n,label);root.append(card)})}
  function renderContentList(){const root=$("content-list");root.replaceChildren();const filter=$("content-type").value;const list=state.items.filter(x=>filter==="All"||x.type===filter);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const s=document.createElement("span");s.textContent=item.name;const meta=document.createElement("small");meta.textContent=(item.slug||("ID: "+item.id.slice(0,8)))+(item.is_visible?"":" · Hidden");s.append(meta);b.append(s);b.addEventListener("click",()=>editContent(item));root.append(b)})}
  async function loadContent(){if(await loadAll())renderContentList()}
- function makeField(id,label,type="text"){const wrap=document.createElement("div");wrap.className="dashboard__field";const l=document.createElement("label");l.htmlFor=id;l.textContent=label;const input=document.createElement("input");input.id=id;input.type=type;input.autocomplete="off";wrap.append(l,input);return wrap}
+ function makeField(id,placeholder,type="text"){const wrap=document.createElement("div");wrap.className="dashboard__field";const input=document.createElement("input");input.id=id;input.type=type;input.placeholder=placeholder;input.setAttribute("aria-label",placeholder);input.autocomplete="off";wrap.append(input);return wrap}
  function renderTypeFields(type,item={}){
   const root=$("type-fields");root.replaceChildren();
   const add=(id,label,inputType="text",value="")=>{const wrap=makeField(id,label,inputType),input=wrap.querySelector("input");input.value=value||"";root.append(wrap);return input};
@@ -62,7 +62,7 @@ function startDashboard(){
   }
   if(type==="Contacts"){add("content-label","Label","text",item.label);add("content-value","Value","text",item.value)}
   if(type==="Images"||type==="Videos"){
-   const fileWrap=document.createElement("div");fileWrap.className="dashboard__field";const label=document.createElement("label");label.htmlFor="content-upload";label.textContent="Upload";const file=document.createElement("input");file.type="file";file.id="content-upload";file.accept=type==="Images"?"image/*":"video/*";fileWrap.append(label,file);const hint=document.createElement("small");hint.className="dashboard__hint";hint.textContent="Uploaded files are stored in Supabase Storage.";fileWrap.append(hint);root.append(fileWrap);
+   const fileWrap=document.createElement("div");fileWrap.className="dashboard__field";const label=document.createElement("label");label.htmlFor="content-upload";label.textContent="Upload";const file=document.createElement("input");file.type="file";file.id="content-upload";file.setAttribute("aria-label","Upload");file.accept=type==="Images"?"image/*":"video/*";fileWrap.append(label,file);const hint=document.createElement("small");hint.className="dashboard__hint";hint.textContent="Uploaded files are stored in Supabase Storage.";fileWrap.append(hint);root.append(fileWrap);
    const url=add("content-image-url","Image URL","url",item.image_url);url.placeholder="Upload a file or enter a URL";
    if(type==="Videos"){const title=add("content-file-title","File Title","text",item.file_title);title.readOnly=true;title.placeholder="Set automatically from uploaded file";file.addEventListener("change",()=>{title.value=file.files?.[0]?.name||item.file_title||""})}
   }
@@ -116,7 +116,7 @@ function startDashboard(){
 <form id="content-form" hidden>
 <div class="dashboard__field"><select id="content-form-type" required><option value="">Select type</option><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div>
 <div id="content-fields" hidden>
-<div class="dashboard__field"><label for="content-name">Name</label><input id="content-name" maxlength="160" required autocomplete="off"></div>
+<div class="dashboard__field"><input id="content-name" placeholder="Name" aria-label="Name" maxlength="160" required autocomplete="off"></div>
 <div id="type-fields"></div>
 <label class="dashboard__visibility"><input id="content-visible" type="checkbox" checked> Visibility</label>
 <div class="dashboard__actions"><button class="button button--primary" id="content-save" type="submit">Save</button><button class="button button--secondary" id="content-cancel" type="button">Cancel</button><button class="button button--secondary" id="content-delete" type="button" disabled>Delete</button></div>
@@ -124,8 +124,8 @@ function startDashboard(){
 <section class="dashboard__panel"><h2>Existed Content</h2><div class="dashboard__field"><label for="content-type">Type</label><select id="content-type"><option value="All">All</option><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div><div class="dashboard__list" id="content-list"></div></section>
 </div></section>
 <section id="relation-panel" class="dashboard__panel" hidden><h2>Relation</h2>
-<div class="dashboard__field"><label for="source-type">Source Section — Item Type</label><select id="source-type"><option value="">Select type</option></select></div>
-<div class="dashboard__field"><label for="source-name">Item Name</label><select id="source-name"><option value="">Select item</option></select></div>
+<div class="dashboard__field"><select id="source-type" aria-label="Select type"><option value="">Select type</option></select></div>
+<div class="dashboard__field"><select id="source-name" aria-label="Select item"><option value="">Select item</option></select></div>
 <div id="target-section" hidden><h2>Target Section</h2><div class="dashboard__relation-groups" id="target-groups"></div><h2>Existed Item List</h2><div id="relation-existing"></div><div class="dashboard__actions"><button class="button button--primary" id="relation-save" type="button">Save Relations</button></div></div>
 </section>
 <p class="dashboard__status" id="status" role="status" aria-live="polite"></p>
