@@ -845,7 +845,7 @@ h3 { font-size: 18px; }
 .account-panel { gap: 12px; }
 .floating-navigation { right: 16px; bottom: 16px; }
 .floating-navigation__toggle { width: 52px; height: 52px; }
-.floating-navigation__toggle svg { width: 23px; height: 23px; }
+.floating-navigation__toggle-icon { display:inline-flex; width:23px; height:23px; align-items:center; justify-content:center; }
 .floating-navigation__list {
   bottom: 62px;
   min-width: 176px;
