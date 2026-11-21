@@ -1528,3 +1528,123 @@ input[type="file"] { min-height: var(--component-control-height) !important; col
   touch-action: pan-y;
   background: radial-gradient(circle, currentColor 1.35px, transparent 1.55px) 0 0 / 7px 7px;
 }
+
+
+/* =========================================================
+   FINAL GLOBAL VALUE NORMALIZATION
+   One value per shared component. Keep only named, necessary
+   component exceptions and explicit size/theme states.
+   ========================================================= */
+
+/* Typography: one value for each semantic heading level. */
+h1 { font-size: var(--font-size-2xl) !important; }
+h2 { font-size: var(--font-size-xl) !important; }
+h3 { font-size: var(--font-size-lg) !important; }
+
+/* Shared cards and surfaces: one base padding and one visual treatment. */
+:is(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list, .dashboard__manager-form) {
+  border: var(--component-border) !important;
+  border-radius: var(--component-card-radius) !important;
+  background: var(--component-surface) !important;
+  color: var(--component-text) !important;
+  box-shadow: var(--component-shadow) !important;
+  padding: 16px !important;
+}
+
+/* Shared item cards: one border, radius, surface, shadow and padding. */
+:is(.home__item, .dashboard__item, .content__item, .content__related-item, .dashboard__field-order-row, .dashboard__relation-group, .dashboard__option, .dashboard__role-options > label) {
+  border: var(--component-border) !important;
+  border-radius: var(--component-radius) !important;
+  background: var(--component-surface-muted) !important;
+  color: var(--component-text) !important;
+  box-shadow: none !important;
+  padding: 12px !important;
+}
+
+/* Shared buttons: one base size and appearance; named button states remain. */
+:is(button, .button, .dashboard__tab, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .floating-navigation__theme, .floating-navigation__list a) {
+  min-height: var(--component-control-height) !important;
+  padding: var(--component-padding-block) var(--component-padding-inline) !important;
+  border: var(--component-border) !important;
+  border-radius: var(--component-radius) !important;
+  background: var(--component-surface) !important;
+  color: var(--component-text) !important;
+  box-shadow: none !important;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1.4;
+  text-decoration: none;
+}
+:is(.button--primary, .dashboard__tab[aria-selected="true"]) {
+  border-color: var(--color-accent) !important;
+  background: var(--color-accent) !important;
+  color: var(--color-accent-contrast) !important;
+}
+.button--secondary { background: var(--component-surface-muted) !important; }
+.button--ghost { background: transparent !important; }
+
+/* Floating navigation toggle is a named, purpose-specific size exception. */
+.floating-navigation__toggle {
+  width: var(--component-floating-toggle-size) !important;
+  height: var(--component-floating-toggle-size) !important;
+  min-height: var(--component-floating-toggle-size) !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+}
+
+/* Shared form controls: one base size and appearance on every page. */
+:is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]), select, textarea) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--component-control-height) !important;
+  padding: var(--component-padding-block) var(--component-padding-inline) !important;
+  border: var(--component-border) !important;
+  border-radius: var(--component-radius) !important;
+  background: var(--component-surface) !important;
+  color: var(--component-text) !important;
+  box-shadow: none !important;
+  font: inherit;
+  line-height: 1.4;
+}
+textarea { min-height: 112px !important; resize: vertical; }
+:is(input[type="checkbox"], input[type="radio"]) {
+  width: 18px !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  padding: 0 !important;
+  accent-color: var(--color-accent);
+}
+
+/* Shared labels, badges and icon sizing. */
+:is(label, .label) {
+  color: var(--component-text) !important;
+  font-size: var(--font-size-sm) !important;
+  font-weight: 600 !important;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 3px 9px !important;
+  border: var(--component-border) !important;
+  border-radius: var(--radius-pill) !important;
+  background: var(--component-surface-muted) !important;
+  color: var(--component-text) !important;
+  font-size: var(--font-size-xs) !important;
+  font-weight: 600 !important;
+}
+:is([data-site-icon], .site-icon) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  line-height: 0;
+  vertical-align: middle;
+}
+:is([data-site-icon].site-icon svg, .site-icon svg) {
+  display: block;
+  width: 1.2em;
+  height: 1.2em;
+  max-width: none;
+}
