@@ -33,7 +33,7 @@ function startDashboard(){
   panel.innerHTML="";
   const title=document.createElement("h2");title.textContent=kind;panel.append(title);
   const actions=document.createElement("div");actions.className="dashboard__actions";
-  const create=document.createElement("button");create.type="button";create.className="button button--primary";create.textContent="Create";create.dataset.siteIcon="action.create";
+  const create=document.createElement("button");create.type="button";create.className="button button--primary";create.textContent="Create";const createIcon=document.createElement("span");createIcon.dataset.siteIcon="action.create";create.append(createIcon);
   const hide=document.createElement("button");hide.type="button";hide.className="button button--secondary";hide.textContent="Hide";hide.dataset.siteIcon="action.cancel";hide.hidden=true;actions.append(create,hide);panel.append(actions);
   const form=document.createElement("form");form.hidden=true;form.className="dashboard__manager-form";
   const listTitle=document.createElement("h3");listTitle.textContent="Existed Item List";
