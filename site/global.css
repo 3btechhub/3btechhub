@@ -1528,3 +1528,11 @@ html.site-preferences-pending .floating-navigation {
 .home__type-title{display:flex;justify-content:center;align-items:center;text-align:center}
 .home__type-link{display:inline-flex;justify-content:center;align-items:center;gap:9px;color:inherit;text-decoration:none;text-align:center}
 .home__type-link:focus-visible{outline:2px solid var(--color-text);outline-offset:4px;border-radius:4px}
+
+
+/* Consistent visibility and placement for database-managed SVG icons */
+[data-site-icon]{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;vertical-align:middle;line-height:0}
+[data-site-icon].site-icon svg{display:block;width:1.2em;height:1.2em;max-width:100%;overflow:visible}
+.dashboard__actions .button{display:inline-flex;align-items:center;gap:8px}
+.home__view-all-card,.home__map-link{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.dashboard__field>[data-site-icon]{width:20px;height:20px;color:var(--color-muted)}
