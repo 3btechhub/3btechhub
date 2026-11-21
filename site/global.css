@@ -247,8 +247,8 @@ label, .label { display: inline-block; margin-bottom: var(--space-1); color: var
 @media(max-width:720px){.home{padding-block:var(--space-4) var(--space-10)}.home__type{padding:var(--space-3)}}
 
 /* site/account/index.html */
-body { visibility: hidden; }
-  html.account-ready body { visibility: visible; }
+html.account-page:not(.account-ready) body { visibility: hidden; }
+html.account-page.account-ready body { visibility: visible; }
   .account-layout {
     min-height: 100vh;
     display: grid;
@@ -272,8 +272,8 @@ body { visibility: hidden; }
   }
 
 /* site/dashboard/index.html */
-body{visibility:hidden}
-html.authenticated body{visibility:visible}
+html.dashboard-page:not(.authenticated) body{visibility:hidden}
+html.dashboard-page.authenticated body{visibility:visible}
 .dashboard{width:100%;padding-block:var(--space-6) var(--space-12)}
 .dashboard__tabs,.dashboard__subtabs{display:flex;align-items:center;gap:var(--space-2);overflow-x:auto;padding:0 0 var(--space-2);margin:0 0 var(--space-4)}
 .dashboard__subtabs{margin-top:var(--space-2);margin-bottom:var(--space-3)}
