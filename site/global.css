@@ -1249,3 +1249,90 @@ input[type="file"] { min-height: var(--component-control-height) !important; col
 :is(button:disabled, input:disabled, select:disabled, textarea:disabled) { opacity: .6; cursor: not-allowed; }
 @media (max-width: 640px) { :is(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list, .dashboard__manager-form) { padding: 14px !important; } }
 @media (prefers-reduced-motion: reduce) { :is(button, .button, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item) { transition: none !important; transform: none !important; } }
+
+
+/* =========================================================
+   NAMED COMPONENT EXCEPTIONS
+   Unique-purpose styles stay centralized here in global.css.
+   These do not create page-specific visual systems.
+   ========================================================= */
+:root {
+  --component-floating-toggle-size: 58px;
+  --component-location-marker-size: 25px;
+  --component-detail-icon-size: 42px;
+  --component-icon-preview-size: 64px;
+}
+
+.floating-navigation__toggle {
+  display: grid;
+  place-items: center;
+  width: var(--component-floating-toggle-size) !important;
+  height: var(--component-floating-toggle-size) !important;
+  min-height: var(--component-floating-toggle-size) !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+}
+
+.home__location-pin {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--component-location-marker-size);
+  width: var(--component-location-marker-size);
+  height: var(--component-location-marker-size);
+  border-radius: var(--radius-small);
+  background: var(--component-surface-muted);
+  color: var(--component-text);
+  font-size: 17px;
+}
+
+.content__detail-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  width: var(--component-detail-icon-size);
+  height: var(--component-detail-icon-size);
+  font-size: 34px;
+}
+
+.site-icon-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--component-icon-preview-size);
+  height: var(--component-icon-preview-size);
+  border: var(--component-border);
+  border-radius: var(--radius-medium);
+  background: var(--component-surface);
+  color: var(--component-text);
+}
+
+.site-icon-preview svg {
+  width: 42px;
+  height: 42px;
+  max-width: 100%;
+}
+
+.dashboard__field-order-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 28px;
+  color: var(--color-muted);
+  cursor: grab;
+  touch-action: pan-y;
+  background: radial-gradient(circle, currentColor 1.35px, transparent 1.55px) 0 0 / 7px 7px;
+}
+
+.floating-navigation__separator {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--color-border);
+}
+
+.floating-navigation__theme-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
