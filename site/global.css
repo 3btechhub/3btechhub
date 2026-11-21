@@ -1542,6 +1542,5 @@ html.site-preferences-pending .floating-navigation {
 .account-field>input{flex:1;min-width:0;border:0;background:transparent}
 .account-field>input:focus{outline:0;box-shadow:none}
 
-
-/* Consistent spacing for automatically attached name icons */
-.site-icon--automatic{margin-inline-start:.42em;vertical-align:middle}
+/* Safe spacing for mapped SVG name icons */
+.site-icon--automatic{margin-inline-start:.38em;vertical-align:middle}
