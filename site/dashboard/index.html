@@ -24,6 +24,7 @@ function startDashboard(){
  const state={tab:"Content",subtab:"Existed List",items:[],roles:[],visibility:new Map(),selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
  const tabs=$("dashboard-tabs"),status=$("status");
  const say=(m,bad=false)=>{status.textContent=m;status.style.color=bad?"#c0392b":"var(--color-muted)"};
+ const iconize=(button,key)=>{const icon=document.createElement("span");icon.dataset.siteIcon=key;icon.setAttribute("aria-hidden","true");button.append(icon)};
  const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel"].forEach(id=>$(id).disabled=v);$("content-roles").querySelectorAll("input").forEach(input=>input.disabled=v);$("content-delete").disabled=v||!state.selected};
  function tabButton(name,active,onSelect){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";const iconKey={Content:"dashboard.content",Administration:"dashboard.administration",Settings:"dashboard.settings","Existed List":"action.search","Create Form":"action.create","Relation Form":"dashboard.content",User:"field.name",Role:"dashboard.administration",Permission:"field.visibility",Region:"field.location",Direction:"layout.home",Language:"field.name",Theme:"theme.dark","Home Page Section Management":"layout.home","SVG Icons":"field.image"}[name];const label=document.createElement("span");label.textContent=name;b.append(label);if(iconKey){const icon=document.createElement("span");icon.dataset.siteIcon=iconKey;icon.setAttribute("aria-hidden","true");b.append(icon)}b.setAttribute("aria-selected",String(active===name));b.addEventListener("click",()=>onSelect(name));return b}
  function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Direction","Language","Theme","Home Page Section Management","SVG Icons"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
@@ -34,7 +35,7 @@ function startDashboard(){
   const title=document.createElement("h2");title.textContent=kind;panel.append(title);
   const actions=document.createElement("div");actions.className="dashboard__actions";
   const create=document.createElement("button");create.type="button";create.className="button button--primary";create.textContent="Create";const createIcon=document.createElement("span");createIcon.dataset.siteIcon="action.create";create.append(createIcon);
-  const hide=document.createElement("button");hide.type="button";hide.className="button button--secondary";hide.textContent="Hide";hide.dataset.siteIcon="action.cancel";hide.hidden=true;actions.append(create,hide);panel.append(actions);
+  const hide=document.createElement("button");hide.type="button";hide.className="button button--secondary";hide.textContent="Hide";iconize(hide,"action.cancel");hide.hidden=true;actions.append(create,hide);panel.append(actions);
   const form=document.createElement("form");form.hidden=true;form.className="dashboard__manager-form";
   const listTitle=document.createElement("h3");listTitle.textContent="Existed Item List";
   const list=document.createElement("div");list.className="dashboard__list";
@@ -50,10 +51,10 @@ function startDashboard(){
  }
  function managerButtons(form,allowDelete=true){
   const actions=document.createElement("div");actions.className="dashboard__actions";
-  const save=document.createElement("button");save.type="submit";save.className="button button--primary";save.textContent="Save";save.dataset.siteIcon="action.save";
-  const cancel=document.createElement("button");cancel.type="button";cancel.className="button button--secondary";cancel.textContent="Cancel";cancel.dataset.siteIcon="action.cancel";cancel.addEventListener("click",()=>{form.hidden=true;form.reset();form.dataset.edit="";form.dataset.id=""});
+  const save=document.createElement("button");save.type="submit";save.className="button button--primary";save.textContent="Save";iconize(save,"action.save");
+  const cancel=document.createElement("button");cancel.type="button";cancel.className="button button--secondary";cancel.textContent="Cancel";iconize(cancel,"action.cancel");cancel.addEventListener("click",()=>{form.hidden=true;form.reset();form.dataset.edit="";form.dataset.id=""});
   actions.append(save,cancel);
-  if(allowDelete){const del=document.createElement("button");del.type="button";del.className="button button--secondary";del.textContent="Delete";del.dataset.siteIcon="action.delete";del.hidden=true;del.dataset.delete="";actions.append(del)}
+  if(allowDelete){const del=document.createElement("button");del.type="button";del.className="button button--secondary";del.textContent="Delete";iconize(del,"action.delete");del.hidden=true;del.dataset.delete="";actions.append(del)}
   form.append(actions);return actions;
  }
  function renderSimpleManager(panel,category){
@@ -74,7 +75,7 @@ function startDashboard(){
     const info=document.createElement("span");info.textContent=item.name;
     if(item.is_permanent){const badge=document.createElement("small");badge.textContent="Permanent";info.append(badge)}
     row.append(info);
-    if(!item.is_permanent){const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Edit";edit.dataset.siteIcon="action.edit";edit.addEventListener("click",()=>{form.hidden=false;ui.hide.hidden=false;name.value=item.name;form.dataset.edit="true";form.dataset.id=item.id||item.name;del.hidden=false});row.append(edit)}
+    if(!item.is_permanent){const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Edit";iconize(edit,"action.edit");edit.addEventListener("click",()=>{form.hidden=false;ui.hide.hidden=false;name.value=item.name;form.dataset.edit="true";form.dataset.id=item.id||item.name;del.hidden=false});row.append(edit)}
     ui.list.append(row);
    });
   };
@@ -111,7 +112,7 @@ function startDashboard(){
    permissions.forEach(p=>{const label=document.createElement("label");label.className="dashboard__option";const cb=document.createElement("input");cb.type="checkbox";cb.value=p.name;cb.dataset.permission="";const span=document.createElement("span");span.textContent=p.name;label.append(cb,span);permArea.append(label)});
    ui.list.replaceChildren();
    (roles||[]).forEach(role=>{const row=document.createElement("div");row.className="dashboard__item";const info=document.createElement("span");info.textContent=role.name;if(role.is_permanent){const b=document.createElement("small");b.textContent="Permanent";info.append(b)}row.append(info);
-    const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Permissions";edit.dataset.siteIcon="field.visibility";edit.addEventListener("click",async()=>{form.hidden=false;ui.hide.hidden=false;name.value=role.name;name.disabled=!!role.is_permanent;form.dataset.id=role.name;form.dataset.edit="true";del.hidden=!!role.is_permanent;const {data,error}=await supabase.from("role_permissions").select("permission_name").eq("role_name",role.name);if(error){say(error.message,true);return}const chosen=new Set((data||[]).map(x=>x.permission_name));permArea.querySelectorAll("input").forEach(cb=>cb.checked=chosen.has(cb.value))});row.append(edit);ui.list.append(row)});
+    const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Permissions";iconize(edit,"field.visibility");edit.addEventListener("click",async()=>{form.hidden=false;ui.hide.hidden=false;name.value=role.name;name.disabled=!!role.is_permanent;form.dataset.id=role.name;form.dataset.edit="true";del.hidden=!!role.is_permanent;const {data,error}=await supabase.from("role_permissions").select("permission_name").eq("role_name",role.name);if(error){say(error.message,true);return}const chosen=new Set((data||[]).map(x=>x.permission_name));permArea.querySelectorAll("input").forEach(cb=>cb.checked=chosen.has(cb.value))});row.append(edit);ui.list.append(row)});
    if(!(roles||[]).length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No existing roles";ui.list.append(p)}
   };
   form.addEventListener("submit",async e=>{e.preventDefault();try{
