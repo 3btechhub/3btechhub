@@ -12,8 +12,7 @@
   --color-overlay: rgba(0, 0, 0, 0.48);
   --shadow-soft: 0 4px 18px rgba(0, 0, 0, 0.08);
   --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.14);
-:root {
---component-floating-toggle-size: 58px;
+  --component-floating-toggle-size: 58px;
   --component-location-marker-size: 25px;
   --component-detail-icon-size: 42px;
   --component-icon-preview-size: 64px;
@@ -70,7 +69,6 @@
   --component-surface-muted: var(--color-surface);
   --component-text: var(--color-text);
   --component-shadow: 0 1px 3px rgba(0,0,0,.06);
-}
 }
 @media (prefers-color-scheme: dark) {
   
@@ -1385,9 +1383,7 @@ width: 18px;
    ========================================================= */
 :root {
   --component-control-height: 44px;
-  --component-control-height-small: 36px;
   --component-control-height-medium: 44px;
-  --component-control-height-big: 52px;
   --component-padding-inline-small: 10px;
   --component-padding-inline-medium: 14px;
   --component-padding-inline-big: 18px;
