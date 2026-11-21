@@ -1544,3 +1544,191 @@ html.site-preferences-pending .floating-navigation {
 
 /* Safe spacing for mapped SVG name icons */
 .site-icon--automatic{margin-inline-start:.38em;vertical-align:middle}
+
+
+/* Final global consistency layer — shared tokens and component behavior */
+:root {
+  --color-surface-muted: #eeeeee;
+  --color-success: #237a45;
+  --color-danger: #c0392b;
+  --color-warning: #946200;
+  --control-border: var(--color-border);
+  --control-background: var(--color-surface-raised);
+  --control-text: var(--color-text);
+  --component-border-radius: var(--radius-medium);
+  --component-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+:root[data-theme="dark"] {
+  --color-surface-muted: #292929;
+  --color-success: #78c995;
+  --color-danger: #ff8585;
+  --color-warning: #e7bd68;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-surface-muted: #292929;
+    --color-success: #78c995;
+    --color-danger: #ff8585;
+    --color-warning: #e7bd68;
+  }
+}
+
+/* One shared control baseline for every page and dashboard form. */
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+       select, textarea) {
+  min-width: 0;
+  border: 1px solid var(--control-border);
+  border-radius: var(--component-border-radius);
+  background-color: var(--control-background);
+  color: var(--control-text);
+  font: inherit;
+  transition: var(--component-transition);
+}
+:where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+       select, textarea):focus-visible {
+  border-color: var(--color-focus);
+  outline: 2px solid var(--color-focus);
+  outline-offset: 1px;
+}
+:where(input[type="checkbox"], input[type="radio"]) {
+  accent-color: var(--color-accent);
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+:where(input[type="file"]) {
+  max-width: 100%;
+  color: var(--color-text);
+  font: inherit;
+}
+:where(input[type="file"])::file-selector-button {
+  min-height: 36px;
+  margin-inline-end: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-small);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+:where(fieldset) {
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+}
+:where(legend) {
+  padding-inline: var(--space-1);
+  font-weight: 600;
+}
+
+/* Shared button states without changing the established button dimensions. */
+:where(button, .button, .content__item, .home__item, .dashboard__item) {
+  -webkit-tap-highlight-color: transparent;
+}
+:where(button:not(:disabled), .button, .content__item, .home__item, .dashboard__item) {
+  transition: var(--component-transition), transform var(--transition-fast);
+}
+:where(.button, .dashboard__tab, .content__external, .content__back, .content__home):hover {
+  border-color: var(--color-focus);
+}
+:where(.button, .dashboard__tab, .content__external, .content__back, .content__home):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+:where(.home__item, .dashboard__item, .content__item):hover {
+  border-color: var(--color-focus);
+}
+:where(.home__item, .dashboard__item, .content__item):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Shared surface, item and form spacing rules. */
+:where(.home__type, .dashboard__panel, .content__detail) {
+  min-width: 0;
+  border-color: var(--color-border);
+  border-radius: var(--radius-large);
+}
+:where(.home__item, .dashboard__item, .content__item) {
+  min-width: 0;
+  border-color: var(--color-border);
+  border-radius: var(--radius-medium);
+  overflow-wrap: anywhere;
+}
+:where(.dashboard__field, .dashboard__manager-form, #content-form, #content-fields, #type-fields) {
+  min-width: 0;
+}
+.dashboard__role-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: var(--space-2);
+  min-width: 0;
+}
+.dashboard__role-options > label,
+.dashboard__option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-medium);
+  background: var(--color-surface);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+.dashboard__role-options > label input,
+.dashboard__option input {
+  margin: 0;
+}
+.dashboard__hint {
+  margin: 0;
+}
+.dashboard__status[data-state="error"] {
+  color: var(--color-danger);
+}
+.dashboard__status[data-state="success"] {
+  color: var(--color-success);
+}
+.dashboard__status[data-state="info"] {
+  color: var(--color-muted);
+}
+
+/* Keep icon sizing and alignment predictable across all shared components. */
+:where([data-site-icon], .site-icon) {
+  flex: 0 0 auto;
+  line-height: 0;
+  vertical-align: middle;
+}
+:where([data-site-icon].site-icon svg, .site-icon svg) {
+  display: block;
+  width: 1.2em;
+  height: 1.2em;
+  max-width: none;
+}
+:where(.dashboard__tab, .dashboard__actions .button,
+       .home__type-link, .home__view-all-card, .home__map-link,
+       .floating-navigation__list a, .floating-navigation__theme) {
+  gap: var(--space-2);
+}
+
+/* Consistent media and overflow behavior on narrow screens. */
+:where(.home__image, .content__image, .dashboard__item-thumb) {
+  max-width: 100%;
+}
+:where(.home__item-title, .home__image-caption, .content__field,
+       .dashboard__item-name, .dashboard__item-meta) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 520px) {
+  :where(.dashboard__role-options) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  :where(.dashboard__actions) {
+    flex-wrap: wrap;
+  }
+}
