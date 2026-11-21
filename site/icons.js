@@ -12,9 +12,12 @@ export function initSiteIcons(supabase){
   clean(root);root.setAttribute("aria-hidden","true");root.setAttribute("focusable","false");
   return document.importNode(root,true);
  }
- function apply(){
-  document.querySelectorAll("[data-site-icon]").forEach(target=>{
-   const key=target.dataset.siteIcon,code=cache.get(key);
+ function apply(scope=document){
+  const targets=[];
+  if(scope.matches?.("[data-site-icon]"))targets.push(scope);
+  scope.querySelectorAll?.("[data-site-icon]").forEach(node=>targets.push(node));
+  targets.forEach(target=>{
+   const key=(target.dataset.siteIcon||"").trim(),code=cache.get(key);
    if(!code)return;
    const svg=cleanSvg(code);if(!svg)return;
    target.replaceChildren(svg);
@@ -27,6 +30,13 @@ export function initSiteIcons(supabase){
   cache.clear();(data||[]).forEach(item=>cache.set(item.icon_key,item.svg_code));apply();
   window.dispatchEvent(new CustomEvent("3b:icons-updated"));
  }
+ const observer=new MutationObserver(records=>{
+  for(const record of records){
+   record.addedNodes.forEach(node=>{if(node.nodeType===1)apply(node)});
+   if(record.type==="attributes"&&record.target.matches?.("[data-site-icon]"))apply(record.target);
+  }
+ });
+ observer.observe(document.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:["data-site-icon"]});
  window.addEventListener("3b:global-update",refresh);
  const controller={refresh,apply};
  window.siteIcons=controller;
