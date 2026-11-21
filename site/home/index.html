@@ -13,6 +13,7 @@ import {initSiteIcons} from "../icons.js";
 const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
 const root=document.getElementById("home-types");
 const status=document.getElementById("home-status");
+const HOME_ITEM_LIMIT=4;
 connectGlobalRealtime(supabase);
 initSiteIcons(supabase);
 let renderVersion=0;
@@ -30,8 +31,9 @@ const safeMapUrl=value=>{
  }catch{return ""}
 };
 function makeItem(item){
- const card=document.createElement("article");
+ const card=document.createElement("a");
  card.className="home__item";
+ card.href="../content/?type="+encodeURIComponent(item.type)+"&id="+encodeURIComponent(item.id);
  if(item.type==="Images"){
   card.classList.add("home__item--image");
   const image=document.createElement("img");
@@ -104,8 +106,15 @@ async function renderHome(){
   const list=document.createElement("div");
   list.className="home__items";
   if(section.content_type==="Images")list.classList.add("home__items--gallery");
-  matching.forEach(item=>list.append(makeItem(item)));
+  matching.slice(0,HOME_ITEM_LIMIT).forEach(item=>list.append(makeItem(item)));
   card.append(heading,list);
+  if(matching.length>HOME_ITEM_LIMIT){
+   const viewAll=document.createElement("a");
+   viewAll.className="home__view-all";
+   viewAll.href="../content/?type="+encodeURIComponent(section.content_type);
+   viewAll.textContent="View All";
+   card.append(viewAll);
+  }
   root.append(card);
   window.siteIcons?.apply();
  });
