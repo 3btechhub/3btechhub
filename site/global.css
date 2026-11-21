@@ -375,3 +375,10 @@ html.authenticated body{visibility:visible}
     transform: none !important;
   }
 }
+
+
+/* Page access visibility states */
+html.account-page:not(.account-ready) body { visibility: hidden; }
+html.account-page.account-ready body { visibility: visible; }
+html.dashboard-page:not(.authenticated) body { visibility: hidden; }
+html.dashboard-page.authenticated body { visibility: visible; }
