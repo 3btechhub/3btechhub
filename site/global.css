@@ -1743,7 +1743,6 @@ html.site-preferences-pending .floating-navigation {
 .dashboard__field-order-row{display:grid;grid-template-columns:32px minmax(0,1fr) 76px;align-items:center;gap:var(--space-3);min-width:0;padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-surface)}
 .dashboard__field-order-row.is-dragging{opacity:.45}
 .dashboard__field-order-row.is-drop-target{border-color:var(--color-text);background:var(--color-surface-raised)}
-.dashboard__field-order-grip{display:flex;align-items:center;justify-content:center;width:28px;height:36px;color:var(--color-muted);cursor:grab;touch-action:pan-y}
-.dashboard__field-order-grip svg{width:20px;height:20px}
+.dashboard__field-order-grip{display:flex;align-items:center;justify-content:center;width:18px;height:28px;color:var(--color-muted);cursor:grab;touch-action:pan-y;background:radial-gradient(circle,currentColor 1.35px,transparent 1.55px) 0 0/7px 7px}
 .dashboard__field-order-name{min-width:0;overflow-wrap:anywhere}
 .dashboard__field-order-position{min-height:38px;padding:var(--space-1) var(--space-2);text-align:center}
