@@ -6,13 +6,13 @@
   menu.setAttribute("aria-label", "Main navigation");
   menu.innerHTML = `
     <ul class="floating-navigation__list" id="page-navigation">
-      <li><a href="${new URL("home/", base).href}">Home</a></li>
-      <li><a href="${new URL("account/", base).href}">Account</a></li>
-      <li><a href="${new URL("dashboard/", base).href}">Dashboard</a></li>
+      <li><a href="${new URL("home/", base).href}"><span data-site-icon="nav.home"></span>Home</a></li>
+      <li><a href="${new URL("account/", base).href}"><span data-site-icon="nav.account"></span>Account</a></li>
+      <li><a href="${new URL("dashboard/", base).href}"><span data-site-icon="nav.dashboard"></span>Dashboard</a></li>
       <li class="floating-navigation__separator" aria-hidden="true"></li>
       <li><button class="floating-navigation__theme" type="button" aria-label="Switch to dark mode">
         <span class="floating-navigation__theme-label">Dark mode</span>
-        <svg class="floating-navigation__theme-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5 8.5 8.5 0 1 0 20.5 15.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="floating-navigation__theme-icon" data-site-icon="theme.dark"></span>
       </button></li>
     </ul>
     <button class="floating-navigation__toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="page-navigation">
@@ -51,13 +51,15 @@
     menu.classList.add("is-open");
     toggle.setAttribute("aria-expanded", "true");
     toggle.setAttribute("aria-label", "Close navigation menu");
-    icon.innerHTML = '<path d="M6 6l12 12M18 6L6 18"/>';
+    icon.dataset.siteIcon = "nav.close";
+    window.siteIcons?.apply();
   };
   const close = () => {
     menu.classList.remove("is-open");
     toggle.setAttribute("aria-expanded", "false");
     toggle.setAttribute("aria-label", "Open navigation menu");
-    icon.innerHTML = '<path d="M4 6h16M4 12h16M4 18h16"/>';
+    icon.dataset.siteIcon = "nav.menu";
+    window.siteIcons?.apply();
   };
   toggle.addEventListener("click", () => menu.classList.contains("is-open") ? close() : open());
   themeButton.addEventListener("click", () => {
@@ -68,3 +70,4 @@
   document.addEventListener("keydown", event => { if (event.key === "Escape") close(); });
   menu.querySelectorAll("a").forEach(link => link.addEventListener("click", close));
 })();
+Promise.all([import("https://esm.sh/@supabase/supabase-js@2.119.1"),import("./icons.js")]).then(([{createClient},{initSiteIcons}])=>{const client=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");window.siteIcons=initSiteIcons(client)}).catch(error=>console.warn("SVG icon loader unavailable:",error));
