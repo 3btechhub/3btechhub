@@ -1446,3 +1446,30 @@ html[dir="ltr"] :where(.dashboard__item, .dashboard__option,
                        .home__location, .home__map-link) {
   text-align: start;
 }
+
+
+/* Card cleanup: remove inset shading, glossy overlays and decorative edge marks. */
+.home__item,
+.dashboard__item {
+  position: relative;
+  background-image: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .045) !important;
+}
+.home__item::before,
+.home__item::after,
+.dashboard__item::before,
+.dashboard__item::after {
+  content: none !important;
+  display: none !important;
+}
+.home__item .site-icon,
+.dashboard__item .site-icon {
+  width: 22px;
+  height: 22px;
+  color: var(--color-text);
+}
+.home__item .site-icon svg,
+.dashboard__item .site-icon svg {
+  width: 100%;
+  height: 100%;
+}
