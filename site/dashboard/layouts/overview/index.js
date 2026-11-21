@@ -1,0 +1,1 @@
+// Dashboard overview placeholder. Authentication and access control are not enabled yet.
