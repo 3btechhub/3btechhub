@@ -11,7 +11,9 @@
 body{visibility:hidden}
 html.authenticated body{visibility:visible}
 .dashboard{width:100%;padding-block:var(--space-6) var(--space-12)}
-.dashboard__tabs{display:flex;align-items:center;gap:var(--space-2);overflow-x:auto;padding:0 0 var(--space-2);margin:0 0 var(--space-4)}
+.dashboard__tabs,.dashboard__subtabs{display:flex;align-items:center;gap:var(--space-2);overflow-x:auto;padding:0 0 var(--space-2);margin:0 0 var(--space-4)}
+.dashboard__subtabs{margin-top:var(--space-2);margin-bottom:var(--space-3)}
+.dashboard__subtabs .dashboard__tab{min-height:36px;padding:var(--space-2) var(--space-3);font-size:var(--font-size-sm)}
 .dashboard__tab{flex:0 0 auto;min-height:42px;padding:var(--space-2) var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-pill);background:var(--color-surface-raised);color:var(--color-text);font-weight:600;white-space:nowrap}
 .dashboard__tab[aria-selected=true]{background:var(--color-accent);color:var(--color-accent-contrast);border-color:var(--color-accent)}
 .dashboard__layout{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4);align-items:start}
@@ -68,14 +70,16 @@ else if(session.user.id!==OWNER_ID){const deniedUrl=new URL("../account/",window
 else{document.documentElement.classList.add("authenticated");startDashboard()}
 function startDashboard(){
  const types=["Services","Products","Providers","Hubs","Contacts","Images","Videos"],$=id=>document.getElementById(id);
- const state={tab:"Overview",items:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
+ const state={tab:"Overview",subtab:"",items:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
  const tabs=$("dashboard-tabs"),status=$("status");
  const say=(m,bad=false)=>{status.textContent=m;status.style.color=bad?"#c0392b":"var(--color-muted)"};
  const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel"].forEach(id=>$(id).disabled=v);$("content-delete").disabled=v||!state.selected};
- function tabButton(name){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";b.textContent=name;b.setAttribute("aria-selected",String(state.tab===name));b.addEventListener("click",()=>showTab(name));return b}
- function showTab(name){state.tab=name;tabs.replaceChildren(...["Overview","Content","Relation"].map(tabButton));$("overview-panel").hidden=name!=="Overview";$("content-panel").hidden=name!=="Content";$("relation-panel").hidden=name!=="Relation";say("");if(name==="Overview")renderOverview();if(name==="Content")loadContent();if(name==="Relation")loadRelationItems()}
+ function tabButton(name,active,onSelect){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";b.textContent=name;b.setAttribute("aria-selected",String(active===name));b.addEventListener("click",()=>onSelect(name));return b}
+ function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Language","Theme","Home Page Section Management"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
+ function showSubtab(name){state.subtab=name;renderSubtabs();if(state.tab==="Content"){ $("existed-list-panel").hidden=name!=="Existed List";$("create-form-panel").hidden=name!=="Create Form";$("relation-form-panel").hidden=name!=="Relation Form";if(name==="Existed List")loadContent();if(name==="Relation Form")loadRelationItems();if(name==="Create Form")say("");}else{const prefix=state.tab==="Administration"?"admin":"settings";document.querySelectorAll("[data-subtab-panel]").forEach(p=>p.hidden=p.dataset.group!==prefix||p.dataset.subtab!==name);}}
+ function showTab(name){state.tab=name;const mainTabs=["Overview","Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("overview-panel").hidden=name!=="Overview";$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Overview")renderOverview();if(name==="Content"){if(!state.subtab)state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Language","Theme","Home Page Section Management"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
  async function loadAll(){const {data,error}=await supabase.from("content").select("id,type,name,slug,is_visible,skills,label,value,image_url,file_title,location,map,created_at").order("created_at",{ascending:false});if(error){say(error.message,true);return false}state.items=data||[];return true}
- function renderOverview(){const root=$("overview-stats");root.replaceChildren();[{name:"All Content",count:state.items.length},...types.map(type=>({name:type,count:state.items.filter(x=>x.type===type).length}))].forEach(x=>{const card=document.createElement("button");card.type="button";card.className="dashboard__stat dashboard__item";card.addEventListener("click",()=>{showTab("Content");$("content-type").value=x.name==="All Content"?"All":x.name;renderContentList();$("content-list").scrollIntoView({behavior:"smooth",block:"start"})});const n=document.createElement("strong");n.textContent=x.count;const label=document.createElement("span");label.textContent=x.name;card.append(n,label);root.append(card)})}
+ function renderOverview(){const root=$("overview-stats");root.replaceChildren();[{name:"All Content",count:state.items.length},...types.map(type=>({name:type,count:state.items.filter(x=>x.type===type).length}))].forEach(x=>{const card=document.createElement("button");card.type="button";card.className="dashboard__stat dashboard__item";card.addEventListener("click",()=>{showTab("Content");showSubtab("Existed List");$("content-type").value=x.name==="All Content"?"All":x.name;renderContentList();$("content-list").scrollIntoView({behavior:"smooth",block:"start"})});const n=document.createElement("strong");n.textContent=x.count;const label=document.createElement("span");label.textContent=x.name;card.append(n,label);root.append(card)})}
  function renderContentList(){const root=$("content-list");root.replaceChildren();const filter=$("content-type").value;const list=state.items.filter(x=>filter==="All"||x.type===filter);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const s=document.createElement("span");s.textContent=item.name;const meta=document.createElement("small");meta.textContent=(item.slug||("ID: "+item.id.slice(0,8)))+(item.is_visible?"":" · Hidden");s.append(meta);b.append(s);b.addEventListener("click",()=>editContent(item));root.append(b)})}
  async function loadContent(){if(await loadAll())renderContentList()}
  function makeField(id,placeholder,type="text"){const wrap=document.createElement("div");wrap.className="dashboard__field";const input=document.createElement("input");input.id=id;input.type=type;input.placeholder=placeholder;input.setAttribute("aria-label",placeholder);input.autocomplete="off";wrap.append(input);return wrap}
@@ -141,8 +145,10 @@ function startDashboard(){
 <header class="page-header"><h1>Dashboard</h1></header>
 <nav class="dashboard__tabs" id="dashboard-tabs" aria-label="Dashboard sections"></nav>
 <section id="overview-panel" class="dashboard__panel"><h2>Overview</h2><div class="dashboard__stats" id="overview-stats"></div></section>
-<section id="content-panel" hidden><div class="dashboard__layout">
-<section class="dashboard__panel"><div class="dashboard__actions"><button class="button button--primary" id="create-toggle" type="button">Create</button><button class="button button--secondary" id="create-hide" type="button" hidden>Hide</button></div>
+<section id="content-panel" hidden>
+<nav id="content-subtabs" class="dashboard__subtabs" aria-label="Content sections"></nav>
+<div id="existed-list-panel" class="dashboard__panel"><h2>Existed List</h2><div class="dashboard__field"><label for="content-type">Type</label><select id="content-type"><option value="All">All</option><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div><div class="dashboard__list" id="content-list"></div></div>
+<section id="create-form-panel" class="dashboard__panel" hidden><h2>Create Form</h2><div class="dashboard__actions"><button class="button button--primary" id="create-toggle" type="button">Create</button><button class="button button--secondary" id="create-hide" type="button" hidden>Hide</button></div>
 <form id="content-form" hidden>
 <div class="dashboard__field"><select id="content-form-type" required><option value="">Select type</option><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div>
 <div id="content-fields" hidden>
@@ -151,12 +157,21 @@ function startDashboard(){
 <label class="dashboard__visibility"><input id="content-visible" type="checkbox" checked> Visibility</label>
 <div class="dashboard__actions"><button class="button button--primary" id="content-save" type="submit">Save</button><button class="button button--secondary" id="content-cancel" type="button">Cancel</button><button class="button button--secondary" id="content-delete" type="button" disabled>Delete</button></div>
 </div></form></section>
-<section class="dashboard__panel"><h2>Existed Content</h2><div class="dashboard__field"><label for="content-type">Type</label><select id="content-type"><option value="All">All</option><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div><div class="dashboard__list" id="content-list"></div></section>
-</div></section>
-<section id="relation-panel" class="dashboard__panel" hidden><h2>Relation</h2>
+<section id="relation-form-panel" class="dashboard__panel" hidden><h2>Relation Form</h2>
 <div class="dashboard__field"><select id="source-type" aria-label="Select type"><option value="">Select type</option></select></div>
 <div class="dashboard__field"><select id="source-name" aria-label="Select item"><option value="">Select item</option></select></div>
 <div id="target-section" hidden><h2>Target Section</h2><div class="dashboard__relation-groups" id="target-groups"></div><h2>Existed Item List</h2><div id="relation-existing"></div><div class="dashboard__actions"><button class="button button--primary" id="relation-save" type="button">Save Relations</button></div></div>
+</section></section>
+<section id="administration-panel" class="dashboard__panel" hidden><nav id="administration-subtabs" class="dashboard__subtabs" aria-label="Administration sections"></nav>
+<section class="dashboard__panel" data-subtab-panel data-group="admin" data-subtab="User"><h2>User</h2></section>
+<section class="dashboard__panel" data-subtab-panel data-group="admin" data-subtab="Role" hidden><h2>Role</h2></section>
+<section class="dashboard__panel" data-subtab-panel data-group="admin" data-subtab="Permission" hidden><h2>Permission</h2></section>
+</section>
+<section id="settings-panel" class="dashboard__panel" hidden><nav id="settings-subtabs" class="dashboard__subtabs" aria-label="Settings sections"></nav>
+<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Region"><h2>Region</h2></section>
+<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Language" hidden><h2>Language</h2></section>
+<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Theme" hidden><h2>Theme</h2></section>
+<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Home Page Section Management" hidden><h2>Home Page Section Management</h2></section>
 </section>
 <p class="dashboard__status" id="status" role="status" aria-live="polite"></p>
 </main>
