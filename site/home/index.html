@@ -106,15 +106,17 @@ async function renderHome(){
   const list=document.createElement("div");
   list.className="home__items";
   if(section.content_type==="Images")list.classList.add("home__items--gallery");
-  matching.slice(0,HOME_ITEM_LIMIT).forEach(item=>list.append(makeItem(item)));
-  card.append(heading,list);
   if(matching.length>HOME_ITEM_LIMIT){
+   matching.slice(0,HOME_ITEM_LIMIT-1).forEach(item=>list.append(makeItem(item)));
    const viewAll=document.createElement("a");
-   viewAll.className="home__view-all";
+   viewAll.className="home__item home__view-all-card";
    viewAll.href="../content/?type="+encodeURIComponent(section.content_type);
    viewAll.textContent="View All";
-   card.append(viewAll);
+   list.append(viewAll);
+  }else{
+   matching.slice(0,HOME_ITEM_LIMIT).forEach(item=>list.append(makeItem(item)));
   }
+  card.append(heading,list);
   root.append(card);
   window.siteIcons?.apply();
  });
