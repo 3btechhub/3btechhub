@@ -1291,3 +1291,9 @@ h3 { font-size: 18px; }
     transition: none !important;
   }
 }
+
+
+/* SVG icon library manager */
+.site-icon-preview{display:flex;align-items:center;justify-content:center;width:64px;height:64px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface-raised);color:var(--color-text)}
+.site-icon-preview svg{width:42px;height:42px;max-width:100%}
+.dashboard__manager-form textarea[name="svg_code"]{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px;line-height:1.5;min-height:150px}
