@@ -24,7 +24,7 @@ function startDashboard(){
  const say=(m,bad=false)=>{status.textContent=m;status.style.color=bad?"#c0392b":"var(--color-muted)"};
  const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel"].forEach(id=>$(id).disabled=v);$("content-roles").querySelectorAll("input").forEach(input=>input.disabled=v);$("content-delete").disabled=v||!state.selected};
  function tabButton(name,active,onSelect){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";b.textContent=name;b.setAttribute("aria-selected",String(active===name));b.addEventListener("click",()=>onSelect(name));return b}
- function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Language","Theme","Home Page Section Management"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
+ function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Language","Theme","Home Page Section Management","SVG Icons"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
 
  async function callUserAdmin(body){const {data,error}=await supabase.functions.invoke("owner-users",{body});if(error)throw error;return data}
  function managerShell(panel,kind){
@@ -176,6 +176,69 @@ function startDashboard(){
   panel.__globalRefresh=load;
   load().catch(err=>say(err.message,true));
  }
+ function renderSvgIconManager(panel){
+  const ui=managerShell(panel,"SVG Icon Library"),form=ui.form;
+  const key=field(form,"Unique icon key");
+  const label=field(form,"Icon label");
+  const category=document.createElement("select");category.setAttribute("aria-label","Category");
+  ["Navigation","Module","Dashboard","Action","Status","Field","Layout","Media","Theme","Other"].forEach(value=>{const o=document.createElement("option");o.value=value;o.textContent=value;category.append(o)});
+  form.append(category);
+  const svgWrap=document.createElement("div");svgWrap.className="dashboard__field";
+  const svgLabel=document.createElement("label");svgLabel.textContent="SVG Code";
+  const svg=document.createElement("textarea");svg.name="svg_code";svg.placeholder="<svg viewBox=\"0 0 24 24\">...</svg>";svg.required=true;svg.rows=7;
+  svgWrap.append(svgLabel,svg);form.append(svgWrap);
+  const description=field(form,"Description");description.required=false;
+  const activeWrap=document.createElement("label");activeWrap.className="dashboard__option";
+  const active=document.createElement("input");active.type="checkbox";active.checked=true;
+  const activeText=document.createElement("span");activeText.textContent="Active";activeWrap.append(active,activeText);form.append(activeWrap);
+  const preview=document.createElement("div");preview.className="site-icon-preview";preview.setAttribute("aria-label","SVG preview");form.append(preview);
+  const actions=managerButtons(form),del=actions.querySelector("[data-delete]");
+  const safePreview=code=>{
+   preview.replaceChildren();
+   try{
+    const doc=new DOMParser().parseFromString(code,"image/svg+xml"),root=doc.documentElement;
+    const allowed=new Set(["svg","g","path","circle","rect","line","polyline","polygon","ellipse"]);
+    const attrs=new Set(["viewBox","xmlns","fill","stroke","stroke-width","stroke-linecap","stroke-linejoin","d","cx","cy","r","x","y","width","height","points","rx","ry","fill-rule","clip-rule","transform"]);
+    if(root.tagName.toLowerCase()!=="svg"||doc.querySelector("parsererror"))throw new Error("Invalid SVG");
+    const clean=node=>{
+     [...node.attributes].forEach(a=>{if(!attrs.has(a.name))node.removeAttribute(a.name)});
+     [...node.children].forEach(child=>{if(!allowed.has(child.tagName.toLowerCase()))child.remove();else clean(child)});
+    };
+    clean(root);root.setAttribute("width","42");root.setAttribute("height","42");preview.append(document.importNode(root,true));
+   }catch{preview.textContent="Invalid SVG preview"}
+  };
+  svg.addEventListener("input",()=>safePreview(svg.value));
+  const load=async()=>{
+   const {data,error}=await supabase.from("site_svg_icons").select("id,icon_key,label,category,svg_code,description,is_active").order("category").order("icon_key");
+   if(error)throw error;ui.list.replaceChildren();
+   if(!data?.length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No icons found";ui.list.append(p)}
+   data.forEach(item=>{
+    const row=document.createElement("div");row.className="dashboard__item";
+    const info=document.createElement("span");info.className="dashboard__item-info";
+    const name=document.createElement("strong");name.textContent=item.label+" · "+item.icon_key;
+    const meta=document.createElement("small");meta.className="dashboard__item-meta";meta.textContent=item.category+" · "+(item.is_active?"Active":"Inactive");
+    info.append(name,meta);row.append(info);
+    const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Edit";
+    edit.addEventListener("click",()=>{form.hidden=false;ui.hide.hidden=false;key.value=item.icon_key;key.disabled=true;label.value=item.label;category.value=item.category;svg.value=item.svg_code;description.value=item.description||"";active.checked=item.is_active;form.dataset.id=item.id;form.dataset.edit="true";del.hidden=false;safePreview(svg.value)});
+    row.append(edit);ui.list.append(row);
+   });
+  };
+  form.addEventListener("submit",async e=>{
+   e.preventDefault();
+   const payload={icon_key:key.value.trim(),label:label.value.trim(),category:category.value,svg_code:svg.value.trim(),description:description.value.trim()||null,is_active:active.checked};
+   try{
+    const result=form.dataset.edit==="true"?await supabase.from("site_svg_icons").update({label:payload.label,category:payload.category,svg_code:payload.svg_code,description:payload.description,is_active:payload.is_active}).eq("id",form.dataset.id):await supabase.from("site_svg_icons").insert(payload);
+    if(result.error)throw result.error;
+    form.hidden=true;ui.hide.hidden=true;form.reset();key.disabled=false;active.checked=true;form.dataset.id="";form.dataset.edit="";del.hidden=true;await load();say("SVG icon saved");
+   }catch(err){say(err.message,true)}
+  });
+  del.addEventListener("click",async()=>{
+   if(!form.dataset.id||!confirm("Delete this SVG icon?"))return;
+   try{const {error}=await supabase.from("site_svg_icons").delete().eq("id",form.dataset.id);if(error)throw error;form.hidden=true;ui.hide.hidden=true;form.reset();key.disabled=false;form.dataset.id="";form.dataset.edit="";del.hidden=true;await load();say("SVG icon deleted")}catch(err){say(err.message,true)}
+  });
+  ui.create.addEventListener("click",()=>{key.disabled=false;active.checked=true;safePreview("")});
+  panel.__globalRefresh=load;load().catch(err=>say(err.message,true));
+ }
  function renderManagementPanel(panel){
   if(panel.dataset.initialized==="true")return;panel.dataset.initialized="true";
   const name=panel.dataset.subtab;
@@ -183,10 +246,11 @@ function startDashboard(){
   else if(name==="Role")renderRoleManager(panel);
   else if(name==="Permission"||["Region","Language","Theme"].includes(name))renderSimpleManager(panel,name);
   else if(name==="Home Page Section Management")renderHomePageManager(panel);
+  else if(name==="SVG Icons")renderSvgIconManager(panel);
  }
 
  function showSubtab(name){state.subtab=name;renderSubtabs();if(state.tab==="Content"){ $("existed-list-panel").hidden=name!=="Existed List";$("create-form-panel").hidden=name!=="Create Form";$("relation-form-panel").hidden=name!=="Relation Form";if(name==="Existed List")loadContent();if(name==="Relation Form")loadRelationItems();if(name==="Create Form"){say("");loadContentRoleOptions().catch(err=>say(err.message,true))}}else{const prefix=state.tab==="Administration"?"admin":"settings";document.querySelectorAll("[data-subtab-panel]").forEach(p=>{p.hidden=p.dataset.group!==prefix||p.dataset.subtab!==name;if(!p.hidden)renderManagementPanel(p)});}}
- function showTab(name){state.tab=name;const mainTabs=["Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Content"){if(!["Existed List","Create Form","Relation Form"].includes(state.subtab))state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Language","Theme","Home Page Section Management"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
+ function showTab(name){state.tab=name;const mainTabs=["Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Content"){if(!["Existed List","Create Form","Relation Form"].includes(state.subtab))state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Language","Theme","Home Page Section Management","SVG Icons"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
  async function loadContentRoleOptions(){
   const {data,error}=await supabase.from("roles").select("name").order("name");
   if(error)throw error;
@@ -307,6 +371,7 @@ function startDashboard(){
 <section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Language" hidden><h2>Language</h2></section>
 <section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Theme" hidden><h2>Theme</h2></section>
 <section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Home Page Section Management" hidden><h2>Home Page Section Management</h2></section>
+<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="SVG Icons" hidden><h2>SVG Icons</h2></section>
 </section>
 <p class="dashboard__status" id="status" role="status" aria-live="polite"></p>
 </main>
