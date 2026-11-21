@@ -8,354 +8,96 @@
 <script src="../navigation.js" defer></script>
 <title>Dashboard</title>
 <style>
-  body { visibility: hidden; }
-  html.authenticated body { visibility: visible; }
-  .dashboard { padding-block: 28px 100px; }
-  .dashboard__tabs { display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; margin-bottom:20px; }
-  .dashboard__tab { flex:0 0 auto; min-height:42px; padding:9px 16px; border:1px solid var(--color-border); border-radius:var(--radius-pill); background:var(--color-surface-raised); color:var(--color-text); font-weight:600; }
-  .dashboard__tab[aria-selected="true"] { background:var(--color-accent); color:var(--color-accent-contrast); border-color:var(--color-accent); }
-  .dashboard__layout { display:grid; grid-template-columns:minmax(230px,.8fr) minmax(0,1.4fr); gap:20px; align-items:start; }
-  .dashboard__panel { min-width:0; padding:20px; border:1px solid var(--color-border); border-radius:var(--radius-large); background:var(--color-surface-raised); }
-  .dashboard__panel h2 { font-size:20px; margin-bottom:16px; }
-  .dashboard__list { display:grid; gap:8px; max-height:65vh; overflow:auto; }
-  .dashboard__item { width:100%; display:flex; justify-content:space-between; gap:12px; padding:12px; border:1px solid var(--color-border); border-radius:var(--radius-medium); background:var(--color-surface); color:var(--color-text); text-align:left; }
-  .dashboard__item[aria-current="true"] { border-color:var(--color-text); }
-  .dashboard__item small { display:block; color:var(--color-muted); overflow-wrap:anywhere; }
-  .dashboard__field { display:grid; gap:6px; margin-bottom:16px; }
-  .dashboard__visibility { display:flex; align-items:center; gap:10px; margin:6px 0 20px; font-size:14px; }
-  .dashboard__visibility input { width:18px; height:18px; min-height:0; }
-  .dashboard__toggle { width:100%; display:flex; align-items:center; justify-content:space-between; padding:13px 16px; margin:0 0 10px; border:1px solid var(--color-border); border-radius:var(--radius-medium); background:var(--color-surface); color:var(--color-text); font-weight:600; text-align:left; }
-  .dashboard__toggle[aria-expanded="true"] { border-color:var(--color-text); }
-  .dashboard__toggle-panel { padding:16px 0 8px; }
-  .dashboard__toggle-panel[hidden] { display:none; }
-  .dashboard__relations { display:grid; gap:14px; margin:16px 0 22px; }
-  .dashboard__relation-group { padding:12px; border:1px solid var(--color-border); border-radius:var(--radius-medium); }
-  .dashboard__relation-group h3 { font-size:15px; margin-bottom:10px; }
-  .dashboard__relation-options { display:grid; gap:8px; }
-  .dashboard__relation-option { display:flex; align-items:center; gap:10px; margin:0; font-weight:400; }
-  .dashboard__relation-option input { width:18px; height:18px; min-height:0; }
-  .dashboard__actions { display:flex; flex-wrap:wrap; gap:8px; }
-  .dashboard__status { min-height:22px; margin:0 0 12px; color:var(--color-muted); font-size:14px; }
-  .dashboard__empty { padding:22px 10px; color:var(--color-muted); text-align:center; }
-  @media(max-width:720px) { .dashboard__layout { grid-template-columns:1fr; } .dashboard__list { max-height:280px; } }
+body{visibility:hidden}html.authenticated body{visibility:visible}
+.dashboard{padding-block:28px 100px}
+.dashboard__tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:20px}
+.dashboard__tab{flex:0 0 auto;min-height:42px;padding:9px 18px;border:1px solid var(--color-border);border-radius:var(--radius-pill);background:var(--color-surface-raised);color:var(--color-text);font-weight:600}
+.dashboard__tab[aria-selected=true]{background:var(--color-accent);color:var(--color-accent-contrast);border-color:var(--color-accent)}
+.dashboard__layout{display:grid;grid-template-columns:minmax(230px,.8fr) minmax(0,1.4fr);gap:20px;align-items:start}
+.dashboard__panel{min-width:0;padding:20px;border:1px solid var(--color-border);border-radius:var(--radius-large);background:var(--color-surface-raised)}
+.dashboard__panel h2{font-size:20px;margin-bottom:16px}
+.dashboard__list{display:grid;gap:8px;max-height:65vh;overflow:auto}
+.dashboard__item{width:100%;display:flex;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-surface);color:var(--color-text);text-align:left}
+.dashboard__item[aria-current=true]{border-color:var(--color-text)}
+.dashboard__item small{display:block;color:var(--color-muted);overflow-wrap:anywhere}
+.dashboard__field{display:grid;gap:6px;margin-bottom:16px}
+.dashboard__visibility,.dashboard__option{display:flex;align-items:center;gap:10px;margin:6px 0 20px;font-size:14px}
+.dashboard__visibility input,.dashboard__option input{width:18px;height:18px;min-height:0}
+.dashboard__actions{display:flex;flex-wrap:wrap;gap:8px}
+.dashboard__status{min-height:22px;margin:12px 0;color:var(--color-muted);font-size:14px}
+.dashboard__empty{padding:22px 10px;color:var(--color-muted);text-align:center}
+.dashboard__stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.dashboard__stat{padding:16px;border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-surface)}
+.dashboard__stat strong{display:block;font-size:24px}
+.dashboard__relation-groups{display:grid;gap:14px;margin:18px 0}
+.dashboard__relation-group{padding:12px;border:1px solid var(--color-border);border-radius:var(--radius-medium)}
+.dashboard__relation-group h3{font-size:15px;margin-bottom:10px}
+.dashboard__relation-options{display:grid;gap:8px}
+.dashboard__option{margin:0;font-weight:400}
+[hidden]{display:none!important}
+@media(max-width:720px){.dashboard__layout{grid-template-columns:1fr}.dashboard__list{max-height:280px}}
 </style>
 <script type="module">
-  import { createClient } from "https://esm.sh/@supabase/supabase-js@2.119.1";
-  const supabase = createClient(
-    "https://sburxeuxkrilbfppxylm.supabase.co",
-    "sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT"
-  );
-  const accountUrl = new URL("../account/", window.location.href);
-  accountUrl.searchParams.set("returnTo", window.location.href);
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError || !session) {
-    window.location.replace(accountUrl.href);
-  } else {
-    document.documentElement.classList.add("authenticated");
-    startDashboard();
-  }
-
-  function startDashboard() {
-    const types = ["services", "products", "providers", "hubs"];
-    const labels = { services:"Services", products:"Products", providers:"Providers", hubs:"Hubs" };
-    const $ = id => document.getElementById(id);
-    const state = { type:"services", itemId:null, items:[], selectedRelations:new Set(), busy:false, slugManuallyEdited:false };
-    const tabs = $("content-tabs");
-    const list = $("existing-list");
-    const form = $("content-form");
-    const relationArea = $("relation-groups");
-    const status = $("form-status");
-    const saveButton = $("save-button");
-    const deleteButton = $("delete-button");
-
-    function setStatus(message, isError=false) {
-      status.textContent = message;
-      status.style.color = isError ? "#c0392b" : "var(--color-muted)";
-    }
-    function setBusy(value) {
-      state.busy = value;
-      saveButton.disabled = value;
-      deleteButton.disabled = value || !state.itemId;
-    }
-    function makeTab(type) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "dashboard__tab";
-      button.textContent = labels[type];
-      button.setAttribute("aria-selected", String(state.type === type));
-      button.addEventListener("click", async () => {
-        if (state.busy) return;
-        state.type = type;
-        state.itemId = null;
-        state.selectedRelations.clear();
-        $("item-name").value = "";
-        $("item-slug").value = "";
-        state.slugManuallyEdited = false;
-        $("create-panel").hidden = true;
-        $("relation-panel").hidden = true;
-        $("create-toggle").setAttribute("aria-expanded", "false");
-        $("relation-toggle").setAttribute("aria-expanded", "false");
-        $("item-visible").checked = true;
-        deleteButton.disabled = true;
-        renderTabs();
-        await refreshItems();
-        renderRelations();
-        setStatus("");
-      });
-      return button;
-    }
-    function renderTabs() {
-      tabs.replaceChildren(...types.map(makeTab));
-    }
-    async function refreshItems() {
-      const { data, error } = await supabase.from("content_items")
-        .select("id,type,name,slug,is_visible,created_at")
-        .eq("type", state.type)
-        .order("created_at", { ascending:false });
-      if (error) { setStatus(error.message, true); return; }
-      state.items = data || [];
-      renderList();
-    }
-    function renderList() {
-      list.replaceChildren();
-      if (!state.items.length) {
-        const empty = document.createElement("div");
-        empty.className = "dashboard__empty";
-        empty.textContent = "No existing items";
-        list.append(empty);
-        return;
-      }
-      state.items.forEach(item => {
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "dashboard__item";
-        button.setAttribute("aria-current", String(state.itemId === item.id));
-        const text = document.createElement("span");
-        text.textContent = item.name;
-        const meta = document.createElement("small");
-        meta.textContent = item.slug + (item.is_visible ? "" : " · Hidden");
-        text.append(meta);
-        button.append(text);
-        button.addEventListener("click", () => loadItem(item.id));
-        list.append(button);
-      });
-    }
-    async function renderRelations() {
-      relationArea.replaceChildren();
-      const { data, error } = await supabase.from("content_items")
-        .select("id,type,name,slug")
-        .order("name", { ascending:true });
-      if (error) { setStatus(error.message, true); return; }
-      types.forEach(type => {
-        const group = document.createElement("section");
-        group.className = "dashboard__relation-group";
-        const heading = document.createElement("h3");
-        heading.textContent = labels[type];
-        const options = document.createElement("div");
-        options.className = "dashboard__relation-options";
-        const candidates = (data || []).filter(item => item.type === type && item.id !== state.itemId);
-        if (!candidates.length) {
-          const empty = document.createElement("small");
-          empty.className = "text-muted";
-          empty.textContent = "No existing items";
-          options.append(empty);
-        }
-        candidates.forEach(item => {
-          const label = document.createElement("label");
-          label.className = "dashboard__relation-option";
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.value = item.id;
-          checkbox.checked = state.selectedRelations.has(item.id);
-          checkbox.addEventListener("change", () => {
-            if (checkbox.checked) state.selectedRelations.add(item.id);
-            else state.selectedRelations.delete(item.id);
-          });
-          const name = document.createElement("span");
-          name.textContent = item.name;
-          label.append(checkbox, name);
-          options.append(label);
-        });
-        group.append(heading, options);
-        relationArea.append(group);
-      });
-    }
-    async function loadItem(id) {
-      setStatus("Loading…");
-      const { data: item, error } = await supabase.from("content_items")
-        .select("id,type,name,slug,is_visible").eq("id", id).single();
-      if (error) { setStatus(error.message, true); return; }
-      state.itemId = item.id;
-      state.type = item.type;
-      $("item-name").value = item.name;
-      $("item-slug").value = item.slug;
-      state.slugManuallyEdited = true;
-      $("item-visible").checked = item.is_visible;
-      const { data: relations, error: relationError } = await supabase.from("content_relations")
-        .select("item_a_id,item_b_id")
-        .or("item_a_id.eq." + id + ",item_b_id.eq." + id);
-      if (relationError) { setStatus(relationError.message, true); return; }
-      state.selectedRelations = new Set((relations || []).map(r => r.item_a_id === id ? r.item_b_id : r.item_a_id));
-      renderTabs();
-      renderList();
-      deleteButton.disabled = false;
-      await renderRelations();
-      setStatus("Item loaded");
-    }
-    function normalizePair(a,b) { return a < b ? {item_a_id:a,item_b_id:b} : {item_a_id:b,item_b_id:a}; }
-    form.addEventListener("submit", async event => {
-      event.preventDefault();
-      if (state.busy) return;
-      const name = $("item-name").value.trim();
-      const slug = $("item-slug").value.trim().toLowerCase();
-      if (!name || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
-        setStatus("Enter a name and a valid lowercase slug (example: tv-repair).", true);
-        return;
-      }
-      setBusy(true);
-      setStatus("Saving…");
-      const payload = { type:state.type, name, slug, is_visible:$("item-visible").checked };
-      let itemId = state.itemId;
-      let result;
-      if (itemId) result = await supabase.from("content_items").update(payload).eq("id", itemId).select("id").single();
-      else result = await supabase.from("content_items").insert(payload).select("id").single();
-      if (result.error) {
-        setStatus(result.error.message, true);
-        setBusy(false);
-        return;
-      }
-      itemId = result.data.id;
-      const wasCreating = !state.itemId;
-      state.itemId = itemId;
-      await refreshItems();
-      renderList();
-      if (wasCreating) {
-        form.reset();
-        $("item-visible").checked = true;
-        $("item-slug").value = "";
-        state.itemId = null;
-        state.selectedRelations.clear();
-        state.slugManuallyEdited = false;
-        deleteButton.disabled = true;
-        setStatus("Created");
-      } else {
-        deleteButton.disabled = false;
-        setStatus("Updated");
-      }
-      setBusy(false);
-    });
-    $("item-name").addEventListener("input", () => {
-      if (state.slugManuallyEdited) return;
-      $("item-slug").value = $("item-name").value.trim().toLowerCase()
-        .normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "")
-        .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").replace(/-{2,}/g, "-");
-    });
-    $("item-slug").addEventListener("input", () => { state.slugManuallyEdited = true; });
-    $("create-toggle").addEventListener("click", () => {
-      const opening = $("create-panel").hidden;
-      $("create-panel").hidden = !opening;
-      $("relation-panel").hidden = true;
-      $("create-toggle").setAttribute("aria-expanded", String(opening));
-      $("relation-toggle").setAttribute("aria-expanded", "false");
-    });
-    $("relation-toggle").addEventListener("click", () => {
-      const opening = $("relation-panel").hidden;
-      $("relation-panel").hidden = !opening;
-      $("create-panel").hidden = true;
-      $("relation-toggle").setAttribute("aria-expanded", String(opening));
-      $("create-toggle").setAttribute("aria-expanded", "false");
-    });
-    $("relation-save-button").addEventListener("click", async () => {
-      if (!state.itemId || state.busy) { setStatus("Select an existing item first.", true); return; }
-      setBusy(true);
-      const id = state.itemId;
-      const { error: removeError } = await supabase.from("content_relations").delete()
-        .or("item_a_id.eq." + id + ",item_b_id.eq." + id);
-      if (removeError) { setStatus(removeError.message, true); setBusy(false); return; }
-      const rows = [...state.selectedRelations].filter(other => other !== id).map(other => normalizePair(id, other));
-      if (rows.length) {
-        const { error } = await supabase.from("content_relations").insert(rows);
-        if (error) { setStatus(error.message, true); setBusy(false); return; }
-      }
-      setStatus("Relations saved");
-      $("relation-panel").hidden = true;
-      $("relation-toggle").setAttribute("aria-expanded", "false");
-      setBusy(false);
-    });
-    $("cancel-button").addEventListener("click", async () => {
-      if (state.busy) return;
-      state.itemId = null;
-      state.selectedRelations.clear();
-      form.reset();
-      $("item-visible").checked = true;
-      deleteButton.disabled = true;
-      await refreshItems();
-      await renderRelations();
-      setStatus("");
-    });
-    deleteButton.addEventListener("click", async () => {
-      if (!state.itemId || state.busy || !window.confirm("Delete this item and its relations?")) return;
-      setBusy(true);
-      const { error } = await supabase.from("content_items").delete().eq("id", state.itemId);
-      if (error) setStatus(error.message, true);
-      else {
-        state.itemId = null;
-        state.selectedRelations.clear();
-        form.reset();
-        $("item-visible").checked = true;
-        await refreshItems();
-        await renderRelations();
-        setStatus("Deleted");
-      }
-      setBusy(false);
-    });
-    renderTabs();
-    refreshItems();
-    renderRelations();
-    deleteButton.disabled = true;
-  }
+import {createClient} from "https://esm.sh/@supabase/supabase-js@2.119.1";
+const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
+const accountUrl=new URL("../account/",window.location.href);accountUrl.searchParams.set("returnTo",window.location.href);
+const {data:{session},error:authError}=await supabase.auth.getSession();
+if(authError||!session)window.location.replace(accountUrl.href);
+else{document.documentElement.classList.add("authenticated");startDashboard()}
+function startDashboard(){
+ const types=["Services","Products","Provider","Contacts","Media"],$=id=>document.getElementById(id);
+ const state={tab:"Overview",items:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
+ const tabs=$("dashboard-tabs"),status=$("status");
+ const say=(m,bad=false)=>{status.textContent=m;status.style.color=bad?"#c0392b":"var(--color-muted)"};
+ const setBusy=v=>{state.busy=v;document.querySelectorAll("button").forEach(b=>{if(b.dataset.lock!=="false")b.disabled=v})};
+ function tabButton(name){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";b.textContent=name;b.setAttribute("aria-selected",String(state.tab===name));b.addEventListener("click",()=>showTab(name));return b}
+ function showTab(name){state.tab=name;tabs.replaceChildren(...["Overview","Content","Relation"].map(tabButton));$("overview-panel").hidden=name!=="Overview";$("content-panel").hidden=name!=="Content";$("relation-panel").hidden=name!=="Relation";say("");if(name==="Overview")renderOverview();if(name==="Content")loadContent();if(name==="Relation")loadRelationItems()}
+ async function loadAll(){const {data,error}=await supabase.from("content").select("id,type,name,slug,is_visible,created_at").order("created_at",{ascending:false});if(error){say(error.message,true);return false}state.items=data||[];return true}
+ function renderOverview(){const root=$("overview-stats");root.replaceChildren();const all=[{name:"All Content",count:state.items.length},...types.map(type=>({name:type,count:state.items.filter(x=>x.type===type).length}))];all.forEach(x=>{const card=document.createElement("div");card.className="dashboard__stat";const n=document.createElement("strong");n.textContent=x.count;const label=document.createElement("span");label.textContent=x.name;card.append(n,label);root.append(card)})}
+ function renderContentList(){const root=$("content-list");root.replaceChildren();const list=state.items.filter(x=>x.type=== $("content-type").value);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const s=document.createElement("span");s.textContent=item.name;const meta=document.createElement("small");meta.textContent=item.slug+(item.is_visible?"":" · Hidden");s.append(meta);b.append(s);b.addEventListener("click",()=>editContent(item));root.append(b)})}
+ async function loadContent(){if(!await loadAll())return;renderContentList()}
+ function resetContent(){state.selected=null;state.slugEdited=false;$("content-form").reset();$("content-type").value=types[0];$("content-visible").checked=true;$("content-slug").value="";$("content-delete").disabled=true;renderContentList()}
+ function editContent(item){state.selected=item.id;state.slugEdited=true;$("content-name").value=item.name;$("content-slug").value=item.slug;$("content-type").value=item.type;$("content-visible").checked=item.is_visible;$("content-delete").disabled=false;renderContentList();say("Item loaded")}
+ $("content-type").addEventListener("change",()=>{state.selected=null;resetContent()});
+ $("content-name").addEventListener("input",()=>{if(state.slugEdited)return;$("content-slug").value=$("content-name").value.trim().toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").replace(/-{2,}/g,"-")});
+ $("content-slug").addEventListener("input",()=>state.slugEdited=true);
+ $("content-form").addEventListener("submit",async e=>{e.preventDefault();if(state.busy)return;const name=$("content-name").value.trim(),slug=$("content-slug").value.trim().toLowerCase();if(!name||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)){say("Enter a name and valid slug.",true);return}setBusy(true);const payload={name,slug,type:$("content-type").value,is_visible:$("content-visible").checked,updated_at:new Date().toISOString()};const q=state.selected?supabase.from("content").update(payload).eq("id",state.selected):supabase.from("content").insert(payload);const {error}=await q;if(error)say(error.message,true);else{say(state.selected?"Updated":"Created");resetContent();await loadContent()}setBusy(false)});
+ $("content-cancel").addEventListener("click",()=>{resetContent();say("")});
+ $("content-delete").addEventListener("click",async()=>{if(!state.selected||state.busy||!confirm("Delete this item and its relations?"))return;setBusy(true);const {error}=await supabase.from("content").delete().eq("id",state.selected);if(error)say(error.message,true);else{say("Deleted");resetContent();await loadContent()}setBusy(false)});
+ function fillSelect(select,items,placeholder){select.replaceChildren();const p=document.createElement("option");p.value="";p.textContent=placeholder;select.append(p);items.forEach(item=>{const o=document.createElement("option");o.value=item.id;o.textContent=item.name;select.append(o)})}
+ async function loadRelationItems(){if(!await loadAll())return;fillSelect($("source-type"),types.map(t=>({id:t,name:t})),"Select type");$("source-type").value=state.sourceType;fillSourceItems()}
+ function fillSourceItems(){const candidates=state.items.filter(x=>x.type===state.sourceType);fillSelect($("source-name"),candidates,"Select item");$("source-name").value=state.sourceId;renderTargets()}
+ $("source-type").addEventListener("change",()=>{state.sourceType=$("source-type").value;state.sourceId="";state.related.clear();fillSourceItems()});
+ $("source-name").addEventListener("change",async()=>{state.sourceId=$("source-name").value;state.related.clear();await renderTargets()});
+ async function renderTargets(){const area=$("target-section"),groups=$("target-groups"),existing=$("relation-existing");groups.replaceChildren();existing.replaceChildren();if(!state.sourceId){area.hidden=true;return}area.hidden=false;const {data,error}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+state.sourceId+",target_id.eq."+state.sourceId);if(error){say(error.message,true);return}state.related=new Set((data||[]).map(r=>r.source_id===state.sourceId?r.target_id:r.source_id));types.forEach(type=>{const section=document.createElement("section");section.className="dashboard__relation-group";const h=document.createElement("h3");h.textContent=type;const options=document.createElement("div");options.className="dashboard__relation-options";const candidates=state.items.filter(x=>x.type===type&&x.id!==state.sourceId);if(!candidates.length){const empty=document.createElement("small");empty.textContent="No existing items";options.append(empty)}candidates.forEach(item=>{const label=document.createElement("label");label.className="dashboard__option";const cb=document.createElement("input");cb.type="checkbox";cb.checked=state.related.has(item.id);cb.value=item.id;cb.addEventListener("change",()=>{if(cb.checked)state.related.add(item.id);else state.related.delete(item.id);renderExistingRelations()});const span=document.createElement("span");span.textContent=item.name;label.append(cb,span);options.append(label)});section.append(h,options);groups.append(section)});renderExistingRelations()}
+ function renderExistingRelations(){const root=$("relation-existing");root.replaceChildren();const names=state.items.filter(x=>state.related.has(x.id));if(!names.length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No selected relations";root.append(p);return}names.forEach(x=>{const p=document.createElement("p");p.textContent=x.type+" — "+x.name;root.append(p)})}
+ $("relation-save").addEventListener("click",async()=>{if(!state.sourceId||state.busy){say("Select a source item first.",true);return}setBusy(true);const source=state.sourceId;const {data:oldRows,error:readError}=await supabase.from("relation").select("id,source_id,target_id").or("source_id.eq."+source+",target_id.eq."+source);if(readError){say(readError.message,true);setBusy(false);return}const oldMap=new Map((oldRows||[]).map(r=>[r.source_id===source?r.target_id:r.source_id,r.id]));const remove=[...oldMap].filter(([id])=>!state.related.has(id)).map(([,id])=>id);const add=[...state.related].filter(id=>!oldMap.has(id)).map(id=>({source_id:source,target_id:id}));let failure=null;if(remove.length){const {error}=await supabase.from("relation").delete().in("id",remove);failure=error}if(!failure&&add.length){const {error}=await supabase.from("relation").insert(add);failure=error}say(failure?failure.message:"Relations saved",!!failure);setBusy(false);if(!failure)await renderTargets()});
+ loadAll().then(ok=>{if(ok){renderOverview();showTab("Overview")}});
+}
 </script>
 </head>
 <body>
 <main class="container dashboard">
-  <header class="page-header">
-    <h1>Dashboard</h1>
-  </header>
-  <nav class="dashboard__tabs" id="content-tabs" aria-label="Content types"></nav>
-  <div class="dashboard__layout">
-    <section class="dashboard__panel" aria-labelledby="existing-heading">
-      <h2 id="existing-heading">Existed List</h2>
-      <div class="dashboard__list" id="existing-list"><p class="dashboard__empty">Loading…</p></div>
-    </section>
-    <section class="dashboard__panel" aria-labelledby="form-heading">
-      <h2 id="form-heading">Create</h2>
-      <button class="dashboard__toggle" id="create-toggle" type="button" aria-expanded="false" aria-controls="create-panel">Create Form <span aria-hidden="true">＋</span></button>
-      <div class="dashboard__toggle-panel" id="create-panel" hidden>
-      <form id="content-form">
-        <div class="dashboard__field">
-          <label for="item-name">Name</label>
-          <input id="item-name" name="name" type="text" maxlength="160" required autocomplete="off">
-        </div>
-        <div class="dashboard__field">
-          <label for="item-slug">Slug</label>
-          <input id="item-slug" name="slug" type="text" maxlength="180" required pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off">
-        </div>
-        <label class="dashboard__visibility"><input id="item-visible" type="checkbox" checked> Visibility</label>
-        <div class="dashboard__actions">
-          <button class="button button--primary" id="save-button" type="submit">Save</button>
-          <button class="button button--secondary" id="cancel-button" type="button">Cancel</button>
-          <button class="button button--secondary" id="delete-button" type="button" disabled>Delete</button>
-        </div>
-      </form>
-      </div>
-      <button class="dashboard__toggle" id="relation-toggle" type="button" aria-expanded="false" aria-controls="relation-panel">Relation Form <span aria-hidden="true">＋</span></button>
-      <div class="dashboard__toggle-panel" id="relation-panel" hidden>
-        <div class="dashboard__relations" id="relation-groups"></div>
-        <div class="dashboard__actions"><button class="button button--primary" id="relation-save-button" type="button">Save Relations</button></div>
-      </div>
-      <p class="dashboard__status" id="form-status" role="status" aria-live="polite"></p>
-    </section>
-  </div>
+<header class="page-header"><h1>Dashboard</h1></header>
+<nav class="dashboard__tabs" id="dashboard-tabs" aria-label="Dashboard sections"></nav>
+<section id="overview-panel" class="dashboard__panel"><h2>Overview</h2><div class="dashboard__stats" id="overview-stats"></div></section>
+<section id="content-panel" hidden>
+<div class="dashboard__layout">
+<section class="dashboard__panel"><h2>Existed Item List</h2><div class="dashboard__field"><label for="content-type">Type</label><select id="content-type"><option>Services</option><option>Products</option><option>Provider</option><option>Contacts</option><option>Media</option></select></div><div class="dashboard__list" id="content-list"></div></section>
+<section class="dashboard__panel"><h2>Content</h2><form id="content-form">
+<div class="dashboard__field"><label for="content-name">Name</label><input id="content-name" maxlength="160" required autocomplete="off"></div>
+<div class="dashboard__field"><label for="content-slug">Slug</label><input id="content-slug" maxlength="180" required pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off"></div>
+<div class="dashboard__field"><label for="content-form-type">Type</label><select id="content-form-type"><option>Services</option><option>Products</option><option>Provider</option><option>Contacts</option><option>Media</option></select></div>
+<label class="dashboard__visibility"><input id="content-visible" type="checkbox" checked> Visibility</label>
+<div class="dashboard__actions"><button class="button button--primary" type="submit">Save</button><button class="button button--secondary" id="content-cancel" type="button">Cancel</button><button class="button button--secondary" id="content-delete" type="button" disabled>Delete</button></div>
+</form></section></div></section>
+<section id="relation-panel" class="dashboard__panel" hidden>
+<h2>Relation</h2>
+<div class="dashboard__field"><label for="source-type">Source Section — Item Type</label><select id="source-type"><option value="">Select type</option></select></div>
+<div class="dashboard__field"><label for="source-name">Item Name</label><select id="source-name"><option value="">Select item</option></select></div>
+<div id="target-section" hidden><h2>Target Section</h2><div class="dashboard__relation-groups" id="target-groups"></div><h2>Existed Item List</h2><div id="relation-existing"></div><div class="dashboard__actions"><button class="button button--primary" id="relation-save" type="button">Save Relations</button></div></div>
+</section>
+<p class="dashboard__status" id="status" role="status" aria-live="polite"></p>
 </main>
 </body>
 </html>
