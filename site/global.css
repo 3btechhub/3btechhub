@@ -424,3 +424,117 @@ html.dashboard-page.authenticated body { visibility: visible; }
   color: var(--color-text);
   box-shadow: none;
 }
+
+
+/* Advanced global visual effects */
+:root {
+  --effect-depth-1: 0 2px 5px rgba(0,0,0,.055), 0 8px 20px rgba(0,0,0,.065);
+  --effect-depth-2: 0 5px 12px rgba(0,0,0,.07), 0 18px 42px rgba(0,0,0,.11);
+  --effect-depth-3: 0 12px 28px rgba(0,0,0,.12), 0 28px 64px rgba(0,0,0,.16);
+  --effect-inset-light: inset 0 1px 0 rgba(255,255,255,.82), inset 0 -1px 0 rgba(0,0,0,.035);
+  --effect-glass-border: rgba(255,255,255,.58);
+  --effect-glass-blur: 16px;
+  --effect-flow-ease: cubic-bezier(.2,.75,.25,1);
+  --effect-float-distance: 5px;
+  --effect-flow-duration: 360ms;
+}
+:root[data-theme="dark"] {
+  --effect-depth-1: 0 2px 7px rgba(0,0,0,.22), 0 9px 24px rgba(0,0,0,.24);
+  --effect-depth-2: 0 6px 16px rgba(0,0,0,.28), 0 20px 46px rgba(0,0,0,.34);
+  --effect-depth-3: 0 14px 32px rgba(0,0,0,.38), 0 32px 70px rgba(0,0,0,.44);
+  --effect-inset-light: inset 0 1px 0 rgba(255,255,255,.11), inset 0 -1px 0 rgba(0,0,0,.22);
+  --effect-glass-border: rgba(255,255,255,.12);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --effect-depth-1: 0 2px 7px rgba(0,0,0,.22), 0 9px 24px rgba(0,0,0,.24);
+    --effect-depth-2: 0 6px 16px rgba(0,0,0,.28), 0 20px 46px rgba(0,0,0,.34);
+    --effect-depth-3: 0 14px 32px rgba(0,0,0,.38), 0 32px 70px rgba(0,0,0,.44);
+    --effect-inset-light: inset 0 1px 0 rgba(255,255,255,.11), inset 0 -1px 0 rgba(0,0,0,.22);
+    --effect-glass-border: rgba(255,255,255,.12);
+  }
+}
+
+/* Material: layered surfaces with translucent depth */
+:where(.home__type, .dashboard__panel, .account-panel, .dialog, .floating-navigation__list) {
+  border-color: color-mix(in srgb, var(--color-border) 72%, transparent);
+  box-shadow: var(--effect-depth-1), var(--effect-inset-light);
+  -webkit-backdrop-filter: blur(var(--effect-glass-blur)) saturate(1.18);
+  backdrop-filter: blur(var(--effect-glass-blur)) saturate(1.18);
+}
+:where(.home__type, .dashboard__panel, .account-panel, .dialog) {
+  background-image: linear-gradient(145deg, rgba(255,255,255,.20), transparent 48%);
+}
+
+/* Water drop: curved specular reflection and liquid depth */
+:where(.home__item, .dashboard__item) {
+  position: relative;
+  overflow: hidden;
+  border-color: color-mix(in srgb, var(--color-border) 68%, white);
+  background-color: var(--color-surface-raised);
+  background-image:
+    radial-gradient(ellipse 85% 58% at 18% -12%, rgba(255,255,255,.82), transparent 68%),
+    radial-gradient(ellipse 70% 46% at 100% 115%, rgba(90,130,170,.10), transparent 72%),
+    linear-gradient(155deg, rgba(255,255,255,.24), transparent 54%);
+  box-shadow: var(--effect-depth-1), inset 0 1px 1px rgba(255,255,255,.72), inset 0 -1px 2px rgba(0,0,0,.055);
+}
+
+/* Bubble: convex highlight, rounded edge and inner reflection */
+:where(.dashboard__tabs .dashboard__tab, .button, .badge, .floating-navigation__toggle) {
+  background-image:
+    radial-gradient(ellipse 82% 72% at 24% 0%, rgba(255,255,255,.72), transparent 72%),
+    linear-gradient(180deg, rgba(255,255,255,.22), transparent 62%);
+  box-shadow: var(--effect-depth-1), inset 0 1px 1px rgba(255,255,255,.72), inset 0 -1px 1px rgba(0,0,0,.06);
+}
+:where(.dashboard__tabs .dashboard__tab[aria-selected="true"], .button--primary) {
+  background-image: linear-gradient(180deg, rgba(255,255,255,.24), transparent 72%);
+  box-shadow: var(--effect-depth-1), inset 0 1px 0 rgba(255,255,255,.38), inset 0 -2px 3px rgba(0,0,0,.12);
+}
+
+/* Shadow: consistent depth hierarchy */
+:where(.home__type, .dashboard__panel, .account-panel, .dialog) { box-shadow: var(--effect-depth-1); }
+:where(.home__item, .dashboard__item, .button, .floating-navigation__toggle) { box-shadow: var(--effect-depth-1); }
+
+/* Float + Flow: responsive lift and fluid transitions */
+:where(.home__item, .dashboard__item, .button, .dashboard__tab, .floating-navigation__toggle) {
+  transform: translate3d(0,0,0);
+  transition:
+    transform var(--effect-flow-duration) var(--effect-flow-ease),
+    box-shadow var(--effect-flow-duration) var(--effect-flow-ease),
+    border-color var(--effect-flow-duration) var(--effect-flow-ease),
+    background-color var(--effect-flow-duration) var(--effect-flow-ease),
+    color var(--effect-flow-duration) var(--effect-flow-ease),
+    filter var(--effect-flow-duration) var(--effect-flow-ease);
+  will-change: transform;
+}
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  :where(.home__item, .dashboard__item, .button, .dashboard__tabs .dashboard__tab, .floating-navigation__toggle):hover {
+    transform: translate3d(0, calc(-1 * var(--effect-float-distance)), 0);
+    box-shadow: var(--effect-depth-2);
+    filter: saturate(1.06);
+  }
+}
+:where(.home__item, .dashboard__item, .button, .dashboard__tabs .dashboard__tab):active {
+  transform: translate3d(0,1px,0) scale(.985);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.10);
+}
+:where(.home__item, .dashboard__item, .button, .dashboard__tabs .dashboard__tab):focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-focus) 24%, transparent), var(--effect-depth-2);
+}
+.dashboard__subtabs .dashboard__tab {
+  background-image: none;
+  box-shadow: none;
+  will-change: auto;
+}
+.dashboard__subtabs .dashboard__tab:hover,
+.dashboard__subtabs .dashboard__tab:active {
+  transform: none;
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.home__item, .dashboard__item, .button, .dashboard__tab, .floating-navigation__toggle) {
+    transition: none !important;
+    transform: none !important;
+    will-change: auto;
+  }
+}
