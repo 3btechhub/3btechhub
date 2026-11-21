@@ -77,7 +77,7 @@ function makeItem(item){
    link.href=mapUrl;
    link.target="_blank";
    link.rel="noopener noreferrer";
-   link.textContent="View Location";
+   link.textContent="View Location";const mapIcon=document.createElement("span");mapIcon.dataset.siteIcon="field.location";mapIcon.setAttribute("aria-hidden","true");link.append(mapIcon);
    card.append(link);
   }
  }
@@ -115,7 +115,7 @@ async function renderHome(){
    const viewAll=document.createElement("a");
    viewAll.className="home__item home__view-all-card";
    viewAll.href="../content/?type="+encodeURIComponent(section.content_type);
-   viewAll.textContent="View All";
+   viewAll.textContent="View All";const viewIcon=document.createElement("span");viewIcon.dataset.siteIcon="action.search";viewIcon.setAttribute("aria-hidden","true");viewAll.append(viewIcon);
    list.append(viewAll);
   }else{
    matching.slice(0,HOME_ITEM_LIMIT).forEach(item=>list.append(makeItem(item)));
