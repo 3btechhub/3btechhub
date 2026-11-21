@@ -102,6 +102,7 @@ async function renderHome(){
   matching.forEach(item=>list.append(makeItem(item)));
   card.append(heading,list);
   root.append(card);
+  window.siteIcons?.apply();
  });
 }
 renderHome();
