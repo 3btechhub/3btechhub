@@ -1,6 +1,5 @@
 (()=>{const script=document.currentScript;const base=new URL(".",script.src);const menu=document.createElement("nav");menu.className="floating-navigation";menu.setAttribute("aria-label","Main navigation");menu.innerHTML=`
 <ul class="floating-navigation__list" id="page-navigation">
-<li><a href="${base.href}">Index</a></li>
 <li><a href="${new URL("home/",base).href}">Home</a></li>
 <li><a href="${new URL("account/",base).href}">Account</a></li>
 <li><a href="${new URL("dashboard/",base).href}">Dashboard</a></li>
