@@ -78,7 +78,7 @@ function startDashboard(){
   if(!name){say("Enter a name.",true);return}
   setBusy(true);
   try{
-   const payload={name,type,is_visible:$("content-visible").checked,updated_at:new Date().toISOString(),slug,skills:type==="Providers"?$("content-skills").value.trim()||null:null,label:type==="Contacts"?$("content-label").value.trim()||null:null,value:type==="Contacts"?$("content-value").value:null:null,image_url:["Images","Videos"].includes(type)?await uploadSelectedFile(type,slug||name.toLowerCase().replace(/[^a-z0-9]+/g,"-")):null,file_title:type==="Videos"?($("content-upload").files[0]?.name||$("content-file-title").value||null):null};
+   const payload={name,type,is_visible:$("content-visible").checked,updated_at:new Date().toISOString(),slug,skills:type==="Providers"?$("content-skills").value.trim()||null:null,label:type==="Contacts"?$("content-label").value.trim()||null:null,value:type==="Contacts"?$("content-value").value:null,image_url:["Images","Videos"].includes(type)?await uploadSelectedFile(type,slug||name.toLowerCase().replace(/[^a-z0-9]+/g,"-")):null,file_title:type==="Videos"?($("content-upload").files[0]?.name||$("content-file-title").value||null):null};
    const q=state.selected?supabase.from("content").update(payload).eq("id",state.selected):supabase.from("content").insert(payload);
    const {error}=await q;if(error)throw error;say(state.selected?"Updated":"Created");$("content-type").value=type;resetContent();await loadContent();
   }catch(error){say(error.message||"Could not save content.",true)}finally{setBusy(false)}
