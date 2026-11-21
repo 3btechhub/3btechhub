@@ -32,10 +32,6 @@ html.authenticated body{visibility:visible}
 .dashboard__actions .button{flex:0 1 auto}
 .dashboard__status{min-height:22px;margin:0;color:var(--color-muted);font-size:var(--font-size-sm);overflow-wrap:anywhere}
 .dashboard__empty{padding:var(--space-5) var(--space-3);margin:0;color:var(--color-muted);text-align:center}
-.dashboard__stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));gap:var(--space-3);width:100%}
-.dashboard__stat{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);min-width:0;padding:var(--space-4);border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-surface);text-align:left}
-.dashboard__stat strong{flex:0 0 auto;font-size:24px;line-height:1.25;overflow-wrap:anywhere}
-.dashboard__stat span{min-width:0;overflow-wrap:anywhere}
 .dashboard__relation-groups{display:grid;gap:var(--space-3);width:100%;margin:0}
 .dashboard__relation-group{min-width:0;padding:var(--space-3);border:1px solid var(--color-border);border-radius:var(--radius-medium)}
 .dashboard__relation-group h3{font-size:var(--font-size-md);margin:0 0 var(--space-3)}
@@ -52,10 +48,8 @@ html.authenticated body{visibility:visible}
   .dashboard{padding-block:var(--space-4) var(--space-10)}
   .dashboard__panel{padding:var(--space-3)}
   .dashboard__list{max-height:320px}
-  .dashboard__stats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:360px){
-  .dashboard__stats{grid-template-columns:minmax(0,1fr)}
   .dashboard__actions .button{flex:1 1 100%}
 }
 </style>
@@ -70,7 +64,7 @@ else if(session.user.id!==OWNER_ID){const deniedUrl=new URL("../account/",window
 else{document.documentElement.classList.add("authenticated");startDashboard()}
 function startDashboard(){
  const types=["Services","Products","Providers","Hubs","Contacts","Images","Videos"],$=id=>document.getElementById(id);
- const state={tab:"Overview",subtab:"",items:[],roles:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
+ const state={tab:"Content",subtab:"Existed List",items:[],roles:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
  const tabs=$("dashboard-tabs"),status=$("status");
  const say=(m,bad=false)=>{status.textContent=m;status.style.color=bad?"#c0392b":"var(--color-muted)"};
  const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel","content-roles"].forEach(id=>$(id).disabled=v);$("content-delete").disabled=v||!state.selected};
@@ -233,7 +227,7 @@ function startDashboard(){
  }
 
  function showSubtab(name){state.subtab=name;renderSubtabs();if(state.tab==="Content"){ $("existed-list-panel").hidden=name!=="Existed List";$("create-form-panel").hidden=name!=="Create Form";$("relation-form-panel").hidden=name!=="Relation Form";if(name==="Existed List")loadContent();if(name==="Relation Form")loadRelationItems();if(name==="Create Form"){say("");loadContentRoleOptions().catch(err=>say(err.message,true))}}else{const prefix=state.tab==="Administration"?"admin":"settings";document.querySelectorAll("[data-subtab-panel]").forEach(p=>{p.hidden=p.dataset.group!==prefix||p.dataset.subtab!==name;if(!p.hidden)renderManagementPanel(p)});}}
- function showTab(name){state.tab=name;const mainTabs=["Overview","Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("overview-panel").hidden=name!=="Overview";$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Overview")renderOverview();if(name==="Content"){if(!["Existed List","Create Form","Relation Form"].includes(state.subtab))state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Language","Theme","Home Page Section Management"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
+ function showTab(name){state.tab=name;const mainTabs=["Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Content"){if(!["Existed List","Create Form","Relation Form"].includes(state.subtab))state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Language","Theme","Home Page Section Management"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
  async function loadContentRoleOptions(){
   const {data,error}=await supabase.from("roles").select("name").order("name");
   if(error)throw error;
@@ -244,7 +238,6 @@ function startDashboard(){
  }
  function setContentRoles(names){const selected=new Set(names||[]);$("content-roles").querySelectorAll("option").forEach(option=>option.selected=selected.has(option.value))}
  async function loadAll(){const {data,error}=await supabase.from("content").select("id,type,name,slug,skills,label,value,image_url,file_title,location,map,created_at").order("created_at",{ascending:false});if(error){say(error.message,true);return false}state.items=data||[];return true}
- function renderOverview(){const root=$("overview-stats");root.replaceChildren();[{name:"All Content",count:state.items.length},...types.map(type=>({name:type,count:state.items.filter(x=>x.type===type).length}))].forEach(x=>{const card=document.createElement("button");card.type="button";card.className="dashboard__stat dashboard__item";card.addEventListener("click",()=>{showTab("Content");showSubtab("Existed List");$("content-type").value=x.name==="All Content"?"All":x.name;renderContentList();$("content-list").scrollIntoView({behavior:"smooth",block:"start"})});const label=document.createElement("span");label.textContent=x.name;const n=document.createElement("strong");n.textContent=x.count;card.append(label,n);root.append(card)})}
  function renderContentList(){const root=$("content-list");root.replaceChildren();const filter=$("content-type").value;const list=state.items.filter(x=>filter==="All"||x.type===filter);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const s=document.createElement("span");s.textContent=item.name;const meta=document.createElement("small");meta.textContent=item.slug||("ID: "+item.id.slice(0,8));s.append(meta);b.append(s);b.addEventListener("click",()=>editContent(item));root.append(b)})}
  async function loadContent(){if(await loadAll())renderContentList()}
  function makeField(id,placeholder,type="text"){const wrap=document.createElement("div");wrap.className="dashboard__field";const input=document.createElement("input");input.id=id;input.type=type;input.placeholder=placeholder;input.setAttribute("aria-label",placeholder);input.autocomplete="off";wrap.append(input);return wrap}
@@ -307,14 +300,13 @@ function startDashboard(){
  async function renderTargets(){const area=$("target-section"),groups=$("target-groups"),existing=$("relation-existing");groups.replaceChildren();existing.replaceChildren();if(!state.sourceId){area.hidden=true;return}area.hidden=false;const {data,error}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+state.sourceId+",target_id.eq."+state.sourceId);if(error){say(error.message,true);return}state.related=new Set((data||[]).map(r=>r.source_id===state.sourceId?r.target_id:r.source_id));types.forEach(type=>{const section=document.createElement("section");section.className="dashboard__relation-group";const h=document.createElement("h3");h.textContent=type;const options=document.createElement("div");options.className="dashboard__relation-options";const candidates=state.items.filter(x=>x.type===type&&x.id!==state.sourceId);if(!candidates.length){const empty=document.createElement("small");empty.textContent="No existing items";options.append(empty)}candidates.forEach(item=>{const label=document.createElement("label");label.className="dashboard__option";const cb=document.createElement("input");cb.type="checkbox";cb.checked=state.related.has(item.id);cb.value=item.id;cb.addEventListener("change",()=>{if(cb.checked)state.related.add(item.id);else state.related.delete(item.id);renderExistingRelations()});const span=document.createElement("span");span.textContent=item.name;label.append(cb,span);options.append(label)});section.append(h,options);groups.append(section)});renderExistingRelations()}
  function renderExistingRelations(){const root=$("relation-existing");root.replaceChildren();const names=state.items.filter(x=>state.related.has(x.id));if(!names.length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No selected relations";root.append(p);return}names.forEach(x=>{const p=document.createElement("p");p.textContent=x.type+" — "+x.name;root.append(p)})}
  $("relation-save").addEventListener("click",async()=>{if(!state.sourceId||state.busy){say("Select a source item first.",true);return}setBusy(true);const source=state.sourceId;const {data:oldRows,error:readError}=await supabase.from("relation").select("id,source_id,target_id").or("source_id.eq."+source+",target_id.eq."+source);if(readError){say(readError.message,true);setBusy(false);return}const oldMap=new Map((oldRows||[]).map(r=>[r.source_id===source?r.target_id:r.source_id,r.id]));const remove=[...oldMap].filter(([id])=>!state.related.has(id)).map(([,id])=>id);const add=[...state.related].filter(id=>!oldMap.has(id)).map(id=>({source_id:source,target_id:id}));let failure=null;if(remove.length){const {error}=await supabase.from("relation").delete().in("id",remove);failure=error}if(!failure&&add.length){const {error}=await supabase.from("relation").insert(add);failure=error}say(failure?failure.message:"Relations saved",!!failure);setBusy(false);if(!failure)await renderTargets()});
- $("content-form-type").value="";$("content-form").hidden=true;$("create-hide").hidden=true;$("content-fields").hidden=true;loadContentRoleOptions().then(()=>loadAll()).then(ok=>{if(ok){renderOverview();showTab("Overview")}}).catch(err=>say(err.message,true));
+ $("content-form-type").value="";$("content-form").hidden=true;$("create-hide").hidden=true;$("content-fields").hidden=true;loadContentRoleOptions().then(()=>loadContent()).then(()=>showTab("Content")).catch(err=>say(err.message,true));
 }
 </script>
 </head>
 <body>
 <main class="container dashboard">
 <nav class="dashboard__tabs" id="dashboard-tabs" aria-label="Dashboard sections"></nav>
-<section id="overview-panel" class="dashboard__panel"><h2>Overview</h2><div class="dashboard__stats" id="overview-stats"></div></section>
 <section id="content-panel" hidden>
 <nav id="content-subtabs" class="dashboard__subtabs" aria-label="Content sections"></nav>
 <div id="existed-list-panel" class="dashboard__panel"><h2>Existed List</h2><div class="dashboard__field"><label for="content-type">Type</label><select id="content-type"><option value="All">All</option><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div><div class="dashboard__list" id="content-list"></div></div>
