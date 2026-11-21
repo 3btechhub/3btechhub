@@ -36,7 +36,7 @@ async function renderHome(){
   const heading=document.createElement("h2");heading.textContent=section.content_type;
   const list=document.createElement("div");list.className="home__items";
   const matching=(items||[]).filter(item=>item.type===section.content_type);
-  if(!matching.length){const empty=document.createElement("p");empty.className="home__empty";empty.textContent="No items available";list.append(empty)}
+  if(!matching.length)return;
   matching.forEach(item=>{const itemCard=document.createElement("article");itemCard.className="home__item";itemCard.textContent=item.name;list.append(itemCard)});
   card.append(heading,list);root.append(card);
  });
@@ -46,7 +46,6 @@ renderHome();
 </head>
 <body>
 <main class="container home">
-<header class="page-header"><h1>3B TECH HUB</h1></header>
 <div class="home__types" id="home-types"></div>
 <p class="home__status" id="home-status" role="status" aria-live="polite"></p>
 </main>
