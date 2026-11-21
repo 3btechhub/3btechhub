@@ -203,7 +203,7 @@ function startDashboard(){
    empty.textContent=options[typeSelect.value].length?"No fields available.":"This Type has no additional detail fields. Name is displayed as the heading.";
    order.forEach((key,index)=>{
     const row=document.createElement("div");row.className="dashboard__field-order-row";row.draggable=true;row.dataset.fieldKey=key;
-    const grip=document.createElement("span");grip.className="dashboard__field-order-grip";grip.dataset.siteIcon="action.move";grip.setAttribute("aria-hidden","true");
+    const grip=document.createElement("span");grip.className="dashboard__field-order-grip";grip.setAttribute("aria-hidden","true");
     const name=document.createElement("span");name.className="dashboard__field-order-name";name.textContent=options[typeSelect.value].find(x=>x[0]===key)?.[1]||key;
     const position=document.createElement("select");position.className="dashboard__field-order-position";position.setAttribute("aria-label",name.textContent+" position");
     order.forEach((_,i)=>{const option=document.createElement("option");option.value=String(i);option.textContent=String(i+1);position.append(option)});
