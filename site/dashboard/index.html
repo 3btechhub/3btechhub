@@ -31,8 +31,11 @@ body{visibility:hidden}html.authenticated body{visibility:visible}
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.119.1";
 const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
 const accountUrl=new URL("../account/",window.location.href);accountUrl.searchParams.set("returnTo",window.location.href);
+const OWNER_ID="0074818e-942d-4752-ada2-01a11e291ff4";
 const {data:{session},error:authError}=await supabase.auth.getSession();
-if(authError||!session)window.location.replace(accountUrl.href);else{document.documentElement.classList.add("authenticated");startDashboard()}
+if(authError||!session)window.location.replace(accountUrl.href);
+else if(session.user.id!==OWNER_ID){const deniedUrl=new URL("../account/",window.location.href);deniedUrl.searchParams.set("access","denied");window.location.replace(deniedUrl.href)}
+else{document.documentElement.classList.add("authenticated");startDashboard()}
 function startDashboard(){
  const types=["Services","Products","Providers","Contacts","Images","Videos"],$=id=>document.getElementById(id);
  const state={tab:"Overview",items:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
