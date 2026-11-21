@@ -1536,3 +1536,8 @@ html.site-preferences-pending .floating-navigation {
 .dashboard__actions .button{display:inline-flex;align-items:center;gap:8px}
 .home__view-all-card,.home__map-link{display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .dashboard__field>[data-site-icon]{width:20px;height:20px;color:var(--color-muted)}
+
+.account-field{display:flex;align-items:center;gap:10px;min-width:0;padding-inline:12px;border:1px solid var(--color-border);border-radius:var(--radius-medium);background:var(--color-surface)}
+.account-field>[data-site-icon]{color:var(--color-muted);width:18px;height:18px}
+.account-field>input{flex:1;min-width:0;border:0;background:transparent}
+.account-field>input:focus{outline:0;box-shadow:none}
