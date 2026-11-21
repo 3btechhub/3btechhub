@@ -8,6 +8,7 @@
 <title>Dashboard</title>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.119.1";
+import {connectGlobalRealtime} from "../realtime.js";
 const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
 const accountUrl=new URL("../account/",window.location.href);accountUrl.searchParams.set("returnTo",window.location.href);
 const OWNER_ID="0074818e-942d-4752-ada2-01a11e291ff4";
@@ -16,6 +17,7 @@ if(authError||!session)window.location.replace(accountUrl.href);
 else if(session.user.id!==OWNER_ID){const deniedUrl=new URL("../account/",window.location.href);deniedUrl.searchParams.set("access","denied");window.location.replace(deniedUrl.href)}
 else{document.documentElement.classList.add("authenticated");startDashboard()}
 function startDashboard(){
+ connectGlobalRealtime(supabase);
  const types=["Services","Products","Providers","Hubs","Contacts","Images","Videos"],$=id=>document.getElementById(id);
  const state={tab:"Content",subtab:"Existed List",items:[],roles:[],visibility:new Map(),selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
  const tabs=$("dashboard-tabs"),status=$("status");
@@ -92,6 +94,7 @@ function startDashboard(){
    if(!form.dataset.id||!confirm("Delete this item?"))return;
    try{const result=config?await supabase.from(table).delete().eq("id",form.dataset.id):await supabase.from(table).delete().eq("name",form.dataset.id);if(result.error)throw result.error;form.hidden=true;ui.hide.hidden=true;del.hidden=true;form.reset();form.dataset.id="";await load();say(category+" deleted")}catch(err){say(err.message,true)}
   });
+  panel.__globalRefresh=load;
   load().catch(err=>say(err.message,true));
  }
  function renderRoleManager(panel){
@@ -118,6 +121,7 @@ function startDashboard(){
    form.hidden=true;ui.hide.hidden=true;form.reset();name.disabled=false;form.dataset.id="";form.dataset.edit="";del.hidden=true;await load();say("Role saved");
   }catch(err){say(err.message,true)}});
   del.addEventListener("click",async()=>{if(!form.dataset.id||!confirm("Delete this role?"))return;try{const {error}=await supabase.from("roles").delete().eq("name",form.dataset.id);if(error)throw error;form.hidden=true;ui.hide.hidden=true;name.disabled=false;form.dataset.id="";form.dataset.edit="";del.hidden=true;await load();say("Role deleted")}catch(err){say(err.message,true)}});
+  panel.__globalRefresh=load;
   load().catch(err=>say(err.message,true));
  }
  function renderUserManager(panel){
@@ -141,6 +145,7 @@ function startDashboard(){
    form.hidden=true;ui.hide.hidden=true;form.reset();form.dataset.id="";form.dataset.edit="";email.disabled=false;del.hidden=true;await load();say(form.dataset.edit==="true"?"User updated":"User saved");
   }catch(err){say(err.message,true)}});
   del.addEventListener("click",async()=>{if(!form.dataset.id||!confirm("Delete this user account?"))return;try{await callUserAdmin({action:"delete",userId:form.dataset.id});form.hidden=true;ui.hide.hidden=true;form.reset();form.dataset.id="";form.dataset.edit="";email.disabled=false;del.hidden=true;await load();say("User deleted")}catch(err){say(err.message,true)}});
+  panel.__globalRefresh=load;
   load().catch(err=>say(err.message,true));
  }
  function renderHomePageManager(panel){
@@ -168,6 +173,7 @@ function startDashboard(){
     row.append(label,select);list.append(row);
    });
   };
+  panel.__globalRefresh=load;
   load().catch(err=>say(err.message,true));
  }
  function renderManagementPanel(panel){
@@ -251,6 +257,22 @@ function startDashboard(){
  async function renderTargets(){const area=$("target-section"),groups=$("target-groups"),existing=$("relation-existing");groups.replaceChildren();existing.replaceChildren();if(!state.sourceId){area.hidden=true;return}area.hidden=false;const {data,error}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+state.sourceId+",target_id.eq."+state.sourceId);if(error){say(error.message,true);return}state.related=new Set((data||[]).map(r=>r.source_id===state.sourceId?r.target_id:r.source_id));types.forEach(type=>{const section=document.createElement("section");section.className="dashboard__relation-group";const h=document.createElement("h3");h.textContent=type;const options=document.createElement("div");options.className="dashboard__relation-options";const candidates=state.items.filter(x=>x.type===type&&x.id!==state.sourceId);if(!candidates.length){const empty=document.createElement("small");empty.textContent="No existing items";options.append(empty)}candidates.forEach(item=>{const label=document.createElement("label");label.className="dashboard__option";const cb=document.createElement("input");cb.type="checkbox";cb.checked=state.related.has(item.id);cb.value=item.id;cb.addEventListener("change",()=>{if(cb.checked)state.related.add(item.id);else state.related.delete(item.id);renderExistingRelations()});const span=document.createElement("span");span.textContent=item.name;label.append(cb,span);options.append(label)});section.append(h,options);groups.append(section)});renderExistingRelations()}
  function renderExistingRelations(){const root=$("relation-existing");root.replaceChildren();const names=state.items.filter(x=>state.related.has(x.id));if(!names.length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No selected relations";root.append(p);return}names.forEach(x=>{const p=document.createElement("p");p.textContent=x.type+" — "+x.name;root.append(p)})}
  $("relation-save").addEventListener("click",async()=>{if(!state.sourceId||state.busy){say("Select a source item first.",true);return}setBusy(true);const source=state.sourceId;const {data:oldRows,error:readError}=await supabase.from("relation").select("id,source_id,target_id").or("source_id.eq."+source+",target_id.eq."+source);if(readError){say(readError.message,true);setBusy(false);return}const oldMap=new Map((oldRows||[]).map(r=>[r.source_id===source?r.target_id:r.source_id,r.id]));const remove=[...oldMap].filter(([id])=>!state.related.has(id)).map(([,id])=>id);const add=[...state.related].filter(id=>!oldMap.has(id)).map(id=>({source_id:source,target_id:id}));let failure=null;if(remove.length){const {error}=await supabase.from("relation").delete().in("id",remove);failure=error}if(!failure&&add.length){const {error}=await supabase.from("relation").insert(add);failure=error}say(failure?failure.message:"Relations saved",!!failure);setBusy(false);if(!failure)await renderTargets()});
+
+ window.addEventListener("3b:global-update",()=>{
+  if(state.tab==="Content"){
+   if(state.subtab==="Relation Form"&&!$("target-section").hidden)return;
+   if(state.subtab==="Existed List"||state.subtab==="Create Form")loadContent().catch(err=>say(err.message,true));
+   else if(state.subtab==="Relation Form")loadRelationItems().catch(err=>say(err.message,true));
+   return;
+  }
+  const group=state.tab==="Administration"?"admin":"settings";
+  const panel=[...document.querySelectorAll("[data-subtab-panel]")].find(p=>p.dataset.group===group&&p.dataset.subtab===state.subtab);
+  if(!panel||panel.hidden)return;
+  const form=panel.querySelector("form");
+  if(form&&!form.hidden)return;
+  panel.__globalRefresh?.().catch(err=>say(err.message,true));
+ });
+
  $("content-form-type").value="";$("content-fields").hidden=true;loadContentRoleOptions().then(()=>loadContent()).then(()=>showTab("Content")).catch(err=>say(err.message,true));
 }
 </script>
