@@ -595,3 +595,10 @@ html.dashboard-page.authenticated body { visibility: visible; }
 @media(max-width:350px){
  .home__items,.home__items--gallery{grid-template-columns:minmax(0,1fr)}
 }
+
+
+/* Dashboard content item list: name and metadata on the left, image thumbnail on the right. */
+.dashboard__item-info{display:grid;gap:var(--space-1);flex:1;min-width:0}
+.dashboard__item-name{display:block;min-width:0;font-weight:600;overflow-wrap:anywhere}
+.dashboard__item-meta{display:block;color:var(--color-muted);font-size:.78rem;line-height:1.4;overflow-wrap:anywhere}
+.dashboard__item-thumb{display:block;flex:0 0 56px;width:56px;height:56px;object-fit:cover;border:1px solid var(--color-border);border-radius:var(--radius-small);background:var(--color-surface-muted)}
