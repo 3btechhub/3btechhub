@@ -24,6 +24,10 @@
   .dashboard__field { display:grid; gap:6px; margin-bottom:16px; }
   .dashboard__visibility { display:flex; align-items:center; gap:10px; margin:6px 0 20px; font-size:14px; }
   .dashboard__visibility input { width:18px; height:18px; min-height:0; }
+  .dashboard__toggle { width:100%; display:flex; align-items:center; justify-content:space-between; padding:13px 16px; margin:0 0 10px; border:1px solid var(--color-border); border-radius:var(--radius-medium); background:var(--color-surface); color:var(--color-text); font-weight:600; text-align:left; }
+  .dashboard__toggle[aria-expanded="true"] { border-color:var(--color-text); }
+  .dashboard__toggle-panel { padding:16px 0 8px; }
+  .dashboard__toggle-panel[hidden] { display:none; }
   .dashboard__relations { display:grid; gap:14px; margin:16px 0 22px; }
   .dashboard__relation-group { padding:12px; border:1px solid var(--color-border); border-radius:var(--radius-medium); }
   .dashboard__relation-group h3 { font-size:15px; margin-bottom:10px; }
@@ -55,7 +59,7 @@
     const types = ["services", "products", "providers", "hubs"];
     const labels = { services:"Services", products:"Products", providers:"Providers", hubs:"Hubs" };
     const $ = id => document.getElementById(id);
-    const state = { type:"services", itemId:null, items:[], selectedRelations:new Set(), busy:false };
+    const state = { type:"services", itemId:null, items:[], selectedRelations:new Set(), busy:false, slugManuallyEdited:false };
     const tabs = $("content-tabs");
     const list = $("existing-list");
     const form = $("content-form");
@@ -86,6 +90,11 @@
         state.selectedRelations.clear();
         $("item-name").value = "";
         $("item-slug").value = "";
+        state.slugManuallyEdited = false;
+        $("create-panel").hidden = true;
+        $("relation-panel").hidden = true;
+        $("create-toggle").setAttribute("aria-expanded", "false");
+        $("relation-toggle").setAttribute("aria-expanded", "false");
         $("item-visible").checked = true;
         deleteButton.disabled = true;
         renderTabs();
@@ -180,6 +189,7 @@
       state.type = item.type;
       $("item-name").value = item.name;
       $("item-slug").value = item.slug;
+      state.slugManuallyEdited = true;
       $("item-visible").checked = item.is_visible;
       const { data: relations, error: relationError } = await supabase.from("content_relations")
         .select("item_a_id,item_b_id")
@@ -215,30 +225,61 @@
         return;
       }
       itemId = result.data.id;
-      const { error: deleteRelationsError } = await supabase.from("content_relations")
-        .delete().or("item_a_id.eq." + itemId + ",item_b_id.eq." + itemId);
-      if (deleteRelationsError) {
-        state.itemId = itemId;
-        setStatus("Item saved, but relations could not be refreshed: " + deleteRelationsError.message, true);
-        setBusy(false);
-        return;
-      }
-      const rows = [...state.selectedRelations].filter(id => id !== itemId).map(id => normalizePair(itemId,id));
-      if (rows.length) {
-        const { error: insertRelationsError } = await supabase.from("content_relations").insert(rows);
-        if (insertRelationsError) {
-          state.itemId = itemId;
-          setStatus("Item saved, but relations could not be saved: " + insertRelationsError.message, true);
-          setBusy(false);
-          return;
-        }
-      }
+      const wasCreating = !state.itemId;
       state.itemId = itemId;
       await refreshItems();
-      await renderRelations();
       renderList();
-      deleteButton.disabled = false;
-      setStatus("Saved");
+      if (wasCreating) {
+        form.reset();
+        $("item-visible").checked = true;
+        $("item-slug").value = "";
+        state.itemId = null;
+        state.selectedRelations.clear();
+        state.slugManuallyEdited = false;
+        deleteButton.disabled = true;
+        setStatus("Created");
+      } else {
+        deleteButton.disabled = false;
+        setStatus("Updated");
+      }
+      setBusy(false);
+    });
+    $("item-name").addEventListener("input", () => {
+      if (state.slugManuallyEdited) return;
+      $("item-slug").value = $("item-name").value.trim().toLowerCase()
+        .normalize("NFKD").replace(/[\\u0300-\\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").replace(/-{2,}/g, "-");
+    });
+    $("item-slug").addEventListener("input", () => { state.slugManuallyEdited = true; });
+    $("create-toggle").addEventListener("click", () => {
+      const opening = $("create-panel").hidden;
+      $("create-panel").hidden = !opening;
+      $("relation-panel").hidden = true;
+      $("create-toggle").setAttribute("aria-expanded", String(opening));
+      $("relation-toggle").setAttribute("aria-expanded", "false");
+    });
+    $("relation-toggle").addEventListener("click", () => {
+      const opening = $("relation-panel").hidden;
+      $("relation-panel").hidden = !opening;
+      $("create-panel").hidden = true;
+      $("relation-toggle").setAttribute("aria-expanded", String(opening));
+      $("create-toggle").setAttribute("aria-expanded", "false");
+    });
+    $("relation-save-button").addEventListener("click", async () => {
+      if (!state.itemId || state.busy) { setStatus("Select an existing item first.", true); return; }
+      setBusy(true);
+      const id = state.itemId;
+      const { error: removeError } = await supabase.from("content_relations").delete()
+        .or("item_a_id.eq." + id + ",item_b_id.eq." + id);
+      if (removeError) { setStatus(removeError.message, true); setBusy(false); return; }
+      const rows = [...state.selectedRelations].filter(other => other !== id).map(other => normalizePair(id, other));
+      if (rows.length) {
+        const { error } = await supabase.from("content_relations").insert(rows);
+        if (error) { setStatus(error.message, true); setBusy(false); return; }
+      }
+      setStatus("Relations saved");
+      $("relation-panel").hidden = true;
+      $("relation-toggle").setAttribute("aria-expanded", "false");
       setBusy(false);
     });
     $("cancel-button").addEventListener("click", async () => {
@@ -287,7 +328,9 @@
       <div class="dashboard__list" id="existing-list"><p class="dashboard__empty">Loading…</p></div>
     </section>
     <section class="dashboard__panel" aria-labelledby="form-heading">
-      <h2 id="form-heading">Create Form</h2>
+      <h2 id="form-heading">Create</h2>
+      <button class="dashboard__toggle" id="create-toggle" type="button" aria-expanded="false" aria-controls="create-panel">Create Form <span aria-hidden="true">＋</span></button>
+      <div class="dashboard__toggle-panel" id="create-panel" hidden>
       <form id="content-form">
         <div class="dashboard__field">
           <label for="item-name">Name</label>
@@ -298,8 +341,6 @@
           <input id="item-slug" name="slug" type="text" maxlength="180" required pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off">
         </div>
         <label class="dashboard__visibility"><input id="item-visible" type="checkbox" checked> Visibility</label>
-        <h2>Relation Form</h2>
-        <div class="dashboard__relations" id="relation-groups"></div>
         <p class="dashboard__status" id="form-status" role="status" aria-live="polite"></p>
         <div class="dashboard__actions">
           <button class="button button--primary" id="save-button" type="submit">Save</button>
@@ -307,6 +348,12 @@
           <button class="button button--secondary" id="delete-button" type="button" disabled>Delete</button>
         </div>
       </form>
+      </div>
+      <button class="dashboard__toggle" id="relation-toggle" type="button" aria-expanded="false" aria-controls="relation-panel">Relation Form <span aria-hidden="true">＋</span></button>
+      <div class="dashboard__toggle-panel" id="relation-panel" hidden>
+        <div class="dashboard__relations" id="relation-groups"></div>
+        <div class="dashboard__actions"><button class="button button--primary" id="relation-save-button" type="button">Save Relations</button></div>
+      </div>
     </section>
   </div>
 </main>
