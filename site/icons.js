@@ -28,6 +28,8 @@ export function initSiteIcons(supabase){
   window.dispatchEvent(new CustomEvent("3b:icons-updated"));
  }
  window.addEventListener("3b:global-update",refresh);
+ const controller={refresh,apply};
+ window.siteIcons=controller;
  refresh();
- return {refresh,apply};
+ return controller;
 }
