@@ -37,14 +37,14 @@ if(authError||!session)window.location.replace(accountUrl.href);
 else if(session.user.id!==OWNER_ID){const deniedUrl=new URL("../account/",window.location.href);deniedUrl.searchParams.set("access","denied");window.location.replace(deniedUrl.href)}
 else{document.documentElement.classList.add("authenticated");startDashboard()}
 function startDashboard(){
- const types=["Services","Products","Providers","Contacts","Images","Videos"],$=id=>document.getElementById(id);
+ const types=["Services","Products","Providers","Hubs","Contacts","Images","Videos"],$=id=>document.getElementById(id);
  const state={tab:"Overview",items:[],selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
  const tabs=$("dashboard-tabs"),status=$("status");
  const say=(m,bad=false)=>{status.textContent=m;status.style.color=bad?"#c0392b":"var(--color-muted)"};
  const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel"].forEach(id=>$(id).disabled=v);$("content-delete").disabled=v||!state.selected};
  function tabButton(name){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";b.textContent=name;b.setAttribute("aria-selected",String(state.tab===name));b.addEventListener("click",()=>showTab(name));return b}
  function showTab(name){state.tab=name;tabs.replaceChildren(...["Overview","Content","Relation"].map(tabButton));$("overview-panel").hidden=name!=="Overview";$("content-panel").hidden=name!=="Content";$("relation-panel").hidden=name!=="Relation";say("");if(name==="Overview")renderOverview();if(name==="Content")loadContent();if(name==="Relation")loadRelationItems()}
- async function loadAll(){const {data,error}=await supabase.from("content").select("id,type,name,slug,is_visible,skills,label,value,image_url,file_title,created_at").order("created_at",{ascending:false});if(error){say(error.message,true);return false}state.items=data||[];return true}
+ async function loadAll(){const {data,error}=await supabase.from("content").select("id,type,name,slug,is_visible,skills,label,value,image_url,file_title,location,map,created_at").order("created_at",{ascending:false});if(error){say(error.message,true);return false}state.items=data||[];return true}
  function renderOverview(){const root=$("overview-stats");root.replaceChildren();[{name:"All Content",count:state.items.length},...types.map(type=>({name:type,count:state.items.filter(x=>x.type===type).length}))].forEach(x=>{const card=document.createElement("div");card.className="dashboard__stat";const n=document.createElement("strong");n.textContent=x.count;const label=document.createElement("span");label.textContent=x.name;card.append(n,label);root.append(card)})}
  function renderContentList(){const root=$("content-list");root.replaceChildren();const list=state.items.filter(x=>x.type===$("content-type").value);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const s=document.createElement("span");s.textContent=item.name;const meta=document.createElement("small");meta.textContent=item.slug+(item.is_visible?"":" · Hidden");s.append(meta);b.append(s);b.addEventListener("click",()=>editContent(item));root.append(b)})}
  async function loadContent(){if(await loadAll())renderContentList()}
@@ -52,9 +52,13 @@ function startDashboard(){
  function renderTypeFields(type,item={}){
   const root=$("type-fields");root.replaceChildren();
   const add=(id,label,inputType="text",value="")=>{const wrap=makeField(id,label,inputType),input=wrap.querySelector("input");input.value=value||"";root.append(wrap);return input};
-  if(["Services","Products","Providers"].includes(type)){
+  if(["Services","Products","Providers","Hubs"].includes(type)){
    const slug=add("content-slug","Slug","text",item.slug);slug.maxLength=180;slug.pattern="[a-z0-9]+(-[a-z0-9]+)*";slug.required=true;
    if(type==="Providers")add("content-skills","Skills","text",item.skills);
+  if(type==="Hubs"){
+   add("content-location","Location","text",item.location);
+   const map=add("content-map","Map","url",item.map);map.placeholder="Map URL";
+  }
   }
   if(type==="Contacts"){add("content-label","Label","text",item.label);add("content-value","Value","text",item.value)}
   if(type==="Images"||type==="Videos"){
@@ -81,7 +85,7 @@ function startDashboard(){
   if(!name){say("Enter a name.",true);return}
   setBusy(true);
   try{
-   const payload={name,type,is_visible:$("content-visible").checked,updated_at:new Date().toISOString(),slug,skills:type==="Providers"?$("content-skills").value.trim()||null:null,label:type==="Contacts"?$("content-label").value.trim()||null:null,value:type==="Contacts"?$("content-value").value:null,image_url:["Images","Videos"].includes(type)?await uploadSelectedFile(type,slug||name.toLowerCase().replace(/[^a-z0-9]+/g,"-")):null,file_title:type==="Videos"?($("content-upload").files[0]?.name||$("content-file-title").value||null):null};
+   const payload={name,type,is_visible:$("content-visible").checked,updated_at:new Date().toISOString(),slug:type==="Contacts"?null:slug,location:type==="Hubs"?$("content-location").value.trim()||null:null,map:type==="Hubs"?$("content-map").value.trim()||null:null,skills:type==="Providers"?$("content-skills").value.trim()||null:null,label:type==="Contacts"?$("content-label").value.trim()||null:null,value:type==="Contacts"?$("content-value").value:null,image_url:["Images","Videos"].includes(type)?await uploadSelectedFile(type,slug||name.toLowerCase().replace(/[^a-z0-9]+/g,"-")):null,file_title:type==="Videos"?($("content-upload").files[0]?.name||$("content-file-title").value||null):null};
    const q=state.selected?supabase.from("content").update(payload).eq("id",state.selected):supabase.from("content").insert(payload);
    const {error}=await q;if(error)throw error;say(state.selected?"Updated":"Created");$("content-type").value=type;resetContent();await loadContent();
   }catch(error){say(error.message||"Could not save content.",true)}finally{setBusy(false)}
@@ -106,10 +110,10 @@ function startDashboard(){
 <nav class="dashboard__tabs" id="dashboard-tabs" aria-label="Dashboard sections"></nav>
 <section id="overview-panel" class="dashboard__panel"><h2>Overview</h2><div class="dashboard__stats" id="overview-stats"></div></section>
 <section id="content-panel" hidden><div class="dashboard__layout">
-<section class="dashboard__panel"><h2>Existed Item List</h2><div class="dashboard__field"><label for="content-type">Type</label><select id="content-type"><option>Services</option><option>Products</option><option>Providers</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div><div class="dashboard__list" id="content-list"></div></section>
+<section class="dashboard__panel"><h2>Existed Item List</h2><div class="dashboard__field"><label for="content-type">Type</label><select id="content-type"><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div><div class="dashboard__list" id="content-list"></div></section>
 <section class="dashboard__panel"><h2>Content</h2><form id="content-form">
 <div class="dashboard__field"><label for="content-name">Name</label><input id="content-name" maxlength="160" required autocomplete="off"></div>
-<div class="dashboard__field"><label for="content-form-type">Type</label><select id="content-form-type"><option>Services</option><option>Products</option><option>Providers</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div>
+<div class="dashboard__field"><label for="content-form-type">Type</label><select id="content-form-type"><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div>
 <div id="type-fields"></div>
 <label class="dashboard__visibility"><input id="content-visible" type="checkbox" checked> Visibility</label>
 <div class="dashboard__actions"><button class="button button--primary" id="content-save" type="submit">Save</button><button class="button button--secondary" id="content-cancel" type="button">Cancel</button><button class="button button--secondary" id="content-delete" type="button" disabled>Delete</button></div>
