@@ -12,6 +12,65 @@
   --color-overlay: rgba(0, 0, 0, 0.48);
   --shadow-soft: 0 4px 18px rgba(0, 0, 0, 0.08);
   --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.14);
+:root {
+--component-floating-toggle-size: 58px;
+  --component-location-marker-size: 25px;
+  --component-detail-icon-size: 42px;
+  --component-icon-preview-size: 64px;
+  --radius-small: 8px;
+  --radius-medium: 12px;
+  --radius-large: 18px;
+  --radius-pill: 999px;
+  --content-width: 1200px;
+  --page-gutter: 16px;
+  --font-family-base: Arial, Helvetica, sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-size-xl: 24px;
+  --font-size-2xl: 32px;
+  --line-height-tight: 1.2;
+  --line-height-base: 1.5;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 14px;
+  --space-5: 16px;
+  --space-6: 20px;
+  --space-8: 26px;
+  --space-10: 32px;
+  --space-12: 40px;
+  --control-height: 42px;
+  --transition-fast: 160ms ease;
+  --transition-base: 220ms ease;
+  --effect-glass-blur: 10px;
+  --effect-flow-duration: 240ms;
+  --effect-float-distance: 2px;
+  --control-border: var(--color-border);
+  --control-background: var(--color-surface-raised);
+  --control-text: var(--color-text);
+  --component-border-radius: var(--radius-medium);
+  --component-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  --ds-border: var(--color-border);
+  --ds-surface: var(--color-surface-raised);
+  --ds-surface-muted: var(--color-surface);
+  --ds-text: var(--color-text);
+  --ds-muted: var(--color-muted);
+  --ds-radius-control: var(--radius-medium);
+  --ds-radius-card: var(--radius-large);
+  --ds-focus: 0 0 0 3px color-mix(in srgb, var(--color-focus) 22%, transparent);
+  --ds-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  --component-control-height-small: 36px;
+  --component-control-height-big: 52px;
+  --component-radius: var(--radius-medium);
+  --component-card-radius: var(--radius-large);
+  --component-border: 1px solid var(--color-border);
+  --component-surface: var(--color-surface-raised);
+  --component-surface-muted: var(--color-surface);
+  --component-text: var(--color-text);
+  --component-shadow: 0 1px 3px rgba(0,0,0,.06);
+}
 }
 @media (prefers-color-scheme: dark) {
   
@@ -1326,12 +1385,21 @@ width: 18px;
    ========================================================= */
 :root {
   --component-control-height: 44px;
+  --component-control-height-small: 36px;
+  --component-control-height-medium: 44px;
+  --component-control-height-big: 52px;
+  --component-padding-inline-small: 10px;
+  --component-padding-inline-medium: 14px;
+  --component-padding-inline-big: 18px;
+  --component-padding-block-small: 7px;
+  --component-padding-block-medium: 10px;
+  --component-padding-block-big: 14px;
   --component-padding-inline: 14px;
   --component-padding-block: 10px;
 }
-:is(.size-small, [data-size="small"]) { --component-control-height: var(--component-control-height-small); --component-padding-inline: 10px; --component-padding-block: 7px; }
-:is(.size-medium, [data-size="medium"]) { --component-control-height: 44px; --component-padding-inline: 14px; --component-padding-block: 10px; }
-:is(.size-big, [data-size="big"]) { --component-control-height: var(--component-control-height-big); --component-padding-inline: 18px; --component-padding-block: 14px; }
+:is(.size-small, [data-size="small"]) { --component-control-height: var(--component-control-height-small); --component-padding-inline: var(--component-padding-inline-small); --component-padding-block: var(--component-padding-block-small); }
+:is(.size-medium, [data-size="medium"]) { --component-control-height: var(--component-control-height-medium); --component-padding-inline: var(--component-padding-inline-medium); --component-padding-block: var(--component-padding-block-medium); }
+:is(.size-big, [data-size="big"]) { --component-control-height: var(--component-control-height-big); --component-padding-inline: var(--component-padding-inline-big); --component-padding-block: var(--component-padding-block-big); }
 
 /* One shared surface/card style. Page classes below are layout hooks only. */
 :is(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list, .dashboard__manager-form) {
@@ -1407,65 +1475,6 @@ input[type="file"] { min-height: var(--component-control-height) !important; col
    Unique-purpose styles stay centralized here in global.css.
    These do not create page-specific visual systems.
    ========================================================= */
-:root {
---component-floating-toggle-size: 58px;
-  --component-location-marker-size: 25px;
-  --component-detail-icon-size: 42px;
-  --component-icon-preview-size: 64px;
-  --radius-small: 8px;
-  --radius-medium: 12px;
-  --radius-large: 18px;
-  --radius-pill: 999px;
-  --content-width: 1200px;
-  --page-gutter: 16px;
-  --font-family-base: Arial, Helvetica, sans-serif;
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-md: 16px;
-  --font-size-lg: 20px;
-  --font-size-xl: 24px;
-  --font-size-2xl: 32px;
-  --line-height-tight: 1.2;
-  --line-height-base: 1.5;
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 14px;
-  --space-5: 16px;
-  --space-6: 20px;
-  --space-8: 26px;
-  --space-10: 32px;
-  --space-12: 40px;
-  --control-height: 42px;
-  --transition-fast: 160ms ease;
-  --transition-base: 220ms ease;
-  --effect-glass-blur: 10px;
-  --effect-flow-duration: 240ms;
-  --effect-float-distance: 2px;
-  --control-border: var(--color-border);
-  --control-background: var(--color-surface-raised);
-  --control-text: var(--color-text);
-  --component-border-radius: var(--radius-medium);
-  --component-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
-  --ds-border: var(--color-border);
-  --ds-surface: var(--color-surface-raised);
-  --ds-surface-muted: var(--color-surface);
-  --ds-text: var(--color-text);
-  --ds-muted: var(--color-muted);
-  --ds-radius-control: var(--radius-medium);
-  --ds-radius-card: var(--radius-large);
-  --ds-focus: 0 0 0 3px color-mix(in srgb, var(--color-focus) 22%, transparent);
-  --ds-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
-  --component-control-height-small: 36px;
-  --component-control-height-big: 52px;
-  --component-radius: var(--radius-medium);
-  --component-card-radius: var(--radius-large);
-  --component-border: 1px solid var(--color-border);
-  --component-surface: var(--color-surface-raised);
-  --component-surface-muted: var(--color-surface);
-  --component-text: var(--color-text);
-  --component-shadow: 0 1px 3px rgba(0,0,0,.06);
-}
 
 .floating-navigation__toggle {
   display: grid;
