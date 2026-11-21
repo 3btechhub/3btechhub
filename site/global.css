@@ -538,3 +538,5 @@ html.dashboard-page.authenticated body { visibility: visible; }
     will-change: auto;
   }
 }
+
+/* GitHub Pages deployment retry trigger */
