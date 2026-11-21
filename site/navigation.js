@@ -16,7 +16,7 @@
       </button></li>
     </ul>
     <button class="floating-navigation__toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="page-navigation">
-      <span class="floating-navigation__toggle-icon" data-site-icon="nav.menu"></span>
+      <span class="floating-navigation__toggle-icon" data-site-icon="nav.menu"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></span>
     </button>`;
   document.body.appendChild(menu);
   const toggle = menu.querySelector(".floating-navigation__toggle");
