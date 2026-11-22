@@ -2,6 +2,11 @@
 :root {
   --page-background: #ffffff;
   --text-color: #000000;
+  --font-size: large;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -9,6 +14,8 @@ body {
   min-height: 100vh;
   background-color: var(--page-background);
   color: var(--text-color);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: var(--font-size);
 }
 
 h1 {
