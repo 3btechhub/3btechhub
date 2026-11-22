@@ -33,11 +33,11 @@ class SiteNavigation extends HTMLElement {
       ? new URL('../', componentScript.src)
       : new URL('/', window.location.href);
 
-    const addSeparator = () => {
+    const addSeparator = (parent = menu) => {
       const separator = document.createElement('hr');
       separator.className = 'effect-separator';
       separator.setAttribute('aria-hidden', 'true');
-      menu.appendChild(separator);
+      parent.appendChild(separator);
     };
 
     const addLink = (label, path, parent = menu) => {
@@ -48,27 +48,38 @@ class SiteNavigation extends HTMLElement {
       return link;
     };
 
-    addLink('Home', 'home/');
+    const addPageGroup = (label, path, children) => {
+      const group = document.createElement('div');
+      group.className = 'navigation-page-group';
+      addLink(label, path, group);
+
+      const submenu = document.createElement('div');
+      submenu.className = 'navigation-submenu';
+      submenu.setAttribute('aria-label', label + ' pages');
+
+      children.forEach((child, index) => {
+        if (index > 0) addSeparator(submenu);
+        addLink(child.label, child.path, submenu);
+      });
+
+      group.appendChild(submenu);
+      menu.appendChild(group);
+    };
+
+    addPageGroup('Home', 'home/', [
+      { label: 'Overview', path: 'home/overview/' }
+    ]);
     addSeparator();
 
-    const accountGroup = document.createElement('div');
-    accountGroup.className = 'navigation-account-group';
-    addLink('Account', 'account/', accountGroup);
-
-    const accountSubmenu = document.createElement('div');
-    accountSubmenu.className = 'navigation-submenu';
-    accountSubmenu.setAttribute('aria-label', 'Account pages');
-    addLink('Login', 'account/login/', accountSubmenu);
-    const accountSeparator = document.createElement('hr');
-    accountSeparator.className = 'effect-separator';
-    accountSeparator.setAttribute('aria-hidden', 'true');
-    accountSubmenu.appendChild(accountSeparator);
-    addLink('Profile', 'account/profile/', accountSubmenu);
-    accountGroup.appendChild(accountSubmenu);
-    menu.appendChild(accountGroup);
-
+    addPageGroup('Account', 'account/', [
+      { label: 'Login', path: 'account/login/' },
+      { label: 'Profile', path: 'account/profile/' }
+    ]);
     addSeparator();
-    addLink('Dashboard', 'dashboard/');
+
+    addPageGroup('Dashboard', 'dashboard/', [
+      { label: 'Overview', path: 'dashboard/overview/' }
+    ]);
 
     const logoutSeparator = document.createElement('hr');
     logoutSeparator.className = 'effect-separator';
