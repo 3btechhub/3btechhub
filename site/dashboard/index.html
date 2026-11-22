@@ -99,7 +99,6 @@ function start(){
   const list=node("div","dashboard__list");
   panel.append(heading,node("div","dashboard__actions"));panel.lastChild.append(create,relation);panel.append(list);
   await loadContent();renderItemList(list);
-  if(state.selected)renderContentForm(panel,state.selected);
  }
  function renderContentForm(panel,item){
   const form=node("form","dashboard__manager-form");
