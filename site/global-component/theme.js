@@ -1,22 +1,20 @@
-/* Theme component */
+/* Theme component: loads the stylesheet supplied by the page. */
 class SiteTheme extends HTMLElement {
   connectedCallback() {
-    const themes = {
-      classic: {
-        background: "#ffffff",
-        color: "#000000",
-        fontSize: "large"
-      }
-    };
+    const source = this.getAttribute("src");
+    if (!source) return;
 
-    const selectedTheme = (this.getAttribute("name") || "classic").toLowerCase();
-    const theme = themes[selectedTheme] || themes.classic;
-    const root = document.documentElement;
+    let stylesheet = document.querySelector("link[data-site-theme]");
+    if (!stylesheet) {
+      stylesheet = document.createElement("link");
+      stylesheet.rel = "stylesheet";
+      stylesheet.dataset.siteTheme = "true";
+      document.head.appendChild(stylesheet);
+    }
 
-    root.style.setProperty("--page-background", theme.background);
-    root.style.setProperty("--text-color", theme.color);
-    root.style.setProperty("--font-size", theme.fontSize);
-    root.setAttribute("data-theme", themes[selectedTheme] ? selectedTheme : "classic");
+    if (stylesheet.getAttribute("href") !== source) {
+      stylesheet.setAttribute("href", source);
+    }
   }
 }
 
