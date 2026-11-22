@@ -231,6 +231,7 @@ class SiteTheme extends HTMLElement {
         if (page) page.hidden = false;
         if (skeleton) skeleton.hidden = true;
         document.documentElement.classList.add("page-ready");
+        document.dispatchEvent(new Event("page-ready"));
       }
     } catch (error) {
       console.error("Unable to prepare the selected theme:", source, error);
