@@ -11,126 +11,59 @@ import {createClient} from "https://esm.sh/@supabase/supabase-js@2.119.1";
 import {connectGlobalRealtime} from "../realtime.js";
 import {initSiteIcons} from "../icons.js";
 const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
-const root=document.getElementById("home-types");
-const status=document.getElementById("home-status");
-const HOME_ITEM_LIMIT=4;
-connectGlobalRealtime(supabase);
-initSiteIcons(supabase);
+const root=document.getElementById("home-types"),status=document.getElementById("home-status");
+const HOME_ITEM_LIMIT=4;connectGlobalRealtime(supabase);initSiteIcons(supabase);
 let renderVersion=0;
-const showError=message=>{status.textContent=message};
-const publicImageUrl=path=>{
- if(!path)return "";
- if(/^https?:\/\//i.test(path))return path;
- return supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl;
-};
-const safeMapUrl=value=>{
- try{
-  const url=new URL(value);
-  if(url.protocol!=="https:")return "";
-  return ["maps.app.goo.gl","google.com","www.google.com","maps.google.com","maps.apple.com"].includes(url.hostname)?url.href:"";
- }catch{return ""}
-};
+const publicImageUrl=path=>!path?"":/^https?:\/\//i.test(path)?path:supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl;
+const safeMapUrl=value=>{try{const url=new URL(value);return url.protocol==="https:"&&["maps.app.goo.gl","google.com","www.google.com","maps.google.com","maps.apple.com"].includes(url.hostname)?url.href:""}catch{return ""}};
+const iconFor={Services:"module.services",Products:"module.products",Technician:"module.technician",Workshop:"module.workshop",Gallery:"module.gallery",Contacts:"module.contacts",Location:"field.location",Images:"module.images",Videos:"module.videos"};
 function makeItem(item){
- const card=document.createElement("a");
- card.className="home__item";
- card.href="../content/?type="+encodeURIComponent(item.type)+"&id="+encodeURIComponent(item.id);
- if(item.type==="Images"){
-  card.classList.add("home__item--image");
-  const image=document.createElement("img");
-  image.className="home__image";
-  image.src=publicImageUrl(item.image_url);
-  image.alt=item.name||"";
-  image.loading="lazy";
-  image.decoding="async";
-  image.addEventListener("error",()=>{image.hidden=true;card.classList.add("home__item--image-missing")},{once:true});
-  const caption=document.createElement("p");
-  caption.className="home__image-caption";
-  caption.textContent=item.name;
-  card.append(image,caption);
-  return card;
- }
- const title=document.createElement("h3");
- title.className="home__item-title";
- title.textContent=item.name;
- const itemIcon=document.createElement("span");
- itemIcon.dataset.siteIcon=({Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"})[item.type]||"";
- itemIcon.setAttribute("aria-hidden","true");
- card.append(title);
- if(itemIcon.dataset.siteIcon)card.append(itemIcon);
- if(item.type==="Hubs"){
-  if(item.location){
-   const location=document.createElement("p");
-   location.className="home__location";
-   const pin=document.createElement("span");
-   pin.className="home__location-pin";
-   pin.setAttribute("aria-hidden","true");
-   pin.dataset.siteIcon="field.location";
-   const text=document.createElement("span");
-   text.textContent=item.location;
-   location.append(pin,text);
-   card.append(location);
-  }
-  const mapUrl=safeMapUrl(item.map);
-  if(mapUrl){
-   const link=document.createElement("a");
-   link.className="home__map-link";
-   link.href=mapUrl;
-   link.target="_blank";
-   link.rel="noopener noreferrer";
-   link.textContent="View Location";const mapIcon=document.createElement("span");mapIcon.dataset.siteIcon="field.location";mapIcon.setAttribute("aria-hidden","true");link.append(mapIcon);
-   card.append(link);
-  }
- }
+ const card=document.createElement("a");card.className="home__item";card.href="../content/?module="+encodeURIComponent(item.module)+"&id="+encodeURIComponent(item.id);
+ if(item.module==="Images"&&item.image_url){card.classList.add("home__item--image");const img=document.createElement("img");img.className="home__image";img.src=publicImageUrl(item.image_url);img.alt=item.name||"";img.loading="lazy";img.decoding="async";const caption=document.createElement("p");caption.className="home__image-caption";caption.textContent=item.name||"";card.append(img,caption);return card}
+ const title=document.createElement("h3");title.className="home__item-title";title.textContent=item.name||"";
+ const icon=document.createElement("span");icon.dataset.siteIcon=iconFor[item.module]||"";icon.setAttribute("aria-hidden","true");card.append(title);if(icon.dataset.siteIcon)card.append(icon);
+ if(["Workshop","Location"].includes(item.module)&&item.location){const p=document.createElement("p");p.className="home__location";const pin=document.createElement("span");pin.dataset.siteIcon="field.location";pin.setAttribute("aria-hidden","true");const txt=document.createElement("span");txt.textContent=item.location;p.append(pin,txt);card.append(p)}
+ const map=safeMapUrl(item.map);if(map){const a=document.createElement("a");a.className="home__map-link";a.href=map;a.target="_blank";a.rel="noopener noreferrer";a.textContent="View Location";card.append(a)}
  return card;
 }
 async function renderHome(){
- const currentVersion=++renderVersion;
- const [{data:sections,error:sectionError},{data:items,error:itemError}]=await Promise.all([
-  supabase.from("homepage_type_settings").select("content_type,sort_order").eq("is_enabled",true).order("sort_order"),
-  supabase.from("content").select("id,type,name,image_url,location,map").order("created_at",{ascending:false})
+ const version=++renderVersion;
+ const [{data:settings,error:settingsError},{data:items,error:itemError},{data:prefs,error:prefsError}]=await Promise.all([
+  supabase.from("homepage_module_settings").select("module,sort_order").eq("is_enabled",true).order("sort_order"),
+  supabase.from("content").select("id,module,name,image_url,location,map").order("created_at",{ascending:false}),
+  supabase.from("site_preferences").select("preference_key,preference_value").in("preference_key",["website_title","intro","website_logo"])
  ]);
- if(currentVersion!==renderVersion)return;
- if(sectionError||itemError){showError((sectionError||itemError).message||"Unable to load Home Page.");return}
+ if(version!==renderVersion)return;
+ if(settingsError||itemError||prefsError){status.textContent=(settingsError||itemError||prefsError).message||"Unable to load Home Page.";return}
+ const values=Object.fromEntries((prefs||[]).map(x=>[x.preference_key,x.preference_value]));
+ document.title=(values.website_title||"3B TECH HUB")+" · 3B TECH HUB";
+ const intro=document.getElementById("home-intro");intro.textContent=values.intro||"";intro.hidden=!values.intro;
+ const logo=document.getElementById("home-logo");if(values.website_logo){logo.src=publicImageUrl(values.website_logo);logo.hidden=false}else{logo.hidden=true}
+ const title=document.getElementById("home-title");title.textContent=values.website_title||"";
+ title.hidden=!values.website_title;
  root.replaceChildren();
- (sections||[]).forEach(section=>{
-  const matching=(items||[]).filter(item=>item.type===section.content_type);
-  if(!matching.length)return;
-  const card=document.createElement("section");
-  card.className="home__type";
-  const heading=document.createElement("h2");
-  heading.className="home__type-title";
-  const typeLink=document.createElement("a");
-  typeLink.className="home__type-link";
-  typeLink.href="../content/?type="+encodeURIComponent(section.content_type);
-  typeLink.append(document.createElement("span"));
-  typeLink.firstChild.textContent=section.content_type;
-  const iconKey={Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"}[section.content_type];
-  if(iconKey){const icon=document.createElement("span");icon.dataset.siteIcon=iconKey;typeLink.append(icon)}
-  heading.append(typeLink)
-  const list=document.createElement("div");
-  list.className="home__items";
-  if(section.content_type==="Images")list.classList.add("home__items--gallery");
-  if(matching.length>HOME_ITEM_LIMIT){
-   matching.slice(0,HOME_ITEM_LIMIT-1).forEach(item=>list.append(makeItem(item)));
-   const viewAll=document.createElement("a");
-   viewAll.className="home__item home__view-all-card";
-   viewAll.href="../content/?type="+encodeURIComponent(section.content_type);
-   viewAll.textContent="View All";const viewIcon=document.createElement("span");viewIcon.dataset.siteIcon="action.search";viewIcon.setAttribute("aria-hidden","true");viewAll.append(viewIcon);
-   list.append(viewAll);
-  }else{
-   matching.slice(0,HOME_ITEM_LIMIT).forEach(item=>list.append(makeItem(item)));
-  }
-  card.append(heading,list);
-  root.append(card);
-  window.siteIcons?.apply();
+ (settings||[]).forEach(section=>{
+  const matching=(items||[]).filter(item=>item.module===section.module);if(!matching.length)return;
+  const sectionEl=document.createElement("section");sectionEl.className="home__type";
+  const heading=document.createElement("h2"),link=document.createElement("a");link.className="home__type-link";link.href="../content/?module="+encodeURIComponent(section.module);link.textContent=section.module;
+  const icon=document.createElement("span");icon.dataset.siteIcon=iconFor[section.module]||"";icon.setAttribute("aria-hidden","true");heading.append(link);if(icon.dataset.siteIcon)heading.append(icon);
+  const list=document.createElement("div");list.className="home__items";if(section.module==="Images"||section.module==="Gallery")list.classList.add("home__items--gallery");
+  if(matching.length>HOME_ITEM_LIMIT){matching.slice(0,HOME_ITEM_LIMIT-1).forEach(item=>list.append(makeItem(item)));const all=document.createElement("a");all.className="home__item home__view-all-card";all.href="../content/?module="+encodeURIComponent(section.module);all.textContent="View All";list.append(all)}
+  else matching.forEach(item=>list.append(makeItem(item)));
+  sectionEl.append(heading,list);root.append(sectionEl);
  });
+ window.siteIcons?.apply();
 }
-renderHome();
-window.addEventListener("3b:global-update",()=>renderHome());
+renderHome();window.addEventListener("3b:global-update",renderHome);
 </script>
 </head>
 <body>
 <main class="container home">
+<header class="home__intro-block">
+<img id="home-logo" class="home__logo" alt="Website logo" hidden>
+<h1 id="home-title" hidden></h1>
+<p id="home-intro" class="home__intro" hidden></p>
+</header>
 <div class="home__types" id="home-types"></div>
 <p class="home__status" id="home-status" role="status" aria-live="polite"></p>
 </main>
