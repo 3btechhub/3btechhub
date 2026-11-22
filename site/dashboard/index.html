@@ -4,9 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard</title>
-  <script>
-    window.location.replace(new URL("overview/", window.location.href).href);
-  </script>
+  <link rel="stylesheet" href="../theme/classic.css">
+  <script src="../component/webpage-title.js" defer></script>
+  <script src="../component/navigation.js" defer></script>
+  <script type="module" src="../component/dashboard-auth.js"></script>
 </head>
-<body></body>
+<body>
+  <main class="page-content" id="page-content" hidden>
+    <webpage-title>Dashboard</webpage-title>
+    <site-navigation></site-navigation>
+  </main>
+</body>
 </html>

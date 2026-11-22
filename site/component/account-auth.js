@@ -1,134 +1,69 @@
 import { supabase } from "./supabase-client.js";
-
 const form = document.getElementById("login-form");
 const emailInput = document.getElementById("login-email");
 const passwordInput = document.getElementById("login-password");
 const status = document.getElementById("login-status");
-
-// The Login page starts with no error state. Messages appear only after
-// the visitor submits the form and that specific operation fails.
-if (status) {
-  status.textContent = "";
-  status.hidden = true;
-}
-
+if (status) { status.textContent = ""; status.hidden = true; }
 const params = new URLSearchParams(window.location.search);
 const dashboardRequested = params.get("next") === "dashboard";
-const dashboardUrl = new URL("../../dashboard/overview/", window.location.href);
+const dashboardUrl = new URL("../dashboard/", window.location.href);
 const profileUrl = new URL("../profile/", window.location.href);
-
-// Verification errors are not carried in the URL. They became stale and
-// caused the same message to reappear on every visit to the Login page.
-params.delete("error");
 if (window.location.search.includes("error=")) {
   const cleanUrl = new URL(window.location.href);
   cleanUrl.searchParams.delete("error");
   window.history.replaceState({}, "", cleanUrl.href);
 }
-
 async function hasOwnerAccess(user) {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", user.id)
-    .eq("role", "Owner")
-    .maybeSingle();
-
+  const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "Owner").maybeSingle();
   if (error) throw error;
   return Boolean(data);
 }
-
 async function routeSignedInUser(user) {
   if (dashboardRequested) {
     try {
-      if (await hasOwnerAccess(user)) {
-        window.location.replace(dashboardUrl.href);
-        return;
-      }
+      if (await hasOwnerAccess(user)) { window.location.replace(dashboardUrl.href); return; }
       profileUrl.searchParams.set("access", "denied");
       window.location.replace(profileUrl.href);
       return;
     } catch (error) {
       console.error("Dashboard role verification failed:", error);
-      if (status) {
-        status.textContent = "Unable to verify Dashboard access. Please try again.";
-        status.hidden = false;
-      }
+      if (status) { status.textContent = "Unable to verify Dashboard access. Please try again."; status.hidden = false; }
       return;
     }
   }
-
   window.location.replace(profileUrl.href);
 }
-
 form?.addEventListener("submit", async event => {
   event.preventDefault();
   if (!form.reportValidity()) return;
-
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: emailInput.value.trim(),
-      password: passwordInput.value
-    });
-
+    const { data, error } = await supabase.auth.signInWithPassword({ email: emailInput.value.trim(), password: passwordInput.value });
     if (error) {
-      const isConnectionError =
-        error.name === "AuthRetryableFetchError" ||
-        !error.status ||
-        error.status >= 500;
-
+      const connectionError = error.name === "AuthRetryableFetchError" || !error.status || error.status >= 500;
       if (status) {
-        status.textContent = isConnectionError
-          ? "Unable to connect. Check your internet connection and try again."
-          : "Email or password is incorrect. Please try again.";
+        status.textContent = connectionError ? "Unable to connect. Check your internet connection and try again." : "Email or password is incorrect. Please try again.";
         status.hidden = false;
       }
       return;
     }
-
-    // signInWithPassword already returns the authenticated user and session.
-    // Avoid an unnecessary second /user request after a successful login.
     if (!data?.user || !data?.session) {
-      if (status) {
-        status.textContent = "Sign-in could not be completed. Please try again.";
-        status.hidden = false;
-      }
+      if (status) { status.textContent = "Sign-in could not be completed. Please try again."; status.hidden = false; }
       return;
     }
-
     await routeSignedInUser(data.user);
   } catch (error) {
     console.error("Login failed:", error);
-    if (status) {
-      status.textContent = "Unable to complete login. Please try again.";
-      status.hidden = false;
-    }
+    if (status) { status.textContent = "Unable to complete login. Please try again."; status.hidden = false; }
   }
 });
-
 async function redirectIfAlreadySignedIn() {
   try {
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-
-    if (sessionError) throw sessionError;
-
-    if (!sessionData.session) {
-      return;
-    }
-
-    const { data, error } = await supabase.auth.getUser();
-
-    if (error || !data.user) {
-      // Clear only this browser's invalid/stale session; do not show a
-      // permanent verification warning to a visitor who simply needs Login.
-      await supabase.auth.signOut({ scope: "local" });
-      return;
-    }
-
-    await routeSignedInUser(data.user);
-  } catch (error) {
-    console.error("Initial session check failed:", error);
-  }
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    if (!data.session) return;
+    const result = await supabase.auth.getUser();
+    if (result.error || !result.data.user) { await supabase.auth.signOut({ scope: "local" }); return; }
+    await routeSignedInUser(result.data.user);
+  } catch (error) { console.error("Initial session check failed:", error); }
 }
-
 redirectIfAlreadySignedIn();
