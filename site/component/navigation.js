@@ -108,7 +108,6 @@ class SiteNavigation extends HTMLElement {
     });
 
     logoutButton.addEventListener('click', async () => {
-      logoutButton.disabled = true;
       try {
         const { supabase } = await import(new URL('./supabase-client.js', componentScript.src).href);
         const { error } = await supabase.auth.signOut({ scope: 'local' });
@@ -116,13 +115,10 @@ class SiteNavigation extends HTMLElement {
         window.location.replace(new URL('account/login/', siteRoot).href);
       } catch (error) {
         console.error('Logout failed:', error);
-        logoutButton.disabled = false;
       }
     });
 
     this.replaceChildren(button, menu);
-    this.dataset.componentReady = 'true';
-    this.dispatchEvent(new Event('component-ready'));
 
     if (componentScript) {
       import(new URL('./supabase-client.js', componentScript.src).href)
@@ -133,7 +129,6 @@ class SiteNavigation extends HTMLElement {
             const checkId = ++accessCheck;
             logoutButton.hidden = !session;
             logoutSeparator.hidden = !session;
-            if (session) logoutButton.disabled = false;
 
             if (!session) {
               renderMainLinks(false);
