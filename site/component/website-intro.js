@@ -20,7 +20,7 @@ class WebsiteIntro extends HTMLElement {
       }
 
       const heading = document.createElement("h2");
-      heading.className = "website-intro__text";
+      heading.className = "ui-card ui-card--large website-intro__text";
       heading.textContent = introText;
       this.replaceChildren(heading);
       this.hidden = false;
