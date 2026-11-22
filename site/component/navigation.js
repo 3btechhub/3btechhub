@@ -154,11 +154,19 @@ class SiteNavigation extends HTMLElement {
           supabase.auth.onAuthStateChange((_event, session) => {
             updateNavigation(session);
           });
+
+          document.documentElement.dataset.navigationReady = 'true';
+          document.dispatchEvent(new Event('site-navigation-ready'));
         })
         .catch(error => {
           renderMainLinks(false);
           console.error('Unable to check account session:', error);
+          document.documentElement.dataset.navigationReady = 'true';
+          document.dispatchEvent(new Event('site-navigation-ready'));
         });
+    } else {
+      document.documentElement.dataset.navigationReady = 'true';
+      document.dispatchEvent(new Event('site-navigation-ready'));
     }
   }
 }
