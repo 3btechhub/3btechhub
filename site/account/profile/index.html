@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile</title>
+  <link rel="stylesheet" href="../../theme/classic.css" data-site-theme>
+  <script src="../../component/theme.js" defer></script>
+  <script src="../../component/webpage-title.js" defer></script>
+  <script src="../../component/navigation.js" defer></script>
+  <script type="module" src="../../component/profile-auth.js"></script>
+</head>
+<body>
+  <site-theme src="../../theme/classic.css"></site-theme>
+
+  <main class="page-content" id="page-content" data-auth-required="true" hidden>
+    <webpage-title>Profile</webpage-title>
+    <site-navigation></site-navigation>
+
+    <section class="account-profile">
+      <h2>Profile</h2>
+      <p>Email: <span id="profile-email"></span></p>
+      <p id="profile-status" role="status" aria-live="polite"></p>
+    </section>
+  </main>
+</body>
+</html>
