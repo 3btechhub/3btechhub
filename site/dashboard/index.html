@@ -4,19 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard</title>
-  <link rel="stylesheet" href="../theme/classic.css" data-site-theme>
-  <script src="../component/theme.js" defer></script>
-  <script src="../component/webpage-title.js" defer></script>
-  <script src="../component/navigation.js" defer></script>
-  <script type="module" src="../component/dashboard-auth.js"></script>
+  <meta http-equiv="refresh" content="0; url=overview/">
+  <script>
+    window.location.replace(new URL('overview/', window.location.href).href);
+  </script>
 </head>
-<body>
-  <site-theme src="../theme/classic.css"></site-theme>
-
-  <main class="page-content" id="page-content" data-auth-required="true" hidden>
-    <webpage-title>Dashboard</webpage-title>
-    <site-navigation></site-navigation>
-    <a href="./overview/">Overview</a>
-  </main>
-</body>
+<body></body>
 </html>
