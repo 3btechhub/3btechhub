@@ -3,19 +3,6 @@ import { supabase } from "./supabase-client.js";
 const loginUrl = new URL("./login/", window.location.href);
 const profileUrl = new URL("./profile/", window.location.href);
 
-async function navigateAfterSkeletonPaint(url) {
-  if (document.documentElement.classList.contains("page-ready")) {
-    window.location.replace(url.href);
-    return;
-  }
-
-  await new Promise(resolve => {
-    document.addEventListener("page-ready", resolve, { once: true });
-  });
-
-  window.location.replace(url.href);
-}
-
 async function routeAccountRoot() {
   try {
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
@@ -23,7 +10,7 @@ async function routeAccountRoot() {
     if (sessionError) throw sessionError;
 
     if (!sessionData.session) {
-      await navigateAfterSkeletonPaint(loginUrl);
+      window.location.replace(loginUrl.href);
       return;
     }
 
@@ -31,15 +18,15 @@ async function routeAccountRoot() {
 
     if (error || !data.user) {
       await supabase.auth.signOut({ scope: "local" });
-      await navigateAfterSkeletonPaint(loginUrl);
+      window.location.replace(loginUrl.href);
       return;
     }
 
-    await navigateAfterSkeletonPaint(profileUrl);
+    window.location.replace(profileUrl.href);
   } catch (error) {
     console.error("Account route session check failed:", error);
     await supabase.auth.signOut({ scope: "local" });
-    await navigateAfterSkeletonPaint(loginUrl);
+    window.location.replace(loginUrl.href);
   }
 }
 
