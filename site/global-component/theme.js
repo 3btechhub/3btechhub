@@ -37,11 +37,9 @@ class SiteTheme extends HTMLElement {
     const request = (this.loadRequest || 0) + 1;
     this.loadRequest = request;
 
-    const skeleton = document.getElementById("page-skeleton");
     const page = document.getElementById("page-content");
 
     document.documentElement.classList.remove("page-ready");
-    if (skeleton) skeleton.hidden = false;
     if (page) page.hidden = true;
 
     let stylesheet = document.querySelector("link[data-site-theme]");
@@ -78,7 +76,6 @@ class SiteTheme extends HTMLElement {
       });
 
       if (request === this.loadRequest) {
-        if (skeleton) skeleton.hidden = true;
         if (page) page.hidden = false;
         document.documentElement.classList.add("page-ready");
       }
