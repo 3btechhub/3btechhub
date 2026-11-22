@@ -359,3 +359,88 @@ site-navigation {
 
 
 
+
+
+/* Website Intro */
+website-intro {
+  display: block;
+  width: min(900px, calc(100% - 32px));
+  margin: 40px auto 24px;
+  text-align: center;
+}
+
+.website-intro-card {
+  padding: 20px 16px;
+}
+
+.website-intro-headline {
+  margin: 0;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  line-height: 1.2;
+  font-weight: 700;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-sections {
+  width: min(900px, calc(100% - 32px));
+  margin: 32px auto;
+  display: grid;
+  gap: 20px;
+}
+
+website-intro-editor {
+  display: block;
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 18%, transparent);
+  border-radius: var(--effect-radius);
+  background: var(--page-background);
+  box-shadow: var(--effect-shadow);
+}
+
+.website-intro-editor-card h2 {
+  margin: 0 0 16px;
+  text-align: center;
+}
+
+.website-intro-form {
+  display: grid;
+  gap: 12px;
+}
+
+.website-intro-form textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 28%, transparent);
+  border-radius: var(--effect-radius-small);
+  background: var(--page-background);
+  resize: vertical;
+}
+
+.website-intro-form textarea:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+  box-shadow: var(--effect-focus);
+}
+
+.website-intro-form button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--text-color);
+  border-radius: var(--effect-radius-small);
+  background: var(--text-color);
+  color: var(--page-background);
+  cursor: pointer;
+}
+
+.website-intro-form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.website-intro-status {
+  min-height: 1.4em;
+  margin: 0;
+  text-align: center;
+}
