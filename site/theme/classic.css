@@ -515,27 +515,68 @@ our-services {
 }
 
 .our-services__card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
   min-width: 0;
-  min-height: 112px;
-  padding: 18px;
+  min-height: 124px;
+  padding: 22px 18px;
+  overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
-  border-radius: 18px;
-  background: linear-gradient(145deg, color-mix(in srgb, var(--text-color) 3%, var(--page-background)), var(--page-background) 72%);
-  box-shadow: 0 3px 12px rgb(0 0 0 / 5%);
-  transition: transform var(--effect-transition), box-shadow var(--effect-transition), border-color var(--effect-transition);
+  border-radius: 22px;
+  background:
+    radial-gradient(ellipse at 50% -25%, color-mix(in srgb, var(--text-color) 9%, transparent), transparent 65%),
+    linear-gradient(145deg, color-mix(in srgb, var(--page-background) 96%, var(--text-color)), var(--page-background) 58%);
+  box-shadow:
+    0 2px 5px rgb(0 0 0 / 3%),
+    0 10px 28px rgb(0 0 0 / 7%),
+    inset 0 1px 0 rgb(255 255 255 / 65%);
+  text-align: center;
+  transition: box-shadow var(--effect-transition), border-color var(--effect-transition), transform var(--effect-transition);
+}
+
+.our-services__card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 50%;
+  width: min(120px, 38%);
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: var(--text-color);
+  opacity: 0.72;
+  transform: translateX(-50%);
+}
+
+.our-services__card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -48px;
+  bottom: -78px;
+  width: 150px;
+  height: 150px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 7%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 18px color-mix(in srgb, var(--text-color) 2%, transparent),
+              0 0 0 38px color-mix(in srgb, var(--text-color) 1.5%, transparent);
+  pointer-events: none;
 }
 
 .our-services__card:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--text-color) 25%, transparent);
-  box-shadow: 0 10px 24px rgb(0 0 0 / 9%);
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--text-color) 22%, transparent);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 4%), 0 14px 34px rgb(0 0 0 / 10%);
 }
 
 .our-services__title {
-  margin: 0 0 8px;
-  font-size: 1.05rem;
-  line-height: 1.35;
+  margin: 0;
+  font-size: clamp(1rem, 1.8vw, 1.2rem);
+  line-height: 1.4;
   font-weight: 650;
+  letter-spacing: -0.015em;
   overflow-wrap: anywhere;
 }
 
@@ -655,9 +696,9 @@ our-services {
   }
 
   .our-services__card {
-    min-height: 104px;
-    padding: 14px;
-    border-radius: 15px;
+    min-height: 112px;
+    padding: 16px 12px;
+    border-radius: 18px;
   }
 
   .our-services-editor {
