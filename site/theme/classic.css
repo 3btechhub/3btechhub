@@ -345,7 +345,8 @@ site-navigation {
 }
 
 /* Account submenu and Logout */
-.navigation-account-group {
+.navigation-account-group,
+.navigation-page-group {
   display: flex;
   flex-direction: column;
 }
