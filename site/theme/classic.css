@@ -1,9 +1,14 @@
-/* Classic theme: all visual design values and rules live here. */
+/* Classic theme: all website visual styles are defined here. */
+
 :root {
   --page-background: #ffffff;
   --text-color: #000000;
   --font-family: Arial, Helvetica, sans-serif;
   --font-size: large;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 body {
@@ -21,4 +26,54 @@ select,
 textarea {
   font: inherit;
   color: inherit;
+}
+
+/* Webpage Title */
+.webpage-title {
+  text-align: center;
+}
+
+/* Navigation */
+site-navigation {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+}
+
+.navigation-toggle {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1px solid var(--text-color);
+  border-radius: 50%;
+  background: var(--page-background);
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.navigation-toggle svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.navigation-menu {
+  position: absolute;
+  right: 0;
+  bottom: 64px;
+  width: min(240px, calc(100vw - 40px));
+  min-height: 0;
+  padding: 0;
+  border: 1px solid var(--text-color);
+  background: var(--page-background);
+}
+
+.navigation-menu[hidden] {
+  display: none;
 }
