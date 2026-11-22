@@ -23,36 +23,18 @@ if (window.location.search.includes("error=")) {
 }
 
 async function hasDashboardAccess(user) {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role")
-    .eq("user_id", user.id)
-    .in("role", ["Owner", "Admin"])
-    .limit(1)
-    .maybeSingle();
-
-  if (error) throw error;
-  return Boolean(data);
+  return ["Owner", "Admin"].includes(user.app_metadata?.role);
 }
 
 async function routeSignedInUser(user) {
   if (dashboardRequested) {
-    try {
-      if (await hasDashboardAccess(user)) {
-        window.location.replace(dashboardUrl.href);
-        return;
-      }
-      profileUrl.searchParams.set("access", "denied");
-      window.location.replace(profileUrl.href);
-      return;
-    } catch (error) {
-      console.error("Dashboard role verification failed:", error);
-      if (status) {
-        status.textContent = "Unable to verify Dashboard access. Please try again.";
-        status.hidden = false;
-      }
+    if (await hasDashboardAccess(user)) {
+      window.location.replace(dashboardUrl.href);
       return;
     }
+    profileUrl.searchParams.set("access", "denied");
+    window.location.replace(profileUrl.href);
+    return;
   }
   window.location.replace(profileUrl.href);
 }
