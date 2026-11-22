@@ -12,6 +12,21 @@ class SiteTheme extends HTMLElement {
     if (this.isConnected) this.loadTheme();
   }
 
+  async waitForComponent(selector, elementName) {
+    await customElements.whenDefined(elementName);
+
+    const component = document.querySelector(selector);
+    if (!component) {
+      throw new Error(`Required component is missing: ${selector}`);
+    }
+
+    if (component.dataset.componentReady === "true") return;
+
+    await new Promise(resolve => {
+      component.addEventListener("component-ready", resolve, { once: true });
+    });
+  }
+
   async loadTheme() {
     const source = this.getAttribute("src");
     if (!source) {
@@ -21,6 +36,13 @@ class SiteTheme extends HTMLElement {
 
     const request = (this.loadRequest || 0) + 1;
     this.loadRequest = request;
+
+    const skeleton = document.getElementById("page-skeleton");
+    const page = document.getElementById("page-content");
+
+    document.documentElement.classList.remove("page-ready");
+    if (skeleton) skeleton.hidden = false;
+    if (page) page.hidden = true;
 
     let stylesheet = document.querySelector("link[data-site-theme]");
     if (!stylesheet) {
@@ -45,11 +67,19 @@ class SiteTheme extends HTMLElement {
       }
 
       await Promise.all([
-        customElements.whenDefined("webpage-title"),
-        customElements.whenDefined("site-navigation")
+        this.waitForComponent("webpage-title", "webpage-title"),
+        this.waitForComponent("site-navigation", "site-navigation")
       ]);
 
+      if (request !== this.loadRequest) return;
+
+      await new Promise(resolve => {
+        requestAnimationFrame(() => requestAnimationFrame(resolve));
+      });
+
       if (request === this.loadRequest) {
+        if (skeleton) skeleton.hidden = true;
+        if (page) page.hidden = false;
         document.documentElement.classList.add("page-ready");
       }
     } catch (error) {
