@@ -7,7 +7,13 @@ const status = document.getElementById("profile-status");
 async function verifyProfileAccess() {
   const { data, error } = await supabase.auth.getUser();
 
-  if (error || !data.user) {
+  if (error) {
+    loginUrl.searchParams.set("error", "verification");
+    window.location.replace(loginUrl.href);
+    return;
+  }
+
+  if (!data.user) {
     window.location.replace(loginUrl.href);
     return;
   }
@@ -17,7 +23,7 @@ async function verifyProfileAccess() {
   document.dispatchEvent(new Event("private-access-granted"));
 
   if (new URLSearchParams(window.location.search).get("access") === "denied" && status) {
-    status.textContent = "এই অ্যাকাউন্টের Dashboard ব্যবহারের অনুমতি নেই।";
+    status.textContent = "This account does not have permission to access the Dashboard.";
   }
 }
 
