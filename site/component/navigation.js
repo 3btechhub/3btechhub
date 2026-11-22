@@ -178,8 +178,6 @@ class SiteNavigation extends HTMLElement {
           console.error('Unable to check account session:', error);
         });
     }
-}
-
   }
 }
 
