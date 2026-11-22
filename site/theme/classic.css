@@ -184,9 +184,9 @@ site-navigation {
   right: 0;
   bottom: 64px;
   display: flex;
-  align-items: center;
-  width: max-content;
-  max-width: calc(100vw - 40px);
+  flex-direction: column;
+  align-items: stretch;
+  width: min(240px, calc(100vw - 40px));
   min-height: 0;
   padding: 6px;
   border: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
@@ -197,12 +197,10 @@ site-navigation {
   animation: navigation-menu-enter var(--effect-transition) both;
 }
 
-.navigation-menu .effect-separator-vertical {
-  width: 1px;
-  min-width: 1px;
-  min-height: 20px;
-  height: 20px;
-  margin: 0 4px;
+.navigation-menu .effect-separator {
+  width: auto;
+  height: 1px;
+  margin: 3px 14px;
 }
 
 .navigation-menu a {
