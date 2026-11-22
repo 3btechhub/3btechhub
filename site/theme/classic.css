@@ -1,5 +1,10 @@
 /* Classic theme: all website visual styles are defined here. */
 
+html:not([data-page-ready="true"]) body {
+  visibility: hidden;
+}
+
+
 :root {
   --page-background: #ffffff;
   --text-color: #000000;
