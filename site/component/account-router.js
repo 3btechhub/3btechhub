@@ -23,7 +23,7 @@ async function routeAccountRoot() {
 
     if (error || !data.user) {
       await supabase.auth.signOut({ scope: "local" });
-      window.location.replace(loginUrl.href);
+      await navigateAfterSkeletonPaint(loginUrl);
       return;
     }
 
@@ -31,7 +31,7 @@ async function routeAccountRoot() {
   } catch (error) {
     console.error("Account route session check failed:", error);
     await supabase.auth.signOut({ scope: "local" });
-    window.location.replace(loginUrl.href);
+    await navigateAfterSkeletonPaint(loginUrl);
   }
 }
 
