@@ -21,9 +21,14 @@
     <site-navigation></site-navigation>
   </main>
   <script>
-    requestAnimationFrame(() => requestAnimationFrame(() => {
+    const redirectToOverview = () => {
       window.location.replace(new URL('overview/', window.location.href).href);
-    }));
+    };
+    if (document.documentElement.classList.contains('page-ready')) {
+      redirectToOverview();
+    } else {
+      document.addEventListener('page-ready', redirectToOverview, { once: true });
+    }
   </script>
 </body>
 </html>
