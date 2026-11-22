@@ -48,13 +48,23 @@ class SiteNavigation extends HTMLElement {
       return link;
     };
 
-    addLink('Home', 'home/');
-    addSeparator();
+    const normalizePath = path => path.endsWith('/') ? path : `${path}/`;
+    const currentPath = normalizePath(window.location.pathname);
+    const mainLinks = [
+      { label: 'Home', path: 'home/' },
+      { label: 'Account', path: 'account/' },
+      { label: 'Dashboard', path: 'dashboard/' }
+    ];
 
-    addLink('Account', 'account/');
-    addSeparator();
+    const visibleMainLinks = mainLinks.filter(item => {
+      const sectionPath = normalizePath(new URL(item.path, siteRoot).pathname);
+      return currentPath === sectionPath || !currentPath.startsWith(sectionPath);
+    });
 
-    addLink('Dashboard', 'dashboard/');
+    visibleMainLinks.forEach((item, index) => {
+      if (index > 0) addSeparator();
+      addLink(item.label, item.path);
+    });
 
     const logoutSeparator = document.createElement('hr');
     logoutSeparator.className = 'effect-separator';
