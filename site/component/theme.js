@@ -27,6 +27,15 @@ class SiteTheme extends HTMLElement {
     });
   }
 
+  async waitForPageAuth(page) {
+    if (page?.dataset.authCheckRequired !== "true") return;
+    if (document.documentElement.dataset.pageAuthReady === "true") return;
+
+    await new Promise(resolve => {
+      document.addEventListener("page-auth-ready", resolve, { once: true });
+    });
+  }
+
   async waitForPrivateAccess(page) {
     if (page?.dataset.authRequired !== "true") return;
     if (document.documentElement.dataset.privateAccess === "granted") return;
@@ -80,6 +89,7 @@ class SiteTheme extends HTMLElement {
         this.waitForComponent("site-navigation", "site-navigation")
       ]);
 
+      await this.waitForPageAuth(page);
       await this.waitForPrivateAccess(page);
 
       if (request !== this.loadRequest) return;
