@@ -27,6 +27,15 @@ class SiteTheme extends HTMLElement {
     });
   }
 
+  async waitForPrivateAccess(page) {
+    if (page?.dataset.authRequired !== "true") return;
+    if (document.documentElement.dataset.privateAccess === "granted") return;
+
+    await new Promise(resolve => {
+      document.addEventListener("private-access-granted", resolve, { once: true });
+    });
+  }
+
   async loadTheme() {
     const source = this.getAttribute("src");
     if (!source) {
@@ -68,6 +77,8 @@ class SiteTheme extends HTMLElement {
         this.waitForComponent("webpage-title", "webpage-title"),
         this.waitForComponent("site-navigation", "site-navigation")
       ]);
+
+      await this.waitForPrivateAccess(page);
 
       if (request !== this.loadRequest) return;
 
