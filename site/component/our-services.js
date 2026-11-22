@@ -15,7 +15,7 @@ class OurServices extends HTMLElement {
     try {
       const { data, error } = await supabase
         .from("our_services")
-        .select("id, title, description")
+        .select("id, title")
         .eq("is_visible", true)
         .order("sort_order", { ascending: true })
         .order("id", { ascending: true });
@@ -33,8 +33,7 @@ class OurServices extends HTMLElement {
       data.forEach(service => {
         const card = element("article", "our-services__card");
         card.append(
-          element("h3", "our-services__title", service.title),
-          element("p", "our-services__description", service.description)
+          element("h3", "our-services__title", service.title)
         );
         grid.append(card);
       });
@@ -73,14 +72,6 @@ class OurServicesEditor extends HTMLElement {
       titleInput.placeholder = "Enter service title";
       titleLabel.append(titleInput);
 
-      const descriptionLabel = element("label", "", "Description");
-      const descriptionInput = element("textarea");
-      descriptionInput.name = "description";
-      descriptionInput.rows = 3;
-      descriptionInput.maxLength = 600;
-      descriptionInput.placeholder = "Enter a short description (optional)";
-      descriptionLabel.append(descriptionInput);
-
       const visibleLabel = element("label", "our-services-editor__visibility");
       const visibleInput = element("input");
       visibleInput.type = "checkbox";
@@ -98,7 +89,7 @@ class OurServicesEditor extends HTMLElement {
       status.setAttribute("aria-live", "polite");
       const list = element("div", "our-services-editor__list");
 
-      form.append(titleLabel, descriptionLabel, visibleLabel, submit, cancel, status);
+      form.append(titleLabel, visibleLabel, submit, cancel, status);
       section.append(heading, form, list);
       this.replaceChildren(section);
       this.hidden = false;
@@ -117,7 +108,7 @@ class OurServicesEditor extends HTMLElement {
       const loadItems = async () => {
         const { data, error } = await supabase
           .from("our_services")
-          .select("id, title, description, is_visible, sort_order")
+          .select("id, title, is_visible, sort_order")
           .order("sort_order", { ascending: true })
           .order("id", { ascending: true });
         if (error) throw error;
@@ -133,7 +124,6 @@ class OurServicesEditor extends HTMLElement {
           const details = element("div", "our-services-editor__details");
           details.append(
             element("h3", "", service.title),
-            element("p", "", service.description || "No description"),
             element("span", "our-services-editor__state", service.is_visible ? "Visible on homepage" : "Hidden from homepage")
           );
           const actions = element("div", "our-services-editor__actions");
@@ -142,7 +132,6 @@ class OurServicesEditor extends HTMLElement {
           edit.addEventListener("click", () => {
             editingId = service.id;
             titleInput.value = service.title;
-            descriptionInput.value = service.description || "";
             visibleInput.checked = service.is_visible;
             submit.textContent = "Save Changes";
             cancel.hidden = false;
@@ -192,7 +181,6 @@ class OurServicesEditor extends HTMLElement {
 
         const payload = {
           title: titleInput.value.trim(),
-          description: descriptionInput.value.trim(),
           is_visible: visibleInput.checked,
           updated_at: new Date().toISOString()
         };
