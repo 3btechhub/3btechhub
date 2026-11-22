@@ -2,6 +2,7 @@ import { supabase } from "./supabase-client.js";
 
 const loginUrl = new URL("../login/", window.location.href);
 const emailElement = document.getElementById("profile-email");
+const roleElement = document.getElementById("profile-role");
 const status = document.getElementById("profile-status");
 
 async function verifyProfileAccess() {
@@ -24,6 +25,21 @@ async function verifyProfileAccess() {
     }
 
     if (emailElement) emailElement.textContent = data.user.email || "";
+
+    const { data: roleData, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user.id)
+      .limit(1)
+      .maybeSingle();
+
+    if (roleError) {
+      console.error("Profile role lookup failed:", roleError);
+      if (roleElement) roleElement.textContent = "Unable to load";
+    } else if (roleElement) {
+      roleElement.textContent = roleData?.role || "No role assigned";
+    }
+
     document.documentElement.dataset.privateAccess = "granted";
     document.dispatchEvent(new Event("private-access-granted"));
 
