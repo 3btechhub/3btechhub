@@ -35,7 +35,6 @@ class SiteNavigation extends HTMLElement {
 
     const mainLinks = [
       { label: 'Home', path: './' },
-      { label: 'Login', path: 'login/' },
       { label: 'Profile', path: 'profile/' },
       { label: 'Dashboard', path: 'dashboard/' }
     ];
@@ -170,7 +169,7 @@ class SiteNavigation extends HTMLElement {
     }
   }
 }
-
+ 
 if (!customElements.get('site-navigation')) {
   customElements.define('site-navigation', SiteNavigation);
 }
