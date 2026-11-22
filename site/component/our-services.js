@@ -203,9 +203,10 @@ class OurServicesEditor extends HTMLElement {
             : supabase.from("our_services").insert(payload);
           const { error } = await query;
           if (error) throw error;
+          const wasEditing = editingId !== null;
           resetForm();
           await loadItems();
-          status.textContent = editingId ? "Service updated." : "Service added.";
+          status.textContent = wasEditing ? "Service updated." : "Service added.";
         } catch (saveError) {
           console.error("Service save failed:", saveError);
           status.textContent = "Unable to save service. Please try again.";
