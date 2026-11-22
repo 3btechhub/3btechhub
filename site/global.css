@@ -53,9 +53,6 @@
   --component-text: var(--color-text);
   --component-shadow: 0 1px 3px rgba(0,0,0,.06);
 }
-@media (prefers-color-scheme: dark) {
-  
-}
 :root[data-theme="light"] {
   color-scheme: light;
   --color-background: #ffffff;
@@ -162,7 +159,6 @@ label, .label { display: inline-block; margin-bottom: var(--space-1)}
 .dialog { width: min(100% - 32px, 520px); max-height: min(85vh, 720px); overflow: auto}
 .empty-state { display: grid; justify-items: center; gap: var(--space-2); padding: var(--space-10) var(--space-5); text-align: center; color: var(--color-muted); }
 .loading-state { display: flex; align-items: center; justify-content: center; gap: var(--space-3); padding: var(--space-6); color: var(--color-muted); }
-@media (min-width: 768px) {  }
 @media (max-width: 640px) {
   .grid-2, .grid-3 { grid-template-columns: minmax(0, 1fr); }
 }
@@ -414,8 +410,7 @@ html.dashboard-page.authenticated body{
 @media(max-width:360px){
   .dashboard__actions .button{flex:1 1 100%}
 }/* Page access visibility states */
-html.dashboard-page:not(.authenticated) body { visibility: hidden; }
-html.dashboard-page.authenticated body { visibility: visible; }/* Dashboard main tabs: pill buttons *//* Dashboard sub tabs: flat tab navigation */
+/* Dashboard main tabs: pill buttons *//* Dashboard sub tabs: flat tab navigation */
 
 /* GitHub Pages deployment retry trigger */
 
@@ -1125,10 +1120,6 @@ display:inline-flex;align-items:center;gap:8px
   --color-danger: #c0392b;
 }
 
-@media (prefers-color-scheme: dark) {
-  
-}
-
 /* One shared control baseline for every page and dashboard form. */
 :where(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
        select, textarea) {
@@ -1272,8 +1263,6 @@ width: 18px;
    Shared visual rules for Home, Account, Content and Dashboard.
    Page-specific rules above control layout only.
    ========================================================= */
-:root {
-}
 :root[data-theme="dark"] {
   color-scheme: dark;
   --color-background: #111111;
@@ -1344,13 +1333,10 @@ width: 18px;
   min-width: 0;
   overflow-wrap: anywhere;
 }
-@media (prefers-reduced-motion: reduce) {
-}
-
 /* =========================================================
    3B TECH HUB — SINGLE GLOBAL COMPONENT SYSTEM
-   One component style across Home, Account, Content and Dashboard.
-   Medium is default; optional size modifiers are Small and Big.
+   Shared component sizing and layout exceptions.
+   Shared visual treatments are defined once in FINAL GLOBAL VALUE NORMALIZATION.
    ========================================================= */
 :root {
   --component-control-height: 44px;
@@ -1364,79 +1350,40 @@ width: 18px;
   --component-padding-inline: 14px;
   --component-padding-block: 10px;
 }
-:is(.size-small, [data-size="small"]) { --component-control-height: var(--component-control-height-small); --component-padding-inline: var(--component-padding-inline-small); --component-padding-block: var(--component-padding-block-small); }
-:is(.size-medium, [data-size="medium"]) { --component-control-height: var(--component-control-height-medium); --component-padding-inline: var(--component-padding-inline-medium); --component-padding-block: var(--component-padding-block-medium); }
-:is(.size-big, [data-size="big"]) { --component-control-height: var(--component-control-height-big); --component-padding-inline: var(--component-padding-inline-big); --component-padding-block: var(--component-padding-block-big); }
+:is(.size-small, [data-size="small"]) {
+  --component-control-height: var(--component-control-height-small);
+  --component-padding-inline: var(--component-padding-inline-small);
+  --component-padding-block: var(--component-padding-block-small);
+}
+:is(.size-medium, [data-size="medium"]) {
+  --component-control-height: var(--component-control-height-medium);
+  --component-padding-inline: var(--component-padding-inline-medium);
+  --component-padding-block: var(--component-padding-block-medium);
+}
+:is(.size-big, [data-size="big"]) {
+  --component-control-height: var(--component-control-height-big);
+  --component-padding-inline: var(--component-padding-inline-big);
+  --component-padding-block: var(--component-padding-block-big);
+}
 
-/* One shared surface/card style. Page classes below are layout hooks only. */
-:is(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list, .dashboard__manager-form) {
-  border: var(--component-border) !important; border-radius: var(--component-card-radius) !important;
-  background: var(--component-surface) !important; color: var(--component-text) !important;
-  box-shadow: var(--component-shadow) !important; padding: 16px !important;
-}
-:is(.home__item, .dashboard__item, .content__item, .content__related-item, .dashboard__field-order-row, .dashboard__relation-group, .dashboard__option, .dashboard__role-options > label) {
-  border: var(--component-border) !important; border-radius: var(--component-radius) !important;
-  background: var(--component-surface-muted) !important; color: var(--component-text) !important;
-  box-shadow: none !important; padding: 12px !important;
-}
-
-/* One shared button style, including dashboard tabs and navigation actions. */
-:is(button, .button, .dashboard__tab, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .floating-navigation__toggle, .floating-navigation__theme, .floating-navigation__list a) {
-  min-height: var(--component-control-height) !important; padding: var(--component-padding-block) var(--component-padding-inline) !important;
-  border: var(--component-border) !important; border-radius: var(--component-radius) !important;
-  background: var(--component-surface) !important; color: var(--component-text) !important;
-  box-shadow: none !important; font: inherit; font-weight: 600; line-height: 1.4;
-  text-decoration: none; transition: var(--component-transition), transform var(--transition-fast);
-}
-:is(.button--primary, .dashboard__tab[aria-selected="true"]) {
-  border-color: var(--color-accent) !important; background: var(--color-accent) !important; color: var(--color-accent-contrast) !important;
-}
-.button--secondary { background: var(--component-surface-muted) !important; }
-.button--ghost { background: transparent !important; }
-.floating-navigation__toggle {
-  width: 58px;
-  height: 58px;
-  min-height: 58px !important;
+/* Account wrappers and dashboard tabs retain their layout-specific behavior. */
+.account-field {
   padding: 0 !important;
-  border-radius: 50% !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  gap: var(--space-2);
 }
+.account-field > input { flex: 1; min-width: 0; }
 :is(.dashboard__tabs, .dashboard__subtabs) { gap: var(--space-2); }
 .dashboard__tab { flex: 0 0 auto; white-space: nowrap; }
 
-/* One shared input/select/textarea style for every page and form. */
-:is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]), select, textarea) {
-  display: block; width: 100%; min-width: 0; min-height: var(--component-control-height) !important;
-  padding: var(--component-padding-block) var(--component-padding-inline) !important;
-  border: var(--component-border) !important; border-radius: var(--component-radius) !important;
-  background: var(--component-surface) !important; color: var(--component-text) !important;
-  box-shadow: none !important; font: inherit; line-height: 1.4; transition: var(--component-transition);
+/* File inputs need their own control height; they are not text inputs. */
+input[type="file"] {
+  min-height: var(--component-control-height) !important;
+  color: var(--component-text);
 }
-textarea { min-height: 112px !important; resize: vertical; }
-input[type="checkbox"], input[type="radio"] { accent-color: var(--color-accent); width: 18px; height: 18px; min-height: 18px !important; padding: 0 !important; }
-input[type="file"] { min-height: var(--component-control-height) !important; color: var(--component-text); }
-:is(input, select, textarea):focus-visible { outline: 2px solid var(--color-focus) !important; outline-offset: 2px; }
-
-/* Account input wrappers are layout-only; the input itself owns its style. */
-.account-field { padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; gap: var(--space-2); }
-.account-field > input { flex: 1; min-width: 0; }
-
-/* One shared label, badge and icon treatment. */
-:is(label, .label) { color: var(--component-text) !important; font-size: var(--font-size-sm) !important; font-weight: 600 !important; }
-.badge { display: inline-flex; align-items: center; gap: var(--space-1); padding: 3px 9px !important; border: var(--component-border) !important; border-radius: var(--radius-pill) !important; background: var(--component-surface-muted) !important; color: var(--component-text) !important; font-size: var(--font-size-xs); font-weight: 600; }
-:is([data-site-icon], .site-icon) { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; line-height: 0; vertical-align: middle; }
-:is([data-site-icon].site-icon svg, .site-icon svg) { display: block; width: 1.2em; height: 1.2em; max-width: none; }
-
-/* Shared text hierarchy and interaction states. */
-:is(.home__item-title, .dashboard__item-name, .content__related-item strong, .home__type-title) { color: var(--component-text); font-weight: 600; }
-:is(.home__status, .dashboard__status, .dashboard__hint, .dashboard__item-meta, .content__empty, .content__related-item small) { color: var(--color-muted); }
-:is(button:not(:disabled), .button, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item) { -webkit-tap-highlight-color: transparent; transition: var(--component-transition), transform var(--transition-fast); }
-:is(button:not(:disabled), .button, .dashboard__tab):active { transform: translateY(1px); }
-:is(button, .button, .dashboard__tab, input, select, textarea):focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
-:is(button:disabled, input:disabled, select:disabled, textarea:disabled) { opacity: .6; cursor: not-allowed; }
-@media (max-width: 640px) { :is(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list, .dashboard__manager-form) { padding: 14px !important; } }
-@media (prefers-reduced-motion: reduce) { :is(button, .button, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item) { transition: none !important; transform: none !important; } }
-
-
 /* =========================================================
    NAMED COMPONENT EXCEPTIONS
    Unique-purpose styles stay centralized here in global.css.
@@ -1538,7 +1485,7 @@ h3 { font-size: var(--font-size-lg) !important; }
 }
 
 /* Shared buttons: one base size and appearance; named button states remain. */
-:is(button, .button, .dashboard__tab, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .floating-navigation__theme, .floating-navigation__list a) {
+:is(button, .button, .dashboard__tab, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .floating-navigation__toggle, .floating-navigation__theme, .floating-navigation__list a) {
   min-height: var(--component-control-height) !important;
   padding: var(--component-padding-block) var(--component-padding-inline) !important;
   border: var(--component-border) !important;
@@ -1550,6 +1497,7 @@ h3 { font-size: var(--font-size-lg) !important; }
   font-weight: 600;
   line-height: 1.4;
   text-decoration: none;
+  transition: var(--component-transition), transform var(--transition-fast);
 }
 :is(.button--primary, .dashboard__tab[aria-selected="true"]) {
   border-color: var(--color-accent) !important;
@@ -1582,6 +1530,7 @@ h3 { font-size: var(--font-size-lg) !important; }
   box-shadow: none !important;
   font: inherit;
   line-height: 1.4;
+  transition: var(--component-transition);
 }
 textarea { min-height: 112px !important; resize: vertical; }
 :is(input[type="checkbox"], input[type="radio"]) {
