@@ -23,20 +23,7 @@ async function verifyProfileAccess() {
     }
 
     if (emailElement) emailElement.textContent = data.user.email || "";
-
-    const { data: roleData, error: roleError } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .limit(1)
-      .maybeSingle();
-
-    if (roleError) {
-      console.error("Profile role lookup failed:", roleError);
-      if (roleElement) roleElement.textContent = "Unable to load";
-    } else if (roleElement) {
-      roleElement.textContent = roleData?.role || "No role assigned";
-    }
+    if (roleElement) roleElement.textContent = data.user.app_metadata?.role || "No role assigned";
 
     const page = document.getElementById("page-content");
     if (page) page.hidden = false;
