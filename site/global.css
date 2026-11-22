@@ -244,7 +244,6 @@ label, .label { display: inline-block; margin-bottom: var(--space-1)}
   min-width:0;
   overflow-wrap:anywhere;
 }
-.home__empty{margin:0;padding:var(--space-3);color:var(--color-muted);font-size:var(--font-size-sm)}
 .home__status{margin:0;color:var(--color-muted);font-size:var(--font-size-sm)}
 @media(max-width:720px){.home{padding-block:var(--space-4) var(--space-10)}}
 
@@ -291,7 +290,6 @@ html.dashboard-page.authenticated body{
 .dashboard__tab{
   flex:0 0 auto;
 }
-.dashboard__layout{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-4);align-items:start}
 .dashboard__panel{
   display:flex;
   flex-direction:column;
@@ -949,7 +947,7 @@ html[dir="rtl"] body {
   direction: inherit}
 :where(h1, h2, h3, h4, h5, h6, p, label, legend, li, th, td,
        .page-header, .home__type-title, .home__item-title,
-       .home__item-caption, .dashboard__item-info, .dashboard__item-name,
+       .dashboard__item-info, .dashboard__item-name,
        .dashboard__item-meta, .dashboard__status, .dashboard__hint,
        .dashboard__empty, .text-muted) {
   text-align: start}
@@ -1071,8 +1069,7 @@ html.site-preferences-pending .floating-navigation {
 
 /* Home item navigation and content listing/detail pages */
 .home__item{cursor:pointer}
-.home__view-all,.content__external,.content__back,.content__home{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%}
-.home__view-all{justify-self:start}
+.content__external,.content__back,.content__home{display:inline-flex;align-items:center;justify-content:center;width:max-content;max-width:100%}
 .content-page{padding-block:var(--space-5) var(--space-10)}
 #content-root{display:grid;gap:var(--space-4)}
 .content__title{margin:0;font-size:var(--font-size-xl)}
@@ -1307,7 +1304,7 @@ width: 18px;
 }/* Dashboard main tabs retain their intentional pill navigation shape. *//* Shared field styling for all page and dashboard forms. */
 
 /* Unified interaction states with no decorative lift or glossy effects. */
-:is(button:not(:disabled), .button, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle) {
+:is(button:not(:disabled), .button, .content__external, .content__back, .content__home,  .home__map-link, .dashboard__tab, .home__item, .dashboard__item, .content__item, .content__related-item, .floating-navigation__toggle) {
   -webkit-tap-highlight-color: transparent}
 :is(button:disabled, .button:disabled) {
   opacity: .6;
@@ -1485,7 +1482,7 @@ h3 { font-size: var(--font-size-lg) !important; }
 }
 
 /* Shared buttons: one base size and appearance; named button states remain. */
-:is(button, .button, .dashboard__tab, .content__external, .content__back, .content__home, .home__view-all, .home__map-link, .floating-navigation__toggle, .floating-navigation__theme, .floating-navigation__list a) {
+:is(button, .button, .dashboard__tab, .content__external, .content__back, .content__home,  .home__map-link, .floating-navigation__toggle, .floating-navigation__theme, .floating-navigation__list a) {
   min-height: var(--component-control-height) !important;
   padding: var(--component-padding-block) var(--component-padding-inline) !important;
   border: var(--component-border) !important;
