@@ -18,6 +18,10 @@ const dashboardRequested = params.get("next") === "dashboard";
 const dashboardUrl = new URL("../../dashboard/overview/", window.location.href);
 const profileUrl = new URL("../profile/", window.location.href);
 
+if (params.get("error") === "verification" && status) {
+  status.textContent = "We couldn't verify your account. Please try again.";
+}
+
 async function hasOwnerAccess(user) {
   const { data, error } = await supabase
     .from("user_roles")
@@ -41,7 +45,7 @@ async function routeSignedInUser(user) {
       window.location.replace(profileUrl.href);
       return;
     } catch {
-      status.textContent = "অ্যাকাউন্টের অনুমতি যাচাই করা যাচ্ছে না।";
+      status.textContent = "Unable to verify Dashboard access. Please try again.";
       setLoading(false);
       return;
     }
@@ -56,32 +60,43 @@ form?.addEventListener("submit", async event => {
 
   setLoading(true);
 
-  try {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: emailInput.value.trim(),
-      password: passwordInput.value
-    });
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: emailInput.value.trim(),
+    password: passwordInput.value
+  });
 
-    if (error) throw error;
+  if (signInError) {
+    const isConnectionError =
+      signInError.name === "AuthRetryableFetchError" ||
+      !signInError.status ||
+      signInError.status >= 500;
 
-    const { data, error: userError } = await supabase.auth.getUser();
-    if (userError || !data.user) throw userError || new Error("Unable to verify account.");
-
-    await routeSignedInUser(data.user);
-  } catch {
-    status.textContent = "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।";
+    status.textContent = isConnectionError
+      ? "Unable to connect. Check your internet connection and try again."
+      : "Email or password is incorrect. Please try again.";
     setLoading(false);
+    return;
   }
+
+  const { data, error: userError } = await supabase.auth.getUser();
+  if (userError || !data.user) {
+    status.textContent = "Sign-in succeeded, but your account could not be verified. Please try again.";
+    setLoading(false);
+    return;
+  }
+
+  await routeSignedInUser(data.user);
 });
 
 async function redirectIfAlreadySignedIn() {
   const { data, error } = await supabase.auth.getUser();
+
   if (!error && data.user) {
     await routeSignedInUser(data.user);
     return;
   }
 
-  if (error && status) status.textContent = "অ্যাকাউন্ট যাচাই করা যায়নি। আবার চেষ্টা করুন।";
+  // A missing session is normal on the Login page; do not show an error.
   document.documentElement.dataset.pageAuthReady = "true";
   document.dispatchEvent(new Event("page-auth-ready"));
 }
