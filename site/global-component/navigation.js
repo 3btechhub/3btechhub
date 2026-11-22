@@ -37,6 +37,8 @@ class SiteNavigation extends HTMLElement {
     });
 
     this.replaceChildren(button, menu);
+    this.dataset.componentReady = 'true';
+    this.dispatchEvent(new Event('component-ready'));
   }
 }
 
