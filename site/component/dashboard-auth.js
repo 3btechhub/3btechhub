@@ -72,4 +72,9 @@ supabase.auth.onAuthStateChange(event => {
   if (event === "SIGNED_OUT") redirectToLogin();
 });
 
-verifyDashboardAccess();
+const accessTimeout = window.setTimeout(() => {
+  console.error("Dashboard access verification timed out.");
+  redirectToLogin();
+}, 12000);
+
+verifyDashboardAccess().finally(() => window.clearTimeout(accessTimeout));
