@@ -246,6 +246,13 @@ site-navigation {
 }
 
 
+/* Center the login form within the page area. */
+.page-content:has(> .account-auth) {
+  min-height: 100vh;
+  display: grid;
+  align-items: center;
+}
+
 /* Account Login */
 .account-auth {
   width: min(420px, calc(100% - 32px));
