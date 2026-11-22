@@ -33,7 +33,7 @@ function start(){
   Services:[["slug","Slug"]],Products:[["slug","Slug"]],Technician:[["slug","Slug"],["skills","Skills"]],
   Workshop:[["slug","Slug"],["location","Location"],["map","Map URL"]],
   Gallery:[["slug","Slug"]],Contacts:[["label","Label"],["value","Value"]],
-  Location:[["location","Location"],["map","Map URL"]],
+  Location:[],
   Images:[["image_url","Image URL"]],Videos:[["image_url","Image URL"],["file_title","File Title"]]
  };
  const icons={Services:"module.services",Products:"module.products",Technician:"module.technician",Workshop:"module.workshop",Gallery:"module.gallery",Contacts:"module.contacts",Location:"field.location",Images:"module.images",Videos:"module.videos"};
@@ -105,7 +105,7 @@ function start(){
   const title=node("h3","",item?"Edit "+state.module:"Create "+state.module);form.append(title);
   const name=field(form,"Name","name",item?.name||"","text",true);
   const moduleFields={};
-  (fields[state.module]||[]).forEach(([key,label])=>{moduleFields[key]=field(form,label,key,item?.[key]||"",key==="map"||key==="image_url"?"url":"text",false)});
+  (fields[state.module]||[]).forEach(([key,label])=>{moduleFields[key]=field(form,label,key,item?.[key]||"",key==="map"?"url":"text",false)});
   let upload=null;
   if(["Images","Videos"].includes(state.module)){
    const wrap=node("div","dashboard__field");const label=node("label","","Upload");upload=node("input");upload.type="file";upload.accept=state.module==="Images"?"image/*":"video/*";label.append(upload);wrap.append(label);form.append(wrap);
@@ -117,7 +117,7 @@ function start(){
   if(slugInput)slugInput.addEventListener("input",()=>slugInput.dataset.edited="true");
   const rolesWrap=node("div","dashboard__field");rolesWrap.append(node("label","","Visibility — Roles"));
   const roles=node("div","dashboard__role-options");
-  state.roles.forEach(role=>{const label=node("label","dashboard__option");const cb=node("input");cb.type="checkbox";cb.value=role.name;cb.checked=role.name==="Owner";label.append(cb,node("span","",role.name));roles.append(label)});
+  state.roles.forEach(role=>{const label=node("label","dashboard__option");const cb=node("input");cb.type="checkbox";cb.value=role.name;cb.checked=role.name==="Owner"||role.name==="Visitor";label.append(cb,node("span","",role.name));roles.append(label)});
   rolesWrap.append(roles);form.append(rolesWrap);
   const actions=actionRow(form);form.append(actions);
   if(item){const manage=button("Manage Relations","button button--secondary",()=>openRelations(item));actions.append(manage)}
@@ -190,39 +190,74 @@ function start(){
  async function renderAdmin(panel){
   panel.replaceChildren(node("h2","",state.module));
   const form=node("form","dashboard__manager-form"),list=node("div","dashboard__list");
-  const name=field(form,state.module+" name","name");
+  const name=field(form,state.module+" name","name");name.required=true;
   let email=null,roleSelect=null,permArea=null;
-  if(state.module==="User"){email=field(form,"Email","email","","email");roleSelect=node("select");roleSelect.setAttribute("aria-label","Role");form.append(roleSelect)}
+  if(state.module==="User"){
+   email=field(form,"Email","email","","email");email.required=true;
+   roleSelect=node("select");roleSelect.setAttribute("aria-label","Role");form.append(roleSelect);
+  }
   if(state.module==="Role"){permArea=node("div","dashboard__relation-options");form.append(node("p","","Permissions"),permArea)}
-  const actions=node("div","dashboard__actions");const save=node("button","button button--primary","Save");save.type="submit";actions.append(save);form.append(actions);
-  const create=button("Create","button button--secondary",()=>{form.hidden=false;form.reset();form.dataset.id="";form.dataset.edit="";if(name)name.disabled=false});
+  const actions=node("div","dashboard__actions"),save=node("button","button button--primary","Save");save.type="submit";actions.append(save);form.append(actions);
+  const create=button("Create","button button--secondary",()=>{form.hidden=false;form.reset();form.dataset.id="";form.dataset.edit="";name.disabled=false;if(email)email.disabled=false});
   panel.append(create,form,list);form.hidden=true;
   async function load(){
    list.replaceChildren();
    if(state.module==="User"){
-    const [{data:roles,error:rErr},users]=await Promise.all([supabase.from("roles").select("name").order("name"),callUserAdmin({action:"list",page:1,perPage:100})]);if(rErr)throw rErr;
-    roleSelect.replaceChildren();(roles||[]).forEach(r=>{const o=node("option","",r.name);o.value=r.name;roleSelect.append(o)});
-    (users.users||[]).forEach(u=>{const row=node("div","dashboard__item", (u.name||u.email)+" · "+u.role);if(!u.protected)row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=u.id;form.dataset.edit="true";name.value=u.name||"";email.value=u.email;email.disabled=true;roleSelect.value=u.role}));list.append(row)});
+    const [{data:roles,error:rErr},users]=await Promise.all([supabase.from("roles").select("name").order("name"),callUserAdmin({action:"list",page:1,perPage:100})]);
+    if(rErr)throw rErr;
+    roleSelect.replaceChildren();(roles||[]).filter(r=>r.name!=="Owner").forEach(r=>{const o=node("option","",r.name);o.value=r.name;roleSelect.append(o)});
+    if([...roleSelect.options].some(o=>o.value==="Visitor"))roleSelect.value="Visitor";
+    (users.users||[]).forEach(u=>{
+     const row=node("div","dashboard__item",(u.name||u.email)+" · "+u.role);
+     if(!u.protected){
+      row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=u.id;form.dataset.edit="true";name.value=u.name||"";email.value=u.email;email.disabled=true;roleSelect.value=u.role}));
+      row.append(button("Delete","button button--ghost",async()=>{if(!confirm("Delete this user account?"))return;try{await callUserAdmin({action:"delete",userId:u.id});say("User deleted");await load()}catch(e){say(e.message,true)}}));
+     }
+     list.append(row);
+    });
    }else if(state.module==="Role"){
-    const [{data:rows,error},{data:perms,error:pErr}]=await Promise.all([supabase.from("roles").select("name,is_permanent").order("name"),supabase.from("permissions").select("name").order("name")]);if(error)throw error;if(pErr)throw pErr;
-    permArea.replaceChildren();(perms||[]).forEach(p=>{const label=node("label","dashboard__option");const cb=node("input");cb.type="checkbox";cb.value=p.name;label.append(cb,node("span","",p.name));permArea.append(label)});
-    (rows||[]).forEach(r=>{const row=node("div","dashboard__item",r.name+(r.is_permanent?" · Permanent":""));row.append(button("Edit","button button--ghost",async()=>{form.hidden=false;form.dataset.id=r.name;form.dataset.edit="true";name.value=r.name;name.disabled=!!r.is_permanent;const {data}=await supabase.from("role_permissions").select("permission_name").eq("role_name",r.name);const selected=new Set((data||[]).map(x=>x.permission_name));permArea.querySelectorAll("input").forEach(x=>x.checked=selected.has(x.value))}));list.append(row)});
+    const [{data:rows,error},{data:perms,error:pErr}]=await Promise.all([supabase.from("roles").select("name,is_permanent").order("name"),supabase.from("permissions").select("name").order("name")]);
+    if(error)throw error;if(pErr)throw pErr;
+    permArea.replaceChildren();(perms||[]).forEach(p=>{const label=node("label","dashboard__option"),cb=node("input");cb.type="checkbox";cb.value=p.name;label.append(cb,node("span","",p.name));permArea.append(label)});
+    (rows||[]).forEach(r=>{
+     const row=node("div","dashboard__item",r.name+(r.is_permanent?" · Permanent":""));
+     row.append(button("Edit","button button--ghost",async()=>{form.hidden=false;form.dataset.id=r.name;form.dataset.edit="true";name.value=r.name;name.disabled=!!r.is_permanent;const {data,error}=await supabase.from("role_permissions").select("permission_name").eq("role_name",r.name);if(error){say(error.message,true);return}const selected=new Set((data||[]).map(x=>x.permission_name));permArea.querySelectorAll("input").forEach(x=>x.checked=selected.has(x.value))}));
+     if(!r.is_permanent)row.append(button("Delete","button button--ghost",async()=>{if(!confirm("Delete this role?"))return;try{const {count,error}=await supabase.from("user_roles").select("*",{count:"exact",head:true}).eq("role",r.name);if(error)throw error;if(count){say("Reassign users before deleting this role.",true);return}const {error:rpError}=await supabase.from("role_permissions").delete().eq("role_name",r.name);if(rpError)throw rpError;const {error:delError}=await supabase.from("roles").delete().eq("name",r.name);if(delError)throw delError;say("Role deleted");await load()}catch(e){say(e.message,true)}}));
+     list.append(row);
+    });
    }else{
     const {data,error}=await supabase.from("permissions").select("name,is_permanent").order("name");if(error)throw error;
-    (data||[]).forEach(r=>{const row=node("div","dashboard__item",r.name+(r.is_permanent?" · Permanent":""));if(!r.is_permanent)row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=r.name;form.dataset.edit="true";name.value=r.name}));list.append(row)});
+    (data||[]).forEach(r=>{
+     const row=node("div","dashboard__item",r.name+(r.is_permanent?" · Permanent":""));
+     if(!r.is_permanent){
+      row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=r.name;form.dataset.edit="true";name.value=r.name}));
+      row.append(button("Delete","button button--ghost",async()=>{if(!confirm("Delete this permission?"))return;try{const {count,error}=await supabase.from("role_permissions").select("*",{count:"exact",head:true}).eq("permission_name",r.name);if(error)throw error;if(count){say("Remove this permission from roles before deleting it.",true);return}const {error:delError}=await supabase.from("permissions").delete().eq("name",r.name);if(delError)throw delError;say("Permission deleted");await load()}catch(e){say(e.message,true)}}));
+     }
+     list.append(row);
+    });
    }
   }
   form.addEventListener("submit",async e=>{
-   e.preventDefault();try{
+   e.preventDefault();
+   try{
     if(state.module==="User"){
-     if(form.dataset.edit==="true"){await callUserAdmin({action:"update",userId:form.dataset.id,name:name.value.trim()});await callUserAdmin({action:"set-role",userId:form.dataset.id,role:roleSelect.value})}
-     else await callUserAdmin({action:"invite",email:email.value.trim(),name:name.value.trim(),role:roleSelect.value});
+     if(form.dataset.edit==="true"){
+      await callUserAdmin({action:"update",userId:form.dataset.id,name:name.value.trim()});
+      await callUserAdmin({action:"set-role",userId:form.dataset.id,role:roleSelect.value});
+     }else await callUserAdmin({action:"invite",email:email.value.trim(),name:name.value.trim(),role:roleSelect.value});
     }else if(state.module==="Role"){
-     let role=form.dataset.id;if(form.dataset.edit!=="true"){role=name.value.trim();const {error}=await supabase.from("roles").insert({name:role});if(error)throw error}
+     let role=form.dataset.id;
+     if(form.dataset.edit!=="true"){role=name.value.trim();const {error}=await supabase.from("roles").insert({name:role});if(error)throw error}
      const {error:clearError}=await supabase.from("role_permissions").delete().eq("role_name",role);if(clearError)throw clearError;
-     const selected=[...permArea.querySelectorAll("input:checked")].map(x=>x.value);if(selected.length){const {error}=await supabase.from("role_permissions").insert(selected.map(permission_name=>({role_name:role,permission_name})));if(error)throw error}
+     const selected=[...permArea.querySelectorAll("input:checked")].map(x=>x.value);
+     if(selected.length){const {error}=await supabase.from("role_permissions").insert(selected.map(permission_name=>({role_name:role,permission_name})));if(error)throw error}
     }else{
-     const result=form.dataset.edit==="true"?await supabase.from("permissions").update({name:name.value.trim()}).eq("name",form.dataset.id):await supabase.from("permissions").insert({name:name.value.trim()});if(result.error)throw result.error;
+     if(form.dataset.edit==="true"){
+      const oldName=form.dataset.id;
+      const {count,error:countError}=await supabase.from("role_permissions").select("*",{count:"exact",head:true}).eq("permission_name",oldName);if(countError)throw countError;
+      if(count){say("Remove this permission from roles before renaming it.",true);return}
+      const {error}=await supabase.from("permissions").update({name:name.value.trim()}).eq("name",oldName);if(error)throw error;
+     }else{const {error}=await supabase.from("permissions").insert({name:name.value.trim()});if(error)throw error}
     }
     form.hidden=true;form.reset();form.dataset.id="";form.dataset.edit="";name.disabled=false;if(email)email.disabled=false;say("Saved");await load();
    }catch(err){say(err.message,true)}
