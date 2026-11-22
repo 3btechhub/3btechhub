@@ -4,10 +4,27 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Home</title>
-  <meta http-equiv="refresh" content="0; url=overview/">
-  <script>
-    window.location.replace(new URL('overview/', window.location.href).href);
-  </script>
+  <style>
+.skeleton-screen{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;gap:24px;padding:24px;overflow:hidden;background:#fff}
+.skeleton-line,.skeleton-block,.skeleton-circle{position:relative;overflow:hidden;background:#ededed}
+.skeleton-line:after,.skeleton-block:after,.skeleton-circle:after{position:absolute;inset:0;content:"";transform:translateX(-100%);background:linear-gradient(90deg,transparent,rgb(255 255 255 / 75%),transparent);animation:skeleton-shimmer 1.35s infinite}
+.skeleton-line{height:14px;border-radius:8px}
+.skeleton-circle{width:48px;height:48px;flex:none;border-radius:50%}
+.skeleton-block{height:92px;border-radius:12px}
+.skeleton-heading{width:46%;height:24px;margin:8px auto 20px}
+.skeleton-short{width:34%}.skeleton-medium{width:62%}.skeleton-wide{width:100%}
+.skeleton-row{display:flex;align-items:center;gap:14px}
+.skeleton-stack{display:flex;flex-direction:column;gap:14px}
+@keyframes skeleton-shimmer{100%{transform:translateX(100%)}}
+@media(prefers-reduced-motion:reduce){.skeleton-line:after,.skeleton-block:after,.skeleton-circle:after{animation:none}}
+</style>
 </head>
-<body></body>
+<body>
+  <div class="skeleton-screen" aria-hidden="true">
+  <div class="skeleton-line skeleton-heading"></div>
+  <div class="skeleton-row"><div class="skeleton-circle"></div><div class="skeleton-stack" style="flex:1"><div class="skeleton-line skeleton-medium"></div><div class="skeleton-line skeleton-short"></div></div></div>
+  <div class="skeleton-stack"><div class="skeleton-block"></div><div class="skeleton-block"></div><div class="skeleton-block"></div></div>
+</div>
+  <script>window.location.replace(new URL('overview/', window.location.href).href);</script>
+</body>
 </html>
