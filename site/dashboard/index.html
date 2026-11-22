@@ -36,7 +36,7 @@ function start(){
   Location:[],
   Images:[["image_url","Image URL"]],Videos:[["image_url","Image URL"],["file_title","File Title"]]
  };
- const icons={Services:"module.services",Products:"module.products",Technician:"module.technician",Workshop:"module.workshop",Gallery:"module.gallery",Contacts:"module.contacts",Location:"field.location",Images:"module.images",Videos:"module.videos"};
+ const detailFields={Services:[],Products:[],Technician:[["skills","Skills"]],Workshop:[["location","Location"],["map","Map URL"]],Gallery:[],Contacts:[["label","Label"],["value","Value"]],Location:[],Images:[["image_url","Image URL"]],Videos:[["file_title","File Title"],["image_url","Image URL"]]};
  const state={category:"Content",module:"Services",items:[],roles:[],selected:null,related:new Set(),busy:false};
  const status=$("dashboard-status");
  const say=(message,error=false)=>{status.textContent=message||"";status.dataset.state=error?"error":message?"success":"info"};
@@ -117,7 +117,7 @@ function start(){
   if(slugInput)slugInput.addEventListener("input",()=>slugInput.dataset.edited="true");
   const rolesWrap=node("div","dashboard__field");rolesWrap.append(node("label","","Visibility — Roles"));
   const roles=node("div","dashboard__role-options");
-  state.roles.forEach(role=>{const label=node("label","dashboard__option");const cb=node("input");cb.type="checkbox";cb.value=role.name;cb.checked=role.name==="Owner"||role.name==="Visitor";label.append(cb,node("span","",role.name));roles.append(label)});
+  state.roles.forEach(role=>{const label=node("label","dashboard__option");const cb=node("input");cb.type="checkbox";cb.value=role.name;cb.checked=role.name==="Owner"||role.name==="Visitor"||role.name==="Visitor";label.append(cb,node("span","",role.name));roles.append(label)});
   rolesWrap.append(roles);form.append(rolesWrap);
   const actions=actionRow(form);form.append(actions);
   if(item){const manage=button("Manage Relations","button button--secondary",()=>openRelations(item));actions.append(manage)}
@@ -221,7 +221,7 @@ function start(){
     permArea.replaceChildren();(perms||[]).forEach(p=>{const label=node("label","dashboard__option"),cb=node("input");cb.type="checkbox";cb.value=p.name;label.append(cb,node("span","",p.name));permArea.append(label)});
     (rows||[]).forEach(r=>{
      const row=node("div","dashboard__item",r.name+(r.is_permanent?" · Permanent":""));
-     row.append(button("Edit","button button--ghost",async()=>{form.hidden=false;form.dataset.id=r.name;form.dataset.edit="true";name.value=r.name;name.disabled=!!r.is_permanent;const {data,error}=await supabase.from("role_permissions").select("permission_name").eq("role_name",r.name);if(error){say(error.message,true);return}const selected=new Set((data||[]).map(x=>x.permission_name));permArea.querySelectorAll("input").forEach(x=>x.checked=selected.has(x.value))}));
+     row.append(button("Edit","button button--ghost",async()=>{form.hidden=false;form.dataset.id=r.name;form.dataset.edit="true";name.value=r.name;name.disabled=true;const {data,error}=await supabase.from("role_permissions").select("permission_name").eq("role_name",r.name);if(error){say(error.message,true);return}const selected=new Set((data||[]).map(x=>x.permission_name));permArea.querySelectorAll("input").forEach(x=>x.checked=selected.has(x.value))}));
      if(!r.is_permanent)row.append(button("Delete","button button--ghost",async()=>{if(!confirm("Delete this role?"))return;try{const {count,error}=await supabase.from("user_roles").select("*",{count:"exact",head:true}).eq("role",r.name);if(error)throw error;if(count){say("Reassign users before deleting this role.",true);return}const {error:rpError}=await supabase.from("role_permissions").delete().eq("role_name",r.name);if(rpError)throw rpError;const {error:delError}=await supabase.from("roles").delete().eq("name",r.name);if(delError)throw delError;say("Role deleted");await load()}catch(e){say(e.message,true)}}));
      list.append(row);
     });
@@ -271,7 +271,7 @@ function start(){
   const actions=node("div","dashboard__actions");const save=node("button","button button--primary","Save");save.type="submit";actions.append(save);form.append(actions);
   const create=button("Create","button button--secondary",()=>{form.hidden=false;form.reset();form.dataset.id=""});
   panel.append(create,form,list);form.hidden=true;
-  const load=async()=>{const {data,error}=await supabase.from(table).select("id,name,is_permanent").eq("category",state.module).order("name");if(error)throw error;list.replaceChildren();(data||[]).forEach(x=>{const row=node("div","dashboard__item",x.name+(x.is_permanent?" · Permanent":""));if(!x.is_permanent)row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=x.id;name.value=x.name}));list.append(row)})};
+  const load=async()=>{const {data,error}=await supabase.from(table).select("id,name,is_permanent").eq("category",state.module).order("name");if(error)throw error;list.replaceChildren();(data||[]).forEach(x=>{const row=node("div","dashboard__item",x.name+(x.is_permanent?" · Permanent":""));if(!x.is_permanent){row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=x.id;name.value=x.name}));row.append(button("Delete","button button--ghost",async()=>{if(!confirm("Delete this option?"))return;const {error}=await supabase.from(table).delete().eq("id",x.id);if(error)say(error.message,true);else{say("Deleted");load()}}))}list.append(row)})};
   form.addEventListener("submit",async e=>{e.preventDefault();const result=form.dataset.id?await supabase.from(table).update({name:name.value.trim()}).eq("id",form.dataset.id):await supabase.from(table).insert({category:state.module,name:name.value.trim()});if(result.error)say(result.error.message,true);else{form.hidden=true;form.reset();form.dataset.id="";say("Saved");load()}});
   await load();
  }
@@ -299,17 +299,32 @@ function start(){
  async function renderHomepageManager(panel){
   panel.replaceChildren(node("h2","","Homepage Management"));
   const {data,error}=await supabase.from("homepage_module_settings").select("module,is_enabled,sort_order").order("sort_order");if(error)throw error;
-  data.forEach(item=>{const row=node("div","dashboard__item",item.module);const select=node("select");[["true","Show"],["false","Hide"]].forEach(([v,l])=>{const o=node("option","",l);o.value=v;select.append(o)});select.value=String(item.is_enabled);select.addEventListener("change",async()=>{const {error}=await supabase.from("homepage_module_settings").update({is_enabled:select.value==="true",updated_at:new Date().toISOString()}).eq("module",item.module);if(error)say(error.message,true);else say("Saved")});row.append(select);panel.append(row)});
+  const list=node("div","dashboard__list");panel.append(list);
+  (data||[]).forEach((item,index)=>{
+   const row=node("div","dashboard__item"),name=node("strong","",item.module),toggle=node("select");
+   [["true","Show"],["false","Hide"]].forEach(([v,l])=>{const o=node("option","",l);o.value=v;toggle.append(o)});
+   toggle.value=String(item.is_enabled);
+   toggle.addEventListener("change",async()=>{const {error}=await supabase.from("homepage_module_settings").update({is_enabled:toggle.value==="true",updated_at:new Date().toISOString()}).eq("module",item.module);if(error)say(error.message,true);else say("Saved")});
+   row.append(name,toggle);
+   row.append(button("↑","button button--ghost",async()=>{if(index===0)return;const other=data[index-1];const {error}=await supabase.from("homepage_module_settings").update({sort_order:other.sort_order,updated_at:new Date().toISOString()}).eq("module",item.module);if(error){say(error.message,true);return}const {error:e2}=await supabase.from("homepage_module_settings").update({sort_order:item.sort_order,updated_at:new Date().toISOString()}).eq("module",other.module);if(e2)say(e2.message,true);else renderHomepageManager(panel)}));
+   row.append(button("↓","button button--ghost",async()=>{if(index>=data.length-1)return;const other=data[index+1];const {error}=await supabase.from("homepage_module_settings").update({sort_order:other.sort_order,updated_at:new Date().toISOString()}).eq("module",item.module);if(error){say(error.message,true);return}const {error:e2}=await supabase.from("homepage_module_settings").update({sort_order:item.sort_order,updated_at:new Date().toISOString()}).eq("module",other.module);if(e2)say(e2.message,true);else renderHomepageManager(panel)}));
+   list.append(row);
+  });
  }
  async function renderDetailsManager(panel){
   panel.replaceChildren(node("h2","","Details Management"));
-  const select=node("select");Object.keys(fields).forEach(module=>{const o=node("option","",module);o.value=module;select.append(o)});
+  const select=node("select");Object.keys(detailFields).forEach(module=>{const o=node("option","",module);o.value=module;select.append(o)});
   const list=node("div","dashboard__field-order-list"),save=button("Save Order","button button--primary",async()=>{
    const order=[...list.querySelectorAll("[data-key]")].map(x=>x.dataset.key);
    const {error}=await supabase.from("module_field_orders").upsert({module:select.value,field_order:order,updated_at:new Date().toISOString()},{onConflict:"module"});
    if(error)say(error.message,true);else say("Saved");
   });
-  const draw=async()=>{list.replaceChildren();const {data,error}=await supabase.from("module_field_orders").select("field_order").eq("module",select.value).maybeSingle();if(error)throw error;const available=fields[select.value]||[];const order=Array.isArray(data?.field_order)?data.field_order:[];const keys=[...order.filter(k=>available.some(x=>x[0]===k)),...available.map(x=>x[0]).filter(k=>!order.includes(k))];keys.forEach((key,index)=>{const row=node("div","dashboard__field-order-row");row.dataset.key=key;row.append(node("span","",available.find(x=>x[0]===key)?.[1]||key));row.append(button("↑","button button--ghost",()=>{if(index>0){const a=list.children[index-1];list.insertBefore(row,a)}}),button("↓","button button--ghost",()=>{if(index<list.children.length-1)list.insertBefore(list.children[index+1],row)}));list.append(row)})};
+  const draw=async()=>{
+   list.replaceChildren();const {data,error}=await supabase.from("module_field_orders").select("field_order").eq("module",select.value).maybeSingle();if(error)throw error;
+   const available=detailFields[select.value]||[],order=Array.isArray(data?.field_order)?data.field_order:[];
+   const keys=[...order.filter(k=>available.some(x=>x[0]===k)),...available.map(x=>x[0]).filter(k=>!order.includes(k))];
+   keys.forEach((key,index)=>{const row=node("div","dashboard__field-order-row");row.dataset.key=key;row.append(node("span","",available.find(x=>x[0]===key)?.[1]||key));row.append(button("↑","button button--ghost",()=>{if(index>0)list.insertBefore(row,list.children[index-1])}),button("↓","button button--ghost",()=>{if(index<list.children.length-1)list.insertBefore(list.children[index+1],row)}));list.append(row)});
+  };
   select.addEventListener("change",()=>draw().catch(e=>say(e.message,true)));panel.append(select,list,save);await draw();
  }
  async function renderIconManager(panel){
@@ -323,7 +338,7 @@ function start(){
   const save=node("button","button button--primary","Save");save.type="submit";form.append(save);
   const create=button("Create","button button--secondary",()=>{form.hidden=false;form.reset();key.disabled=false;active.checked=true;form.dataset.id=""});
   panel.append(create,form,list);form.hidden=true;
-  const load=async()=>{const {data,error}=await supabase.from("site_svg_icons").select("id,icon_key,label,category,svg_code,description,is_active").order("category").order("icon_key");if(error)throw error;list.replaceChildren();(data||[]).forEach(x=>{const row=node("div","dashboard__item",x.label+" · "+x.icon_key);row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=x.id;key.value=x.icon_key;key.disabled=true;label.value=x.label;category.value=x.category;textarea.value=x.svg_code;desc.value=x.description||"";active.checked=x.is_active}));list.append(row)})};
+  const load=async()=>{const {data,error}=await supabase.from("site_svg_icons").select("id,icon_key,label,category,svg_code,description,is_active").order("category").order("icon_key");if(error)throw error;list.replaceChildren();(data||[]).forEach(x=>{const row=node("div","dashboard__item",x.label+" · "+x.icon_key);row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=x.id;key.value=x.icon_key;key.disabled=true;label.value=x.label;category.value=x.category;textarea.value=x.svg_code;desc.value=x.description||"";active.checked=x.is_active}));row.append(button("Delete","button button--ghost",async()=>{if(!confirm("Delete this icon?"))return;const {error}=await supabase.from("site_svg_icons").delete().eq("id",x.id);if(error)say(error.message,true);else{say("Deleted");load()}}));list.append(row)})};
   form.addEventListener("submit",async e=>{e.preventDefault();const payload={icon_key:key.value.trim(),label:label.value.trim(),category:category.value.trim(),svg_code:textarea.value.trim(),description:desc.value.trim()||null,is_active:active.checked};const result=form.dataset.id?await supabase.from("site_svg_icons").update({label:payload.label,category:payload.category,svg_code:payload.svg_code,description:payload.description,is_active:payload.is_active}).eq("id",form.dataset.id):await supabase.from("site_svg_icons").insert(payload);if(result.error)say(result.error.message,true);else{form.hidden=true;form.reset();key.disabled=false;form.dataset.id="";await load();say("Saved")}});
   await load();
  }
@@ -335,7 +350,8 @@ function start(){
     if(forceForm)renderContentForm(panel,null);else if(state.selected)renderContentForm(panel,state.selected);
    }else if(["User","Role","Permission"].includes(state.module))await renderAdmin(panel);
    else if(["Region","Theme"].includes(state.module))await renderConfig(panel);
-   else if(state.module==="Direction"||state.module==="Language")await renderPreference(panel);
+   else if(state.module==="Direction")await renderPreference(panel);
+   else if(state.module==="Language")await renderConfig(panel);
    else if(["Website Logo","Website Title","Intro"].includes(state.module))await renderSiteSetting(panel);
    else if(state.module==="Homepage Management")await renderHomepageManager(panel);
    else if(state.module==="Details Management")await renderDetailsManager(panel);
