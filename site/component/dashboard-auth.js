@@ -12,7 +12,10 @@ accountLoginUrl.searchParams.set("next", "dashboard");
 const profileUrl = new URL("account/profile/", siteRoot);
 profileUrl.searchParams.set("access", "denied");
 
-function redirectToLogin() {
+function redirectToLogin(needsVerificationMessage = false) {
+  if (needsVerificationMessage) {
+    accountLoginUrl.searchParams.set("error", "verification");
+  }
   window.location.replace(accountLoginUrl.href);
 }
 
@@ -23,7 +26,13 @@ function denySignedInUser() {
 async function verifyDashboardAccess() {
   try {
     const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError || !userData.user) {
+
+    if (userError) {
+      redirectToLogin(true);
+      return;
+    }
+
+    if (!userData.user) {
       redirectToLogin();
       return;
     }
@@ -35,7 +44,12 @@ async function verifyDashboardAccess() {
       .eq("role", "Owner")
       .maybeSingle();
 
-    if (roleError || !roleData) {
+    if (roleError) {
+      redirectToLogin(true);
+      return;
+    }
+
+    if (!roleData) {
       denySignedInUser();
       return;
     }
@@ -43,7 +57,7 @@ async function verifyDashboardAccess() {
     document.documentElement.dataset.privateAccess = "granted";
     document.dispatchEvent(new Event("private-access-granted"));
   } catch {
-    denySignedInUser();
+    redirectToLogin(true);
   }
 }
 
