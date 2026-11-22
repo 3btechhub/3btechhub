@@ -47,6 +47,8 @@ async function routeSignedInUser(user) {
     } catch {
       status.textContent = "Unable to verify Dashboard access. Please try again.";
       setLoading(false);
+      document.documentElement.dataset.pageAuthReady = "true";
+      document.dispatchEvent(new Event("page-auth-ready"));
       return;
     }
   }
