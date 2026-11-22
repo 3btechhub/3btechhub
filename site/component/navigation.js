@@ -48,38 +48,13 @@ class SiteNavigation extends HTMLElement {
       return link;
     };
 
-    const addPageGroup = (label, path, children) => {
-      const group = document.createElement('div');
-      group.className = 'navigation-page-group';
-      addLink(label, path, group);
-
-      const submenu = document.createElement('div');
-      submenu.className = 'navigation-submenu';
-      submenu.setAttribute('aria-label', label + ' pages');
-
-      children.forEach((child, index) => {
-        if (index > 0) addSeparator(submenu);
-        addLink(child.label, child.path, submenu);
-      });
-
-      group.appendChild(submenu);
-      menu.appendChild(group);
-    };
-
-    addPageGroup('Home', 'home/', [
-      { label: 'Overview', path: 'home/overview/' }
-    ]);
+    addLink('Home', 'home/');
     addSeparator();
 
-    addPageGroup('Account', 'account/', [
-      { label: 'Login', path: 'account/login/' },
-      { label: 'Profile', path: 'account/profile/' }
-    ]);
+    addLink('Account', 'account/');
     addSeparator();
 
-    addPageGroup('Dashboard', 'dashboard/', [
-      { label: 'Overview', path: 'dashboard/overview/' }
-    ]);
+    addLink('Dashboard', 'dashboard/');
 
     const logoutSeparator = document.createElement('hr');
     logoutSeparator.className = 'effect-separator';
