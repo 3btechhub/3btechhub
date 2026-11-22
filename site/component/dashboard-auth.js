@@ -1,23 +1,23 @@
 import { supabase } from "./supabase-client.js";
 
-const accountUrl = new URL("../account/", window.location.href);
-accountUrl.searchParams.set("access", "denied");
+const accountLoginUrl = new URL("../account/login/", window.location.href);
+accountLoginUrl.searchParams.set("next", "dashboard");
+const profileUrl = new URL("../account/profile/", window.location.href);
+profileUrl.searchParams.set("access", "denied");
 
-function denyAccess() {
-  window.location.replace(accountUrl.href);
+function redirectToLogin() {
+  window.location.replace(accountLoginUrl.href);
+}
+
+function denySignedInUser() {
+  window.location.replace(profileUrl.href);
 }
 
 async function verifyDashboardAccess() {
   try {
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError || !sessionData.session) {
-      denyAccess();
-      return;
-    }
-
     const { data: userData, error: userError } = await supabase.auth.getUser();
     if (userError || !userData.user) {
-      denyAccess();
+      redirectToLogin();
       return;
     }
 
@@ -25,22 +25,23 @@ async function verifyDashboardAccess() {
       .from("user_roles")
       .select("role")
       .eq("user_id", userData.user.id)
+      .eq("role", "Owner")
       .maybeSingle();
 
-    if (roleError || roleData?.role !== "Owner") {
-      denyAccess();
+    if (roleError || !roleData) {
+      denySignedInUser();
       return;
     }
 
     document.documentElement.dataset.privateAccess = "granted";
     document.dispatchEvent(new Event("private-access-granted"));
   } catch {
-    denyAccess();
+    denySignedInUser();
   }
 }
 
 supabase.auth.onAuthStateChange(event => {
-  if (event === "SIGNED_OUT") denyAccess();
+  if (event === "SIGNED_OUT") redirectToLogin();
 });
 
 verifyDashboardAccess();
