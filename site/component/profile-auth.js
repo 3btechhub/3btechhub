@@ -5,25 +5,35 @@ const emailElement = document.getElementById("profile-email");
 const status = document.getElementById("profile-status");
 
 async function verifyProfileAccess() {
-  const { data, error } = await supabase.auth.getUser();
+  try {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-  if (error) {
-    loginUrl.searchParams.set("error", "verification");
+    if (sessionError) throw sessionError;
+
+    if (!sessionData.session) {
+      window.location.replace(loginUrl.href);
+      return;
+    }
+
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data.user) {
+      await supabase.auth.signOut({ scope: "local" });
+      window.location.replace(loginUrl.href);
+      return;
+    }
+
+    if (emailElement) emailElement.textContent = data.user.email || "";
+    document.documentElement.dataset.privateAccess = "granted";
+    document.dispatchEvent(new Event("private-access-granted"));
+
+    if (new URLSearchParams(window.location.search).get("access") === "denied" && status) {
+      status.textContent = "This account does not have permission to access the Dashboard.";
+    }
+  } catch (error) {
+    console.error("Profile session verification failed:", error);
+    await supabase.auth.signOut({ scope: "local" });
     window.location.replace(loginUrl.href);
-    return;
-  }
-
-  if (!data.user) {
-    window.location.replace(loginUrl.href);
-    return;
-  }
-
-  if (emailElement) emailElement.textContent = data.user.email || "";
-  document.documentElement.dataset.privateAccess = "granted";
-  document.dispatchEvent(new Event("private-access-granted"));
-
-  if (new URLSearchParams(window.location.search).get("access") === "denied" && status) {
-    status.textContent = "This account does not have permission to access the Dashboard.";
   }
 }
 
