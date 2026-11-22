@@ -5,6 +5,17 @@
   --text-color: #000000;
   --font-family: Arial, Helvetica, sans-serif;
   --font-size: large;
+
+  /* Reusable effect settings */
+  --effect-radius: 14px;
+  --effect-radius-small: 9px;
+  --effect-shadow: 0 8px 28px rgb(0 0 0 / 12%);
+  --effect-shadow-hover: 0 12px 32px rgb(0 0 0 / 17%);
+  --effect-transition: 180ms ease;
+  --effect-focus: 0 0 0 3px rgb(0 0 0 / 18%);
+  --effect-hover-opacity: 0.82;
+  --effect-press-scale: 0.97;
+  --effect-lift: 3px;
 }
 
 * {
@@ -32,6 +43,65 @@ textarea {
   display: none !important;
 }
 
+/* Reusable Effects
+   Add these classes to any suitable component or element. */
+.effect-hover {
+  transition: opacity var(--effect-transition), box-shadow var(--effect-transition), transform var(--effect-transition), background-color var(--effect-transition);
+}
+
+.effect-hover:hover {
+  opacity: var(--effect-hover-opacity);
+  box-shadow: var(--effect-shadow-hover);
+  transform: translateY(calc(-1 * var(--effect-lift)));
+}
+
+.effect-active:active {
+  transform: scale(var(--effect-press-scale));
+}
+
+.effect-press {
+  transition: transform var(--effect-transition), opacity var(--effect-transition);
+}
+
+.effect-press:active {
+  transform: scale(var(--effect-press-scale));
+  opacity: var(--effect-hover-opacity);
+}
+
+.effect-focus:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 3px;
+  box-shadow: var(--effect-focus);
+}
+
+.effect-transition {
+  transition: all var(--effect-transition);
+}
+
+.effect-shadow {
+  box-shadow: var(--effect-shadow);
+}
+
+.effect-rounded {
+  border-radius: var(--effect-radius);
+}
+
+.effect-rounded-small {
+  border-radius: var(--effect-radius-small);
+}
+
+.effect-opacity:hover {
+  opacity: var(--effect-hover-opacity);
+}
+
+.effect-lift {
+  transition: transform var(--effect-transition);
+}
+
+.effect-lift:hover {
+  transform: translateY(calc(-1 * var(--effect-lift)));
+}
+
 /* Webpage Title */
 .webpage-title {
   text-align: center;
@@ -56,6 +126,23 @@ site-navigation {
   background: var(--page-background);
   color: var(--text-color);
   cursor: pointer;
+  box-shadow: var(--effect-shadow);
+  transition: transform var(--effect-transition), box-shadow var(--effect-transition), opacity var(--effect-transition);
+}
+
+.navigation-toggle:hover {
+  box-shadow: var(--effect-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.navigation-toggle:active {
+  transform: scale(var(--effect-press-scale));
+}
+
+.navigation-toggle:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 4px;
+  box-shadow: var(--effect-focus);
 }
 
 .navigation-toggle svg {
@@ -73,27 +160,64 @@ site-navigation {
   bottom: 64px;
   width: min(240px, calc(100vw - 40px));
   min-height: 0;
-  padding: 0;
-  border: 1px solid var(--text-color);
+  padding: 6px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+  border-radius: var(--effect-radius);
   background: var(--page-background);
+  box-shadow: var(--effect-shadow);
+  transform-origin: bottom right;
+  animation: navigation-menu-enter var(--effect-transition) both;
 }
 
 .navigation-menu a {
   display: block;
-  padding: 12px 16px;
+  padding: 13px 14px;
+  border-radius: var(--effect-radius-small);
   color: var(--text-color);
   text-decoration: none;
+  transition: background-color var(--effect-transition), color var(--effect-transition), transform var(--effect-transition);
 }
 
 .navigation-menu a + a {
-  border-top: 1px solid var(--text-color);
+  margin-top: 2px;
+}
+
+.navigation-menu a:hover {
+  background: color-mix(in srgb, var(--text-color) 8%, var(--page-background));
+  transform: translateX(-2px);
+}
+
+.navigation-menu a:active {
+  transform: scale(0.98);
 }
 
 .navigation-menu a:focus-visible {
   outline: 2px solid var(--text-color);
-  outline-offset: -3px;
+  outline-offset: -2px;
 }
 
 .navigation-menu[hidden] {
-  display: none;
+  display: none !important;
+}
+
+@keyframes navigation-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
