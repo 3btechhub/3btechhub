@@ -180,6 +180,9 @@ class SiteNavigation extends HTMLElement {
     }
 }
 
+  }
+}
+
 if (!customElements.get('site-navigation')) {
   customElements.define('site-navigation', SiteNavigation);
 }
