@@ -22,12 +22,13 @@ if (window.location.search.includes("error=")) {
   window.history.replaceState({}, "", cleanUrl.href);
 }
 
-async function hasOwnerAccess(user) {
+async function hasDashboardAccess(user) {
   const { data, error } = await supabase
     .from("user_roles")
     .select("role")
     .eq("user_id", user.id)
-    .eq("role", "Owner")
+    .in("role", ["Owner", "Admin"])
+    .limit(1)
     .maybeSingle();
 
   if (error) throw error;
@@ -37,7 +38,7 @@ async function hasOwnerAccess(user) {
 async function routeSignedInUser(user) {
   if (dashboardRequested) {
     try {
-      if (await hasOwnerAccess(user)) {
+      if (await hasDashboardAccess(user)) {
         window.location.replace(dashboardUrl.href);
         return;
       }
