@@ -5,7 +5,14 @@ const profileUrl = new URL("./profile/", window.location.href);
 
 async function routeAccountRoot() {
   const { data, error } = await supabase.auth.getUser();
-  window.location.replace(!error && data.user ? profileUrl.href : loginUrl.href);
+
+  if (error) {
+    loginUrl.searchParams.set("error", "verification");
+    window.location.replace(loginUrl.href);
+    return;
+  }
+
+  window.location.replace(data.user ? profileUrl.href : loginUrl.href);
 }
 
 routeAccountRoot();
