@@ -40,6 +40,8 @@ async function verifyProfileAccess() {
 
     const page = document.getElementById("page-content");
     if (page) page.hidden = false;
+    document.documentElement.dataset.privateAccessGranted = 'true';
+    document.dispatchEvent(new Event('private-access-granted'));
 
     if (new URLSearchParams(window.location.search).get("access") === "denied" && status) {
       status.textContent = "This account does not have permission to access the Dashboard.";
