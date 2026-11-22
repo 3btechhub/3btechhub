@@ -8,7 +8,7 @@ const status = document.getElementById("login-status");
 
 const params = new URLSearchParams(window.location.search);
 const dashboardRequested = params.get("next") === "dashboard";
-const dashboardUrl = new URL("../../dashboard/", window.location.href);
+const dashboardUrl = new URL("../../dashboard/overview/", window.location.href);
 const profileUrl = new URL("../profile/", window.location.href);
 
 async function hasOwnerAccess(user) {
