@@ -45,7 +45,8 @@ async function verifyDashboardAccess() {
       .from("user_roles")
       .select("role")
       .eq("user_id", userData.user.id)
-      .eq("role", "Owner")
+      .in("role", ["Owner", "Admin"])
+      .limit(1)
       .maybeSingle();
 
     if (roleError) {
