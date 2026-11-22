@@ -8,6 +8,7 @@
   <script src="../component/theme.js" defer></script>
   <script src="../component/webpage-title.js" defer></script>
   <script src="../component/navigation.js" defer></script>
+  <script type="module" src="../component/account-auth.js"></script>
 </head>
 <body>
   <site-theme src="../theme/classic.css"></site-theme>
@@ -15,6 +16,20 @@
   <main class="page-content" id="page-content" hidden>
     <webpage-title>Account</webpage-title>
     <site-navigation></site-navigation>
+
+    <section class="account-auth">
+      <h2>Login</h2>
+      <form id="login-form">
+        <label for="login-email">Email</label>
+        <input id="login-email" name="email" type="email" autocomplete="username" required>
+
+        <label for="login-password">Password</label>
+        <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+
+        <button id="login-button" type="submit">Login</button>
+        <p id="login-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
   </main>
 </body>
 </html>
