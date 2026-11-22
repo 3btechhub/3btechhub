@@ -23,23 +23,33 @@ async function waitForCustomElements() {
   await Promise.all(Array.from(names, name => customElements.whenDefined(name)));
 }
 
+function verifyStylesheets() {
+  const links = Array.from(document.querySelectorAll('link[rel~="stylesheet"]'));
+  const failed = links.filter(link => !link.sheet);
+  if (failed.length) {
+    throw new Error(`Stylesheet failed to load: ${failed.map(link => link.href).join(', ')}`);
+  }
+}
+
 async function waitForImages() {
   const images = Array.from(document.images);
-  await Promise.all(images.map(image => {
-    if (image.complete && image.naturalWidth === 0) return Promise.resolve();
-    if (typeof image.decode === 'function') return image.decode().catch(() => {});
-    return new Promise(resolve => {
-      if (image.complete) resolve();
-      else {
+  await Promise.all(images.map(async image => {
+    image.loading = 'eager';
+    if (!image.complete) {
+      await new Promise(resolve => {
         image.addEventListener('load', resolve, { once: true });
         image.addEventListener('error', resolve, { once: true });
-      }
-    });
+      });
+    }
+    if (image.naturalWidth > 0 && typeof image.decode === 'function') {
+      await image.decode().catch(() => {});
+    }
   }));
 }
 
 async function revealPreparedPage() {
   await waitForWindowLoad();
+  verifyStylesheets();
   await Promise.all([
     document.fonts?.ready || Promise.resolve(),
     waitForCustomElements(),
