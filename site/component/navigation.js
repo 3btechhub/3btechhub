@@ -42,6 +42,12 @@ class SiteNavigation extends HTMLElement {
       link.textContent = label;
       link.href = new URL(path, siteRoot).href;
       menu.appendChild(link);
+
+      if (label !== 'Dashboard') {
+        const separator = document.createElement('hr');
+        separator.className = 'effect-separator';
+        menu.appendChild(separator);
+      }
     });
 
     button.addEventListener('click', () => {
