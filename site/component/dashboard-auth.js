@@ -38,29 +38,16 @@ async function verifyDashboardAccess() {
       return;
     }
 
-    const { data: roleData, error: roleError } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", userData.user.id)
-      .in("role", ["Owner", "Admin"])
-      .limit(1)
-      .maybeSingle();
-
-    if (roleError) {
-      console.error("Dashboard role lookup failed:", roleError);
-      redirectToLogin();
-      return;
-    }
-
-    if (!roleData) {
+    const role = userData.user.app_metadata?.role;
+    if (!["Owner", "Admin"].includes(role)) {
       denySignedInUser();
       return;
     }
 
     const page = document.getElementById("page-content");
     if (page) page.hidden = false;
-    document.documentElement.dataset.privateAccessGranted = 'true';
-    document.dispatchEvent(new Event('private-access-granted'));
+    document.documentElement.dataset.privateAccessGranted = "true";
+    document.dispatchEvent(new Event("private-access-granted"));
   } catch (error) {
     console.error("Dashboard session verification failed:", error);
     await supabase.auth.signOut({ scope: "local" });
