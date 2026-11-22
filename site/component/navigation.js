@@ -59,12 +59,22 @@ class SiteNavigation extends HTMLElement {
     accountSubmenu.className = 'navigation-submenu';
     accountSubmenu.setAttribute('aria-label', 'Account pages');
     addLink('Login', 'account/login/', accountSubmenu);
+    const accountSeparator = document.createElement('hr');
+    accountSeparator.className = 'effect-separator';
+    accountSeparator.setAttribute('aria-hidden', 'true');
+    accountSubmenu.appendChild(accountSeparator);
     addLink('Profile', 'account/profile/', accountSubmenu);
     accountGroup.appendChild(accountSubmenu);
     menu.appendChild(accountGroup);
 
     addSeparator();
     addLink('Dashboard', 'dashboard/');
+
+    const logoutSeparator = document.createElement('hr');
+    logoutSeparator.className = 'effect-separator';
+    logoutSeparator.hidden = true;
+    logoutSeparator.setAttribute('aria-hidden', 'true');
+    menu.appendChild(logoutSeparator);
 
     const logoutButton = document.createElement('button');
     logoutButton.className = 'navigation-logout';
@@ -105,6 +115,7 @@ class SiteNavigation extends HTMLElement {
         .then(({ supabase }) => {
           const updateLogout = session => {
             logoutButton.hidden = !session;
+            logoutSeparator.hidden = !session;
             if (session) logoutButton.disabled = false;
           };
 
