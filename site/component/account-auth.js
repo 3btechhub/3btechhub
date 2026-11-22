@@ -5,6 +5,13 @@ const emailInput = document.getElementById("login-email");
 const passwordInput = document.getElementById("login-password");
 const submitButton = document.getElementById("login-button");
 const status = document.getElementById("login-status");
+const skeleton = document.querySelector(".skeleton-screen");
+
+function setLoading(isLoading) {
+  if (skeleton) skeleton.hidden = !isLoading;
+  if (status && isLoading) status.textContent = "";
+  if (submitButton) submitButton.disabled = isLoading;
+}
 
 const params = new URLSearchParams(window.location.search);
 const dashboardRequested = params.get("next") === "dashboard";
@@ -35,6 +42,7 @@ async function routeSignedInUser(user) {
       return;
     } catch {
       status.textContent = "অ্যাকাউন্টের অনুমতি যাচাই করা যাচ্ছে না।";
+      setLoading(false);
       return;
     }
   }
@@ -46,8 +54,7 @@ form?.addEventListener("submit", async event => {
   event.preventDefault();
   if (!form.reportValidity()) return;
 
-  submitButton.disabled = true;
-  status.textContent = "Signing in...";
+  setLoading(true);
 
   try {
     const { error } = await supabase.auth.signInWithPassword({
@@ -63,13 +70,20 @@ form?.addEventListener("submit", async event => {
     await routeSignedInUser(data.user);
   } catch {
     status.textContent = "ইমেইল অথবা পাসওয়ার্ড সঠিক নয়। আবার চেষ্টা করুন।";
-    submitButton.disabled = false;
+    setLoading(false);
   }
 });
 
 async function redirectIfAlreadySignedIn() {
   const { data, error } = await supabase.auth.getUser();
-  if (!error && data.user) await routeSignedInUser(data.user);
+  if (!error && data.user) {
+    await routeSignedInUser(data.user);
+    return;
+  }
+
+  if (error && status) status.textContent = "অ্যাকাউন্ট যাচাই করা যায়নি। আবার চেষ্টা করুন।";
+  document.documentElement.dataset.pageAuthReady = "true";
+  document.dispatchEvent(new Event("page-auth-ready"));
 }
 
 redirectIfAlreadySignedIn();
