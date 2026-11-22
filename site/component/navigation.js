@@ -107,7 +107,6 @@ class SiteNavigation extends HTMLElement {
 
     this.replaceChildren(button, menu);
 
-    // Navigation UI is ready independently of remote authentication.
     document.documentElement.dataset.navigationReady = 'true';
     document.dispatchEvent(new Event('site-navigation-ready'));
 
@@ -130,16 +129,9 @@ class SiteNavigation extends HTMLElement {
               const { data: userData, error: userError } = await supabase.auth.getUser();
               if (userError || !userData.user) throw userError || new Error('Authenticated user unavailable');
 
-              const { data: roleData, error: roleError } = await supabase
-                .from('user_roles')
-                .select('role')
-                .eq('user_id', userData.user.id)
-                .in('role', ['Owner', 'Admin']);
-
-              if (roleError) throw roleError;
               if (checkId !== accessCheck) return;
-
-              renderMainLinks(Array.isArray(roleData) && roleData.length > 0);
+              const role = userData.user.app_metadata?.role;
+              renderMainLinks(["Owner", "Admin"].includes(role));
             } catch (error) {
               if (checkId === accessCheck) renderMainLinks(false);
               console.error('Unable to verify Dashboard navigation access:', error);
