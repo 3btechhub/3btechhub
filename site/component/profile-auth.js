@@ -59,4 +59,9 @@ supabase.auth.onAuthStateChange(event => {
   }
 });
 
-verifyProfileAccess();
+const accessTimeout = window.setTimeout(() => {
+  console.error("Profile access verification timed out.");
+  window.location.replace(loginUrl.href);
+}, 12000);
+
+verifyProfileAccess().finally(() => window.clearTimeout(accessTimeout));
