@@ -37,17 +37,18 @@ class SiteNavigation extends HTMLElement {
       ['Home', 'home/'],
       ['Account', 'account/'],
       ['Dashboard', 'dashboard/']
-    ].forEach(([label, path]) => {
+    ].forEach(([label, path], index) => {
+      if (index > 0) {
+        const separator = document.createElement('span');
+        separator.className = 'effect-separator-vertical';
+        separator.setAttribute('aria-hidden', 'true');
+        menu.appendChild(separator);
+      }
+
       const link = document.createElement('a');
       link.textContent = label;
       link.href = new URL(path, siteRoot).href;
       menu.appendChild(link);
-
-      if (label !== 'Dashboard') {
-        const separator = document.createElement('hr');
-        separator.className = 'effect-separator';
-        menu.appendChild(separator);
-      }
     });
 
     button.addEventListener('click', () => {
