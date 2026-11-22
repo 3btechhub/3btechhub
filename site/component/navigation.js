@@ -33,23 +33,45 @@ class SiteNavigation extends HTMLElement {
       ? new URL('../', componentScript.src)
       : new URL('/', window.location.href);
 
-    [
-      ['Home', 'home/'],
-      ['Account', 'account/'],
-      ['Dashboard', 'dashboard/']
-    ].forEach(([label, path], index) => {
-      if (index > 0) {
-        const separator = document.createElement('hr');
-        separator.className = 'effect-separator';
-        separator.setAttribute('aria-hidden', 'true');
-        menu.appendChild(separator);
-      }
+    const addSeparator = () => {
+      const separator = document.createElement('hr');
+      separator.className = 'effect-separator';
+      separator.setAttribute('aria-hidden', 'true');
+      menu.appendChild(separator);
+    };
 
+    const addLink = (label, path, parent = menu) => {
       const link = document.createElement('a');
       link.textContent = label;
       link.href = new URL(path, siteRoot).href;
-      menu.appendChild(link);
-    });
+      parent.appendChild(link);
+      return link;
+    };
+
+    addLink('Home', 'home/');
+    addSeparator();
+
+    const accountGroup = document.createElement('div');
+    accountGroup.className = 'navigation-account-group';
+    addLink('Account', 'account/', accountGroup);
+
+    const accountSubmenu = document.createElement('div');
+    accountSubmenu.className = 'navigation-submenu';
+    accountSubmenu.setAttribute('aria-label', 'Account pages');
+    addLink('Login', 'account/login/', accountSubmenu);
+    addLink('Profile', 'account/profile/', accountSubmenu);
+    accountGroup.appendChild(accountSubmenu);
+    menu.appendChild(accountGroup);
+
+    addSeparator();
+    addLink('Dashboard', 'dashboard/');
+
+    const logoutButton = document.createElement('button');
+    logoutButton.className = 'navigation-logout';
+    logoutButton.type = 'button';
+    logoutButton.textContent = 'Logout';
+    logoutButton.hidden = true;
+    menu.appendChild(logoutButton);
 
     button.addEventListener('click', () => {
       const isOpen = button.getAttribute('aria-expanded') === 'true';
@@ -61,9 +83,36 @@ class SiteNavigation extends HTMLElement {
         : 'M5 5l14 14 M19 5L5 19');
     });
 
+    logoutButton.addEventListener('click', async () => {
+      logoutButton.disabled = true;
+      try {
+        const { supabase } = await import(new URL('./supabase-client.js', componentScript.src).href);
+        const { error } = await supabase.auth.signOut({ scope: 'local' });
+        if (error) throw error;
+        window.location.replace(new URL('account/login/', siteRoot).href);
+      } catch (error) {
+        console.error('Logout failed:', error);
+        logoutButton.disabled = false;
+      }
+    });
+
     this.replaceChildren(button, menu);
     this.dataset.componentReady = 'true';
     this.dispatchEvent(new Event('component-ready'));
+
+    if (componentScript) {
+      import(new URL('./supabase-client.js', componentScript.src).href)
+        .then(({ supabase }) => {
+          const updateLogout = session => {
+            logoutButton.hidden = !session;
+            if (session) logoutButton.disabled = false;
+          };
+
+          supabase.auth.getSession().then(({ data }) => updateLogout(data.session));
+          supabase.auth.onAuthStateChange((_event, session) => updateLogout(session));
+        })
+        .catch(error => console.error('Unable to check account session:', error));
+    }
   }
 }
 
