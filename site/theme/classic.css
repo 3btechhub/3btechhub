@@ -117,15 +117,6 @@ textarea {
   background: color-mix(in srgb, var(--text-color) 38%, transparent);
 }
 
-.effect-separator-vertical {
-  display: inline-block;
-  align-self: stretch;
-  width: 1px;
-  min-height: 100%;
-  height: auto;
-  margin-inline: 12px;
-  margin-block: 0;
-}
 
 /* Webpage Title */
 .webpage-title {
@@ -356,7 +347,6 @@ site-navigation {
   flex-direction: column;
   margin: 0 0 4px 14px;
   padding-left: 10px;
-  border-left: 1px solid color-mix(in srgb, var(--text-color) 22%, transparent);
 }
 
 .navigation-submenu a {
