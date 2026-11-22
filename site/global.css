@@ -11,7 +11,7 @@
   --color-focus: #555555;
   --color-overlay: rgba(0, 0, 0, 0.48);
   --shadow-raised: 0 8px 28px rgba(0, 0, 0, 0.14);
-  --component-floating-toggle-size: 58px;
+
   --component-location-marker-size: 25px;
   --component-detail-icon-size: 42px;
   --component-icon-preview-size: 64px;
@@ -43,8 +43,7 @@
   --transition-base: 220ms ease;
   --component-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
   --ds-surface-muted: var(--color-surface);
-  --component-control-height-small: 36px;
-  --component-control-height-big: 52px;
+
   --component-radius: var(--radius-medium);
   --component-card-radius: var(--radius-large);
   --component-border: 1px solid var(--color-border);
@@ -190,13 +189,7 @@ label, .label { display: inline-block; margin-bottom: var(--space-1)}
   right: 22px;
   bottom: 22px;
 }
-.floating-navigation__toggle {
-  width: 58px;
-  height: 58px;
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-}
+
 .floating-navigation__toggle svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round}
 .floating-navigation__list {
   right: 0;
@@ -212,7 +205,7 @@ label, .label { display: inline-block; margin-bottom: var(--space-1)}
 .floating-navigation__theme { cursor: pointer}
 .floating-navigation__theme-icon { width: 18px; height: 18px; flex: 0 0 auto; }
 .floating-navigation__separator { height: 1px; margin: 6px 4px; background: var(--color-border); }
-@media (max-width: 480px) {  .floating-navigation__toggle { width: 56px; height: 56px} }
+
 
 /* site/home/index.html */
 .home{
@@ -609,10 +602,7 @@ font-size: 15px;
 .floating-navigation {
   bottom: 16px;
 }
-.floating-navigation__toggle {
-  width: 52px;
-  height: 52px;
-}
+
 .floating-navigation__toggle-icon { display:inline-flex; width:23px; height:23px; align-items:center; justify-content:center; }
 .floating-navigation__list {
   min-width: 176px;
@@ -628,9 +618,7 @@ font-size: 15px;
   .home__image { height: clamp(112px, 34vw, 148px); }
   .home__item-title { font-size: 14px; }
 }
-@media (pointer: coarse) {
-  .floating-navigation__toggle { width: 52px; height: 52px}
-}
+
 
 /* Content-fit layout: let each section use only the space its content needs */
 .home {
@@ -1330,231 +1318,174 @@ width: 18px;
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
 /* =========================================================
-   3B TECH HUB — SINGLE GLOBAL COMPONENT SYSTEM
-   Shared component sizing and layout exceptions.
-   Shared visual treatments are defined once in FINAL GLOBAL VALUE NORMALIZATION.
+   3B TECH HUB — ONE GLOBAL COMPONENT SYSTEM
+   One element type = one size and one visual style site-wide.
    ========================================================= */
+
 :root {
   --component-control-height: 44px;
-  --component-control-height-medium: 44px;
-  --component-padding-inline-small: 10px;
-  --component-padding-inline-medium: 14px;
-  --component-padding-inline-big: 18px;
-  --component-padding-block-small: 7px;
-  --component-padding-block-medium: 10px;
-  --component-padding-block-big: 14px;
-  --component-padding-inline: 14px;
-  --component-padding-block: 10px;
-}
-:is(.size-small, [data-size="small"]) {
-  --component-control-height: var(--component-control-height-small);
-  --component-padding-inline: var(--component-padding-inline-small);
-  --component-padding-block: var(--component-padding-block-small);
-}
-:is(.size-medium, [data-size="medium"]) {
-  --component-control-height: var(--component-control-height-medium);
-  --component-padding-inline: var(--component-padding-inline-medium);
-  --component-padding-block: var(--component-padding-block-medium);
-}
-:is(.size-big, [data-size="big"]) {
-  --component-control-height: var(--component-control-height-big);
-  --component-padding-inline: var(--component-padding-inline-big);
-  --component-padding-block: var(--component-padding-block-big);
+  --component-control-padding-inline: 14px;
+  --component-control-padding-block: 10px;
+  --component-radius: var(--radius-medium);
+  --component-card-radius: var(--radius-large);
+  --component-border: 1px solid var(--color-border);
+  --component-surface: var(--color-surface-raised);
+  --component-surface-muted: var(--color-surface);
+  --component-text: var(--color-text);
+  --component-shadow: 0 1px 3px rgba(0, 0, 0, .06);
+  --component-transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-/* Account wrappers and dashboard tabs retain their layout-specific behavior. */
-.account-field {
-  padding: 0 !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  gap: var(--space-2);
-}
-.account-field > input { flex: 1; min-width: 0; }
-:is(.dashboard__tabs, .dashboard__subtabs) { gap: var(--space-2); }
-.dashboard__tab { flex: 0 0 auto; white-space: nowrap; }
-
-/* File inputs need their own control height; they are not text inputs. */
-input[type="file"] {
-  min-height: var(--component-control-height) !important;
+/* Shared page panels. */
+:is(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list, .dashboard__manager-form) {
+  border: var(--component-border);
+  border-radius: var(--component-card-radius);
+  background: var(--component-surface);
   color: var(--component-text);
-}
-/* =========================================================
-   NAMED COMPONENT EXCEPTIONS
-   Unique-purpose styles stay centralized here in global.css.
-   These do not create page-specific visual systems.
-   ========================================================= */
-
-.floating-navigation__toggle {
-  display: grid;
-  place-items: center;
-  width: var(--component-floating-toggle-size) !important;
-  height: var(--component-floating-toggle-size) !important;
-  min-height: var(--component-floating-toggle-size) !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
+  box-shadow: var(--component-shadow);
+  padding: 16px;
 }
 
-.home__location-pin {
-  display: grid;
-  place-items: center;
-  flex: 0 0 var(--component-location-marker-size);
-  width: var(--component-location-marker-size);
-  height: var(--component-location-marker-size);
-  border-radius: var(--radius-small);
+/* One shared card style for repeated content items. */
+:is(.home__item, .dashboard__item, .content__item, .content__related-item, .dashboard__field-order-row, .dashboard__relation-group, .dashboard__option, .dashboard__role-options > label) {
+  border: var(--component-border);
+  border-radius: var(--component-radius);
   background: var(--component-surface-muted);
   color: var(--component-text);
-  font-size: 17px;
+  box-shadow: none;
+  padding: 12px;
 }
 
-.content__detail-icon {
-  display: flex;
+/* All buttons and button-like links: exactly 44px high and one appearance. */
+:is(button, input[type="button"], input[type="submit"], input[type="reset"],
+    .button, .dashboard__tab, .content__external, .content__back,
+    .content__home, .home__map-link, .floating-navigation__toggle,
+    .floating-navigation__theme, .floating-navigation__list a) {
+  box-sizing: border-box;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  justify-self: center;
-  width: var(--component-detail-icon-size);
-  height: var(--component-detail-icon-size);
-  font-size: 34px;
-}
-
-.site-icon-preview {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: var(--component-icon-preview-size);
-  height: var(--component-icon-preview-size);
+  gap: var(--space-2);
+  height: var(--component-control-height);
+  min-height: var(--component-control-height);
+  padding: 0 var(--component-control-padding-inline);
   border: var(--component-border);
-  border-radius: var(--radius-medium);
+  border-radius: var(--component-radius);
+  background: var(--component-surface);
+  color: var(--component-text);
+  box-shadow: none;
+  font: inherit;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition: var(--component-transition);
+}
+
+/* Button variants keep the same appearance; no size or style variants. */
+:is(.button--primary, .button--secondary, .button--ghost) {
+  border-color: var(--component-border-color, var(--color-border));
   background: var(--component-surface);
   color: var(--component-text);
 }
 
-.site-icon-preview svg {
-  width: 42px;
-  height: 42px;
-  max-width: 100%;
-}
-
-.dashboard__field-order-grip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 28px;
-  color: var(--color-muted);
-  cursor: grab;
-  touch-action: pan-y;
-  background: radial-gradient(circle, currentColor 1.35px, transparent 1.55px) 0 0 / 7px 7px;
-}
-
-
-/* =========================================================
-   FINAL GLOBAL VALUE NORMALIZATION
-   One value per shared component. Keep only named, necessary
-   component exceptions and explicit size/theme states.
-   ========================================================= */
-
-/* Typography: one value for each semantic heading level. */
-h1 { font-size: var(--font-size-2xl) !important; }
-h2 { font-size: var(--font-size-xl) !important; }
-h3 { font-size: var(--font-size-lg) !important; }
-
-/* Shared cards and surfaces: one base padding and one visual treatment. */
-:is(.home__type, .dashboard__panel, .account-panel, .content__detail, .dialog, .card, .floating-navigation__list, .dashboard__manager-form) {
-  border: var(--component-border) !important;
-  border-radius: var(--component-card-radius) !important;
-  background: var(--component-surface) !important;
-  color: var(--component-text) !important;
-  box-shadow: var(--component-shadow) !important;
-  padding: 16px !important;
-}
-
-/* Shared item cards: one border, radius, surface, shadow and padding. */
-:is(.home__item, .dashboard__item, .content__item, .content__related-item, .dashboard__field-order-row, .dashboard__relation-group, .dashboard__option, .dashboard__role-options > label) {
-  border: var(--component-border) !important;
-  border-radius: var(--component-radius) !important;
-  background: var(--component-surface-muted) !important;
-  color: var(--component-text) !important;
-  box-shadow: none !important;
-  padding: 12px !important;
-}
-
-/* Shared buttons: one base size and appearance; named button states remain. */
-:is(button, .button, .dashboard__tab, .content__external, .content__back, .content__home,  .home__map-link, .floating-navigation__toggle, .floating-navigation__theme, .floating-navigation__list a) {
-  min-height: var(--component-control-height) !important;
-  padding: var(--component-padding-block) var(--component-padding-inline) !important;
-  border: var(--component-border) !important;
-  border-radius: var(--component-radius) !important;
-  background: var(--component-surface) !important;
-  color: var(--component-text) !important;
-  box-shadow: none !important;
-  font: inherit;
-  font-weight: 600;
-  line-height: 1.4;
-  text-decoration: none;
-  transition: var(--component-transition), transform var(--transition-fast);
-}
-:is(.button--primary, .dashboard__tab[aria-selected="true"]) {
-  border-color: var(--color-accent) !important;
-  background: var(--color-accent) !important;
-  color: var(--color-accent-contrast) !important;
-}
-.button--secondary { background: var(--component-surface-muted) !important; }
-.button--ghost { background: transparent !important; }
-
-/* Floating navigation toggle is a named, purpose-specific size exception. */
+/* Floating navigation uses the same button dimensions and shape. */
 .floating-navigation__toggle {
-  width: var(--component-floating-toggle-size) !important;
-  height: var(--component-floating-toggle-size) !important;
-  min-height: var(--component-floating-toggle-size) !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
+  width: var(--component-control-height);
+  min-width: var(--component-control-height);
+  padding: 0;
 }
 
-/* Shared form controls: one base size and appearance on every page. */
-:is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]), select, textarea) {
+/* All single-line form controls share one 44px control size and appearance. */
+:is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+    select) {
+  box-sizing: border-box;
   display: block;
   width: 100%;
+  height: var(--component-control-height);
+  min-height: var(--component-control-height);
   min-width: 0;
-  min-height: var(--component-control-height) !important;
-  padding: var(--component-padding-block) var(--component-padding-inline) !important;
-  border: var(--component-border) !important;
-  border-radius: var(--component-radius) !important;
-  background: var(--component-surface) !important;
-  color: var(--component-text) !important;
-  box-shadow: none !important;
+  padding: var(--component-control-padding-block) var(--component-control-padding-inline);
+  border: var(--component-border);
+  border-radius: var(--component-radius);
+  background: var(--component-surface);
+  color: var(--component-text);
+  box-shadow: none;
   font: inherit;
   line-height: 1.4;
   transition: var(--component-transition);
 }
-textarea { min-height: 112px !important; resize: vertical; }
+
+/* Textareas keep a usable multiline height; their style matches other fields. */
+textarea {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  min-height: 112px;
+  padding: var(--component-control-padding-block) var(--component-control-padding-inline);
+  border: var(--component-border);
+  border-radius: var(--component-radius);
+  background: var(--component-surface);
+  color: var(--component-text);
+  box-shadow: none;
+  font: inherit;
+  line-height: 1.4;
+  resize: vertical;
+  transition: var(--component-transition);
+}
+
+/* File inputs use the shared control height. */
+input[type="file"] {
+  box-sizing: border-box;
+  height: var(--component-control-height);
+  min-height: var(--component-control-height);
+  max-width: 100%;
+  color: var(--component-text);
+  font: inherit;
+}
+input[type="file"]::file-selector-button {
+  height: var(--component-control-height);
+  margin-inline-end: var(--space-2);
+  padding: 0 var(--component-control-padding-inline);
+  border: var(--component-border);
+  border-radius: var(--component-radius);
+  background: var(--component-surface);
+  color: var(--component-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Checkbox and radio are one consistent size per control type. */
 :is(input[type="checkbox"], input[type="radio"]) {
-  width: 18px !important;
-  height: 18px !important;
-  min-height: 18px !important;
-  padding: 0 !important;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
+  padding: 0;
   accent-color: var(--color-accent);
 }
 
-/* Shared labels, badges and icon sizing. */
+/* Shared labels, badges and icons. */
 :is(label, .label) {
-  color: var(--component-text) !important;
-  font-size: var(--font-size-sm) !important;
-  font-weight: 600 !important;
+  color: var(--component-text);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
 }
 .badge {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: 3px 9px !important;
-  border: var(--component-border) !important;
-  border-radius: var(--radius-pill) !important;
-  background: var(--component-surface-muted) !important;
-  color: var(--component-text) !important;
-  font-size: var(--font-size-xs) !important;
-  font-weight: 600 !important;
+  padding: 3px 9px;
+  border: var(--component-border);
+  border-radius: var(--radius-pill);
+  background: var(--component-surface-muted);
+  color: var(--component-text);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
 }
 :is([data-site-icon], .site-icon) {
   display: inline-flex;
@@ -1569,4 +1500,67 @@ textarea { min-height: 112px !important; resize: vertical; }
   width: 1.2em;
   height: 1.2em;
   max-width: none;
+}
+
+/* Purpose-specific elements retain their own functional dimensions. */
+.home__location-pin {
+  display: grid;
+  place-items: center;
+  flex: 0 0 var(--component-location-marker-size);
+  width: var(--component-location-marker-size);
+  height: var(--component-location-marker-size);
+  border-radius: var(--radius-small);
+  background: var(--component-surface-muted);
+  color: var(--component-text);
+  font-size: 17px;
+}
+.content__detail-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  width: var(--component-detail-icon-size);
+  height: var(--component-detail-icon-size);
+  font-size: 34px;
+}
+.site-icon-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--component-icon-preview-size);
+  height: var(--component-icon-preview-size);
+  border: var(--component-border);
+  border-radius: var(--radius-medium);
+  background: var(--component-surface);
+  color: var(--component-text);
+}
+.site-icon-preview svg {
+  width: 42px;
+  height: 42px;
+  max-width: 100%;
+}
+.dashboard__field-order-grip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 28px;
+  color: var(--color-muted);
+  cursor: grab;
+  touch-action: pan-y;
+  background: radial-gradient(circle, currentColor 1.35px, transparent 1.55px) 0 0 / 7px 7px;
+}
+
+/* Uniform heading values. */
+h1 { font-size: var(--font-size-2xl); }
+h2 { font-size: var(--font-size-xl); }
+h3 { font-size: var(--font-size-lg); }
+
+/* Shared interaction states. */
+:where(button, input[type="button"], input[type="submit"], input[type="reset"], .button):disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+:where(button, input[type="button"], input[type="submit"], input[type="reset"], .button):not(:disabled) {
+  cursor: pointer;
 }
