@@ -358,20 +358,85 @@ site-navigation {
 }
 
 
-/* Website Intro */
+/* Website Intro — premium card */
 website-intro {
   display: block;
   width: 100%;
+  padding: 12px 16px;
 }
 
 .website-intro__text {
-  width: min(900px, calc(100% - 32px));
-  margin: 32px auto;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: min(900px, 100%);
+  min-height: 150px;
+  margin: 20px auto 28px;
+  padding: clamp(28px, 5vw, 52px) clamp(22px, 6vw, 64px);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+  border-radius: 26px;
+  background:
+    radial-gradient(ellipse at 50% -25%, color-mix(in srgb, var(--text-color) 9%, transparent), transparent 65%),
+    linear-gradient(145deg, color-mix(in srgb, var(--page-background) 96%, var(--text-color)), var(--page-background) 58%);
+  box-shadow:
+    0 2px 5px rgb(0 0 0 / 3%),
+    0 14px 38px rgb(0 0 0 / 8%),
+    inset 0 1px 0 rgb(255 255 255 / 65%);
   text-align: center;
-  font-size: 1.5em;
-  font-weight: 600;
-  line-height: 1.4;
+  font-size: clamp(1.35rem, 3.5vw, 2rem);
+  font-weight: 650;
+  line-height: 1.45;
+  letter-spacing: -0.025em;
   overflow-wrap: anywhere;
+  transition: box-shadow var(--effect-transition), border-color var(--effect-transition);
+}
+
+.website-intro__text::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 50%;
+  width: min(180px, 34%);
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: var(--text-color);
+  opacity: 0.72;
+  transform: translateX(-50%);
+}
+
+.website-intro__text::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  right: -54px;
+  bottom: -86px;
+  width: 190px;
+  height: 190px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 7%, transparent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 22px color-mix(in srgb, var(--text-color) 2%, transparent),
+              0 0 0 46px color-mix(in srgb, var(--text-color) 1.5%, transparent);
+  pointer-events: none;
+}
+
+.website-intro__text:hover {
+  border-color: color-mix(in srgb, var(--text-color) 22%, transparent);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 4%), 0 18px 44px rgb(0 0 0 / 11%);
+}
+
+@media (max-width: 600px) {
+  website-intro {
+    padding-inline: 12px;
+  }
+
+  .website-intro__text {
+    min-height: 128px;
+    margin-block: 14px 22px;
+    border-radius: 20px;
+  }
 }
 
 /* Website Intro Editor */
