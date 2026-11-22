@@ -356,3 +356,74 @@ site-navigation {
 .navigation-logout:hover {
   background: color-mix(in srgb, var(--text-color) 8%, var(--page-background));
 }
+
+
+/* Website Intro */
+website-intro {
+  display: block;
+  width: 100%;
+}
+
+.website-intro__text {
+  width: min(900px, calc(100% - 32px));
+  margin: 32px auto;
+  text-align: center;
+  font-size: 1.5em;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+/* Website Intro Editor */
+website-intro-editor {
+  display: block;
+  width: min(640px, calc(100% - 32px));
+  margin: 32px auto;
+}
+
+.website-intro-editor {
+  padding: 20px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 18%, transparent);
+  border-radius: var(--effect-radius);
+  background: var(--page-background);
+  box-shadow: var(--effect-shadow);
+}
+
+.website-intro-editor h2 {
+  margin: 0 0 18px;
+}
+
+.website-intro-editor form {
+  display: grid;
+  gap: 12px;
+}
+
+.website-intro-editor textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 28%, transparent);
+  border-radius: var(--effect-radius-small);
+  background: var(--page-background);
+  resize: vertical;
+}
+
+.website-intro-editor button {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--text-color);
+  border-radius: var(--effect-radius-small);
+  background: var(--text-color);
+  color: var(--page-background);
+  cursor: pointer;
+}
+
+.website-intro-editor button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.website-intro-editor__status {
+  min-height: 1.4em;
+  margin: 0;
+}
