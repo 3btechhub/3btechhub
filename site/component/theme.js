@@ -47,9 +47,11 @@ class SiteTheme extends HTMLElement {
     this.loadRequest = request;
 
     const page = document.getElementById("page-content");
+    const skeleton = document.querySelector(".skeleton-screen");
 
     document.documentElement.classList.remove("page-ready");
     if (page) page.hidden = true;
+    if (skeleton) skeleton.hidden = false;
 
     let stylesheet = document.querySelector("link[data-site-theme]");
     if (!stylesheet) {
@@ -88,6 +90,7 @@ class SiteTheme extends HTMLElement {
 
       if (request === this.loadRequest) {
         if (page) page.hidden = false;
+        if (skeleton) skeleton.hidden = true;
         document.documentElement.classList.add("page-ready");
       }
     } catch (error) {
