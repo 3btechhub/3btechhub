@@ -59,18 +59,36 @@ class SiteNavigation extends HTMLElement {
     const visibleMainLinks = mainLinks.filter(item => {
       const sectionPath = normalizePath(new URL(item.path, siteRoot).pathname);
       return currentPath === sectionPath || !currentPath.startsWith(sectionPath);
-    });
+    }).filter(item => item.label !== 'Dashboard');
 
-    visibleMainLinks.forEach((item, index) => {
-      if (index > 0) addSeparator();
-      addLink(item.label, item.path);
-    });
+    const mainNavigationNodes = [];
+    const renderMainLinks = dashboardAllowed => {
+      mainNavigationNodes.splice(0).forEach(node => node.remove());
+      const links = dashboardAllowed
+        ? [...visibleMainLinks, ...mainLinks.filter(item => item.label === 'Dashboard' && visibleMainLinks.some(link => link.label !== 'Dashboard'))]
+        : visibleMainLinks;
+
+      links.forEach((item, index) => {
+        if (index > 0) {
+          const separator = document.createElement('hr');
+          separator.className = 'effect-separator';
+          separator.setAttribute('aria-hidden', 'true');
+          menu.insertBefore(separator, logoutSeparator);
+          mainNavigationNodes.push(separator);
+        }
+        const link = addLink(item.label, item.path);
+        menu.insertBefore(link, logoutSeparator);
+        mainNavigationNodes.push(link);
+      });
+    };
 
     const logoutSeparator = document.createElement('hr');
     logoutSeparator.className = 'effect-separator';
     logoutSeparator.hidden = true;
     logoutSeparator.setAttribute('aria-hidden', 'true');
     menu.appendChild(logoutSeparator);
+
+    renderMainLinks(false);
 
     const logoutButton = document.createElement('button');
     logoutButton.className = 'navigation-logout';
@@ -108,19 +126,58 @@ class SiteNavigation extends HTMLElement {
 
     if (componentScript) {
       import(new URL('./supabase-client.js', componentScript.src).href)
-        .then(({ supabase }) => {
-          const updateLogout = session => {
+        .then(async ({ supabase }) => {
+          let accessCheck = 0;
+
+          const updateAccountNavigation = async session => {
+            const checkId = ++accessCheck;
             logoutButton.hidden = !session;
             logoutSeparator.hidden = !session;
             if (session) logoutButton.disabled = false;
+
+            if (!session) {
+              renderMainLinks(false);
+              return;
+            }
+
+            try {
+              const { data: userData, error: userError } = await supabase.auth.getUser();
+              if (userError || !userData.user) throw userError || new Error('Authenticated user unavailable');
+
+              const { data: roleData, error: roleError } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', userData.user.id)
+                .in('role', ['Owner', 'Admin']);
+
+              if (roleError) throw roleError;
+              if (checkId !== accessCheck) return;
+
+              const dashboardAllowed = Array.isArray(roleData) && roleData.length > 0;
+              renderMainLinks(dashboardAllowed);
+            } catch (error) {
+              if (checkId === accessCheck) renderMainLinks(false);
+              console.error('Unable to verify Dashboard navigation access:', error);
+            }
           };
 
-          supabase.auth.getSession().then(({ data }) => updateLogout(data.session));
-          supabase.auth.onAuthStateChange((_event, session) => updateLogout(session));
+          const { data, error } = await supabase.auth.getSession();
+          if (error) {
+            console.error('Unable to read account session:', error);
+            renderMainLinks(false);
+          } else {
+            await updateAccountNavigation(data.session);
+          }
+
+          supabase.auth.onAuthStateChange((_event, session) => {
+            updateAccountNavigation(session);
+          });
         })
-        .catch(error => console.error('Unable to check account session:', error));
+        .catch(error => {
+          renderMainLinks(false);
+          console.error('Unable to check account session:', error);
+        });
     }
-  }
 }
 
 if (!customElements.get('site-navigation')) {
