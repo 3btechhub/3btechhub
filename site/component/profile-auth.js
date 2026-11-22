@@ -1,29 +1,60 @@
 import { supabase } from "./supabase-client.js";
+
 const loginUrl = new URL("../login/", window.location.href);
 const emailElement = document.getElementById("profile-email");
 const roleElement = document.getElementById("profile-role");
 const status = document.getElementById("profile-status");
+
 async function verifyProfileAccess() {
   try {
     const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
     if (sessionError) throw sessionError;
-    if (!sessionData.session) { window.location.replace(loginUrl.href); return; }
+
+    if (!sessionData.session) {
+      window.location.replace(loginUrl.href);
+      return;
+    }
+
     const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) { await supabase.auth.signOut({ scope: "local" }); window.location.replace(loginUrl.href); return; }
+    if (error || !data.user) {
+      await supabase.auth.signOut({ scope: "local" });
+      window.location.replace(loginUrl.href);
+      return;
+    }
+
     if (emailElement) emailElement.textContent = data.user.email || "";
-    const { data: roleData, error: roleError } = await supabase.from("user_roles").select("role").eq("user_id", data.user.id).limit(1).maybeSingle();
+
+    const { data: roleData, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user.id)
+      .limit(1)
+      .maybeSingle();
+
     if (roleError) {
       console.error("Profile role lookup failed:", roleError);
       if (roleElement) roleElement.textContent = "Unable to load";
-    } else if (roleElement) roleElement.textContent = roleData?.role || "No role assigned";
+    } else if (roleElement) {
+      roleElement.textContent = roleData?.role || "No role assigned";
+    }
+
     const page = document.getElementById("page-content");
     if (page) page.hidden = false;
-    if (new URLSearchParams(window.location.search).get("access") === "denied" && status) status.textContent = "This account does not have permission to access the Dashboard.";
+
+    if (new URLSearchParams(window.location.search).get("access") === "denied" && status) {
+      status.textContent = "This account does not have permission to access the Dashboard.";
+    }
   } catch (error) {
     console.error("Profile session verification failed:", error);
     await supabase.auth.signOut({ scope: "local" });
     window.location.replace(loginUrl.href);
   }
 }
-supabase.auth.onAuthStateChange(event => { if (event === "SIGNED_OUT") window.location.replace(loginUrl.href); });
+
+supabase.auth.onAuthStateChange(event => {
+  if (event === "SIGNED_OUT") {
+    window.location.replace(loginUrl.href);
+  }
+});
+
 verifyProfileAccess();
