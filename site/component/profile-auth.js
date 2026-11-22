@@ -40,8 +40,8 @@ async function verifyProfileAccess() {
       roleElement.textContent = roleData?.role || "No role assigned";
     }
 
-    document.documentElement.dataset.privateAccess = "granted";
-    document.dispatchEvent(new Event("private-access-granted"));
+    const page = document.getElementById("page-content");
+    if (page) page.hidden = false;
 
     if (new URLSearchParams(window.location.search).get("access") === "denied" && status) {
       status.textContent = "This account does not have permission to access the Dashboard.";
