@@ -12,10 +12,9 @@ accountLoginUrl.searchParams.set("next", "dashboard");
 const profileUrl = new URL("account/profile/", siteRoot);
 profileUrl.searchParams.set("access", "denied");
 
-function redirectToLogin(needsVerificationMessage = false) {
-  if (needsVerificationMessage) {
-    accountLoginUrl.searchParams.set("error", "verification");
-  }
+function redirectToLogin() {
+  // Never attach a sticky generic verification error to the Login URL.
+  accountLoginUrl.searchParams.delete("error");
   window.location.replace(accountLoginUrl.href);
 }
 
@@ -25,14 +24,19 @@ function denySignedInUser() {
 
 async function verifyDashboardAccess() {
   try {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-    if (userError) {
-      redirectToLogin(true);
+    if (sessionError) throw sessionError;
+
+    if (!sessionData.session) {
+      redirectToLogin();
       return;
     }
 
-    if (!userData.user) {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !userData.user) {
+      await supabase.auth.signOut({ scope: "local" });
       redirectToLogin();
       return;
     }
@@ -45,7 +49,8 @@ async function verifyDashboardAccess() {
       .maybeSingle();
 
     if (roleError) {
-      redirectToLogin(true);
+      console.error("Dashboard role lookup failed:", roleError);
+      redirectToLogin();
       return;
     }
 
@@ -56,8 +61,10 @@ async function verifyDashboardAccess() {
 
     document.documentElement.dataset.privateAccess = "granted";
     document.dispatchEvent(new Event("private-access-granted"));
-  } catch {
-    redirectToLogin(true);
+  } catch (error) {
+    console.error("Dashboard session verification failed:", error);
+    await supabase.auth.signOut({ scope: "local" });
+    redirectToLogin();
   }
 }
 
