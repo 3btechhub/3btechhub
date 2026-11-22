@@ -253,3 +253,70 @@ site-navigation {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* Account Login */
+.account-auth {
+  width: min(420px, calc(100% - 32px));
+  margin: 48px auto;
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 18%, transparent);
+  border-radius: var(--effect-radius);
+  background: var(--page-background);
+  box-shadow: var(--effect-shadow);
+}
+
+.account-auth h2 {
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+.account-auth form {
+  display: grid;
+  gap: 12px;
+}
+
+.account-auth input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 28%, transparent);
+  border-radius: var(--effect-radius-small);
+  background: var(--page-background);
+}
+
+.account-auth input:focus-visible {
+  outline: 2px solid var(--text-color);
+  outline-offset: 2px;
+  box-shadow: var(--effect-focus);
+}
+
+.account-auth button {
+  min-height: 46px;
+  margin-top: 8px;
+  border: 1px solid var(--text-color);
+  border-radius: var(--effect-radius-small);
+  background: var(--text-color);
+  color: var(--page-background);
+  cursor: pointer;
+  transition: opacity var(--effect-transition), transform var(--effect-transition);
+}
+
+.account-auth button:hover {
+  opacity: var(--effect-hover-opacity);
+}
+
+.account-auth button:active {
+  transform: scale(var(--effect-press-scale));
+}
+
+.account-auth button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+#login-status {
+  min-height: 1.4em;
+  margin: 4px 0 0;
+  text-align: center;
+}
