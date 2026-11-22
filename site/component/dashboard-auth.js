@@ -1,8 +1,15 @@
 import { supabase } from "./supabase-client.js";
 
-const accountLoginUrl = new URL("../account/login/", window.location.href);
+const authScript = Array.from(document.scripts).find(script =>
+  script.src.includes("/component/dashboard-auth.js")
+);
+const siteRoot = authScript
+  ? new URL("../", authScript.src)
+  : new URL("/", window.location.href);
+
+const accountLoginUrl = new URL("account/login/", siteRoot);
 accountLoginUrl.searchParams.set("next", "dashboard");
-const profileUrl = new URL("../account/profile/", window.location.href);
+const profileUrl = new URL("account/profile/", siteRoot);
 profileUrl.searchParams.set("access", "denied");
 
 function redirectToLogin() {
