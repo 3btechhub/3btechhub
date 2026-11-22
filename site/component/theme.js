@@ -109,11 +109,12 @@ class SiteTheme extends HTMLElement {
       renderPageShadow(sourceDocument.querySelector("#page-content"));
     };
 
-    // Build the first Skeleton from the current page immediately. A cached
-    // server snapshot can replace it afterward when the remote response arrives.
-    renderPageShadow(document.querySelector("#page-content"));
+    // The live page DOM is the primary source. Keep it stable during loading;
+    // cached snapshots are only a fallback when no live page markup exists.
+    const livePage = document.querySelector("#page-content");
+    renderPageShadow(livePage);
 
-    if (cachedHtml) renderSnapshot(cachedHtml);
+    if (!livePage && cachedHtml) renderSnapshot(cachedHtml);
 
     const { supabase } = await import(
       new URL("./supabase-client.js", componentScript.src).href
@@ -134,7 +135,9 @@ class SiteTheme extends HTMLElement {
       console.warn("Unable to refresh local Skeleton cache:", storageError);
     }
 
-    if (data.source_html !== cachedHtml) renderSnapshot(data.source_html);
+    if (!livePage && data.source_html !== cachedHtml) {
+      renderSnapshot(data.source_html);
+    }
   }
 
   async waitForComponent(selector, elementName) {
