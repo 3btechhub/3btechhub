@@ -18,10 +18,10 @@ const publicImageUrl=path=>!path?"":/^https?:\/\//i.test(path)?path:supabase.sto
 const safeMapUrl=value=>{try{const url=new URL(value);return url.protocol==="https:"&&["maps.app.goo.gl","google.com","www.google.com","maps.google.com","maps.apple.com"].includes(url.hostname)?url.href:""}catch{return ""}};
 const iconFor={Services:"module.services",Products:"module.products",Technician:"module.technician",Workshop:"module.workshop",Gallery:"module.gallery",Contacts:"module.contacts",Location:"field.location",Images:"module.images",Videos:"module.videos"};
 function makeItem(item){
- const card=document.createElement("a");card.className="home__item";card.href="../content/?module="+encodeURIComponent(item.module)+"&id="+encodeURIComponent(item.id);
- if(item.module==="Images"&&item.image_url){card.classList.add("home__item--image");const img=document.createElement("img");img.className="home__image";img.src=publicImageUrl(item.image_url);img.alt=item.name||"";img.loading="lazy";img.decoding="async";const caption=document.createElement("p");caption.className="home__image-caption";caption.textContent=item.name||"";card.append(img,caption);return card}
+ const card=document.createElement("article");card.className="home__item";const detailLink=document.createElement("a");detailLink.href="../content/?module="+encodeURIComponent(item.module)+"&id="+encodeURIComponent(item.id);
+ if(item.module==="Images"&&item.image_url){card.classList.add("home__item--image");const img=document.createElement("img");img.className="home__image";img.src=publicImageUrl(item.image_url);img.alt=item.name||"";img.loading="lazy";img.decoding="async";const caption=document.createElement("p");caption.className="home__image-caption";caption.textContent=item.name||"";detailLink.append(img,caption);card.append(detailLink);return card}
  const title=document.createElement("h3");title.className="home__item-title";title.textContent=item.name||"";
- const icon=document.createElement("span");icon.dataset.siteIcon=iconFor[item.module]||"";icon.setAttribute("aria-hidden","true");card.append(title);if(icon.dataset.siteIcon)card.append(icon);
+ const icon=document.createElement("span");icon.dataset.siteIcon=iconFor[item.module]||"";icon.setAttribute("aria-hidden","true");detailLink.append(title);card.append(detailLink);if(icon.dataset.siteIcon)card.append(icon);
  if(["Workshop","Location"].includes(item.module)&&item.location){const p=document.createElement("p");p.className="home__location";const pin=document.createElement("span");pin.dataset.siteIcon="field.location";pin.setAttribute("aria-hidden","true");const txt=document.createElement("span");txt.textContent=item.location;p.append(pin,txt);card.append(p)}
  const map=safeMapUrl(item.map);if(map){const a=document.createElement("a");a.className="home__map-link";a.href=map;a.target="_blank";a.rel="noopener noreferrer";a.textContent="View Location";card.append(a)}
  return card;
@@ -36,7 +36,7 @@ async function renderHome(){
  if(version!==renderVersion)return;
  if(settingsError||itemError||prefsError){status.textContent=(settingsError||itemError||prefsError).message||"Unable to load Home Page.";return}
  const values=Object.fromEntries((prefs||[]).map(x=>[x.preference_key,x.preference_value]));
- document.title=(values.website_title||"3B TECH HUB")+" · 3B TECH HUB";
+ document.title=values.website_title||"3B TECH HUB";
  const intro=document.getElementById("home-intro");intro.textContent=values.intro||"";intro.hidden=!values.intro;
  const logo=document.getElementById("home-logo");if(values.website_logo){logo.src=publicImageUrl(values.website_logo);logo.hidden=false}else{logo.hidden=true}
  const title=document.getElementById("home-title");title.textContent=values.website_title||"";
