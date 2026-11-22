@@ -26,6 +26,24 @@ class SiteNavigation extends HTMLElement {
     menu.setAttribute('aria-label', 'Main navigation');
     menu.hidden = true;
 
+    const componentScript = Array.from(document.scripts).find(script =>
+      script.src.includes('/component/navigation.js')
+    );
+    const siteRoot = componentScript
+      ? new URL('../', componentScript.src)
+      : new URL('/', window.location.href);
+
+    [
+      ['Home', 'home/'],
+      ['Account', 'account/'],
+      ['Dashboard', 'dashboard/']
+    ].forEach(([label, path]) => {
+      const link = document.createElement('a');
+      link.textContent = label;
+      link.href = new URL(path, siteRoot).href;
+      menu.appendChild(link);
+    });
+
     button.addEventListener('click', () => {
       const isOpen = button.getAttribute('aria-expanded') === 'true';
       button.setAttribute('aria-expanded', String(!isOpen));
