@@ -492,3 +492,191 @@ website-intro-editor {
   min-height: 1.4em;
   margin: 0;
 }
+
+
+/* Our Services */
+our-services {
+  display: block;
+  width: min(1120px, calc(100% - 32px));
+  margin: 28px auto 44px;
+}
+
+.our-services__heading {
+  margin: 0 0 18px;
+  font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.our-services__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+  gap: 14px;
+}
+
+.our-services__card {
+  min-width: 0;
+  min-height: 112px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+  border-radius: 18px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--text-color) 3%, var(--page-background)), var(--page-background) 72%);
+  box-shadow: 0 3px 12px rgb(0 0 0 / 5%);
+  transition: transform var(--effect-transition), box-shadow var(--effect-transition), border-color var(--effect-transition);
+}
+
+.our-services__card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--text-color) 25%, transparent);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 9%);
+}
+
+.our-services__title {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.our-services__description {
+  margin: 0;
+  color: color-mix(in srgb, var(--text-color) 72%, transparent);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.our-services-editor {
+  width: min(900px, calc(100% - 32px));
+  margin: 28px auto;
+  padding: 22px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 16%, transparent);
+  border-radius: var(--effect-radius);
+  background: var(--page-background);
+  box-shadow: var(--effect-shadow);
+}
+
+.our-services-editor__heading {
+  margin: 0 0 20px;
+}
+
+.our-services-editor__form {
+  display: grid;
+  gap: 12px;
+}
+
+.our-services-editor__form label {
+  display: grid;
+  gap: 7px;
+  font-weight: 600;
+}
+
+.our-services-editor__form input[type="text"],
+.our-services-editor__form textarea {
+  width: 100%;
+  min-height: 44px;
+  padding: 11px 12px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 24%, transparent);
+  border-radius: var(--effect-radius-small);
+  background: var(--page-background);
+  color: var(--text-color);
+  font: inherit;
+  font-weight: 400;
+}
+
+.our-services-editor__visibility {
+  display: flex !important;
+  align-items: center;
+  gap: 9px !important;
+  font-weight: 400 !important;
+}
+
+.our-services-editor__form button,
+.our-services-editor__actions button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--text-color);
+  border-radius: var(--effect-radius-small);
+  background: var(--text-color);
+  color: var(--page-background);
+  cursor: pointer;
+}
+
+.our-services-editor__form .our-services-editor__cancel,
+.our-services-editor__actions button {
+  background: var(--page-background);
+  color: var(--text-color);
+}
+
+.our-services-editor__status {
+  min-height: 1.3em;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.our-services-editor__list {
+  display: grid;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.our-services-editor__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+  border-radius: var(--effect-radius-small);
+}
+
+.our-services-editor__details {
+  min-width: 0;
+}
+
+.our-services-editor__details h3,
+.our-services-editor__details p {
+  margin: 0 0 5px;
+  overflow-wrap: anywhere;
+}
+
+.our-services-editor__details p,
+.our-services-editor__state,
+.our-services-editor__empty {
+  color: color-mix(in srgb, var(--text-color) 68%, transparent);
+  font-size: 0.88rem;
+}
+
+.our-services-editor__actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.our-services-editor__actions .our-services-editor__delete {
+  border-color: #a33;
+  color: #a33;
+}
+
+@media (max-width: 520px) {
+  .our-services__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .our-services__card {
+    min-height: 104px;
+    padding: 14px;
+    border-radius: 15px;
+  }
+
+  .our-services-editor {
+    padding: 16px;
+  }
+
+  .our-services-editor__item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
