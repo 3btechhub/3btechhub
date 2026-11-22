@@ -59,6 +59,8 @@ async function verifyDashboardAccess() {
 
     const page = document.getElementById("page-content");
     if (page) page.hidden = false;
+    document.documentElement.dataset.privateAccessGranted = 'true';
+    document.dispatchEvent(new Event('private-access-granted'));
   } catch (error) {
     console.error("Dashboard session verification failed:", error);
     await supabase.auth.signOut({ scope: "local" });
