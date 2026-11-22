@@ -103,7 +103,6 @@ form?.addEventListener("submit", async event => {
       status.textContent = "Unable to complete login. Please try again.";
       status.hidden = false;
     }
-    setLoading(false);
   }
 });
 
