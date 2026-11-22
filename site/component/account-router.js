@@ -4,7 +4,15 @@ const loginUrl = new URL("./login/", window.location.href);
 const profileUrl = new URL("./profile/", window.location.href);
 
 async function navigateAfterSkeletonPaint(url) {
-  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  if (document.documentElement.classList.contains("page-ready")) {
+    window.location.replace(url.href);
+    return;
+  }
+
+  await new Promise(resolve => {
+    document.addEventListener("page-ready", resolve, { once: true });
+  });
+
   window.location.replace(url.href);
 }
 
