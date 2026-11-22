@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Home</title>
-  <link rel="stylesheet" href="../theme/classic.css" data-site-theme>
-    <style>
+  <style>
+html,body{margin:0;min-height:100%;background:var(--page-background,Canvas)}
 .skeleton-screen{position:fixed;inset:0;z-index:2000;display:flex;flex-direction:column;gap:24px;padding:24px;overflow:hidden;background:var(--page-background,Canvas)}
 .skeleton-line,.skeleton-block,.skeleton-circle{position:relative;overflow:hidden;background:var(--skeleton-surface,color-mix(in srgb, CanvasText 9%, Canvas))}
 .skeleton-line:after,.skeleton-block:after,.skeleton-circle:after{position:absolute;inset:0;content:"";transform:translateX(-100%);background:linear-gradient(90deg,transparent,var(--skeleton-shimmer,color-mix(in srgb, Canvas 80%, transparent)),transparent);animation:skeleton-shimmer 1.35s infinite}
@@ -19,6 +18,9 @@
 @keyframes skeleton-shimmer{100%{transform:translateX(100%)}}
 @media(prefers-reduced-motion:reduce){.skeleton-line:after,.skeleton-block:after,.skeleton-circle:after{animation:none}}
 </style>
+<title>Home</title>
+  <link rel="stylesheet" href="../theme/classic.css" data-site-theme>
+    
 </head>
 <body>
   <div class="skeleton-screen" aria-hidden="true">
@@ -26,6 +28,6 @@
   <div class="skeleton-row"><div class="skeleton-circle"></div><div class="skeleton-stack"><div class="skeleton-line skeleton-medium"></div><div class="skeleton-line skeleton-short"></div></div></div>
   <div class="skeleton-stack"><div class="skeleton-block"></div><div class="skeleton-block"></div><div class="skeleton-block"></div></div>
 </div>
-  <script>window.location.replace(new URL('overview/', window.location.href).href);</script>
+  <script>requestAnimationFrame(() => requestAnimationFrame(() => window.location.replace(new URL('overview/', window.location.href).href)));</script>
 </body>
 </html>
