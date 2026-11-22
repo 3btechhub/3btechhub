@@ -46,6 +46,24 @@ async function waitForCustomElements() {
   );
 }
 
+async function waitForWebsiteIntro() {
+  const components = Array.from(document.querySelectorAll('website-intro, website-intro-editor'));
+  if (!components.length) return;
+
+  await withTimeout(Promise.all(components.map(element => {
+    if (element.dataset.ready === 'true') return Promise.resolve();
+    return new Promise(resolve => {
+      const onReady = () => {
+        if (element.dataset.ready === 'true') {
+          element.removeEventListener('website-intro-ready', onReady);
+          resolve();
+        }
+      };
+      element.addEventListener('website-intro-ready', onReady);
+    });
+  })), 10000, 'website intro');
+}
+
 function verifyStylesheets() {
   const failed = Array.from(document.querySelectorAll('link[rel~="stylesheet"]'))
     .filter(link => !link.sheet);
@@ -88,6 +106,7 @@ async function revealPreparedPage() {
     await waitForFlag('privateAccessGranted', 'private-access-granted', 13000);
   }
 
+  await waitForWebsiteIntro();
   await waitForImages();
   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 }
