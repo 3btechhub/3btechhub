@@ -60,8 +60,8 @@ async function verifyDashboardAccess() {
       return;
     }
 
-    document.documentElement.dataset.privateAccess = "granted";
-    document.dispatchEvent(new Event("private-access-granted"));
+    const page = document.getElementById("page-content");
+    if (page) page.hidden = false;
   } catch (error) {
     console.error("Dashboard session verification failed:", error);
     await supabase.auth.signOut({ scope: "local" });
