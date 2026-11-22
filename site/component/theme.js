@@ -28,23 +28,17 @@ class SiteTheme extends HTMLElement {
     pagePath = "/" + pagePath.replace(/^\/+/, "");
     if (pagePath !== "/" && !pagePath.endsWith("/")) pagePath += "/";
 
-    const { supabase } = await import(
-      new URL("./supabase-client.js", componentScript.src).href
-    );
+    const cacheKey = `3btechhub:skeleton:${pagePath}`;
+    let cachedHtml = null;
 
-    const { data, error } = await supabase
-      .from("site_skeleton_cache")
-      .select("source_html")
-      .eq("page_path", pagePath)
-      .maybeSingle();
+    try {
+      cachedHtml = localStorage.getItem(cacheKey);
+    } catch (error) {
+      console.warn("Local Skeleton cache is unavailable:", error);
+    }
 
-    if (error) throw error;
-    if (!data?.source_html) return;
-
-    const sourceDocument = new DOMParser().parseFromString(
-      data.source_html,
-      "text/html"
-    );
+    const renderSnapshot = html => {
+      const sourceDocument = new DOMParser().parseFromString(html, "text/html");
     const sourcePage = sourceDocument.querySelector("#page-content");
     if (!sourcePage) return;
 
@@ -111,8 +105,32 @@ class SiteTheme extends HTMLElement {
     wrapper.className = "skeleton-shadow";
     wrapper.appendChild(document.importNode(shadowPage, true));
 
-    skeleton.replaceChildren(wrapper);
-    skeleton.classList.add("skeleton-structure");
+      skeleton.replaceChildren(wrapper);
+      skeleton.classList.add("skeleton-structure");
+    };
+
+    if (cachedHtml) renderSnapshot(cachedHtml);
+
+    const { supabase } = await import(
+      new URL("./supabase-client.js", componentScript.src).href
+    );
+
+    const { data, error } = await supabase
+      .from("site_skeleton_cache")
+      .select("source_html")
+      .eq("page_path", pagePath)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data?.source_html) return;
+
+    try {
+      localStorage.setItem(cacheKey, data.source_html);
+    } catch (storageError) {
+      console.warn("Unable to refresh local Skeleton cache:", storageError);
+    }
+
+    if (data.source_html !== cachedHtml) renderSnapshot(data.source_html);
   }
 
   async waitForComponent(selector, elementName) {
