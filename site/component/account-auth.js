@@ -13,13 +13,23 @@ function setLoading(isLoading) {
   if (submitButton) submitButton.disabled = isLoading;
 }
 
+function signalAuthReady() {
+  document.documentElement.dataset.pageAuthReady = "true";
+  document.dispatchEvent(new Event("page-auth-ready"));
+}
+
 const params = new URLSearchParams(window.location.search);
 const dashboardRequested = params.get("next") === "dashboard";
 const dashboardUrl = new URL("../../dashboard/overview/", window.location.href);
 const profileUrl = new URL("../profile/", window.location.href);
 
-if (params.get("error") === "verification" && status) {
-  status.textContent = "We couldn't verify your account. Please try again.";
+// Verification errors are not carried in the URL. They became stale and
+// caused the same message to reappear on every visit to the Login page.
+params.delete("error");
+if (window.location.search.includes("error=")) {
+  const cleanUrl = new URL(window.location.href);
+  cleanUrl.searchParams.delete("error");
+  window.history.replaceState({}, "", cleanUrl.href);
 }
 
 async function hasOwnerAccess(user) {
@@ -44,11 +54,11 @@ async function routeSignedInUser(user) {
       profileUrl.searchParams.set("access", "denied");
       window.location.replace(profileUrl.href);
       return;
-    } catch {
+    } catch (error) {
+      console.error("Dashboard role verification failed:", error);
       status.textContent = "Unable to verify Dashboard access. Please try again.";
       setLoading(false);
-      document.documentElement.dataset.pageAuthReady = "true";
-      document.dispatchEvent(new Event("page-auth-ready"));
+      signalAuthReady();
       return;
     }
   }
@@ -62,45 +72,67 @@ form?.addEventListener("submit", async event => {
 
   setLoading(true);
 
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: emailInput.value.trim(),
-    password: passwordInput.value
-  });
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: emailInput.value.trim(),
+      password: passwordInput.value
+    });
 
-  if (signInError) {
-    const isConnectionError =
-      signInError.name === "AuthRetryableFetchError" ||
-      !signInError.status ||
-      signInError.status >= 500;
+    if (error) {
+      const isConnectionError =
+        error.name === "AuthRetryableFetchError" ||
+        !error.status ||
+        error.status >= 500;
 
-    status.textContent = isConnectionError
-      ? "Unable to connect. Check your internet connection and try again."
-      : "Email or password is incorrect. Please try again.";
+      status.textContent = isConnectionError
+        ? "Unable to connect. Check your internet connection and try again."
+        : "Email or password is incorrect. Please try again.";
+      setLoading(false);
+      return;
+    }
+
+    // signInWithPassword already returns the authenticated user and session.
+    // Avoid an unnecessary second /user request after a successful login.
+    if (!data?.user || !data?.session) {
+      status.textContent = "Sign-in could not be completed. Please try again.";
+      setLoading(false);
+      return;
+    }
+
+    await routeSignedInUser(data.user);
+  } catch (error) {
+    console.error("Login failed:", error);
+    status.textContent = "Unable to complete login. Please try again.";
     setLoading(false);
-    return;
   }
-
-  const { data, error: userError } = await supabase.auth.getUser();
-  if (userError || !data.user) {
-    status.textContent = "Sign-in succeeded, but your account could not be verified. Please try again.";
-    setLoading(false);
-    return;
-  }
-
-  await routeSignedInUser(data.user);
 });
 
 async function redirectIfAlreadySignedIn() {
-  const { data, error } = await supabase.auth.getUser();
+  try {
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
 
-  if (!error && data.user) {
+    if (sessionError) throw sessionError;
+
+    if (!sessionData.session) {
+      signalAuthReady();
+      return;
+    }
+
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error || !data.user) {
+      // Clear only this browser's invalid/stale session; do not show a
+      // permanent verification warning to a visitor who simply needs Login.
+      await supabase.auth.signOut({ scope: "local" });
+      signalAuthReady();
+      return;
+    }
+
     await routeSignedInUser(data.user);
-    return;
+  } catch (error) {
+    console.error("Initial session check failed:", error);
+    signalAuthReady();
   }
-
-  // A missing session is normal on the Login page; do not show an error.
-  document.documentElement.dataset.pageAuthReady = "true";
-  document.dispatchEvent(new Event("page-auth-ready"));
 }
 
 redirectIfAlreadySignedIn();
