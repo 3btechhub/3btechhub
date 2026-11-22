@@ -5,8 +5,6 @@ class WebpageTitle extends HTMLElement {
     title.textContent = this.textContent.trim();
     title.className = 'webpage-title';
     this.replaceChildren(title);
-    this.dataset.componentReady = 'true';
-    this.dispatchEvent(new Event('component-ready'));
   }
 }
 
