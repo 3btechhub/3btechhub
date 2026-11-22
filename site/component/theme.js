@@ -12,6 +12,109 @@ class SiteTheme extends HTMLElement {
     if (this.isConnected) this.loadTheme();
   }
 
+  async loadSkeletonShadow(skeleton) {
+    const componentScript = Array.from(document.scripts).find(script =>
+      script.src.includes("/component/theme.js")
+    );
+    if (!componentScript || !skeleton) return;
+
+    const siteRoot = new URL("../", componentScript.src);
+    let pagePath = window.location.pathname;
+
+    if (pagePath.startsWith(siteRoot.pathname)) {
+      pagePath = pagePath.slice(siteRoot.pathname.length);
+    }
+
+    pagePath = "/" + pagePath.replace(/^\/+/, "");
+    if (pagePath !== "/" && !pagePath.endsWith("/")) pagePath += "/";
+
+    const { supabase } = await import(
+      new URL("./supabase-client.js", componentScript.src).href
+    );
+
+    const { data, error } = await supabase
+      .from("site_skeleton_cache")
+      .select("source_html")
+      .eq("page_path", pagePath)
+      .maybeSingle();
+
+    if (error) throw error;
+    if (!data?.source_html) return;
+
+    const sourceDocument = new DOMParser().parseFromString(
+      data.source_html,
+      "text/html"
+    );
+    const sourcePage = sourceDocument.querySelector("#page-content");
+    if (!sourcePage) return;
+
+    const shadowPage = sourcePage.cloneNode(true);
+    shadowPage.removeAttribute("id");
+    shadowPage.removeAttribute("hidden");
+    shadowPage.setAttribute("aria-hidden", "true");
+    shadowPage.inert = true;
+
+    shadowPage.querySelectorAll("script, style, site-navigation, site-theme")
+      .forEach(element => element.remove());
+
+    const sourceTitle = shadowPage.querySelector("webpage-title");
+    if (sourceTitle) {
+      const title = sourceDocument.createElement("h1");
+      title.className = "webpage-title skeleton-text";
+      title.setAttribute("aria-hidden", "true");
+      title.style.width = "min(42%, 240px)";
+      sourceTitle.replaceWith(title);
+    }
+
+    shadowPage.querySelectorAll("input, button, textarea, select").forEach(element => {
+      element.disabled = true;
+      element.removeAttribute("id");
+      element.removeAttribute("name");
+      element.removeAttribute("for");
+      element.removeAttribute("placeholder");
+      element.setAttribute("aria-hidden", "true");
+      if ("value" in element) element.value = "";
+    });
+
+    shadowPage.querySelectorAll("*").forEach(element => {
+      element.removeAttribute("id");
+      element.removeAttribute("for");
+      element.removeAttribute("href");
+      element.removeAttribute("tabindex");
+
+      Array.from(element.attributes).forEach(attribute => {
+        if (attribute.name.startsWith("on")) {
+          element.removeAttribute(attribute.name);
+        }
+      });
+    });
+
+    const walker = sourceDocument.createTreeWalker(
+      shadowPage,
+      NodeFilter.SHOW_TEXT
+    );
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    for (const textNode of textNodes) {
+      const text = textNode.nodeValue.trim();
+      if (!text) continue;
+
+      const placeholder = sourceDocument.createElement("span");
+      placeholder.className = "skeleton-text";
+      placeholder.setAttribute("aria-hidden", "true");
+      placeholder.style.width = `${Math.min(18, Math.max(2, text.length * 0.48))}em`;
+      textNode.replaceWith(placeholder);
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "skeleton-shadow";
+    wrapper.appendChild(document.importNode(shadowPage, true));
+
+    skeleton.replaceChildren(wrapper);
+    skeleton.classList.add("skeleton-structure");
+  }
+
   async waitForComponent(selector, elementName) {
     await customElements.whenDefined(elementName);
 
@@ -61,6 +164,10 @@ class SiteTheme extends HTMLElement {
     document.documentElement.classList.remove("page-ready");
     if (page) page.hidden = true;
     if (skeleton) skeleton.hidden = false;
+
+    this.loadSkeletonShadow(skeleton).catch(error => {
+      console.error("Unable to load the cached page structure for Skeleton UI:", error);
+    });
 
     let stylesheet = document.querySelector("link[data-site-theme]");
     if (!stylesheet) {
