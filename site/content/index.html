@@ -13,7 +13,7 @@ import {initSiteIcons} from "../icons.js";
 const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
 connectGlobalRealtime(supabase);initSiteIcons(supabase);
 const root=document.getElementById("content-root"),status=document.getElementById("content-status");
-const params=new URLSearchParams(location.search),moduleName=params.get("module")||params.get("type"),id=params.get("id");
+const params=new URLSearchParams(location.search),moduleName=params.get("module"),id=params.get("id");
 const fieldOptions={Services:[],Products:[],Technician:[["skills","Skills"]],Workshop:[["location","Location"],["map","View Location"]],Gallery:[],Contacts:[["label","Label"],["value","Value"]],Location:[["location","Location"],["map","View Location"]],Images:[["image_url","Image"]],Videos:[["file_title","File Title"],["image_url","Open Video"]]};
 const iconFor={Services:"module.services",Products:"module.products",Technician:"module.technician",Workshop:"module.workshop",Gallery:"module.gallery",Contacts:"module.contacts",Location:"field.location",Images:"module.images",Videos:"module.videos"};
 const defaultFieldOrder=module=>(fieldOptions[module]||[]).map(([key])=>key);
