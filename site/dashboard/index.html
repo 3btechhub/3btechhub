@@ -267,7 +267,7 @@ function start(){
  async function renderConfig(panel){
   panel.replaceChildren(node("h2","",state.module));
   const table="configuration_items",list=node("div","dashboard__list"),form=node("form","dashboard__manager-form");
-  const name=field(form,state.module+" name","name");
+  const name=field(form,state.module+" name","name");name.required=true;
   const actions=node("div","dashboard__actions");const save=node("button","button button--primary","Save");save.type="submit";actions.append(save);form.append(actions);
   const create=button("Create","button button--secondary",()=>{form.hidden=false;form.reset();form.dataset.id=""});
   panel.append(create,form,list);form.hidden=true;
@@ -291,7 +291,7 @@ function start(){
   const form=node("form","dashboard__manager-form");
   const input=key==="intro"?node("textarea"):node("input");
   input.name=key;input.value=data.preference_value||"";input.placeholder=state.module;input.setAttribute("aria-label",state.module);
-  if(key==="website_logo")input.type="url";
+  if(key==="website_logo")input.type="text";
   form.append(input);const save=node("button","button button--primary","Save");save.type="submit";form.append(save);
   form.addEventListener("submit",async e=>{e.preventDefault();const {error}=await supabase.from("site_preferences").update({preference_value:input.value.trim(),updated_at:new Date().toISOString()}).eq("preference_key",key);if(error)say(error.message,true);else{say("Saved");await window.sitePreferences?.refresh()}});
   panel.append(form);
@@ -323,7 +323,7 @@ function start(){
    list.replaceChildren();const {data,error}=await supabase.from("module_field_orders").select("field_order").eq("module",select.value).maybeSingle();if(error)throw error;
    const available=detailFields[select.value]||[],order=Array.isArray(data?.field_order)?data.field_order:[];
    const keys=[...order.filter(k=>available.some(x=>x[0]===k)),...available.map(x=>x[0]).filter(k=>!order.includes(k))];
-   keys.forEach((key,index)=>{const row=node("div","dashboard__field-order-row");row.dataset.key=key;row.append(node("span","",available.find(x=>x[0]===key)?.[1]||key));row.append(button("↑","button button--ghost",()=>{if(index>0)list.insertBefore(row,list.children[index-1])}),button("↓","button button--ghost",()=>{if(index<list.children.length-1)list.insertBefore(list.children[index+1],row)}));list.append(row)});
+   keys.forEach((key,index)=>{const row=node("div","dashboard__field-order-row");row.dataset.key=key;row.append(node("span","",available.find(x=>x[0]===key)?.[1]||key));row.append(button("↑","button button--ghost",()=>{if(row.previousElementSibling)list.insertBefore(row,row.previousElementSibling)}),button("↓","button button--ghost",()=>{if(row.nextElementSibling)list.insertBefore(row.nextElementSibling,row)}));list.append(row)});
   };
   select.addEventListener("change",()=>draw().catch(e=>say(e.message,true)));panel.append(select,list,save);await draw();
  }
