@@ -31,7 +31,7 @@ class OurServices extends HTMLElement {
       const grid = element("div", "our-services__grid");
 
       data.forEach(service => {
-        const card = element("article", "our-services__card");
+        const card = element("article", "ui-card ui-card--medium our-services__card");
         card.append(
           element("h3", "our-services__title", service.title)
         );
