@@ -107,6 +107,10 @@ class SiteNavigation extends HTMLElement {
 
     this.replaceChildren(button, menu);
 
+    // Navigation UI is ready independently of remote authentication.
+    document.documentElement.dataset.navigationReady = 'true';
+    document.dispatchEvent(new Event('site-navigation-ready'));
+
     if (componentScript) {
       import(new URL('./supabase-client.js', componentScript.src).href)
         .then(async ({ supabase }) => {
@@ -142,34 +146,27 @@ class SiteNavigation extends HTMLElement {
             }
           };
 
-          const { data, error } = await supabase.auth.getSession();
-          if (error) {
-            console.error('Unable to read account session:', error);
-            renderMainLinks(false);
-          } else {
+          try {
+            const { data, error } = await supabase.auth.getSession();
+            if (error) throw error;
             await updateNavigation(data.session);
+          } catch (error) {
+            renderMainLinks(false);
+            console.error('Unable to check account session:', error);
           }
 
           supabase.auth.onAuthStateChange((_event, session) => {
             updateNavigation(session);
           });
-
-          document.documentElement.dataset.navigationReady = 'true';
-          document.dispatchEvent(new Event('site-navigation-ready'));
         })
         .catch(error => {
           renderMainLinks(false);
           console.error('Unable to check account session:', error);
-          document.documentElement.dataset.navigationReady = 'true';
-          document.dispatchEvent(new Event('site-navigation-ready'));
         });
-    } else {
-      document.documentElement.dataset.navigationReady = 'true';
-      document.dispatchEvent(new Event('site-navigation-ready'));
     }
   }
 }
- 
+
 if (!customElements.get('site-navigation')) {
   customElements.define('site-navigation', SiteNavigation);
 }
