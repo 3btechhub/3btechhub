@@ -116,4 +116,8 @@ async function redirectIfAlreadySignedIn() {
   }
 }
 
-redirectIfAlreadySignedIn();
+const initialAuthCheck = redirectIfAlreadySignedIn();
+initialAuthCheck.finally(() => {
+  document.documentElement.dataset.pageAuthReady = 'true';
+  document.dispatchEvent(new Event('page-auth-ready'));
+});
