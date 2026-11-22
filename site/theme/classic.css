@@ -415,7 +415,7 @@ site-navigation {
 .skeleton-medium { width: 62%; }
 .skeleton-wide { width: 100%; }
 .skeleton-row { display: flex; align-items: center; gap: 14px; }
-.skeleton-stack { display: flex; flex-direction: column; gap: 14px; }
+.skeleton-stack { display: flex; flex: 1; flex-direction: column; gap: 14px; }
 @keyframes skeleton-shimmer { to { transform: translateX(100%); } }
 @media (prefers-reduced-motion: reduce) {
   .skeleton-line::after, .skeleton-block::after, .skeleton-circle::after { animation: none; }
