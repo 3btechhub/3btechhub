@@ -102,6 +102,31 @@ textarea {
   transform: translateY(calc(-1 * var(--effect-lift)));
 }
 
+/* Reusable Separators */
+.effect-separator {
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin-block: 12px;
+  border: 0;
+  background: color-mix(in srgb, var(--text-color) 18%, transparent);
+  flex: none;
+}
+
+.effect-separator-strong {
+  background: color-mix(in srgb, var(--text-color) 38%, transparent);
+}
+
+.effect-separator-vertical {
+  display: inline-block;
+  align-self: stretch;
+  width: 1px;
+  min-height: 100%;
+  height: auto;
+  margin-inline: 12px;
+  margin-block: 0;
+}
+
 /* Webpage Title */
 .webpage-title {
   text-align: center;
