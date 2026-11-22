@@ -8,11 +8,12 @@
   <script src="../component/theme.js" defer></script>
   <script src="../component/webpage-title.js" defer></script>
   <script src="../component/navigation.js" defer></script>
+  <script type="module" src="../component/dashboard-auth.js"></script>
 </head>
 <body>
   <site-theme src="../theme/classic.css"></site-theme>
 
-  <main class="page-content" id="page-content" hidden>
+  <main class="page-content" id="page-content" data-auth-required="true" hidden>
     <webpage-title>Dashboard</webpage-title>
     <site-navigation></site-navigation>
   </main>
