@@ -39,8 +39,8 @@ class SiteNavigation extends HTMLElement {
       ['Dashboard', 'dashboard/']
     ].forEach(([label, path], index) => {
       if (index > 0) {
-        const separator = document.createElement('span');
-        separator.className = 'effect-separator-vertical';
+        const separator = document.createElement('hr');
+        separator.className = 'effect-separator';
         separator.setAttribute('aria-hidden', 'true');
         menu.appendChild(separator);
       }
