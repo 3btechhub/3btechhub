@@ -5,514 +5,320 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="../global.css">
 <script src="../navigation.js" defer></script>
-<title>Dashboard</title>
+<title>Dashboard · 3B TECH HUB</title>
 <script type="module">
 import {createClient} from "https://esm.sh/@supabase/supabase-js@2.119.1";
 import {connectGlobalRealtime} from "../realtime.js";
 import {initSiteIcons} from "../icons.js";
 const supabase=createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
-const accountUrl=new URL("../account/",window.location.href);accountUrl.searchParams.set("returnTo",window.location.href);
 const OWNER_ID="0074818e-942d-4752-ada2-01a11e291ff4";
+const accountUrl=new URL("../account/",location.href);accountUrl.searchParams.set("returnTo",location.href);
 const {data:{session},error:authError}=await supabase.auth.getSession();
-if(authError||!session)window.location.replace(accountUrl.href);
-else if(session.user.id!==OWNER_ID){const deniedUrl=new URL("../account/",window.location.href);deniedUrl.searchParams.set("access","denied");window.location.replace(deniedUrl.href)}
-else{document.documentElement.classList.add("authenticated");startDashboard()}
-function startDashboard(){
- connectGlobalRealtime(supabase);
- initSiteIcons(supabase);
- const types=["Services","Products","Providers","Hubs","Contacts","Images","Videos"],$=id=>document.getElementById(id);
- const state={tab:"Content",subtab:"Existed List",items:[],roles:[],visibility:new Map(),selected:null,sourceType:"Services",sourceId:"",related:new Set(),busy:false,slugEdited:false};
- const tabs=$("dashboard-tabs"),status=$("status");
- const say=(m,bad=false)=>{status.textContent=m;status.dataset.state=bad?"error":m?"success":"info"};
- const iconize=(button,key)=>{const icon=document.createElement("span");icon.dataset.siteIcon=key;icon.setAttribute("aria-hidden","true");button.append(icon)};
- const setBusy=v=>{state.busy=v;["content-save","relation-save","content-cancel"].forEach(id=>$(id).disabled=v);$("content-roles").querySelectorAll("input").forEach(input=>input.disabled=v);$("content-delete").disabled=v||!state.selected};
- function tabButton(name,active,onSelect){const b=document.createElement("button");b.type="button";b.className="dashboard__tab";const iconKey={Content:"dashboard.content",Administration:"dashboard.administration",Settings:"dashboard.settings","Existed List":"action.search","Create Form":"action.create","Relation Form":"dashboard.content",User:"field.name",Role:"dashboard.administration",Permission:"field.visibility",Region:"field.location",Direction:"layout.home",Language:"field.name",Theme:"theme.dark","Home Page Section Management":"layout.home","Details Page Field Order":"dashboard.settings","SVG Icons":"field.image"}[name];const label=document.createElement("span");label.textContent=name;b.append(label);if(iconKey){const icon=document.createElement("span");icon.dataset.siteIcon=iconKey;icon.setAttribute("aria-hidden","true");b.append(icon)}b.setAttribute("aria-selected",String(active===name));b.addEventListener("click",()=>onSelect(name));return b}
- function renderSubtabs(){const configs={Content:["Existed List","Create Form","Relation Form"],Administration:["User","Role","Permission"],Settings:["Region","Direction","Language","Theme","Home Page Section Management","Details Page Field Order","SVG Icons"]};const nav=$(state.tab.toLowerCase()+"-subtabs");if(!nav)return;nav.replaceChildren(...(configs[state.tab]||[]).map(n=>tabButton(n,state.subtab,x=>showSubtab(x))));}
-
- async function callUserAdmin(body){const {data,error}=await supabase.functions.invoke("owner-users",{body});if(error)throw error;return data}
- function managerShell(panel,kind){
-  panel.innerHTML="";
-  const title=document.createElement("h2");title.textContent=kind;panel.append(title);
-  const actions=document.createElement("div");actions.className="dashboard__actions";
-  const create=document.createElement("button");create.type="button";create.className="button button--primary";create.textContent="Create";const createIcon=document.createElement("span");createIcon.dataset.siteIcon="action.create";create.append(createIcon);
-  const hide=document.createElement("button");hide.type="button";hide.className="button button--secondary";hide.textContent="Hide";iconize(hide,"action.cancel");hide.hidden=true;actions.append(create,hide);panel.append(actions);
-  const form=document.createElement("form");form.hidden=true;form.className="dashboard__manager-form";
-  const listTitle=document.createElement("h3");listTitle.textContent="Existed Item List";
-  const list=document.createElement("div");list.className="dashboard__list";
-  panel.append(form,listTitle,list);
-  create.addEventListener("click",()=>{form.hidden=false;hide.hidden=false;form.reset();form.dataset.edit="";form.dataset.id="";form.querySelectorAll("[data-permission]").forEach(x=>x.checked=false)});
-  hide.addEventListener("click",()=>{form.hidden=true;hide.hidden=true;form.reset();form.dataset.edit="";form.dataset.id=""});
-  return {form,list,create,hide};
+if(authError||!session)location.replace(accountUrl.href);
+else if(session.user.id!==OWNER_ID){const denied=new URL("../account/",location.href);denied.searchParams.set("access","denied");location.replace(denied.href)}
+else{document.documentElement.classList.add("authenticated");start()}
+function start(){
+ connectGlobalRealtime(supabase);initSiteIcons(supabase);
+ const $=id=>document.getElementById(id);
+ const groups={
+  Content:["Services","Products","Technician","Workshop","Gallery"],
+  Information:["Contacts","Location"],
+  Media:["Images","Videos"],
+  Administration:["User","Role","Permission"],
+  Customization:["Theme","Icon"],
+  Preference:["Region","Direction","Language"],
+  Settings:["Website Logo","Website Title","Intro","Homepage Management","Details Management"]
+ };
+ const fields={
+  Services:[["slug","Slug"]],Products:[["slug","Slug"]],Technician:[["slug","Slug"],["skills","Skills"]],
+  Workshop:[["slug","Slug"],["location","Location"],["map","Map URL"]],
+  Gallery:[["slug","Slug"]],Contacts:[["label","Label"],["value","Value"]],
+  Location:[["location","Location"],["map","Map URL"]],
+  Images:[["image_url","Image URL"]],Videos:[["image_url","Image URL"],["file_title","File Title"]]
+ };
+ const icons={Services:"module.services",Products:"module.products",Technician:"module.technician",Workshop:"module.workshop",Gallery:"module.gallery",Contacts:"module.contacts",Location:"field.location",Images:"module.images",Videos:"module.videos"};
+ const state={category:"Content",module:"Services",items:[],roles:[],selected:null,related:new Set(),busy:false};
+ const status=$("dashboard-status");
+ const say=(message,error=false)=>{status.textContent=message||"";status.dataset.state=error?"error":message?"success":"info"};
+ const node=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e};
+ const button=(label,cls,handler)=>{const b=node("button",cls,label);b.type="button";b.addEventListener("click",handler);return b};
+ const safeSlug=value=>String(value||"").trim().toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+ const publicUrl=path=>!path?"":/^https?:\/\//i.test(path)?path:supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl;
+ function renderNavigation(){
+  $("dashboard-categories").replaceChildren();
+  Object.keys(groups).forEach(category=>{
+   const b=button(category,"dashboard-category"+(state.category===category?" is-active":""),()=>{state.category=category;state.module=groups[category][0];state.selected=null;renderNavigation();renderModule()});
+   b.setAttribute("aria-pressed",String(state.category===category));$("dashboard-categories").append(b);
+  });
+  $("dashboard-modules").replaceChildren();
+  groups[state.category].forEach(module=>{
+   const b=button(module,"dashboard-module"+(state.module===module?" is-active":""),()=>{state.module=module;state.selected=null;renderNavigation();renderModule()});
+   b.setAttribute("aria-pressed",String(state.module===module));$("dashboard-modules").append(b);
+  });
  }
- function field(form,label,type="text",name="name"){
-  const wrap=document.createElement("div");wrap.className="dashboard__field";
-  const input=document.createElement("input");input.type=type;input.name=name;input.placeholder=label;input.setAttribute("aria-label",label);input.required=true;
+ function field(form,label,key,value="",type="text",required=false){
+  const wrap=node("div","dashboard__field");
+  const input=node("input");input.type=type;input.name=key;input.placeholder=label;input.setAttribute("aria-label",label);input.value=value||"";input.required=required;input.autocomplete="off";
   wrap.append(input);form.append(wrap);return input;
  }
- function managerButtons(form,allowDelete=true){
-  const actions=document.createElement("div");actions.className="dashboard__actions";
-  const save=document.createElement("button");save.type="submit";save.className="button button--primary";save.textContent="Save";iconize(save,"action.save");
-  const cancel=document.createElement("button");cancel.type="button";cancel.className="button button--secondary";cancel.textContent="Cancel";iconize(cancel,"action.cancel");cancel.addEventListener("click",()=>{form.hidden=true;form.reset();form.dataset.edit="";form.dataset.id=""});
-  actions.append(save,cancel);
-  if(allowDelete){const del=document.createElement("button");del.type="button";del.className="button button--secondary";del.textContent="Delete";iconize(del,"action.delete");del.hidden=true;del.dataset.delete="";actions.append(del)}
-  form.append(actions);return actions;
+ function actionRow(form,includeDelete=true){
+  const row=node("div","dashboard__actions");
+  const save=button("Save","button button--primary",()=>{});save.type="submit";
+  const cancel=button("Cancel","button button--secondary",()=>{state.selected=null;renderModule()});
+  row.append(save,cancel);
+  if(includeDelete){const del=button("Delete","button button--secondary",deleteSelected);del.disabled=!state.selected;row.append(del)}
+  return row;
  }
- function renderSimpleManager(panel,category){
-  const ui=managerShell(panel,category),form=ui.form;
-  const name=field(form,category+" name");
-  const actions=managerButtons(form);
-  const del=actions.querySelector("[data-delete]");
-  const table=category==="Permission"?"permissions":category==="Role"?"roles":"configuration_items";
-  const config=["Region","Language","Theme"].includes(category);
-  const load=async()=>{
-   let q=supabase.from(table).select(config?"id,name,is_permanent":"name,is_permanent").order("name");
-   if(config)q=q.eq("category",category);
-   const {data,error}=await q;if(error)throw error;
-   ui.list.replaceChildren();
-   if(!data?.length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No existing items";ui.list.append(p)}
-   (data||[]).forEach(item=>{
-    const row=document.createElement("div");row.className="dashboard__item";
-    const info=document.createElement("span");info.textContent=item.name;
-    if(item.is_permanent){const badge=document.createElement("small");badge.textContent="Permanent";info.append(badge)}
-    row.append(info);
-    if(!item.is_permanent){const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Edit";iconize(edit,"action.edit");edit.addEventListener("click",()=>{form.hidden=false;ui.hide.hidden=false;name.value=item.name;form.dataset.edit="true";form.dataset.id=item.id||item.name;del.hidden=false});row.append(edit)}
-    ui.list.append(row);
-   });
-  };
+ async function loadRoles(){
+  const {data,error}=await supabase.from("roles").select("name").order("name");if(error)throw error;state.roles=data||[];
+ }
+ async function loadContent(){
+  const {data,error}=await supabase.from("content").select("id,module,name,slug,skills,label,value,image_url,file_title,location,map,created_at").eq("module",state.module).order("created_at",{ascending:false});
+  if(error)throw error;state.items=data||[];
+ }
+ function renderItemList(root){
+  root.replaceChildren();
+  if(!state.items.length){root.append(node("p","dashboard__empty","No items yet"));return}
+  state.items.forEach(item=>{
+   const row=node("div","dashboard__item");
+   const info=node("span","dashboard__item-info");
+   info.append(node("strong","dashboard__item-name",item.name));
+   const meta=(fields[state.module]||[]).map(([key,label])=>item[key]?label+": "+item[key]:"").filter(Boolean);
+   if(item.slug)meta.push("Slug: "+item.slug);
+   if(meta.length)info.append(node("small","dashboard__item-meta",meta.join(" · ")));
+   row.append(info);
+   if(item.image_url){const img=node("img","dashboard__item-thumb");img.src=publicUrl(item.image_url);img.alt="";img.loading="lazy";row.append(img)}
+   row.append(button("Edit","button button--ghost",()=>{state.selected=item;renderModule()}));
+   root.append(row);
+  });
+ }
+ async function renderContentModule(panel){
+  panel.replaceChildren();
+  const heading=node("h2","",state.module);const create=button("Create","button button--primary",()=>{state.selected=null;renderModule(true)});
+  const relation=button("Relations","button button--secondary",()=>openRelations());
+  const list=node("div","dashboard__list");
+  panel.append(heading,node("div","dashboard__actions"));panel.lastChild.append(create,relation);panel.append(list);
+  await loadContent();renderItemList(list);
+  if(state.selected)renderContentForm(panel,state.selected);
+ }
+ function renderContentForm(panel,item){
+  const form=node("form","dashboard__manager-form");
+  const title=node("h3","",item?"Edit "+state.module:"Create "+state.module);form.append(title);
+  const name=field(form,"Name","name",item?.name||"","text",true);
+  const moduleFields={};
+  (fields[state.module]||[]).forEach(([key,label])=>{moduleFields[key]=field(form,label,key,item?.[key]||"",key==="map"||key==="image_url"?"url":"text",false)});
+  let upload=null;
+  if(["Images","Videos"].includes(state.module)){
+   const wrap=node("div","dashboard__field");const label=node("label","","Upload");upload=node("input");upload.type="file";upload.accept=state.module==="Images"?"image/*":"video/*";label.append(upload);wrap.append(label);form.append(wrap);
+  }
+  if(state.module==="Videos")moduleFields.file_title.readOnly=true;
+  if(upload&&state.module==="Videos")upload.addEventListener("change",()=>moduleFields.file_title.value=upload.files?.[0]?.name||"");
+  const slugInput=moduleFields.slug;
+  if(slugInput&&!item)name.addEventListener("input",()=>{if(!slugInput.dataset.edited)slugInput.value=safeSlug(name.value)});
+  if(slugInput)slugInput.addEventListener("input",()=>slugInput.dataset.edited="true");
+  const rolesWrap=node("div","dashboard__field");rolesWrap.append(node("label","","Visibility — Roles"));
+  const roles=node("div","dashboard__role-options");
+  state.roles.forEach(role=>{const label=node("label","dashboard__option");const cb=node("input");cb.type="checkbox";cb.value=role.name;cb.checked=role.name==="Owner";label.append(cb,node("span","",role.name));roles.append(label)});
+  rolesWrap.append(roles);form.append(rolesWrap);
+  const actions=actionRow(form);form.append(actions);
+  if(item){const manage=button("Manage Relations","button button--secondary",()=>openRelations(item));actions.append(manage)}
   form.addEventListener("submit",async e=>{
-   e.preventDefault();if(!name.value.trim())return;
-   try{
-    if(config){
-     const payload={category,name:name.value.trim()};
-     const result=form.dataset.edit==="true"?await supabase.from(table).update({name:payload.name}).eq("id",form.dataset.id):await supabase.from(table).insert(payload);
-     if(result.error)throw result.error;
-    }else{
-     const result=form.dataset.edit==="true"?await supabase.from(table).update({name:name.value.trim()}).eq("name",form.dataset.id):await supabase.from(table).insert({name:name.value.trim()});
-     if(result.error)throw result.error;
-    }
-    form.hidden=true;ui.hide.hidden=true;form.reset();form.dataset.edit="";form.dataset.id="";del.hidden=true;await load();say(category+" saved");
-   }catch(err){say(err.message,true)}
-  });
-  del.addEventListener("click",async()=>{
-   if(!form.dataset.id||!confirm("Delete this item?"))return;
-   try{const result=config?await supabase.from(table).delete().eq("id",form.dataset.id):await supabase.from(table).delete().eq("name",form.dataset.id);if(result.error)throw result.error;form.hidden=true;ui.hide.hidden=true;del.hidden=true;form.reset();form.dataset.id="";await load();say(category+" deleted")}catch(err){say(err.message,true)}
-  });
-  panel.__globalRefresh=load;
-  load().catch(err=>say(err.message,true));
- }
- function renderRoleManager(panel){
-  const ui=managerShell(panel,"Role"),form=ui.form,name=field(form,"Role name");
-  const permTitle=document.createElement("p");permTitle.textContent="Permissions";form.append(permTitle);
-  const permArea=document.createElement("div");permArea.className="dashboard__relation-options";form.append(permArea);
-  const actions=managerButtons(form),del=actions.querySelector("[data-delete]");
-  let permissions=[];
-  const load=async()=>{
-   const [{data:roles,error:rErr},{data:perms,error:pErr}]=await Promise.all([supabase.from("roles").select("name,is_permanent").order("name"),supabase.from("permissions").select("name").order("name")]);
-   if(rErr)throw rErr;if(pErr)throw pErr;permissions=perms||[];permArea.replaceChildren();
-   permissions.forEach(p=>{const label=document.createElement("label");label.className="dashboard__option";const cb=document.createElement("input");cb.type="checkbox";cb.value=p.name;cb.dataset.permission="";const span=document.createElement("span");span.textContent=p.name;label.append(cb,span);permArea.append(label)});
-   ui.list.replaceChildren();
-   (roles||[]).forEach(role=>{const row=document.createElement("div");row.className="dashboard__item";const info=document.createElement("span");info.textContent=role.name;if(role.is_permanent){const b=document.createElement("small");b.textContent="Permanent";info.append(b)}row.append(info);
-    const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Permissions";iconize(edit,"field.visibility");edit.addEventListener("click",async()=>{form.hidden=false;ui.hide.hidden=false;name.value=role.name;name.disabled=!!role.is_permanent;form.dataset.id=role.name;form.dataset.edit="true";del.hidden=!!role.is_permanent;const {data,error}=await supabase.from("role_permissions").select("permission_name").eq("role_name",role.name);if(error){say(error.message,true);return}const chosen=new Set((data||[]).map(x=>x.permission_name));permArea.querySelectorAll("input").forEach(cb=>cb.checked=chosen.has(cb.value))});row.append(edit);ui.list.append(row)});
-   if(!(roles||[]).length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No existing roles";ui.list.append(p)}
-  };
-  form.addEventListener("submit",async e=>{e.preventDefault();try{
-   let role=form.dataset.id;
-   if(form.dataset.edit!=="true"){role=name.value.trim();const {error}=await supabase.from("roles").insert({name:role});if(error)throw error}
-   const selected=[...permArea.querySelectorAll("input:checked")].map(cb=>cb.value);
-   const {error:clearError}=await supabase.from("role_permissions").delete().eq("role_name",role);if(clearError)throw clearError;
-   if(selected.length){const {error}=await supabase.from("role_permissions").insert(selected.map(permission_name=>({role_name:role,permission_name})));if(error)throw error}
-   form.hidden=true;ui.hide.hidden=true;form.reset();name.disabled=false;form.dataset.id="";form.dataset.edit="";del.hidden=true;await load();say("Role saved");
-  }catch(err){say(err.message,true)}});
-  del.addEventListener("click",async()=>{if(!form.dataset.id||!confirm("Delete this role?"))return;try{const {error}=await supabase.from("roles").delete().eq("name",form.dataset.id);if(error)throw error;form.hidden=true;ui.hide.hidden=true;name.disabled=false;form.dataset.id="";form.dataset.edit="";del.hidden=true;await load();say("Role deleted")}catch(err){say(err.message,true)}});
-  panel.__globalRefresh=load;
-  load().catch(err=>say(err.message,true));
- }
- function renderUserManager(panel){
-  const ui=managerShell(panel,"User"),form=ui.form;
-  const email=field(form,"Email","email","email"),name=field(form,"Name"),role=document.createElement("select");role.name="role";role.setAttribute("aria-label","Role");form.append(role);
-  const actions=managerButtons(form),del=actions.querySelector("[data-delete]");
-  const load=async()=>{
-   const [{data:roles,error:rErr},users]=await Promise.all([supabase.from("roles").select("name").order("name"),callUserAdmin({action:"list",page:1,perPage:50})]);
-   if(rErr)throw rErr;role.replaceChildren();(roles||[]).forEach(r=>{const o=document.createElement("option");o.value=r.name;o.textContent=r.name;role.append(o)});
-   ui.list.replaceChildren();
-   (users.users||[]).forEach(u=>{const row=document.createElement("div");row.className="dashboard__item";const info=document.createElement("span");info.textContent=(u.name||u.email)+" — "+u.role;
-    if(u.protected){const b=document.createElement("small");b.textContent="Permanent";info.append(b)}
-    row.append(info);
-    if(!u.protected){const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Edit";edit.addEventListener("click",()=>{form.hidden=false;ui.hide.hidden=false;form.dataset.id=u.id;form.dataset.edit="true";email.value=u.email;email.disabled=true;name.value=u.name;role.value=u.role;del.hidden=false});row.append(edit)}
-    ui.list.append(row);
-   });
-  };
-  form.addEventListener("submit",async e=>{e.preventDefault();try{
-   if(form.dataset.edit==="true"){await callUserAdmin({action:"update",userId:form.dataset.id,name:name.value.trim()});await callUserAdmin({action:"set-role",userId:form.dataset.id,role:role.value})}
-   else await callUserAdmin({action:"invite",email:email.value.trim(),name:name.value.trim(),role:role.value});
-   form.hidden=true;ui.hide.hidden=true;form.reset();form.dataset.id="";form.dataset.edit="";email.disabled=false;del.hidden=true;await load();say(form.dataset.edit==="true"?"User updated":"User saved");
-  }catch(err){say(err.message,true)}});
-  del.addEventListener("click",async()=>{if(!form.dataset.id||!confirm("Delete this user account?"))return;try{await callUserAdmin({action:"delete",userId:form.dataset.id});form.hidden=true;ui.hide.hidden=true;form.reset();form.dataset.id="";form.dataset.edit="";email.disabled=false;del.hidden=true;await load();say("User deleted")}catch(err){say(err.message,true)}});
-  panel.__globalRefresh=load;
-  load().catch(err=>say(err.message,true));
- }
- function renderHomePageManager(panel){
-  panel.replaceChildren();
-  const title=document.createElement("h2");title.textContent="Home Page Section Management";
-  const hint=document.createElement("p");hint.className="dashboard__hint";hint.textContent="Choose which content type cards appear on the Home Page.";
-  const list=document.createElement("div");list.className="dashboard__list dashboard__home-sections";
-  panel.append(title,hint,list);
-  const load=async()=>{
-   const {data,error}=await supabase.from("homepage_type_settings").select("content_type,is_enabled,sort_order").order("sort_order");
-   if(error)throw error;
-   list.replaceChildren();
-   (data||[]).forEach(item=>{
-    const row=document.createElement("div");row.className="dashboard__item";
-    const label=document.createElement("span");label.textContent=item.content_type;
-    const select=document.createElement("select");select.setAttribute("aria-label",item.content_type+" home page display");
-    [["true","Show"],["false","Hide"]].forEach(([value,text])=>{const option=document.createElement("option");option.value=value;option.textContent=text;select.append(option)});
-    select.value=String(item.is_enabled);
-    select.addEventListener("change",async()=>{
-     select.disabled=true;
-     try{const {error}=await supabase.from("homepage_type_settings").update({is_enabled:select.value==="true",updated_at:new Date().toISOString()}).eq("content_type",item.content_type);if(error)throw error;say(item.content_type+" card updated")}
-     catch(err){select.value=String(item.is_enabled);say(err.message,true)}
-     finally{select.disabled=false}
-    });
-    row.append(label,select);list.append(row);
-   });
-  };
-  panel.__globalRefresh=load;
-  load().catch(err=>say(err.message,true));
- }
-
- function renderDetailsFieldOrderManager(panel){
-  panel.replaceChildren();
-  const title=document.createElement("h2");title.textContent="Details Page Field Order";
-  const hint=document.createElement("p");hint.className="dashboard__hint";hint.textContent="Select a Type and an existing item to preview its real Details Page, including related information. Reorder the available fields, then save.";
-  const typeWrap=document.createElement("div");typeWrap.className="dashboard__field";
-  const typeLabel=document.createElement("label");typeLabel.textContent="Type";typeLabel.htmlFor="details-field-order-type";
-  const typeSelect=document.createElement("select");typeSelect.id="details-field-order-type";typeSelect.setAttribute("aria-label","Type");
-  types.forEach(type=>{const option=document.createElement("option");option.value=type;option.textContent=type;typeSelect.append(option)});
-  typeWrap.append(typeLabel,typeSelect);
-  const itemWrap=document.createElement("div");itemWrap.className="dashboard__field";
-  const itemLabel=document.createElement("label");itemLabel.textContent="Preview Item";itemLabel.htmlFor="details-preview-item";
-  const itemSelect=document.createElement("select");itemSelect.id="details-preview-item";itemSelect.setAttribute("aria-label","Preview Item");
-  itemWrap.append(itemLabel,itemSelect);
-  const listTitle=document.createElement("h3");listTitle.textContent="Field Order";
-  const list=document.createElement("div");list.className="dashboard__field-order-list";list.setAttribute("aria-label","Field display order");
-  const empty=document.createElement("p");empty.className="dashboard__hint";empty.hidden=true;
-  const previewTitle=document.createElement("h3");previewTitle.textContent="Details Page Preview";
-  const preview=document.createElement("div");preview.className="dashboard__detail-preview content__detail";preview.setAttribute("aria-live","polite");
-  const actions=document.createElement("div");actions.className="dashboard__actions";
-  const save=document.createElement("button");save.type="button";save.className="button button--primary";save.textContent="Save Order";iconize(save,"action.save");actions.append(save);
-  const result=document.createElement("p");result.className="dashboard__hint";result.setAttribute("role","status");
-  panel.append(title,hint,typeWrap,itemWrap,listTitle,list,empty,previewTitle,preview,actions,result);
-  const options={Services:[],Products:[],Providers:[["skills","Skills"]],Hubs:[["location","Location"],["map","View Location"]],Contacts:[["label","Label"],["value","Value"]],Images:[["image_url","Image"]],Videos:[["file_title","File Title"],["image_url","Open Video"]]};
-  const iconKeys={Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"};
-  let order=[],draggedKey="",items=[],relatedItems=[],currentItem=null;
-  const move=(key,index)=>{const from=order.indexOf(key);if(from<0)return;const next=[...order];next.splice(from,1);next.splice(Math.max(0,Math.min(index,next.length)),0,key);order=next;renderRows();renderPreview()};
-  const publicImageUrl=path=>{if(!path)return "";if(/^https?:\/\//i.test(path))return path;return supabase.storage.from("site-media").getPublicUrl(path).data.publicUrl};
-  const renderPreview=()=>{
-   preview.replaceChildren();
-   if(!currentItem){const p=document.createElement("p");p.className="content__empty";p.textContent="No existing item is available for this Type.";preview.append(p);return}
-   const icon=document.createElement("span");icon.className="content__detail-icon";icon.dataset.siteIcon=iconKeys[currentItem.type]||"module.services";icon.setAttribute("aria-hidden","true");preview.append(icon);
-   const heading=document.createElement("h1");heading.className="content__title";heading.textContent=currentItem.name||"";preview.append(heading);
-   const available=options[currentItem.type]||[];
-   order.forEach(key=>{
-    const label=available.find(([field])=>field===key)?.[1]||key;
-    if(key==="image_url"&&currentItem.type==="Images"&&currentItem.image_url){const img=document.createElement("img");img.className="content__image";img.src=publicImageUrl(currentItem.image_url);img.alt=currentItem.name||"";img.loading="lazy";preview.append(img);return}
-    if(key==="image_url"&&currentItem.type==="Videos"&&currentItem.image_url){const a=document.createElement("span");a.className="content__external";a.textContent="Open Video";preview.append(a);return}
-    if(key==="map"&&currentItem.map){const a=document.createElement("span");a.className="content__external";a.textContent=label;preview.append(a);return}
-    if(currentItem[key]){const p=document.createElement("p");p.className="content__field";const strong=document.createElement("strong");strong.textContent=label+": ";p.append(strong,document.createTextNode(currentItem[key]));preview.append(p)}
-   });
-   const relatedHeading=document.createElement("h2");relatedHeading.className="content__related-title";relatedHeading.textContent="Related Information";preview.append(relatedHeading);
-   if(!relatedItems.length){const p=document.createElement("p");p.className="content__empty";p.textContent="No related information";preview.append(p)}
-   else{const group=document.createElement("div");group.className="content__related-list";relatedItems.forEach(item=>{const a=document.createElement("span");a.className="content__related-item";const type=document.createElement("small");type.textContent=item.type;const name=document.createElement("strong");name.textContent=item.name;a.append(type,name);group.append(a)});preview.append(group)}
-   window.siteIcons?.apply();
-  };
-  const renderRows=()=>{
-   list.replaceChildren();empty.hidden=order.length>0;
-   empty.textContent=options[typeSelect.value].length?"No additional fields are available for this Type.":"This Type has no additional fields. Related information is still shown in the preview.";
-   order.forEach((key,index)=>{
-    const row=document.createElement("div");row.className="dashboard__field-order-row";row.draggable=true;row.dataset.fieldKey=key;
-    const grip=document.createElement("span");grip.className="dashboard__field-order-grip";grip.setAttribute("aria-hidden","true");
-    const name=document.createElement("span");name.className="dashboard__field-order-name";name.textContent=options[typeSelect.value].find(x=>x[0]===key)?.[1]||key;
-    const position=document.createElement("select");position.className="dashboard__field-order-position";position.setAttribute("aria-label",name.textContent+" position");
-    order.forEach((_,i)=>{const option=document.createElement("option");option.value=String(i);option.textContent=String(i+1);position.append(option)});
-    position.value=String(index);position.addEventListener("change",()=>move(key,Number(position.value)));
-    row.append(grip,name,position);
-    row.addEventListener("dragstart",e=>{draggedKey=key;row.classList.add("is-dragging");e.dataTransfer?.setData("text/plain",key);if(e.dataTransfer)e.dataTransfer.effectAllowed="move"});
-    row.addEventListener("dragend",()=>{draggedKey="";row.classList.remove("is-dragging");list.querySelectorAll(".is-drop-target").forEach(x=>x.classList.remove("is-drop-target"))});
-    row.addEventListener("dragover",e=>{e.preventDefault();row.classList.add("is-drop-target")});
-    row.addEventListener("dragleave",()=>row.classList.remove("is-drop-target"));
-    row.addEventListener("drop",e=>{e.preventDefault();row.classList.remove("is-drop-target");const sourceKey=draggedKey||e.dataTransfer?.getData("text/plain");if(sourceKey&&sourceKey!==key)move(sourceKey,order.indexOf(key))});
-    list.append(row);
-   });
-   window.siteIcons?.apply();
-  };
-  const loadPreviewItem=async()=>{
-   const itemId=itemSelect.value;currentItem=items.find(x=>x.id===itemId)||null;relatedItems=[];
-   if(currentItem){
-    const {data:relations,error}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+currentItem.id+",target_id.eq."+currentItem.id);
-    if(error)throw error;
-    const ids=(relations||[]).map(r=>r.source_id===currentItem.id?r.target_id:r.source_id);
-    if(ids.length){const {data,error:itemsError}=await supabase.from("content").select("id,type,name").in("id",ids).order("type").order("name");if(itemsError)throw itemsError;relatedItems=data||[]}
+   e.preventDefault();if(state.busy)return;
+   const selectedRoles=[...roles.querySelectorAll("input:checked")].map(x=>x.value);
+   if(!selectedRoles.length){say("Select at least one visibility role.",true);return}
+   const payload={module:state.module,name:name.value.trim(),updated_at:new Date().toISOString()};
+   Object.keys(moduleFields).forEach(key=>payload[key]=moduleFields[key].value.trim()||null);
+   if(payload.slug&& !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(payload.slug)){say("Enter a valid slug.",true);return}
+   if(upload?.files?.[0]){
+    const file=upload.files[0],ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");
+    const path=state.module.toLowerCase()+"/"+(payload.slug||safeSlug(name.value)||"upload")+"/"+crypto.randomUUID()+"."+ext;
+    const {data,error}=await supabase.storage.from("site-media").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type||undefined});
+    if(error){say(error.message,true);return}payload.image_url=data.path;
+    if(state.module==="Videos")payload.file_title=file.name;
    }
-   renderPreview();
-  };
-  const loadTypeItems=async()=>{
-   const type=typeSelect.value;itemSelect.replaceChildren();
-   const {data,error}=await supabase.from("content").select("id,type,name,skills,label,value,image_url,file_title,location,map").eq("type",type).order("created_at",{ascending:false});
-   if(error)throw error;items=data||[];
-   const placeholder=document.createElement("option");placeholder.value="";placeholder.textContent="Select an existing item";itemSelect.append(placeholder);
-   items.forEach(item=>{const option=document.createElement("option");option.value=item.id;option.textContent=item.name;itemSelect.append(option)});
-   itemSelect.value=items[0]?.id||"";await loadPreviewItem();
-  };
-  const load=async()=>{
-   result.textContent="Loading…";save.disabled=true;const type=typeSelect.value;
+   state.busy=true;
    try{
-    const {data,error}=await supabase.from("content_type_field_orders").select("field_order").eq("content_type",type).maybeSingle();if(error)throw error;
-    const available=options[type].map(x=>x[0]),stored=Array.isArray(data?.field_order)?data.field_order:[];
-    order=[...stored.filter(x=>available.includes(x)),...available.filter(x=>!stored.includes(x))];
-    renderRows();await loadTypeItems();result.textContent=data?"Saved order loaded":"Default order";
-   }catch(error){result.textContent="Could not load preview";say(error.message,true)}
-   finally{save.disabled=false}
-  };
-  typeSelect.addEventListener("change",()=>load());
-  itemSelect.addEventListener("change",()=>loadPreviewItem().catch(error=>say(error.message,true)));
-  save.addEventListener("click",async()=>{
-   save.disabled=true;result.textContent="Saving…";
-   try{const {error}=await supabase.from("content_type_field_orders").upsert({content_type:typeSelect.value,field_order:order,updated_at:new Date().toISOString()},{onConflict:"content_type"});if(error)throw error;result.textContent="Saved";say(typeSelect.value+" field order saved")}
-   catch(error){result.textContent="Could not save";say(error.message,true)}
-   finally{save.disabled=false}
+    let id=item?.id;
+    if(item){const {error}=await supabase.from("content").update(payload).eq("id",id);if(error)throw error}
+    else{const {data,error}=await supabase.from("content").insert(payload).select("id").single();if(error)throw error;id=data.id}
+    const {error:clearError}=await supabase.from("content_visibility").delete().eq("content_id",id);if(clearError)throw clearError;
+    const {error:visibilityError}=await supabase.from("content_visibility").insert(selectedRoles.map(role_name=>({content_id:id,role_name})));if(visibilityError)throw visibilityError;
+    state.selected=null;say(item?"Updated":"Created");await renderModule();
+   }catch(err){say(err.message,true)}finally{state.busy=false}
   });
-  panel.__globalRefresh=load;load();
- }
- function renderSvgIconManager(panel){
-  const ui=managerShell(panel,"SVG Icon Library"),form=ui.form;
-  const key=field(form,"Unique icon key");
-  const label=field(form,"Icon label");
-  const category=document.createElement("select");category.setAttribute("aria-label","Category");
-  ["Navigation","Module","Dashboard","Action","Status","Field","Layout","Media","Theme","Other"].forEach(value=>{const o=document.createElement("option");o.value=value;o.textContent=value;category.append(o)});
-  form.append(category);
-  const svgWrap=document.createElement("div");svgWrap.className="dashboard__field";
-  const svgLabel=document.createElement("label");svgLabel.textContent="SVG Code";
-  const svg=document.createElement("textarea");svg.name="svg_code";svg.placeholder="<svg viewBox=\"0 0 24 24\">...</svg>";svg.required=true;svg.rows=7;
-  svgWrap.append(svgLabel,svg);form.append(svgWrap);
-  const description=field(form,"Description");description.required=false;
-  const activeWrap=document.createElement("label");activeWrap.className="dashboard__option";
-  const active=document.createElement("input");active.type="checkbox";active.checked=true;
-  const activeText=document.createElement("span");activeText.textContent="Active";activeWrap.append(active,activeText);form.append(activeWrap);
-  const preview=document.createElement("div");preview.className="site-icon-preview";preview.setAttribute("aria-label","SVG preview");form.append(preview);
-  const actions=managerButtons(form),del=actions.querySelector("[data-delete]");
-  const safePreview=code=>{
-   preview.replaceChildren();
-   try{
-    const doc=new DOMParser().parseFromString(code,"image/svg+xml"),root=doc.documentElement;
-    const allowed=new Set(["svg","g","path","circle","rect","line","polyline","polygon","ellipse"]);
-    const attrs=new Set(["viewBox","xmlns","fill","stroke","stroke-width","stroke-linecap","stroke-linejoin","d","cx","cy","r","x","y","width","height","points","rx","ry","fill-rule","clip-rule","transform"]);
-    if(root.tagName.toLowerCase()!=="svg"||doc.querySelector("parsererror"))throw new Error("Invalid SVG");
-    const clean=node=>{
-     [...node.attributes].forEach(a=>{if(!attrs.has(a.name))node.removeAttribute(a.name)});
-     [...node.children].forEach(child=>{if(!allowed.has(child.tagName.toLowerCase()))child.remove();else clean(child)});
-    };
-    clean(root);root.setAttribute("width","42");root.setAttribute("height","42");preview.append(document.importNode(root,true));
-   }catch{preview.textContent="Invalid SVG preview"}
-  };
-  svg.addEventListener("input",()=>safePreview(svg.value));
-  const load=async()=>{
-   const {data,error}=await supabase.from("site_svg_icons").select("id,icon_key,label,category,svg_code,description,is_active").order("category").order("icon_key");
-   if(error)throw error;ui.list.replaceChildren();
-   if(!data?.length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No icons found";ui.list.append(p)}
-   data.forEach(item=>{
-    const row=document.createElement("div");row.className="dashboard__item";
-    const info=document.createElement("span");info.className="dashboard__item-info";
-    const name=document.createElement("strong");name.textContent=item.label+" · "+item.icon_key;
-    const meta=document.createElement("small");meta.className="dashboard__item-meta";meta.textContent=item.category+" · "+(item.is_active?"Active":"Inactive");
-    info.append(name,meta);row.append(info);const icon=document.createElement("span");icon.dataset.siteIcon=item.icon_key;icon.setAttribute("aria-hidden","true");row.append(icon);
-    const edit=document.createElement("button");edit.type="button";edit.className="button button--secondary";edit.textContent="Edit";
-    edit.addEventListener("click",()=>{form.hidden=false;ui.hide.hidden=false;key.value=item.icon_key;key.disabled=true;label.value=item.label;category.value=item.category;svg.value=item.svg_code;description.value=item.description||"";active.checked=item.is_active;form.dataset.id=item.id;form.dataset.edit="true";del.hidden=false;safePreview(svg.value)});
-    row.append(edit);ui.list.append(row);
+  if(item){
+   supabase.from("content_visibility").select("role_name").eq("content_id",item.id).then(({data,error})=>{
+    if(error)return say(error.message,true);const selected=new Set((data||[]).map(x=>x.role_name));roles.querySelectorAll("input").forEach(x=>x.checked=selected.has(x.value));
    });
-  };
+  }
+  panel.append(form);
+ }
+ async function deleteSelected(){
+  if(!state.selected||!confirm("Delete this item and its relations?"))return;
+  const {error}=await supabase.from("content").delete().eq("id",state.selected.id);
+  if(error){say(error.message,true);return}state.selected=null;say("Deleted");await renderModule();
+ }
+ async function openRelations(item=state.selected){
+  if(!item){say("Select an item first.",true);return}
+  const panel=$("dashboard-panel");panel.replaceChildren();
+  panel.append(node("h2","","Relations · "+item.name));
+  const {data:all,error:allError}=await supabase.from("content").select("id,module,name").neq("id",item.id).order("module").order("name");
+  if(allError){say(allError.message,true);return}
+  const {data:existing,error}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+item.id+",target_id.eq."+item.id);
+  if(error){say(error.message,true);return}
+  const selected=new Set((existing||[]).map(r=>r.source_id===item.id?r.target_id:r.source_id));
+  const groupsByModule={};(all||[]).forEach(x=>(groupsByModule[x.module]??=[]).push(x));
+  const area=node("div","dashboard__relation-groups");
+  Object.entries(groupsByModule).forEach(([module,items])=>{
+   const group=node("section","dashboard__relation-group");group.append(node("h3","",module));
+   items.forEach(x=>{const label=node("label","dashboard__option");const cb=node("input");cb.type="checkbox";cb.value=x.id;cb.checked=selected.has(x.id);label.append(cb,node("span","",x.name));group.append(label)});
+   area.append(group);
+  });
+  const actions=node("div","dashboard__actions");
+  actions.append(button("Save Relations","button button--primary",async()=>{
+   const chosen=new Set([...area.querySelectorAll("input:checked")].map(x=>x.value));
+   const old=new Map((existing||[]).map(r=>[r.source_id===item.id?r.target_id:r.source_id,r]));
+   const remove=[...old].filter(([id])=>!chosen.has(id)).map(([,r])=>r);
+   const add=[...chosen].filter(id=>!old.has(id)).map(id=>({source_id:item.id,target_id:id}));
+   for(const r of remove){const {error}=await supabase.from("relation").delete().eq("source_id",r.source_id).eq("target_id",r.target_id);if(error){say(error.message,true);return}}
+   if(add.length){const {error}=await supabase.from("relation").insert(add);if(error){say(error.message,true);return}}
+   say("Relations saved");renderModule();
+  }));
+  actions.append(button("Cancel","button button--secondary",()=>renderModule()));
+  panel.append(area,actions);
+ }
+ async function callUserAdmin(body){const {data,error}=await supabase.functions.invoke("owner-users",{body});if(error)throw error;return data}
+ async function renderAdmin(panel){
+  panel.replaceChildren(node("h2","",state.module));
+  const form=node("form","dashboard__manager-form"),list=node("div","dashboard__list");
+  const name=field(form,state.module+" name","name");
+  let email=null,roleSelect=null,permArea=null;
+  if(state.module==="User"){email=field(form,"Email","email","","email");roleSelect=node("select");roleSelect.setAttribute("aria-label","Role");form.append(roleSelect)}
+  if(state.module==="Role"){permArea=node("div","dashboard__relation-options");form.append(node("p","","Permissions"),permArea)}
+  const actions=node("div","dashboard__actions");const save=node("button","button button--primary","Save");save.type="submit";actions.append(save);form.append(actions);
+  const create=button("Create","button button--secondary",()=>{form.hidden=false;form.reset();form.dataset.id="";form.dataset.edit="";if(name)name.disabled=false});
+  panel.append(create,form,list);form.hidden=true;
+  async function load(){
+   list.replaceChildren();
+   if(state.module==="User"){
+    const [{data:roles,error:rErr},users]=await Promise.all([supabase.from("roles").select("name").order("name"),callUserAdmin({action:"list",page:1,perPage:100})]);if(rErr)throw rErr;
+    roleSelect.replaceChildren();(roles||[]).forEach(r=>{const o=node("option","",r.name);o.value=r.name;roleSelect.append(o)});
+    (users.users||[]).forEach(u=>{const row=node("div","dashboard__item", (u.name||u.email)+" · "+u.role);if(!u.protected)row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=u.id;form.dataset.edit="true";name.value=u.name||"";email.value=u.email;email.disabled=true;roleSelect.value=u.role}));list.append(row)});
+   }else if(state.module==="Role"){
+    const [{data:rows,error},{data:perms,error:pErr}]=await Promise.all([supabase.from("roles").select("name,is_permanent").order("name"),supabase.from("permissions").select("name").order("name")]);if(error)throw error;if(pErr)throw pErr;
+    permArea.replaceChildren();(perms||[]).forEach(p=>{const label=node("label","dashboard__option");const cb=node("input");cb.type="checkbox";cb.value=p.name;label.append(cb,node("span","",p.name));permArea.append(label)});
+    (rows||[]).forEach(r=>{const row=node("div","dashboard__item",r.name+(r.is_permanent?" · Permanent":""));row.append(button("Edit","button button--ghost",async()=>{form.hidden=false;form.dataset.id=r.name;form.dataset.edit="true";name.value=r.name;name.disabled=!!r.is_permanent;const {data}=await supabase.from("role_permissions").select("permission_name").eq("role_name",r.name);const selected=new Set((data||[]).map(x=>x.permission_name));permArea.querySelectorAll("input").forEach(x=>x.checked=selected.has(x.value))}));list.append(row)});
+   }else{
+    const {data,error}=await supabase.from("permissions").select("name,is_permanent").order("name");if(error)throw error;
+    (data||[]).forEach(r=>{const row=node("div","dashboard__item",r.name+(r.is_permanent?" · Permanent":""));if(!r.is_permanent)row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=r.name;form.dataset.edit="true";name.value=r.name}));list.append(row)});
+   }
+  }
   form.addEventListener("submit",async e=>{
-   e.preventDefault();
-   const payload={icon_key:key.value.trim(),label:label.value.trim(),category:category.value,svg_code:svg.value.trim(),description:description.value.trim()||null,is_active:active.checked};
-   try{
-    const result=form.dataset.edit==="true"?await supabase.from("site_svg_icons").update({label:payload.label,category:payload.category,svg_code:payload.svg_code,description:payload.description,is_active:payload.is_active}).eq("id",form.dataset.id):await supabase.from("site_svg_icons").insert(payload);
-    if(result.error)throw result.error;
-    form.hidden=true;ui.hide.hidden=true;form.reset();key.disabled=false;active.checked=true;form.dataset.id="";form.dataset.edit="";del.hidden=true;await load();say("SVG icon saved");
+   e.preventDefault();try{
+    if(state.module==="User"){
+     if(form.dataset.edit==="true"){await callUserAdmin({action:"update",userId:form.dataset.id,name:name.value.trim()});await callUserAdmin({action:"set-role",userId:form.dataset.id,role:roleSelect.value})}
+     else await callUserAdmin({action:"invite",email:email.value.trim(),name:name.value.trim(),role:roleSelect.value});
+    }else if(state.module==="Role"){
+     let role=form.dataset.id;if(form.dataset.edit!=="true"){role=name.value.trim();const {error}=await supabase.from("roles").insert({name:role});if(error)throw error}
+     const {error:clearError}=await supabase.from("role_permissions").delete().eq("role_name",role);if(clearError)throw clearError;
+     const selected=[...permArea.querySelectorAll("input:checked")].map(x=>x.value);if(selected.length){const {error}=await supabase.from("role_permissions").insert(selected.map(permission_name=>({role_name:role,permission_name})));if(error)throw error}
+    }else{
+     const result=form.dataset.edit==="true"?await supabase.from("permissions").update({name:name.value.trim()}).eq("name",form.dataset.id):await supabase.from("permissions").insert({name:name.value.trim()});if(result.error)throw result.error;
+    }
+    form.hidden=true;form.reset();form.dataset.id="";form.dataset.edit="";name.disabled=false;if(email)email.disabled=false;say("Saved");await load();
    }catch(err){say(err.message,true)}
   });
-  del.addEventListener("click",async()=>{
-   if(!form.dataset.id||!confirm("Delete this SVG icon?"))return;
-   try{const {error}=await supabase.from("site_svg_icons").delete().eq("id",form.dataset.id);if(error)throw error;form.hidden=true;ui.hide.hidden=true;form.reset();key.disabled=false;form.dataset.id="";form.dataset.edit="";del.hidden=true;await load();say("SVG icon deleted")}catch(err){say(err.message,true)}
+  await load();
+ }
+ async function renderConfig(panel){
+  panel.replaceChildren(node("h2","",state.module));
+  const table="configuration_items",list=node("div","dashboard__list"),form=node("form","dashboard__manager-form");
+  const name=field(form,state.module+" name","name");
+  const actions=node("div","dashboard__actions");const save=node("button","button button--primary","Save");save.type="submit";actions.append(save);form.append(actions);
+  const create=button("Create","button button--secondary",()=>{form.hidden=false;form.reset();form.dataset.id=""});
+  panel.append(create,form,list);form.hidden=true;
+  const load=async()=>{const {data,error}=await supabase.from(table).select("id,name,is_permanent").eq("category",state.module).order("name");if(error)throw error;list.replaceChildren();(data||[]).forEach(x=>{const row=node("div","dashboard__item",x.name+(x.is_permanent?" · Permanent":""));if(!x.is_permanent)row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=x.id;name.value=x.name}));list.append(row)})};
+  form.addEventListener("submit",async e=>{e.preventDefault();const result=form.dataset.id?await supabase.from(table).update({name:name.value.trim()}).eq("id",form.dataset.id):await supabase.from(table).insert({category:state.module,name:name.value.trim()});if(result.error)say(result.error.message,true);else{form.hidden=true;form.reset();form.dataset.id="";say("Saved");load()}});
+  await load();
+ }
+ async function renderPreference(panel){
+  panel.replaceChildren(node("h2","",state.module));
+  const key=state.module==="Direction"?"direction":"language";
+  const options=state.module==="Direction"?[{value:"ltr",label:"LTR"},{value:"rtl",label:"RTL"}]:[{value:"en",label:"English"},{value:"bn",label:"Bangla"},{value:"ar",label:"Arabic"}];
+  const select=node("select");select.setAttribute("aria-label",state.module);options.forEach(x=>{const o=node("option","",x.label);o.value=x.value;select.append(o)});
+  const save=button("Save","button button--primary",async()=>{const {error}=await supabase.from("site_preferences").update({preference_value:select.value,updated_at:new Date().toISOString()}).eq("preference_key",key);if(error)say(error.message,true);else{await window.sitePreferences?.refresh();say("Saved")}});
+  panel.append(select,save);
+  const {data,error}=await supabase.from("site_preferences").select("preference_value").eq("preference_key",key).single();if(error)throw error;select.value=data.preference_value;
+ }
+ async function renderSiteSetting(panel){
+  panel.replaceChildren(node("h2","",state.module));
+  const key=state.module==="Website Logo"?"website_logo":state.module==="Website Title"?"website_title":"intro";
+  const {data,error}=await supabase.from("site_preferences").select("preference_value").eq("preference_key",key).single();if(error)throw error;
+  const form=node("form","dashboard__manager-form");
+  const input=key==="intro"?node("textarea"):node("input");
+  input.name=key;input.value=data.preference_value||"";input.placeholder=state.module;input.setAttribute("aria-label",state.module);
+  if(key==="website_logo")input.type="url";
+  form.append(input);const save=node("button","button button--primary","Save");save.type="submit";form.append(save);
+  form.addEventListener("submit",async e=>{e.preventDefault();const {error}=await supabase.from("site_preferences").update({preference_value:input.value.trim(),updated_at:new Date().toISOString()}).eq("preference_key",key);if(error)say(error.message,true);else{say("Saved");await window.sitePreferences?.refresh()}});
+  panel.append(form);
+ }
+ async function renderHomepageManager(panel){
+  panel.replaceChildren(node("h2","","Homepage Management"));
+  const {data,error}=await supabase.from("homepage_module_settings").select("module,is_enabled,sort_order").order("sort_order");if(error)throw error;
+  data.forEach(item=>{const row=node("div","dashboard__item",item.module);const select=node("select");[["true","Show"],["false","Hide"]].forEach(([v,l])=>{const o=node("option","",l);o.value=v;select.append(o)});select.value=String(item.is_enabled);select.addEventListener("change",async()=>{const {error}=await supabase.from("homepage_module_settings").update({is_enabled:select.value==="true",updated_at:new Date().toISOString()}).eq("module",item.module);if(error)say(error.message,true);else say("Saved")});row.append(select);panel.append(row)});
+ }
+ async function renderDetailsManager(panel){
+  panel.replaceChildren(node("h2","","Details Management"));
+  const select=node("select");Object.keys(fields).forEach(module=>{const o=node("option","",module);o.value=module;select.append(o)});
+  const list=node("div","dashboard__field-order-list"),save=button("Save Order","button button--primary",async()=>{
+   const order=[...list.querySelectorAll("[data-key]")].map(x=>x.dataset.key);
+   const {error}=await supabase.from("module_field_orders").upsert({module:select.value,field_order:order,updated_at:new Date().toISOString()},{onConflict:"module"});
+   if(error)say(error.message,true);else say("Saved");
   });
-  ui.create.addEventListener("click",()=>{key.disabled=false;active.checked=true;safePreview("")});
-  panel.__globalRefresh=load;load().catch(err=>say(err.message,true));
+  const draw=async()=>{list.replaceChildren();const {data,error}=await supabase.from("module_field_orders").select("field_order").eq("module",select.value).maybeSingle();if(error)throw error;const available=fields[select.value]||[];const order=Array.isArray(data?.field_order)?data.field_order:[];const keys=[...order.filter(k=>available.some(x=>x[0]===k)),...available.map(x=>x[0]).filter(k=>!order.includes(k))];keys.forEach((key,index)=>{const row=node("div","dashboard__field-order-row");row.dataset.key=key;row.append(node("span","",available.find(x=>x[0]===key)?.[1]||key));row.append(button("↑","button button--ghost",()=>{if(index>0){const a=list.children[index-1];list.insertBefore(row,a)}}),button("↓","button button--ghost",()=>{if(index<list.children.length-1)list.insertBefore(list.children[index+1],row)}));list.append(row)})};
+  select.addEventListener("change",()=>draw().catch(e=>say(e.message,true)));panel.append(select,list,save);await draw();
  }
- function renderPreferenceManager(panel,key,title,options){
-  panel.replaceChildren();
-  const heading=document.createElement("h2");heading.textContent=title;
-  const hint=document.createElement("p");hint.className="dashboard__hint";hint.textContent=key==="direction"?"Choose the website reading direction and icon placement.":"Choose the website language preference.";
-  const select=document.createElement("select");select.setAttribute("aria-label",title);
-  options.forEach(item=>{const option=document.createElement("option");option.value=item.value;option.textContent=item.label;select.append(option)});
-  const statusText=document.createElement("p");statusText.className="dashboard__hint";statusText.setAttribute("role","status");
-  panel.append(heading,hint,select,statusText);
-  const load=async()=>{
-   const {data,error}=await supabase.from("site_preferences").select("preference_value").eq("preference_key",key).single();
-   if(error)throw error;
-   select.value=data.preference_value;
-  };
-  select.addEventListener("change",async()=>{
-   select.disabled=true;statusText.textContent="Saving…";
-   try{
-    const {error}=await supabase.from("site_preferences").update({preference_value:select.value,updated_at:new Date().toISOString()}).eq("preference_key",key);
-    if(error)throw error;
-    await window.sitePreferences?.refresh();
-    statusText.textContent="Saved";
-    say(title+" updated");
-   }catch(error){statusText.textContent="Could not save";say(error.message,true);await load().catch(()=>{})}
-   finally{select.disabled=false}
-  });
-  panel.__globalRefresh=load;
-  load().catch(error=>say(error.message,true));
+ async function renderIconManager(panel){
+  panel.replaceChildren(node("h2","","Icon"));
+  const list=node("div","dashboard__list"),form=node("form","dashboard__manager-form");
+  const key=field(form,"Icon key","icon_key"),label=field(form,"Label","label"),category=field(form,"Category","category"),svg=field(form,"SVG Code","svg_code");
+  svg.tagName==="INPUT"&&(svg.outerHTML="<textarea name='svg_code' placeholder='SVG Code' required></textarea>");
+  const textarea=form.querySelector("textarea[name='svg_code']");
+  const desc=field(form,"Description","description");
+  const active=node("input");active.type="checkbox";active.checked=true;form.append(active);
+  const save=node("button","button button--primary","Save");save.type="submit";form.append(save);
+  const create=button("Create","button button--secondary",()=>{form.hidden=false;form.reset();key.disabled=false;active.checked=true;form.dataset.id=""});
+  panel.append(create,form,list);form.hidden=true;
+  const load=async()=>{const {data,error}=await supabase.from("site_svg_icons").select("id,icon_key,label,category,svg_code,description,is_active").order("category").order("icon_key");if(error)throw error;list.replaceChildren();(data||[]).forEach(x=>{const row=node("div","dashboard__item",x.label+" · "+x.icon_key);row.append(button("Edit","button button--ghost",()=>{form.hidden=false;form.dataset.id=x.id;key.value=x.icon_key;key.disabled=true;label.value=x.label;category.value=x.category;textarea.value=x.svg_code;desc.value=x.description||"";active.checked=x.is_active}));list.append(row)})};
+  form.addEventListener("submit",async e=>{e.preventDefault();const payload={icon_key:key.value.trim(),label:label.value.trim(),category:category.value.trim(),svg_code:textarea.value.trim(),description:desc.value.trim()||null,is_active:active.checked};const result=form.dataset.id?await supabase.from("site_svg_icons").update({label:payload.label,category:payload.category,svg_code:payload.svg_code,description:payload.description,is_active:payload.is_active}).eq("id",form.dataset.id):await supabase.from("site_svg_icons").insert(payload);if(result.error)say(result.error.message,true);else{form.hidden=true;form.reset();key.disabled=false;form.dataset.id="";await load();say("Saved")}});
+  await load();
  }
- function renderManagementPanel(panel){
-  if(panel.dataset.initialized==="true")return;panel.dataset.initialized="true";
-  const name=panel.dataset.subtab;
-  if(name==="User")renderUserManager(panel);
-  else if(name==="Role")renderRoleManager(panel);
-  else if(name==="Permission"||["Region","Theme"].includes(name))renderSimpleManager(panel,name);
-  else if(name==="Direction")renderPreferenceManager(panel,"direction","Direction",[{value:"ltr",label:"LTR"},{value:"rtl",label:"RTL"}]);
-  else if(name==="Language")renderPreferenceManager(panel,"language","Language",[{value:"en",label:"English"},{value:"bn",label:"Bangla"},{value:"ar",label:"Arabic"}]);
-  else if(name==="Home Page Section Management")renderHomePageManager(panel);
-  else if(name==="Details Page Field Order")renderDetailsFieldOrderManager(panel);
-  else if(name==="SVG Icons")renderSvgIconManager(panel);
- }
-
- function showSubtab(name){state.subtab=name;renderSubtabs();if(state.tab==="Content"){ $("existed-list-panel").hidden=name!=="Existed List";$("create-form-panel").hidden=name!=="Create Form";$("relation-form-panel").hidden=name!=="Relation Form";if(name==="Existed List")loadContent();if(name==="Relation Form")loadRelationItems();if(name==="Create Form"){say("");loadContentRoleOptions().catch(err=>say(err.message,true))}}else{const prefix=state.tab==="Administration"?"admin":"settings";document.querySelectorAll("[data-subtab-panel]").forEach(p=>{p.hidden=p.dataset.group!==prefix||p.dataset.subtab!==name;if(!p.hidden)renderManagementPanel(p)});}}
- function showTab(name){state.tab=name;const mainTabs=["Content","Administration","Settings"];tabs.replaceChildren(...mainTabs.map(n=>tabButton(n,name,x=>showTab(x))));$("content-panel").hidden=name!=="Content";$("administration-panel").hidden=name!=="Administration";$("settings-panel").hidden=name!=="Settings";say("");if(name==="Content"){if(!["Existed List","Create Form","Relation Form"].includes(state.subtab))state.subtab="Existed List";renderSubtabs();showSubtab(state.subtab)}if(name==="Administration"||name==="Settings"){if(!state.subtab||!(name==="Administration"?["User","Role","Permission"]:["Region","Direction","Language","Theme","Home Page Section Management","Details Page Field Order","SVG Icons"]).includes(state.subtab))state.subtab=name==="Administration"?"User":"Region";renderSubtabs();showSubtab(state.subtab)}}
- async function loadContentRoleOptions(){
-  const {data,error}=await supabase.from("roles").select("name").order("name");
-  if(error)throw error;
-  state.roles=data||[];
-  const root=$("content-roles");root.replaceChildren();
-  state.roles.forEach(role=>{const label=document.createElement("label");label.className="dashboard__option";const checkbox=document.createElement("input");checkbox.type="checkbox";checkbox.value=role.name;const text=document.createElement("span");text.textContent=role.name;label.append(checkbox,text);root.append(label)});
-  setContentRoles(["Owner"]);
- }
- function setContentRoles(names){const selected=new Set(names||[]);$("content-roles").querySelectorAll('input[type="checkbox"]').forEach(input=>input.checked=selected.has(input.value))}
- async function loadAll(){const [{data,error},{data:visibility,error:visibilityError}]=await Promise.all([supabase.from("content").select("id,type,name,slug,skills,label,value,image_url,file_title,location,map,created_at").order("created_at",{ascending:false}),supabase.from("content_visibility").select("content_id,role_name")]);if(error){say(error.message,true);return false}if(visibilityError){say(visibilityError.message,true);return false}state.items=data||[];state.visibility=new Map();(visibility||[]).forEach(row=>{if(!state.visibility.has(row.content_id))state.visibility.set(row.content_id,[]);state.visibility.get(row.content_id).push(row.role_name)});return true}
- function renderContentList(){const root=$("content-list");root.replaceChildren();const filter=$("content-type").value;const list=state.items.filter(x=>filter==="All"||x.type===filter);if(!list.length){const e=document.createElement("p");e.className="dashboard__empty";e.textContent="No existing items";root.append(e);return}list.forEach(item=>{const b=document.createElement("button");b.type="button";b.className="dashboard__item";b.setAttribute("aria-current",String(state.selected===item.id));const info=document.createElement("span");info.className="dashboard__item-info";const name=document.createElement("span");name.className="dashboard__item-name";name.textContent=item.name;info.append(name);const details=[];const visibleRoles=state.visibility.get(item.id)||[];if(visibleRoles.length)details.push("Visibility: "+visibleRoles.join(", "));if(item.type==="Providers"&&item.skills)details.push("Skills: "+item.skills);if(item.type==="Hubs"&&item.location)details.push("Location: "+item.location);if(item.type==="Contacts"&&item.label)details.push("Label: "+item.label);if(item.type==="Videos"&&item.file_title)details.push(item.file_title);if(item.type!=="Contacts"&&item.slug)details.push("Slug: "+item.slug);if(details.length){const meta=document.createElement("small");meta.className="dashboard__item-meta";meta.textContent=details.join(" · ");info.append(meta)}b.append(info);const itemIcon=document.createElement("span");itemIcon.dataset.siteIcon=({Services:"module.services",Products:"module.products",Providers:"module.providers",Hubs:"module.hubs",Contacts:"module.contacts",Images:"module.images",Videos:"module.videos"})[item.type]||"";itemIcon.setAttribute("aria-hidden","true");if(itemIcon.dataset.siteIcon)b.append(itemIcon);if(item.image_url){const thumb=document.createElement("img");thumb.className="dashboard__item-thumb";thumb.alt="";thumb.loading="lazy";thumb.decoding="async";thumb.src=/^https?:\/\//i.test(item.image_url)?item.image_url:supabase.storage.from("site-media").getPublicUrl(item.image_url).data.publicUrl;thumb.addEventListener("error",()=>thumb.remove(),{once:true});b.append(thumb)}b.addEventListener("click",()=>editContent(item));root.append(b)})}
- async function loadContent(){if(await loadAll())renderContentList()}
- function makeField(id,placeholder,type="text"){const wrap=document.createElement("div");wrap.className="dashboard__field";const input=document.createElement("input");input.id=id;input.type=type;input.placeholder=placeholder;input.setAttribute("aria-label",placeholder);input.autocomplete="off";wrap.append(input);return wrap}
- function renderTypeFields(type,item={}){
-  const root=$("type-fields");root.replaceChildren();
-  const add=(id,label,inputType="text",value="")=>{const wrap=makeField(id,label,inputType),input=wrap.querySelector("input");input.value=value||"";root.append(wrap);return input};
-  if(["Services","Products","Providers","Hubs"].includes(type)){
-   const slug=add("content-slug","Slug","text",item.slug);slug.maxLength=180;slug.pattern="[a-z0-9]+(-[a-z0-9]+)*";slug.required=true;
-   if(type==="Providers")add("content-skills","Skills","text",item.skills);
-  if(type==="Hubs"){
-   add("content-location","Location","text",item.location);
-   const map=add("content-map","Map","url",item.map);map.placeholder="Map URL";
-  }
-  }
-  if(type==="Contacts"){add("content-label","Label","text",item.label);add("content-value","Value","text",item.value)}
-  if(type==="Images"||type==="Videos"){
-   const fileWrap=document.createElement("div");fileWrap.className="dashboard__field";const label=document.createElement("label");label.htmlFor="content-upload";label.textContent="Upload";const file=document.createElement("input");file.type="file";file.id="content-upload";file.setAttribute("aria-label","Upload");file.accept=type==="Images"?"image/*":"video/*";fileWrap.append(label,file);const hint=document.createElement("small");hint.className="dashboard__hint";hint.textContent="Uploaded files are stored in Supabase Storage.";fileWrap.append(hint);root.append(fileWrap);
-   const url=add("content-image-url","Image URL","url",item.image_url);url.placeholder="Upload a file or enter a URL";
-   if(type==="Videos"){const title=add("content-file-title","File Title","text",item.file_title);title.readOnly=true;title.placeholder="Set automatically from uploaded file";file.addEventListener("change",()=>{title.value=file.files?.[0]?.name||item.file_title||""})}
-  }
- }
- function resetContent(){const type=$("content-form-type").value;state.selected=null;state.slugEdited=false;$("content-form").reset();$("content-form-type").value=type;$("content-name").value="";setContentRoles(["Owner"]);$("content-fields").hidden=!type;renderTypeFields(type);$("content-delete").disabled=true;renderContentList()}
- async function editContent(item){showSubtab("Create Form");state.selected=item.id;state.slugEdited=true;$("content-fields").hidden=false;$("content-name").value=item.name;$("content-type").value=item.type;$("content-form-type").value=item.type;renderTypeFields(item.type,item);$("content-delete").disabled=false;renderContentList();try{await loadContentRoleOptions();const {data,error}=await supabase.from("content_visibility").select("role_name").eq("content_id",item.id);if(error)throw error;setContentRoles((data||[]).map(x=>x.role_name));say("Item loaded")}catch(err){say(err.message,true)}}
- $("content-type").addEventListener("change",()=>{ $("content-form-type").value=$("content-type").value;resetContent()});
- $("content-form-type").addEventListener("change",()=>{state.selected=null;state.slugEdited=false;const hasType=!!$("content-form-type").value;$("content-fields").hidden=!hasType;if(hasType){$("content-name").value="";setContentRoles(["Owner"]);renderTypeFields($("content-form-type").value)}else $("type-fields").replaceChildren();$("content-delete").disabled=true;renderContentList()});
- $("content-name").addEventListener("input",()=>{if(state.slugEdited)return;const slug=$("content-slug");if(slug)slug.value=$("content-name").value.trim().toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").replace(/-{2,}/g,"-")});
- $("type-fields").addEventListener("input",e=>{if(e.target.id==="content-slug")state.slugEdited=true});
- async function uploadSelectedFile(type,slug){
-  const file=$("content-upload")?.files?.[0];if(!file)return $("content-image-url")?.value.trim()||null;
-  const ext=(file.name.split(".").pop()||"bin").toLowerCase().replace(/[^a-z0-9]/g,"");const safeSlug=(slug||"upload").replace(/[^a-z0-9-]/g,"-");const path=type.toLowerCase()+"/"+safeSlug+"/"+crypto.randomUUID()+"."+ext;
-  const {data,error}=await supabase.storage.from("site-media").upload(path,file,{cacheControl:"3600",upsert:false,contentType:file.type||undefined});
-  if(error)throw error;return data.path;
- }
- $("content-form").addEventListener("submit",async e=>{
-  e.preventDefault();if(state.busy)return;const type=$("content-form-type").value,name=$("content-name").value.trim();let slug=$("content-slug")?.value.trim().toLowerCase()||name.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").replace(/-{2,}/g,"-");
-  if(["Services","Products","Providers","Hubs"].includes(type)&&(!slug||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug))){say("Enter a valid slug.",true);return}
-  if(!name){say("Enter a name.",true);return}
-  setBusy(true);
+ async function renderModule(forceForm=false){
+  const panel=$("dashboard-panel");panel.replaceChildren();say("");
   try{
-   const selectedRoles=[...$("content-roles").querySelectorAll('input[type="checkbox"]:checked')].map(input=>input.value);
-   if(!selectedRoles.length)throw new Error("Select at least one Role for visibility.");
-   const payload={name,type,updated_at:new Date().toISOString(),slug:type==="Contacts"?null:slug,location:type==="Hubs"?$("content-location").value.trim()||null:null,map:type==="Hubs"?$("content-map").value.trim()||null:null,skills:type==="Providers"?$("content-skills").value.trim()||null:null,label:type==="Contacts"?$("content-label").value.trim()||null:null,value:type==="Contacts"?$("content-value").value:null,image_url:["Images","Videos"].includes(type)?await uploadSelectedFile(type,slug||name.toLowerCase().replace(/[^a-z0-9]+/g,"-")):null,file_title:type==="Videos"?($("content-upload").files[0]?.name||$("content-file-title").value||null):null};
-   const wasUpdate=!!state.selected;let contentId=state.selected;
-   if(wasUpdate){const {error}=await supabase.from("content").update(payload).eq("id",contentId);if(error)throw error}
-   else{const {data,error}=await supabase.from("content").insert(payload).select("id").single();if(error)throw error;contentId=data.id}
-   const {error:clearError}=await supabase.from("content_visibility").delete().eq("content_id",contentId);if(clearError)throw clearError;
-   const {error:visibilityError}=await supabase.from("content_visibility").insert(selectedRoles.map(role_name=>({content_id:contentId,role_name})));if(visibilityError)throw visibilityError;
-   say(wasUpdate?"Updated":"Created");$("content-type").value=type;resetContent();await loadContent();
-  }catch(error){say(error.message||"Could not save content.",true)}finally{setBusy(false)}
- });
- $("content-cancel").addEventListener("click",()=>{resetContent();say("")});
- $("content-delete").addEventListener("click",async()=>{if(!state.selected||state.busy||!confirm("Delete this item and its relations?"))return;setBusy(true);const {error}=await supabase.from("content").delete().eq("id",state.selected);if(error)say(error.message,true);else{say("Deleted");resetContent();await loadContent()}setBusy(false)});
- function fillSelect(select,items,placeholder){select.replaceChildren();const p=document.createElement("option");p.value="";p.textContent=placeholder;select.append(p);items.forEach(item=>{const o=document.createElement("option");o.value=item.id;o.textContent=item.name;select.append(o)})}
- async function loadRelationItems(){if(!await loadAll())return;fillSelect($("source-type"),types.map(t=>({id:t,name:t})),"Select type");$("source-type").value=state.sourceType;fillSourceItems()}
- function fillSourceItems(){fillSelect($("source-name"),state.items.filter(x=>x.type===state.sourceType),"Select item");$("source-name").value=state.sourceId;renderTargets()}
- $("source-type").addEventListener("change",()=>{state.sourceType=$("source-type").value;state.sourceId="";state.related.clear();fillSourceItems()});
- $("source-name").addEventListener("change",async()=>{state.sourceId=$("source-name").value;state.related.clear();await renderTargets()});
- async function renderTargets(){const area=$("target-section"),groups=$("target-groups"),existing=$("relation-existing");groups.replaceChildren();existing.replaceChildren();if(!state.sourceId){area.hidden=true;return}area.hidden=false;const {data,error}=await supabase.from("relation").select("source_id,target_id").or("source_id.eq."+state.sourceId+",target_id.eq."+state.sourceId);if(error){say(error.message,true);return}state.related=new Set((data||[]).map(r=>r.source_id===state.sourceId?r.target_id:r.source_id));types.forEach(type=>{const section=document.createElement("section");section.className="dashboard__relation-group";const h=document.createElement("h3");h.textContent=type;const options=document.createElement("div");options.className="dashboard__relation-options";const candidates=state.items.filter(x=>x.type===type&&x.id!==state.sourceId);if(!candidates.length){const empty=document.createElement("small");empty.textContent="No existing items";options.append(empty)}candidates.forEach(item=>{const label=document.createElement("label");label.className="dashboard__option";const cb=document.createElement("input");cb.type="checkbox";cb.checked=state.related.has(item.id);cb.value=item.id;cb.addEventListener("change",()=>{if(cb.checked)state.related.add(item.id);else state.related.delete(item.id);renderExistingRelations()});const span=document.createElement("span");span.textContent=item.name;label.append(cb,span);options.append(label)});section.append(h,options);groups.append(section)});renderExistingRelations()}
- function renderExistingRelations(){const root=$("relation-existing");root.replaceChildren();const names=state.items.filter(x=>state.related.has(x.id));if(!names.length){const p=document.createElement("p");p.className="dashboard__empty";p.textContent="No selected relations";root.append(p);return}names.forEach(x=>{const p=document.createElement("p");p.textContent=x.type+" — "+x.name;root.append(p)})}
- $("relation-save").addEventListener("click",async()=>{if(!state.sourceId||state.busy){say("Select a source item first.",true);return}setBusy(true);const source=state.sourceId;const {data:oldRows,error:readError}=await supabase.from("relation").select("id,source_id,target_id").or("source_id.eq."+source+",target_id.eq."+source);if(readError){say(readError.message,true);setBusy(false);return}const oldMap=new Map((oldRows||[]).map(r=>[r.source_id===source?r.target_id:r.source_id,r.id]));const remove=[...oldMap].filter(([id])=>!state.related.has(id)).map(([,id])=>id);const add=[...state.related].filter(id=>!oldMap.has(id)).map(id=>({source_id:source,target_id:id}));let failure=null;if(remove.length){const {error}=await supabase.from("relation").delete().in("id",remove);failure=error}if(!failure&&add.length){const {error}=await supabase.from("relation").insert(add);failure=error}say(failure?failure.message:"Relations saved",!!failure);setBusy(false);if(!failure)await renderTargets()});
-
- window.addEventListener("3b:global-update",()=>{
-  if(state.tab==="Content"){
-   if(state.subtab==="Relation Form"&&!$("target-section").hidden)return;
-   if(state.subtab==="Existed List"||state.subtab==="Create Form")loadContent().catch(err=>say(err.message,true));
-   else if(state.subtab==="Relation Form")loadRelationItems().catch(err=>say(err.message,true));
-   return;
-  }
-  const group=state.tab==="Administration"?"admin":"settings";
-  const panel=[...document.querySelectorAll("[data-subtab-panel]")].find(p=>p.dataset.group===group&&p.dataset.subtab===state.subtab);
-  if(!panel||panel.hidden)return;
-  const form=panel.querySelector("form");
-  if(form&&!form.hidden)return;
-  panel.__globalRefresh?.().catch(err=>say(err.message,true));
- });
-
- $("content-form-type").value="";$("content-fields").hidden=true;loadContentRoleOptions().then(()=>loadContent()).then(()=>showTab("Content")).catch(err=>say(err.message,true));
+   if(["Services","Products","Technician","Workshop","Gallery","Contacts","Location","Images","Videos"].includes(state.module)){
+    await loadRoles();await renderContentModule(panel);
+    if(forceForm)renderContentForm(panel,null);else if(state.selected)renderContentForm(panel,state.selected);
+   }else if(["User","Role","Permission"].includes(state.module))await renderAdmin(panel);
+   else if(["Region","Theme"].includes(state.module))await renderConfig(panel);
+   else if(state.module==="Direction"||state.module==="Language")await renderPreference(panel);
+   else if(["Website Logo","Website Title","Intro"].includes(state.module))await renderSiteSetting(panel);
+   else if(state.module==="Homepage Management")await renderHomepageManager(panel);
+   else if(state.module==="Details Management")await renderDetailsManager(panel);
+   else if(state.module==="Icon")await renderIconManager(panel);
+  }catch(error){say(error.message||"Unable to load module.",true)}
+ }
+ renderNavigation();renderModule();
+ window.addEventListener("3b:global-update",()=>renderModule());
 }
 </script>
 </head>
 <body>
-<main class="container dashboard">
-<nav class="dashboard__tabs" id="dashboard-tabs" aria-label="Dashboard sections"></nav>
-<section id="content-panel" hidden>
-<nav id="content-subtabs" class="dashboard__subtabs" aria-label="Content sections"></nav>
-<div id="existed-list-panel" class="dashboard__panel"><h2>Existed List</h2><div class="dashboard__field"><label for="content-type">Type</label><select id="content-type"><option value="All">All</option><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div><div class="dashboard__list" id="content-list"></div></div>
-<section id="create-form-panel" class="dashboard__panel"><h2>Create Form</h2>
-<form id="content-form">
-<div class="dashboard__field"><select id="content-form-type" required><option value="">Select type</option><option>Services</option><option>Products</option><option>Providers</option><option>Hubs</option><option>Contacts</option><option>Images</option><option>Videos</option></select></div>
-<div id="content-fields" hidden>
-<div class="dashboard__field"><span data-site-icon="field.name" aria-hidden="true"></span><input id="content-name" placeholder="Name" aria-label="Name" maxlength="160" required autocomplete="off"></div>
-<div id="type-fields"></div>
-<div class="dashboard__field"><label>Visibility — Roles</label><div id="content-roles" class="dashboard__role-options"></div><small class="dashboard__hint">Select one or more existing Roles.</small></div>
-<div class="dashboard__actions"><button class="button button--primary" id="content-save" type="submit"><span data-site-icon="action.save" aria-hidden="true"></span>Save</button><button class="button button--secondary" id="content-cancel" type="button"><span data-site-icon="action.cancel" aria-hidden="true"></span>Cancel</button><button class="button button--secondary" id="content-delete" type="button" disabled><span data-site-icon="action.delete" aria-hidden="true"></span>Delete</button></div>
-</div></form></section>
-<section id="relation-form-panel" class="dashboard__panel" hidden><h2>Relation Form</h2>
-<div class="dashboard__field"><select id="source-type" aria-label="Select type"><option value="">Select type</option></select></div>
-<div class="dashboard__field"><select id="source-name" aria-label="Select item"><option value="">Select item</option></select></div>
-<div id="target-section" hidden><h2>Target Section</h2><div class="dashboard__relation-groups" id="target-groups"></div><h2>Existed Item List</h2><div id="relation-existing"></div><div class="dashboard__actions"><button class="button button--primary" id="relation-save" type="button"><span data-site-icon="action.save" aria-hidden="true"></span>Save Relations</button></div></div>
-</section></section>
-<section id="administration-panel" hidden><nav id="administration-subtabs" class="dashboard__subtabs" aria-label="Administration sections"></nav>
-<section class="dashboard__panel" data-subtab-panel data-group="admin" data-subtab="User"><h2>User</h2></section>
-<section class="dashboard__panel" data-subtab-panel data-group="admin" data-subtab="Role" hidden><h2>Role</h2></section>
-<section class="dashboard__panel" data-subtab-panel data-group="admin" data-subtab="Permission" hidden><h2>Permission</h2></section>
-</section>
-<section id="settings-panel" hidden><nav id="settings-subtabs" class="dashboard__subtabs" aria-label="Settings sections"></nav>
-<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Region"><h2>Region</h2></section>
-<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Direction" hidden><h2>Direction</h2></section>
-<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Language" hidden><h2>Language</h2></section>
-<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Theme" hidden><h2>Theme</h2></section>
-<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Home Page Section Management" hidden><h2>Home Page Section Management</h2></section>
-<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="Details Page Field Order" hidden><h2>Details Page Field Order</h2></section>
-<section class="dashboard__panel" data-subtab-panel data-group="settings" data-subtab="SVG Icons" hidden><h2>SVG Icons</h2></section>
-</section>
-<p class="dashboard__status" id="status" role="status" aria-live="polite"></p>
+<main class="container dashboard dashboard--notion">
+<nav id="dashboard-categories" class="dashboard-categories" aria-label="Dashboard categories"></nav>
+<nav id="dashboard-modules" class="dashboard-modules" aria-label="Dashboard modules"></nav>
+<section id="dashboard-panel" class="dashboard__panel"></section>
+<p id="dashboard-status" class="dashboard__status" role="status" aria-live="polite"></p>
 </main>
 </body>
 </html>
