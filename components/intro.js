@@ -32,11 +32,11 @@
   }
 
   window.__3bComponents.intro = {
-    render(content, imageUrl) {
+    render(content, imageUrl, options = {}) {
       const heading = String(content?.heading || "").trim();
       const subHeading = String(content?.sub_heading || "").trim();
       const hasImage = Boolean(imageUrl);
-      if (!heading && !subHeading && !hasImage) return null;
+      if (!heading && !subHeading && !hasImage && options.fallback !== true) return null;
 
       const section = document.createElement("section");
       section.className = "intro-component ui-section";
