@@ -1,4 +1,4 @@
-:root {
+:root[data-color-mode="light"] {
   color-scheme: light;
   --color-surface: #f7f7f7;
   --color-surface-raised: #ffffff;
