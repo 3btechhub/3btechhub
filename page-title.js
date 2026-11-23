@@ -18,8 +18,8 @@
       width: max-content;
       max-width: calc(100vw - 32px);
       margin: 0;
-      color: #111827;
-      font-family: system-ui, sans-serif;
+      color: var(--color-text);
+      font-family: var(--font-family);
       font-size: 24px;
       font-weight: 700;
       line-height: 1.3;
