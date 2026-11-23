@@ -1,5 +1,6 @@
 :root[data-theme="light"] {
   color-scheme: light;
+  --font-family: system-ui, sans-serif;
   --color-bg: #f3f4f6;
   --color-surface: #ffffff;
   --color-text: #111827;
@@ -11,4 +12,13 @@
   --color-hover: #e5e7eb;
   --color-danger: #b91c1c;
   --shadow-card: 0 12px 36px rgb(17 24 39 / 8%);
+}
+:root[data-theme="light"] *, :root[data-theme="light"] *::before, :root[data-theme="light"] *::after { box-sizing: border-box; }
+:root[data-theme="light"] body { margin: 0; min-height: 100vh; background: var(--color-bg); color: var(--color-text); font-family: var(--font-family); }
+:root[data-theme="light"] a { color: inherit; }
+.theme-mode-toggle {
+  position: fixed; top: 18px; right: 18px; z-index: 1100;
+  width: 42px; height: 42px; border: 1px solid var(--color-border);
+  border-radius: 50%; background: var(--color-surface); color: var(--color-text);
+  box-shadow: var(--shadow-card); font: 22px/1 var(--font-family); cursor: pointer;
 }
