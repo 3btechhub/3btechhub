@@ -1,0 +1,103 @@
+:root {
+  /* Classic theme: global UI standards */
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-size-base: 16px;
+  --line-height-base: 1.5;
+  --content-width: 1200px;
+  --page-padding: clamp(12px, 2vw, 24px);
+  --space-element: 16px;
+  --space-section: 32px;
+
+  --size-control: clamp(44px, 3vw, 52px);
+  --radius-control: 10px;
+  --radius-card: 12px;
+  --padding-card: clamp(16px, 2vw, 32px);
+  --border-width: 1px;
+  --icon-size: 24px;
+
+  --font-size-page-title: 24px;
+  --font-weight-page-title: 700;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+}
+
+img, svg, video, canvas {
+  max-width: 100%;
+}
+
+button, input, select, textarea {
+  font: inherit;
+}
+
+button, input[type="button"], input[type="submit"], input[type="reset"] {
+  min-height: var(--size-control);
+  border-radius: var(--radius-control);
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select, textarea {
+  min-height: var(--size-control);
+  border-radius: var(--radius-control);
+}
+
+:where(button, input, select, textarea, a):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Shared layout classes */
+.page-container {
+  width: min(100% - (2 * var(--page-padding)), var(--content-width));
+  margin-inline: auto;
+}
+
+.ui-card {
+  padding: var(--padding-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+}
+
+.page-title {
+  margin: 0;
+  font-size: var(--font-size-page-title);
+  font-weight: var(--font-weight-page-title);
+  line-height: 1.25;
+}
+
+.ui-section + .ui-section {
+  margin-top: var(--space-section);
+}
+
+.ui-element-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-element);
+}
+
+@media (max-width: 480px) {
+  :root {
+    --space-element: 12px;
+    --space-section: 24px;
+  }
+}
