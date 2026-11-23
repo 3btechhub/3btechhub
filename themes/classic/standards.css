@@ -59,9 +59,6 @@ button, input, select, textarea { font: inherit; }
 .page-title { margin: 0; font-size: var(--font-size-page-title); font-weight: var(--font-weight-page-title); line-height: 1.25; }
 @media (max-width: 480px) { :root { --space-element: 12px; --space-section: 24px; } }
 
-/* Independent top alignment: matches the page title's 20px offset */
-.theme-mode-toggle { position: fixed; top: 20px; right: 18px; z-index: 1100; display: grid; place-items: center; width: 44px; height: 44px; min-height: 44px; padding: 0; border: var(--border-width) solid var(--color-border); border-radius: 50%; background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-card); font: 22px/1 var(--font-family); cursor: pointer; }
-
 /* One fixed standard size for Login and Account cards */
 .ui-form-card {
   display: flex;
