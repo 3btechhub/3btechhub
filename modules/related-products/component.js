@@ -34,7 +34,16 @@
       .related-products-admin-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,auto);align-items:center;justify-content:space-between;gap:var(--space-element);width:100%;padding:14px 16px;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit;text-align:left;cursor:pointer}
       .related-products-admin-item.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
       .related-products-admin-meta{display:flex;flex-wrap:wrap;gap:var(--space-element);margin-top:var(--space-element);color:var(--color-muted);font-size:13px}
-      .related-products-admin-list .ui-tile{cursor:pointer;text-decoration:none}
+      .related-products-admin-list .related-products-admin-tile{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);width:100%;min-height:104px;padding:16px;border:var(--border-width) solid var(--color-border);background:var(--color-surface);color:var(--color-text);font:inherit;text-align:left;cursor:pointer}
+      .related-products-admin-list .related-products-admin-tile.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
+      .related-products-admin-content{display:grid;gap:8px;min-width:0}
+      .related-products-admin-content .ui-tile-title{margin:0}
+      .related-products-admin-visibility{display:grid;gap:3px;color:var(--color-muted);font-size:13px}
+      .related-products-admin-visibility-label{font-weight:600}
+      .related-products-admin-visibility-value{overflow-wrap:anywhere}
+      .related-products-admin-media{display:flex;flex:0 0 76px;width:76px;height:76px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted,transparent);font-size:36px}
+      .related-products-admin-media img{width:100%;height:100%;object-fit:cover}
+      .related-products-admin-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .related-products-admin-list .ui-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .related-products-admin-identity{min-width:0}
       .related-products-admin-slug{color:var(--color-muted);font-size:13px;overflow-wrap:anywhere}
