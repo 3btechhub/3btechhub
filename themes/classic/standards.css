@@ -110,15 +110,15 @@ button, input, select, textarea { font: inherit; }
 .ui-card-medium { --ui-card-padding: var(--card-padding-medium); --ui-card-content-padding: var(--card-padding-medium); }
 .ui-card-large { --ui-card-padding: var(--card-padding-large); --ui-card-content-padding: var(--card-padding-large); }
 
-.ui-section-card {
+.ui-large-card {
   display: block;
   width: 100%;
   max-width: var(--content-width-section);
   min-width: 0;
   margin: var(--space-section) auto;
-  padding: var(--ui-card-padding, var(--card-padding-medium));
+  padding: var(--ui-card-padding, var(--card-padding-large));
   border: var(--border-width) solid var(--color-border);
-  border-radius: var(--ui-radius-card, var(--radius-card-medium));
+  border-radius: var(--ui-radius-card, var(--radius-card-large));
   background: var(--color-surface);
   color: var(--color-text);
   box-shadow: var(--shadow-card);
@@ -304,12 +304,9 @@ body[data-context] { width: 100%; min-width: 0; }
 \n/* Section cards share the global three-level sizing API. */\n.ui-section-card.ui-size-small { --ui-card-padding: var(--card-padding-small); --ui-radius-card: var(--radius-card-small); }\n.ui-section-card.ui-size-medium { --ui-card-padding: var(--card-padding-medium); --ui-radius-card: var(--radius-card-medium); }\n.ui-section-card.ui-size-large { --ui-card-padding: var(--card-padding-large); --ui-radius-card: var(--radius-card-large); }\n
 
 
-/* Section-card sizing follows the shared small, medium and large API. */
-.ui-section-card.ui-size-small { padding: var(--card-padding-small); border-radius: var(--radius-card-small); }
-.ui-section-card.ui-size-medium { padding: var(--card-padding-medium); border-radius: var(--radius-card-medium); }
-.ui-section-card.ui-size-large { padding: var(--card-padding-large); border-radius: var(--radius-card-large); }
 
-/* Section card uses the shared three-level size API. */
-.ui-section-card.ui-size-small { --ui-card-padding: var(--card-padding-small); --ui-radius-card: var(--radius-card-small); }
-.ui-section-card.ui-size-medium { --ui-card-padding: var(--card-padding-medium); --ui-radius-card: var(--radius-card-medium); }
-.ui-section-card.ui-size-large { --ui-card-padding: var(--card-padding-large); --ui-radius-card: var(--radius-card-large); }
+
+/* Large Card is the single shared module/container card. */
+.ui-large-card.ui-size-small { padding: var(--card-padding-small); border-radius: var(--radius-card-small); }
+.ui-large-card.ui-size-medium { padding: var(--card-padding-medium); border-radius: var(--radius-card-medium); }
+.ui-large-card.ui-size-large { padding: var(--card-padding-large); border-radius: var(--radius-card-large); }
