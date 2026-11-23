@@ -14,7 +14,10 @@
       .related-products-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:var(--space-element)}
       .related-product-tile{--ui-tile-padding:16px}
       .related-products-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
-      .related-product-tile .ui-tile-media{flex:0 0 56px}
+      .related-product-tile{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);min-height:104px}
+      .related-product-tile .ui-tile-content{min-width:0}
+      .related-product-tile-media{display:flex;flex:0 0 56px;width:56px;height:56px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted,transparent);font-size:30px}
+      .related-product-tile-media img{width:100%;height:100%;object-fit:cover}
       .related-product-details{width:min(100% - (2 * var(--page-padding)),900px);margin:var(--space-section) auto}
       .related-product-details-image{display:block;width:100%;max-height:440px;object-fit:cover;border-radius:var(--radius-card);margin-bottom:var(--space-element)}
       .related-product-details-icon{font-size:var(--icon-size);margin-bottom:var(--space-element)}
@@ -79,7 +82,21 @@
       title.className = "ui-tile-title";
       title.textContent = item.name;
       body.appendChild(title);
-      card.append(body);
+      const media = document.createElement("div");
+      media.className = "related-product-tile-media ui-tile-media";
+      if (item.image_path) {
+        const image = document.createElement("img");
+        image.src = product.publicImageUrl(item.image_path);
+        image.alt = "";
+        image.loading = "lazy";
+        media.appendChild(image);
+      } else if (item.icon) {
+        const icon = document.createElement("span");
+        icon.textContent = item.icon;
+        icon.setAttribute("aria-hidden", "true");
+        media.appendChild(icon);
+      }
+      card.append(body, media);
       grid.appendChild(card);
     });
     section.appendChild(grid);
