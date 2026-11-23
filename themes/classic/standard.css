@@ -61,13 +61,22 @@
   width: 58px;
   height: 58px;
   padding: 0;
-  border: 1px solid var(--color-border);
+  border: 1px solid transparent;
   border-radius: 50%;
-  background: var(--color-button-secondary-bg);
-  color: var(--color-button-secondary-text);
+  background: var(--color-button-primary-bg, var(--color-button-secondary-bg));
+  color: var(--color-button-primary-text, var(--color-button-secondary-text));
   box-shadow: 0 4px 14px var(--shadow-color);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+#site-navigation .navigation-toggle:hover {
+  background: var(--color-button-primary-hover, var(--color-button-primary-bg, var(--color-button-secondary-bg)));
+}
+
+#site-navigation .navigation-toggle:focus-visible {
+  outline: 2px solid var(--color-focus, var(--color-border));
+  outline-offset: 3px;
 }
 
 #site-navigation .navigation-toggle svg {
