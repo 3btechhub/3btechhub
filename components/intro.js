@@ -37,8 +37,8 @@
     style.id = "intro-component-styles";
     style.textContent = `
       .intro-component{width:min(100% - (2 * var(--page-padding)),var(--content-width-intro));margin:var(--space-section) auto}
-      .intro-card{display:flex;flex-direction:column;width:100%;aspect-ratio:16 / 9;margin:0;overflow:hidden}
-      .intro-visual{position:relative;display:flex;flex:1 1 auto;min-height:0;align-items:center;justify-content:center;height:auto;overflow:hidden}
+      .intro-card{width:100%;margin:0;overflow:hidden}
+      .intro-visual{position:relative;display:flex;flex:none;width:100%;aspect-ratio:16 / 9;min-height:0;align-items:center;justify-content:center;height:auto;overflow:hidden}
       .intro-visual-tech{background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--color-primary) 18%,transparent),transparent 65%),linear-gradient(135deg,var(--color-surface),color-mix(in srgb,var(--color-primary) 9%,var(--color-surface)))}
       .intro-visual-tech::before,.intro-visual-tech::after{position:absolute;inset:0;content:"";pointer-events:none}
       .intro-visual-tech::before{background-image:linear-gradient(color-mix(in srgb,var(--color-primary) 9%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--color-primary) 9%,transparent) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
@@ -52,7 +52,7 @@
       .intro-node-center{fill:var(--color-primary)}
       .intro-tech-label{position:absolute;z-index:2;bottom:var(--space-medium);left:0;width:100%;color:var(--color-muted);font-size:var(--font-size-small);font-weight:700;letter-spacing:.22em;text-align:center}
       .intro-visual-image{height:auto;background:var(--color-surface)}
-      .intro-image{display:block;width:100%;height:100%;object-fit:cover}
+      .intro-image{display:block;width:100%;height:100%;aspect-ratio:16 / 9;object-fit:cover}
       .intro-card-content{display:grid;justify-items:center;gap:var(--space-element);padding:var(--card-padding-large);text-align:center}
       .intro-heading{margin:0;color:var(--color-text);font-size:var(--font-size-large);line-height:var(--line-height-tight)}
       .intro-sub-heading{width:100%;margin:0;color:var(--color-muted);font-size:var(--font-size-medium);line-height:var(--line-height-normal)}
