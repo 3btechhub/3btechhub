@@ -1,13 +1,15 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="auth-pending" data-page-permission="page.dashboard.view">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard</title>
+  <style>html.auth-pending { visibility: hidden; }</style>
   <script src="../components/theme-controller.js"></script>
   <link rel="stylesheet" href="../themes/classic/standard.css">
   <link rel="stylesheet" href="../themes/classic/light.css">
   <link rel="stylesheet" href="../themes/classic/dark.css">
+  <script type="module" src="../components/auth-guard.js"></script>
 </head>
 <body>
   <script src="../components/navigation.js"></script>
