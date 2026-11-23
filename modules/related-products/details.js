@@ -6,13 +6,13 @@
     root.dataset.relatedProductDetailsMounted = "true";
     const message = document.createElement("p");
     message.className = "related-product-message";
-    message.textContent = "Loading service…";
+    message.textContent = "Loading product…";
     root.appendChild(message);
     try {
       const slug = new URLSearchParams(location.search).get("slug");
-      if (!slug) throw new Error("Service not found.");
+      if (!slug) throw new Error("Product not found.");
       const item = await window.__3bModules.relatedProducts.product.getPublicBySlug(slug);
-      if (!item) throw new Error("Service not found or unavailable.");
+      if (!item) throw new Error("Product not found or unavailable.");
       const details = window.__3bModules.relatedProducts.renderDetails(item);
       message.remove();
       root.appendChild(details);
