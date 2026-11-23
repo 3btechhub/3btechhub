@@ -1,17 +1,1 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dashboard | 3B TECH HUB</title>
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f3f4f6;color:#111827;font-family:system-ui,sans-serif}#dashboard-content{display:none}</style></head><body>
-<main id="dashboard-content"></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./supabase/client.js"></script><script>
-const supabase=window.supabaseClient;
-async function protectDashboard(){
- try{
-  const {data:sessionData,error:sessionError}=await supabase.auth.getSession();
-  if(sessionError||!sessionData.session){window.location.replace("./login.html?target=dashboard.html");return;}
-  const {data:userData,error:userError}=await supabase.auth.getUser();
-  if(userError||!userData.user){await supabase.auth.signOut();window.location.replace("./login.html?target=dashboard.html");return;}
-  document.getElementById("dashboard-content").style.display="block";
- }catch(error){window.location.replace("./login.html?target=dashboard.html");}
-}
-protectDashboard();
-</script><script src="./navigation.js"></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=./dashboard/"><title>Redirecting</title></head><body><script>location.replace("./dashboard/");</script><a href="./dashboard/">Continue to dashboard</a></body></html>
