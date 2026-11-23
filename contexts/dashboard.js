@@ -33,6 +33,9 @@
       .intro-role-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
       .intro-role-option{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--color-border);border-radius:8px}
       .intro-image-preview{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:8px}
+      .intro-admin-preview{display:flex;flex-direction:column;gap:var(--space-element);margin-top:var(--space-section)}
+      .intro-admin-preview #intro-preview{width:100%}
+      .intro-admin-preview #intro-preview>.intro-component{width:100%;margin:0}
       .intro-admin-status{min-height:22px;color:var(--color-muted);font-size:14px}
     `;
     document.head.appendChild(style);
