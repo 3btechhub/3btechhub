@@ -14,15 +14,6 @@
     document.head.appendChild(element);
   });
 
-  const addStylesheet = href => new Promise((resolve, reject) => {
-    const element = document.createElement("link");
-    element.rel = "stylesheet";
-    element.href = new URL(href, root).href;
-    element.onload = resolve;
-    element.onerror = () => reject(new Error("Could not load stylesheet: " + href));
-    document.head.appendChild(element);
-  });
-
   Promise.all([
     addScript("themes/classic/theme.js"),
     addScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2")
