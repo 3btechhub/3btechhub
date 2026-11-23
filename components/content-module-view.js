@@ -25,7 +25,7 @@
     },
     renderDetails(item, config) {
       const section = document.createElement("article");
-      section.className = "ui-detail-card ui-card ui-card-large ui-content-details";
+      section.className = "ui-detail-card ui-section-card ui-content-details";
       if (item.image_path) {
         const image = document.createElement("img");
         image.className = "ui-content-details-image";
