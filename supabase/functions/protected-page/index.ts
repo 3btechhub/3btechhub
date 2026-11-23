@@ -115,7 +115,11 @@ Deno.serve(async (req: Request) => {
 
   // The Owner role is system-authorized by private.has_permission(); mirror that effective access in the client permission list.
   if (roles.some((role) => role.slug === "owner")) {
-    permissionSlugs = [...new Set([...permissionSlugs, "module.our_services.manage"])];
+    permissionSlugs = [...new Set([
+      ...permissionSlugs,
+      "module.our_services.manage",
+      "module.related_products.manage",
+    ])];
   }
 
   const permissionSet = new Set(permissionSlugs);
