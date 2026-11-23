@@ -28,9 +28,18 @@
   `;
 
   const links = nav.querySelector("#site-nav-links");
+  const currentPath = () => {
+    const path = window.location.pathname;
+    return path.endsWith("/") ? path : path + "/";
+  };
+  const isCurrentPage = item => {
+    const path = currentPath();
+    const target = item.path ? basePath + item.path : basePath;
+    return path === target || (item.path !== "" && path.startsWith(target));
+  };
   const renderLinks = items => {
     links.replaceChildren();
-    items.forEach(item => {
+    items.filter(item => !isCurrentPage(item)).forEach(item => {
       const link = document.createElement("a");
       link.className = "ui-nav-menu-link";
       link.href = basePath + item.path;
@@ -40,10 +49,20 @@
   };
 
   const toggleButton = nav.querySelector(".nav-toggle");
+  const closeMenu = () => {
+    nav.classList.remove("is-open");
+    toggleButton.setAttribute("aria-expanded", "false");
+    toggleButton.setAttribute("aria-label", "Open menu");
+  };
   toggleButton.addEventListener("click", () => {
     const isOpen = nav.classList.toggle("is-open");
     toggleButton.setAttribute("aria-expanded", String(isOpen));
     toggleButton.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+  });
+  document.addEventListener("pointerdown", event => {
+    if (nav.classList.contains("is-open") && !nav.contains(event.target)) {
+      closeMenu();
+    }
   });
 
   const mountNavigation = () => {
