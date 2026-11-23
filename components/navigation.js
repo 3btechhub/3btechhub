@@ -153,8 +153,8 @@
         return;
       }
       modeButton.textContent = controller.getEffectiveMode() === "dark"
-        ? "Switch to Light Mode"
-        : "Switch to Dark Mode";
+        ? "Light Mode"
+        : "Dark Mode";
     }
 
     modeButton.addEventListener("click", () => {
