@@ -7,7 +7,7 @@
     root.dataset.ourServicesMounted = "true";
     const service = module.service;
     const panel = document.createElement("section");
-    panel.className = "our-services-admin ui-card";
+    panel.className = "our-services-admin ui-admin-panel ui-card";
     panel.innerHTML = `
       <h2>Our Services</h2>
       <div id="our-services-list" class="our-services-admin-list ui-stack"></div>
