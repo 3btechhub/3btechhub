@@ -35,8 +35,7 @@
         slug: String(values.slug || "").trim().toLowerCase(),
         icon: String(values.icon || "").trim(),
         image_path: values.image_path || null,
-        visible_role_ids: Array.isArray(values.visible_role_ids) ? values.visible_role_ids : [],
-
+        visible_role_ids: Array.isArray(values.visible_role_ids) ? values.visible_role_ids : []
       };
       if (!record.name) throw new Error("Name is required.");
       if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(record.slug)) {
