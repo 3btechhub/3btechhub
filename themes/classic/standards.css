@@ -85,7 +85,7 @@ button, input, select, textarea { font: inherit; }
 .ui-item-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--space-element); }
 .ui-detail-card { width: min(100% - (2 * var(--page-padding)), var(--content-width-reading)); margin: var(--space-section) auto; }
 .ui-admin-panel { min-width: 0; color: var(--color-text); }
-.ui-admin-panel > h2 { margin: 0 0 var(--space-lg); font-size: var(--font-size-lg); }
+.ui-admin-panel h2 { margin: 0 0 var(--space-lg); font-size: var(--font-size-lg); }
 .ui-admin-list { margin-block: var(--space-element); }
 .ui-admin-image-preview { display: block; width: 260px; max-width: 100%; height: 150px; object-fit: cover; border-radius: var(--radius-control); }
 .intro-image-preview { display: block; width: 100%; height: 220px; object-fit: contain; border-radius: var(--radius-control); }
