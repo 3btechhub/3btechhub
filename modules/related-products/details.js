@@ -1,22 +1,15 @@
 (() => {
   "use strict";
-  window.__3bContexts = window.__3bContexts || {};
-  window.__3bContexts.relatedProductDetails = async root => {
-    if (!root || root.dataset.relatedProductDetailsMounted === "true") return;
-    root.dataset.relatedProductDetailsMounted = "true";
-    try {
-      const slug = new URLSearchParams(location.search).get("slug");
-      if (!slug) throw new Error("Product not found.");
-      const item = await window.__3bModules.relatedProducts.product.getPublicBySlug(slug);
-      if (!item) throw new Error("Product not found or unavailable.");
-      const details = window.__3bModules.relatedProducts.renderDetails(item);
-      root.appendChild(details);
-      document.title = item.name + " | 3B TECH HUB";
-    } catch (error) {
-      const message = document.createElement("p");
-      message.className = "related-product-message";
-      message.textContent = error.message || "Unable to load this product.";
-      root.appendChild(message);
-    }
+  window.__3bModules = window.__3bModules || {};
+  const module = window.__3bModules.relatedProducts = window.__3bModules.relatedProducts || {};
+  const config = {
+    key: "relatedProducts",
+    singular: "Product",
+    plural: "Related Products",
+    routeSegment: "product",
+    api: module.product
   };
+  window.__3bContexts = window.__3bContexts || {};
+  window.__3bContexts.relatedProductDetails =
+    root => window.__3bComponents.contentModuleView.mountDetails(root, config);
 })();
