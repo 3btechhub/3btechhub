@@ -7,4 +7,13 @@
   --color-button-secondary-bg: #f1f3f4;
   --color-button-secondary-text: #202124;
   --shadow-color: rgb(60 64 67 / 20%);
+  --color-label: #202124;
+  --color-input-bg: #ffffff;
+  --color-input-text: #202124;
+  --color-input-border: #dadce0;
+  --color-placeholder: #5f6368;
+  --color-focus: #1a73e8;
+  --color-button-primary-bg: #1a73e8;
+  --color-button-primary-text: #ffffff;
+  --color-button-primary-hover: #1765cc;
 }
