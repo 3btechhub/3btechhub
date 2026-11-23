@@ -9,21 +9,21 @@
       return data || [];
     },
     async listPublic() {
-      const { data, error } = await supabase().from("our_services")
+      const { data, error } = await supabase().from("related_products")
         .select("id,name,slug,icon,image_path,description,details,visible_role_ids,status,sort_order")
         .eq("status", "published").order("sort_order").order("created_at");
       if (error) throw error;
       return data || [];
     },
     async getPublicBySlug(slug) {
-      const { data, error } = await supabase().from("our_services")
+      const { data, error } = await supabase().from("related_products")
         .select("id,name,slug,icon,image_path,description,details,visible_role_ids,status")
         .eq("slug", slug).eq("status", "published").maybeSingle();
       if (error) throw error;
       return data;
     },
     async listManage() {
-      const { data, error } = await supabase().from("our_services")
+      const { data, error } = await supabase().from("related_products")
         .select("id,name,slug,icon,image_path,description,details,visible_role_ids,status,sort_order,created_at")
         .order("sort_order").order("created_at", { ascending: false });
       if (error) throw error;
@@ -45,21 +45,21 @@
         throw new Error("Slug must use lowercase letters, numbers and single hyphens.");
       }
       if (id) {
-        const { error } = await supabase().from("our_services").update(record).eq("id", id);
+        const { error } = await supabase().from("related_products").update(record).eq("id", id);
         if (error) throw error;
       } else {
         const { data: auth } = await supabase().auth.getUser();
-        const { error } = await supabase().from("our_services").insert({
+        const { error } = await supabase().from("related_products").insert({
           ...record, created_by: auth?.user?.id || null
         });
         if (error) throw error;
       }
     },
     async remove(id) {
-      const { data: row, error: readError } = await supabase().from("our_services")
+      const { data: row, error: readError } = await supabase().from("related_products")
         .select("image_path").eq("id", id).maybeSingle();
       if (readError) throw readError;
-      const { error } = await supabase().from("our_services").delete().eq("id", id);
+      const { error } = await supabase().from("related_products").delete().eq("id", id);
       if (error) throw error;
       if (row?.image_path) {
         const { error: storageError } = await supabase().storage.from("site-media").remove([row.image_path]);
@@ -90,5 +90,5 @@
   };
   window.__3bModules = window.__3bModules || {};
   window.__3bModules.relatedProducts = window.__3bModules.relatedProducts || {};
-  window.__3bModules.relatedProducts.service = service;
+  window.__3bModules.relatedProducts.product = product;
 })();
