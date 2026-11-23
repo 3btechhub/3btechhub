@@ -39,6 +39,7 @@
       render(null, null);
     } finally {
       await window.__3bModules?.ourServices?.mountHome?.(root);
+      await window.__3bModules?.relatedProducts?.mountHome?.(root);
     }
   };
 })();
