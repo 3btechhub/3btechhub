@@ -11,13 +11,37 @@
       const grid = document.createElement("div");
       grid.className = "ui-item-grid";
       items.forEach(item => {
-        const card = window.__3bComponents.itemCard.render({
-          item,
-          href: new URL(config.routeSegment + "/?slug=" + encodeURIComponent(item.slug), baseUrl()).href,
-          imageUrl: item.image_path ? config.api.publicImageUrl(item.image_path) : "",
-          icon: item.icon || "",
-          iconUrl: !item.image_path && !item.icon ? new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href : ""
-        });
+        const card = document.createElement("a");
+        card.className = "ui-card ui-size-medium";
+        card.href = new URL(config.routeSegment + "/?slug=" + encodeURIComponent(item.slug), baseUrl()).href;
+        const content = document.createElement("div");
+        content.className = "ui-card-content";
+        const title = document.createElement("h2");
+        title.className = "ui-card-title";
+        title.textContent = item.name || "";
+        content.appendChild(title);
+        const media = document.createElement("div");
+        media.className = "ui-card-media";
+        if (item.image_path) {
+          const image = document.createElement("img");
+          image.src = config.api.publicImageUrl(item.image_path);
+          image.alt = "";
+          image.loading = "lazy";
+          media.appendChild(image);
+        } else if (item.icon) {
+          const glyph = document.createElement("span");
+          glyph.textContent = item.icon;
+          glyph.setAttribute("aria-hidden", "true");
+          media.appendChild(glyph);
+        } else {
+          const glyph = document.createElement("span");
+          glyph.className = "ui-card-svg-icon";
+          const iconUrl = new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href;
+          glyph.style.webkitMaskImage = 'url("' + iconUrl + '")';
+          glyph.style.maskImage = 'url("' + iconUrl + '")';
+          media.appendChild(glyph);
+        }
+        card.append(content, media);
         grid.appendChild(card);
       });
       section.appendChild(grid);
