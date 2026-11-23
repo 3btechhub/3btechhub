@@ -12,6 +12,45 @@
   <script type="module" src="../components/auth-guard.js"></script>
 </head>
 <body>
+  <main>
+    <form id="account-form">
+      <input type="text" id="account-name" name="name" placeholder="Name" aria-label="Name" readonly>
+      <input type="email" id="account-email" name="email" placeholder="Email" aria-label="Email" readonly>
+      <button type="button" id="logout-button">Logout</button>
+    </form>
+  </main>
   <script src="../components/navigation.js"></script>
+  <script type="module">
+    import { supabase } from "../components/supabase-client.js";
+
+    const nameField = document.getElementById("account-name");
+    const emailField = document.getElementById("account-email");
+    const logoutButton = document.getElementById("logout-button");
+
+    async function loadAccount() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) return;
+
+      nameField.value = user.user_metadata?.full_name || user.user_metadata?.name || "";
+      emailField.value = user.email || "";
+    }
+
+    logoutButton.addEventListener("click", async () => {
+      logoutButton.disabled = true;
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+        console.error("Logout failed.", error);
+        logoutButton.disabled = false;
+        return;
+      }
+
+      location.replace(new URL("../login/", import.meta.url).href);
+    });
+
+    loadAccount().catch(error => {
+      console.error("Could not load account details.", error);
+    });
+  </script>
 </body>
 </html>
