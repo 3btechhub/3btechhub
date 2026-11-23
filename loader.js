@@ -6,7 +6,15 @@
   loaderScript.dataset.componentsLoaded = "true";
 
   const baseUrl = new URL(".", loaderScript.src);
-  const componentScripts = ["navigation.js", "page-title.js"];
+  const resources = [
+    "themes/classic/theme.js",
+    "regions/region.js",
+    "regions/index.js",
+    "languages/language.js",
+    "languages/index.js",
+    "navigation.js",
+    "page-title.js"
+  ];
 
   const loadScript = src => new Promise((resolve, reject) => {
     const script = document.createElement("script");
@@ -16,12 +24,12 @@
     document.head.appendChild(script);
   });
 
-  loadScript(new URL("themes/classic/theme.js", baseUrl).href)
-    .then(() => window.__3bThemeReady)
-    .then(() => componentScripts.reduce(
-      (chain, file) => chain.then(() => loadScript(new URL(file, baseUrl).href)),
-      Promise.resolve()
-    ))
+  resources.reduce((chain, file) => chain.then(() => loadScript(new URL(file, baseUrl).href)), Promise.resolve())
+    .then(() => Promise.all([
+      window.__3bThemeReady,
+      window.__3bRegionReady,
+      window.__3bLanguageReady
+    ]))
     .catch(error => {
       console.error("[3B TECH HUB] Site resources loading error:", error);
     });
