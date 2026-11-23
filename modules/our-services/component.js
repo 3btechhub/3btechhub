@@ -10,16 +10,16 @@
     const style = document.createElement("style");
     style.id = "our-services-styles";
     style.textContent = `
-      .our-services-section{width:min(100% - (2 * var(--page-padding)),var(--content-width-section));margin:var(--space-section) auto;color:var(--color-text)}
-      .our-services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:var(--space-element)}
+      
+      
 
-      .our-service-details{width:min(100% - (2 * var(--page-padding)),var(--content-width-reading));margin:var(--space-section) auto}
+      
       .our-service-details-image{display:block;width:100%;max-height:440px;object-fit:cover;border-radius:var(--radius-card);margin-bottom:var(--space-element)}
       .our-service-details-icon{font-size:var(--icon-size);margin-bottom:var(--space-element)}
       .our-service-details-title{margin:0 0 var(--space-element);font-size:clamp(26px,4vw,38px)}
       .our-service-back{display:inline-flex;margin-top:var(--space-element);color:var(--color-primary);font-weight:600;text-decoration:none}
       .our-service-message{width:min(100% - (2 * var(--page-padding)),var(--content-width-reading));margin:var(--space-section) auto;color:var(--color-muted);text-align:center}
-      .our-services-admin{width:min(100% - (2 * var(--page-padding)),var(--content-width-reading));margin:var(--space-section) auto}
+      
       .our-services-admin [hidden]{display:none!important}
       .our-services-admin h2{margin:0 0 var(--space-element);font-size:var(--font-size-lg)}
       .our-services-admin-list{margin-block:var(--space-element)}
@@ -34,10 +34,10 @@
     ensureStyles();
     if (!items?.length) return null;
     const section = document.createElement("section");
-    section.className = "our-services-section ui-card ui-card-medium ui-section";
+    section.className = "our-services-section ui-module-section ui-card ui-card-medium ui-section";
     section.setAttribute("aria-label", "Our Services");
     const grid = document.createElement("div");
-    grid.className = "our-services-grid";
+    grid.className = "our-services-grid ui-item-grid";
     items.forEach(item => {
       const card = window.__3bComponents.itemCard.render({
         item,
@@ -55,7 +55,7 @@
   module.renderDetails = item => {
     ensureStyles();
     const section = document.createElement("article");
-    section.className = "our-service-details ui-card ui-card-medium";
+    section.className = "our-service-details ui-detail-card ui-card ui-card-medium";
     if (item.image_path) {
       const image = document.createElement("img");
       image.className = "our-service-details-image";
