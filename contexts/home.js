@@ -15,7 +15,10 @@
       const supabase = window.supabaseClient;
       const { data: authData } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
       if (!authData?.user) {
-        render(null, null);
+        // Unauthenticated requests use the database's anon role, which is
+        // treated as the Visitor role by the public-content RLS policy.
+        const content = await service.getContent();
+        render(content, service.publicImageUrl(content?.image_path));
         return;
       }
       const { data: assignments, error: roleError } = await supabase.from("user_roles")
