@@ -40,8 +40,9 @@
     .then(() => Promise.all([window.__3bThemeReady, window.__3bRegionReady, window.__3bLanguageReady]))
     .then(() => {
       resourcesReady = true;
-      const context = document.body.dataset.context;
-      if (context) mount(context, document.body);
+      document.querySelectorAll("[data-context]").forEach(root => {
+        mount(root.dataset.context, root);
+      });
       pending.splice(0).forEach(args => mount(...args));
       document.dispatchEvent(new Event("3b-global-loader-ready"));
     })
