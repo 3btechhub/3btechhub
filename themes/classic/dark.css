@@ -44,3 +44,37 @@
   --color-overlay: rgb(0 0 0 / 60%);
   --shadow-color: rgb(0 0 0 / 35%);
 }
+
+/* Floating navigation colors — controlled by the active theme. */
+#site-navigation .navigation-menu {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 6px 24px var(--shadow-color);
+}
+#site-navigation .navigation-menu a {
+  color: var(--color-link);
+}
+#site-navigation .navigation-menu button {
+  color: var(--color-text);
+}
+#site-navigation .navigation-menu a:hover,
+#site-navigation .navigation-menu a:focus-visible,
+#site-navigation .navigation-menu button:hover,
+#site-navigation .navigation-menu button:focus-visible {
+  background: var(--color-surface-raised);
+  outline: none;
+}
+#site-navigation .navigation-toggle {
+  border: 1px solid var(--color-border);
+  background: var(--color-button-primary-bg);
+  color: var(--color-button-primary-text);
+  box-shadow: 0 4px 14px var(--shadow-color);
+}
+#site-navigation .navigation-toggle:focus-visible {
+  outline: 3px solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+#site-navigation .navigation-toggle svg {
+  stroke: currentColor;
+}
