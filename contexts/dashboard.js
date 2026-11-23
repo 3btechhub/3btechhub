@@ -89,21 +89,19 @@
       });
     });
 
-    $("#intro-image").addEventListener("change", async event => {
-      const file = event.target.files?.[0];
-      if (!file) return;
-      $("#intro-visual-type").value = "image";
-      $("#intro-image-field").hidden = false;
-      try {
-        status("Uploading image…");
-        imagePath = await service.uploadImage(file);
-        $("#intro-image-preview").src = service.publicImageUrl(imagePath);
-        $("#intro-image-preview").hidden = false;
+    window.__3bComponents.imageUpload.bind({
+      input: $("#intro-image"),
+      preview: $("#intro-image-preview"),
+      upload: file => service.uploadImage(file),
+      publicUrl: path => service.publicImageUrl(path),
+      status,
+      onStart: () => {
+        $("#intro-visual-type").value = "image";
+        $("#intro-image-field").hidden = false;
+      },
+      onUploaded: path => {
+        imagePath = path;
         renderPreview({ heading: $("#intro-heading").value, sub_heading: $("#intro-sub-heading").value, image_path: imagePath });
-        status("Image uploaded. Save to apply it.");
-      } catch (error) {
-        status(error.message || "Image upload failed.");
-        event.target.value = "";
       }
     });
 
