@@ -5,7 +5,9 @@
   const view = {
     renderCards(items, config) {
       if (!items?.length) return null;
-      const section = window.__3bComponents.sectionCard.render({ tag: "section", size: "medium", className: "ui-section", ariaLabel: config.plural });
+      const section = document.createElement("section");
+      section.className = "ui-section-card ui-size-large ui-section";
+      section.setAttribute("aria-label", config.plural);
       const grid = document.createElement("div");
       grid.className = "ui-item-grid";
       items.forEach(item => {
@@ -22,7 +24,8 @@
       return section;
     },
     renderDetails(item, config) {
-      const section = window.__3bComponents.sectionCard.render({ tag: "article", size: "medium", className: "ui-detail-card ui-content-details" });
+      const section = document.createElement("article");
+      section.className = "ui-section-card ui-size-large ui-detail-card ui-content-details";
       if (item.image_path) {
         const image = document.createElement("img");
         image.className = "ui-content-details-image";
