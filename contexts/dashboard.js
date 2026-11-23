@@ -41,7 +41,7 @@
     panel.className = "intro-admin";
     panel.innerHTML = `
       <h2>Intro — Home Component</h2>
-      <div class="intro-admin-field ui-form-field"><label for="intro-heading">Heading</label><input id="intro-heading" class="ui-input" type="text" maxlength="180" autocomplete="off"></div>
+      <div class="ui-form-field"><label for="intro-heading">Heading</label><input id="intro-heading" class="ui-input" type="text" maxlength="180" autocomplete="off"></div>
       <div class="intro-admin-field ui-form-field"><label for="intro-sub-heading">Sub Heading</label><input id="intro-sub-heading" class="ui-input" type="text" maxlength="300" autocomplete="off"></div>
       <div class="intro-admin-field ui-form-field"><label for="intro-visual-type">Card Design</label><select id="intro-visual-type" class="ui-select"><option value="default">Default Technology Card</option><option value="image">Uploaded Image</option></select></div>
       <div class="intro-admin-field ui-form-field" id="intro-image-field"><label for="intro-image">Select Image</label><input id="intro-image" class="ui-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
