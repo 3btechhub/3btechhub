@@ -1,6 +1,6 @@
 (() => {
   const pageName = document.body.dataset.pageTitle;
-  if (!pageName) return;
+  if (!pageName || document.body.dataset.context === "home") return;
 
   const heading = document.createElement("h1");
   heading.id = "site-page-title";
