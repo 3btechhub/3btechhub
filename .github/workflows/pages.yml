@@ -18,14 +18,14 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: \${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
-      - name: Prepare all HTML pages with shared components
+      - name: Prepare all HTML pages with the central loader
         run: |
           mkdir -p _site
           rsync -a --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
@@ -34,30 +34,26 @@ jobs:
           import re
 
           root = Path("_site")
-          scripts = (
-              '<script src="/3btechhub/navigation.js"></script>',
-              '<script src="/3btechhub/page-title.js"></script>',
-          )
+          loader = '<script src="/3btechhub/loader.js"></script>'
 
           for html in root.rglob("*.html"):
               content = html.read_text(encoding="utf-8")
               content = re.sub(
-                  r'<script\b[^>]*src=["\'][^"\']*(?:navigation|page-title)\.js(?:\?[^"\']*)?["\'][^>]*>\s*</script>',
+                  r'<script\\b[^>]*src=["\\'][^"\\']*(?:loader|navigation|page-title)\\.js(?:\\?[^"\\']*)?["\\'][^>]*>\\s*</script>',
                   "",
                   content,
                   flags=re.IGNORECASE,
               )
-              injection = "\n    ".join(scripts)
-              if re.search(r"</body\s*>", content, flags=re.IGNORECASE):
+              if re.search(r"</body\\s*>", content, flags=re.IGNORECASE):
                   content = re.sub(
-                      r"</body\s*>",
-                      injection + "\n</body>",
+                      r"</body\\s*>",
+                      loader + "\\n</body>",
                       content,
                       count=1,
                       flags=re.IGNORECASE,
                   )
               else:
-                  content += "\n" + injection + "\n"
+                  content += "\\n" + loader + "\\n"
               html.write_text(content, encoding="utf-8")
           PY
       - name: Upload site
