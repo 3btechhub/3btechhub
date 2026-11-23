@@ -32,7 +32,10 @@
       .our-services-role{display:flex;align-items:center;gap:8px;padding:10px;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control)}
       .our-services-admin-list{display:grid;gap:10px;margin:var(--space-element) 0}
       .our-services-admin-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,auto);align-items:center;justify-content:space-between;gap:var(--space-element);width:100%;padding:14px 16px;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit;text-align:left;cursor:pointer}
-      .our-services-admin-item.is-selected{border-color:var(--color-primary);outline:1px solid var(--color-primary)}
+      .our-services-admin-item.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
+      .our-services-admin-meta{display:flex;flex-wrap:wrap;gap:var(--space-element);margin-top:var(--space-element);color:var(--color-muted);font-size:13px}
+      .our-services-admin-list .ui-tile{cursor:pointer;text-decoration:none}
+      .our-services-admin-list .ui-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .our-services-admin-identity{min-width:0}
       .our-services-admin-slug{color:var(--color-muted);font-size:13px;overflow-wrap:anywhere}
       .our-services-admin-meta{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:var(--space-element);color:var(--color-muted);font-size:13px;text-align:right}
