@@ -84,3 +84,76 @@
 #site-navigation .navigation-icon-close { display: none; }
 #site-navigation[data-open="true"] .navigation-icon-open { display: none; }
 #site-navigation[data-open="true"] .navigation-icon-close { display: block; }
+
+/* Global form elements */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  color: var(--color-text);
+}
+
+form label {
+  display: block;
+  color: var(--color-label, var(--color-text));
+  font: inherit;
+  font-weight: 500;
+}
+
+form input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]) {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-input-border, var(--color-border));
+  border-radius: 10px;
+  background: var(--color-input-bg, var(--color-surface-raised));
+  color: var(--color-input-text, var(--color-text));
+  font: inherit;
+}
+
+form input::placeholder {
+  color: var(--color-placeholder, var(--color-text));
+  opacity: 0.6;
+}
+
+form input:focus-visible {
+  border-color: var(--color-focus, var(--color-border));
+  outline: 2px solid var(--color-focus, var(--color-border));
+  outline-offset: 2px;
+}
+
+form button[type="submit"],
+form input[type="submit"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--color-button-primary-bg, var(--color-button-secondary-bg));
+  color: var(--color-button-primary-text, var(--color-button-secondary-text));
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+form button[type="submit"]:hover,
+form input[type="submit"]:hover {
+  background: var(--color-button-primary-hover, var(--color-button-primary-bg, var(--color-button-secondary-bg)));
+}
+
+form button[type="submit"]:focus-visible,
+form input[type="submit"]:focus-visible {
+  outline: 2px solid var(--color-focus, var(--color-border));
+  outline-offset: 2px;
+}
+
+form button[type="submit"]:disabled,
+form input[type="submit"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
