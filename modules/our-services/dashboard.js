@@ -58,9 +58,15 @@
         tile.classList.toggle("is-selected", editingId === item.id);
         const content = document.createElement("div");
         content.className = "ui-tile-content our-services-admin-content";
+        const identity = document.createElement("div");
+        identity.className = "our-services-admin-identity";
+        const nameLabel = document.createElement("span");
+        nameLabel.className = "our-services-admin-name-label";
+        nameLabel.textContent = "Name";
         const title = document.createElement("h3");
         title.className = "ui-tile-title";
         title.textContent = item.name || "";
+        identity.append(nameLabel, title);
         const visibility = document.createElement("div");
         visibility.className = "our-services-admin-visibility";
         const label = document.createElement("span");
@@ -71,7 +77,7 @@
         const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
         value.textContent = visibleRoles.length ? visibleRoles.join(", ") : "None";
         visibility.append(label, value);
-        content.append(title, visibility);
+        content.append(identity, visibility);
         const media = document.createElement("div");
         media.className = "ui-tile-media our-services-admin-media";
         if (item.image_path) {
