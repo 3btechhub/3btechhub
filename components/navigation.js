@@ -75,7 +75,7 @@
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border: 1px solid var(--color-border, currentColor);
+          border: 1px solid var(--color-border);
           border-radius: 50%;
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
