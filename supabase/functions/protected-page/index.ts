@@ -157,7 +157,7 @@ Deno.serve(async (req: Request) => {
       <div class="ui-account-field"><span class="ui-account-field-label">Name</span><div class="ui-account-field-value">${escapeHtml(name)}</div></div>
       <div class="ui-account-field"><span class="ui-account-field-label">Email</span><div class="ui-account-field-value">${escapeHtml(user.email || "Not provided")}</div></div>
       <div class="ui-account-field"><span class="ui-account-field-label">Role</span><div class="ui-account-field-value">${escapeHtml(roleNames)}</div></div>
-      <button class="ui-form-submit" id="logout-button" type="button">Logout</button><p class="ui-form-status" id="status" role="status" aria-live="polite"></p></section>`;
+      <button class="ui-button ui-button-primary ui-button-block" id="logout-button" type="button">Logout</button><p class="ui-form-status" id="status" role="status" aria-live="polite"></p></section>`;
   } else {
     html = `<main id="dashboard-content" data-context="dashboard"></main>`;
   }
