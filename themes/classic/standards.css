@@ -302,3 +302,8 @@ body[data-context] { width: 100%; min-width: 0; }
 .ui-item-card.ui-size-small .ui-item-card-media { flex-basis: var(--media-size-small); width: var(--media-size-small); height: var(--media-size-small); }
 .ui-item-card.ui-size-medium .ui-item-card-media { flex-basis: var(--media-size-medium); width: var(--media-size-medium); height: var(--media-size-medium); }
 .ui-item-card.ui-size-large .ui-item-card-media { flex-basis: var(--media-size-large); width: var(--media-size-large); height: var(--media-size-large); }
+
+/* Section-card sizing follows the shared small, medium and large API. */
+.ui-section-card.ui-size-small { padding: var(--card-padding-small); border-radius: var(--radius-card-small); }
+.ui-section-card.ui-size-medium { padding: var(--card-padding-medium); border-radius: var(--radius-card-medium); }
+.ui-section-card.ui-size-large { padding: var(--card-padding-large); border-radius: var(--radius-card-large); }
