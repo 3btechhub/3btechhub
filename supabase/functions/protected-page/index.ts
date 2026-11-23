@@ -153,7 +153,7 @@ Deno.serve(async (req: Request) => {
       user.email?.split("@")[0] || "Not provided";
     const roleNames = roles.map((role) => role.name).join(", ") || "Not assigned";
 
-    html = `<section class="ui-section-card ui-auth-section-card">
+    html = `<section class="ui-large-card ui-auth-section-card">
       <div class="ui-account-field"><span class="ui-account-field-label">Name</span><div class="ui-account-field-value">${escapeHtml(name)}</div></div>
       <div class="ui-account-field"><span class="ui-account-field-label">Email</span><div class="ui-account-field-value">${escapeHtml(user.email || "Not provided")}</div></div>
       <div class="ui-account-field"><span class="ui-account-field-label">Role</span><div class="ui-account-field-value">${escapeHtml(roleNames)}</div></div>
