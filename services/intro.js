@@ -2,11 +2,8 @@
   "use strict";
   const supabase = () => window.supabaseClient;
   const service = {
-    async getRoles() {
-      const { data, error } = await supabase().from("roles")
-        .select("id,name,slug").eq("is_active", true).order("name");
-      if (error) throw error;
-      return data || [];
+    getRoles() {
+      return window.__3bServices.getActiveRoles();
     },
     async getContent() {
       const { data, error } = await supabase().from("intro_content")
@@ -24,22 +21,11 @@
       }, { onConflict: "id" });
       if (error) throw error;
     },
-    async uploadImage(file) {
-      if (!file || !/^image\/(jpeg|png|webp|gif|avif)$/.test(file.type)) {
-        throw new Error("Choose a JPG, PNG, WebP, GIF or AVIF image.");
-      }
-      if (file.size > 5 * 1024 * 1024) throw new Error("Image must be 5 MB or smaller.");
-      const extension = file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g, "") || "img";
-      const path = "intro/" + crypto.randomUUID() + "." + extension;
-      const { error } = await supabase().storage.from("site-media").upload(path, file, {
-        cacheControl: "3600", upsert: false, contentType: file.type
-      });
-      if (error) throw error;
-      return path;
+    uploadImage(file) {
+      return window.__3bServices.uploadPublicImage(file, "intro");
     },
     publicImageUrl(path) {
-      if (!path) return "";
-      return supabase().storage.from("site-media").getPublicUrl(path).data.publicUrl;
+      return window.__3bServices.publicImageUrl(path);
     }
   };
   window.__3bIntroService = service;
