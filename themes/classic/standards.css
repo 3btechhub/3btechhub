@@ -93,7 +93,7 @@
   font-size: var(--ui-font-size, var(--font-size-medium));
   padding-inline: var(--ui-control-padding-inline, var(--control-padding-inline-medium));
 }
-:is(.ui-size-small, .ui-size-medium, .ui-size-large) :is(.ui-tile, .ui-item-card) {
+:is(.ui-size-small, .ui-size-medium, .ui-size-large) :is(.ui-tile, .ui-card) {
   padding: var(--ui-card-padding, var(--card-padding-medium));
   border-radius: var(--ui-radius-card, var(--radius-card-medium));
 }
@@ -206,8 +206,8 @@ button, input, select, textarea { font: inherit; }
 .ui-account-field-value { overflow-wrap: anywhere; font-weight: var(--font-weight-semibold); }
 
 
-/* Global tile element */
-.ui-tile, .ui-item-card {
+/* Global tile and card elements */
+.ui-tile, .ui-card {
   min-width: 0;
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-control-medium);
@@ -224,7 +224,7 @@ button, input, select, textarea { font: inherit; }
   gap: var(--space-element);
   padding: var(--ui-tile-padding, var(--space-medium));
 }
-.ui-item-card {
+.ui-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -236,8 +236,8 @@ button, input, select, textarea { font: inherit; }
   font: inherit;
   cursor: pointer;
 }
-.ui-tile:hover, .ui-item-card:hover { border-color: var(--color-primary); transform: translateY(-2px); }
-.ui-tile-media, .ui-item-card-media {
+.ui-tile:hover, .ui-card:hover { border-color: var(--color-primary); transform: translateY(-2px); }
+.ui-tile-media, .ui-card-media {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -248,23 +248,30 @@ button, input, select, textarea { font: inherit; }
   background: color-mix(in srgb, var(--color-primary) 9%, var(--color-surface));
   color: var(--color-primary);
 }
-.ui-item-card-media { flex: 0 0 var(--media-size-medium); margin-left: auto; }
-.ui-tile-media img, .ui-item-card-media img { width: 100%; height: 100%; object-fit: cover; }
+.ui-card-media { flex: 0 0 var(--media-size-medium); margin-left: auto; }
+.ui-tile-media img, .ui-card-media img { width: 100%; height: 100%; object-fit: cover; }
 .ui-tile-svg-icon { display:block; flex:0 0 var(--icon-size); width:var(--icon-size); height:var(--icon-size); background-color:var(--color-primary); -webkit-mask-position:center; mask-position:center; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:contain; mask-size:contain; }
 .ui-tile-icon { font-size: var(--icon-size-large); line-height: 1; }
-.ui-tile-content, .ui-item-card-content { display: grid; gap: var(--space-small); min-width: 0; }
-.ui-tile-title, .ui-item-card-title { margin: 0; font-size: var(--ui-font-size, var(--font-size-medium)); line-height: var(--line-height-tight); }
+.ui-tile-content, .ui-card-content { display: grid; gap: var(--space-small); min-width: 0; }
+.ui-tile-title, .ui-card-title { margin: 0; font-size: var(--ui-font-size, var(--font-size-medium)); line-height: var(--line-height-tight); }
 .ui-tile-description { margin: 0; color: var(--color-muted); font-size: var(--font-size-small); line-height: var(--line-height-normal); white-space: pre-line; }
 
 /* Global spacing for groups of buttons */
 .ui-button-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-element); }
 
 
-/* Global item card shared by homepage and dashboard module lists */
-.ui-item-card.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
-.ui-item-card:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
-.ui-item-card-visibility{color:var(--color-muted);font-size:var(--font-size-small);overflow-wrap:anywhere}
-.ui-item-card-media>span:not(.ui-tile-svg-icon){display:grid;place-items:center;width:100%;height:100%;font-size:var(--icon-size-large);line-height:1}
+/* Shared medium cards used by homepage and dashboard item lists */
+.ui-card { display:flex; align-items:center; justify-content:space-between; gap:var(--space-element); width:100%; height:var(--item-card-height-medium); padding:var(--card-padding-medium); border:var(--border-width) solid var(--color-border); border-radius:var(--radius-card-medium); background:var(--color-surface); color:var(--color-text); text-align:left; text-decoration:none; font:inherit; box-shadow:var(--shadow-card); cursor:pointer; transition:border-color .18s ease, transform .18s ease; }
+.ui-card:hover { border-color:var(--color-primary); transform:translateY(-2px); }
+.ui-card.is-selected { outline:2px solid var(--color-primary); outline-offset:2px; }
+.ui-card:focus-visible { outline:2px solid var(--color-primary); outline-offset:3px; }
+.ui-card-content { display:grid; gap:var(--space-small); min-width:0; }
+.ui-card-title { margin:0; font-size:var(--font-size-medium); line-height:var(--line-height-tight); }
+.ui-card-visibility { color:var(--color-muted); font-size:var(--font-size-small); overflow-wrap:anywhere; }
+.ui-card-media { display:flex; flex:0 0 var(--media-size-medium); align-items:center; justify-content:center; width:var(--media-size-medium); height:var(--media-size-medium); margin-left:auto; overflow:hidden; border-radius:var(--radius-control-medium); background:color-mix(in srgb, var(--color-primary) 9%, var(--color-surface)); color:var(--color-primary); }
+.ui-card-media img { width:100%; height:100%; object-fit:cover; }
+.ui-card-svg-icon { display:block; width:var(--icon-size-medium); height:var(--icon-size-medium); background-color:var(--color-primary); -webkit-mask-position:center; mask-position:center; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:contain; mask-size:contain; }
+.ui-card-media>span:not(.ui-card-svg-icon) { display:grid; place-items:center; width:100%; height:100%; font-size:var(--icon-size-medium); line-height:1; }
 
 
 
@@ -295,13 +302,7 @@ body[data-context] { width: 100%; min-width: 0; }
 
 .ui-form-status { height: var(--status-line-height-medium); margin-top: var(--space-small); color: var(--color-danger); font-size: var(--font-size-small); }
 \n/* Section cards share the global three-level sizing API. */\n.ui-section-card.ui-size-small { --ui-card-padding: var(--card-padding-small); --ui-radius-card: var(--radius-card-small); }\n.ui-section-card.ui-size-medium { --ui-card-padding: var(--card-padding-medium); --ui-radius-card: var(--radius-card-medium); }\n.ui-section-card.ui-size-large { --ui-card-padding: var(--card-padding-large); --ui-radius-card: var(--radius-card-large); }\n
-/* Direct item-card sizing follows the same three-level global API. */
-.ui-item-card.ui-size-small { height: var(--item-card-height-small); padding: var(--card-padding-small); border-radius: var(--radius-card-small); }
-.ui-item-card.ui-size-medium { height: var(--item-card-height-medium); padding: var(--card-padding-medium); border-radius: var(--radius-card-medium); }
-.ui-item-card.ui-size-large { height: var(--item-card-height-large); padding: var(--card-padding-large); border-radius: var(--radius-card-large); }
-.ui-item-card.ui-size-small .ui-item-card-media { flex-basis: var(--media-size-small); width: var(--media-size-small); height: var(--media-size-small); }
-.ui-item-card.ui-size-medium .ui-item-card-media { flex-basis: var(--media-size-medium); width: var(--media-size-medium); height: var(--media-size-medium); }
-.ui-item-card.ui-size-large .ui-item-card-media { flex-basis: var(--media-size-large); width: var(--media-size-large); height: var(--media-size-large); }
+
 
 /* Section-card sizing follows the shared small, medium and large API. */
 .ui-section-card.ui-size-small { padding: var(--card-padding-small); border-radius: var(--radius-card-small); }
