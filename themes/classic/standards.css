@@ -319,3 +319,9 @@ body[data-context] { width: 100%; min-width: 0; }
 #site-navigation .icon-close { display:none; }
 #site-navigation.is-open .icon-menu { display:none; }
 #site-navigation.is-open .icon-close { display:block; }
+
+
+/* Project rule: all website text defaults to Small unless explicitly overridden by a future approved exception. */
+body, body *:not(svg):not(svg *) {
+  font-size: var(--font-size-small) !important;
+}
