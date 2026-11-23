@@ -1,15 +1,38 @@
 (() => {
   "use strict";
   window.__3bServices = window.__3bServices || {};
-  window.__3bServices.createContentModule = config => {
+  const services = window.__3bServices;
+
+  services.getActiveRoles = async () => {
+    const { data, error } = await window.supabaseClient.from("roles")
+      .select("id,name,slug").eq("is_active", true).order("name");
+    if (error) throw error;
+    return data || [];
+  };
+
+  services.uploadPublicImage = async (file, folder) => {
+    if (!file || !/^image\/(jpeg|png|webp|gif|avif)$/.test(file.type)) {
+      throw new Error("Choose a JPG, PNG, WebP, GIF or AVIF image.");
+    }
+    if (file.size > 5 * 1024 * 1024) throw new Error("Image must be 5 MB or smaller.");
+    const extension = file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g, "") || "img";
+    const path = folder + "/" + crypto.randomUUID() + "." + extension;
+    const { error } = await window.supabaseClient.storage.from("site-media").upload(path, file, {
+      cacheControl: "3600", upsert: false, contentType: file.type
+    });
+    if (error) throw error;
+    return path;
+  };
+
+  services.publicImageUrl = path => {
+    if (!path) return "";
+    return window.supabaseClient.storage.from("site-media").getPublicUrl(path).data.publicUrl;
+  };
+
+  services.createContentModule = config => {
     const supabase = () => window.supabaseClient;
     return {
-      async getRoles() {
-        const { data, error } = await supabase().from("roles")
-          .select("id,name,slug").eq("is_active", true).order("name");
-        if (error) throw error;
-        return data || [];
-      },
+      getRoles: () => services.getActiveRoles(),
       async listPublic() {
         const { data, error } = await supabase().from(config.table)
           .select("id,name,slug,icon,image_path,visible_role_ids,sort_order")
@@ -65,23 +88,8 @@
           if (storageError) console.warn("[3B TECH HUB] Old " + config.singular.toLowerCase() + " image could not be removed:", storageError);
         }
       },
-      async uploadImage(file) {
-        if (!file || !/^image\/(jpeg|png|webp|gif|avif)$/.test(file.type)) {
-          throw new Error("Choose a JPG, PNG, WebP, GIF or AVIF image.");
-        }
-        if (file.size > 5 * 1024 * 1024) throw new Error("Image must be 5 MB or smaller.");
-        const extension = file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g, "") || "img";
-        const path = config.storageFolder + "/" + crypto.randomUUID() + "." + extension;
-        const { error } = await supabase().storage.from("site-media").upload(path, file, {
-          cacheControl: "3600", upsert: false, contentType: file.type
-        });
-        if (error) throw error;
-        return path;
-      },
-      publicImageUrl(path) {
-        if (!path) return "";
-        return supabase().storage.from("site-media").getPublicUrl(path).data.publicUrl;
-      },
+      uploadImage: file => services.uploadPublicImage(file, config.storageFolder),
+      publicImageUrl: path => services.publicImageUrl(path),
       toSlug(value) {
         return String(value || "").normalize("NFKD").replace(/[\u0300-\u036f]/g, "")
           .toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
