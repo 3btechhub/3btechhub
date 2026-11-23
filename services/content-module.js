@@ -31,8 +31,15 @@
 
   services.createContentModule = config => {
     const supabase = () => window.supabaseClient;
+    const removeImage = async path => {
+      if (!path) return;
+      if (String(path).split("/")[0] !== config.storageFolder) throw new Error("Image path is outside this module's storage folder.");
+      const { error } = await supabase().storage.from("site-media").remove([path]);
+      if (error) throw error;
+    };
     return {
       getRoles: () => services.getActiveRoles(),
+      removeImage,
       async listPublic() {
         const { data, error } = await supabase().from(config.table)
           .select("id,name,slug,icon,image_path,visible_role_ids,sort_order")
@@ -54,7 +61,7 @@
         if (error) throw error;
         return data || [];
       },
-      async save(values, id = null) {
+      async save(values, id = null, previousImagePath = null) {
         const record = {
           name: String(values.name || "").trim(),
           slug: String(values.slug || "").trim().toLowerCase(),
@@ -69,6 +76,9 @@
         if (id) {
           const { error } = await supabase().from(config.table).update(record).eq("id", id);
           if (error) throw error;
+          if (previousImagePath && previousImagePath !== record.image_path) {
+            try { await removeImage(previousImagePath); } catch (storageError) { console.warn("[3B TECH HUB] Replaced image could not be removed:", storageError); }
+          }
         } else {
           const { data: auth } = await supabase().auth.getUser();
           const { error } = await supabase().from(config.table).insert({
@@ -84,8 +94,7 @@
         const { error } = await supabase().from(config.table).delete().eq("id", id);
         if (error) throw error;
         if (row?.image_path) {
-          const { error: storageError } = await supabase().storage.from("site-media").remove([row.image_path]);
-          if (storageError) console.warn("[3B TECH HUB] Old " + config.singular.toLowerCase() + " image could not be removed:", storageError);
+          try { await removeImage(row.image_path); } catch (storageError) { console.warn("[3B TECH HUB] Old " + config.singular.toLowerCase() + " image could not be removed:", storageError); }
         }
       },
       uploadImage: file => services.uploadPublicImage(file, config.storageFolder),

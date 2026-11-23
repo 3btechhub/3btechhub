@@ -34,10 +34,15 @@
       let items = [];
       let editingId = null;
       let imagePath = null;
+      let originalImagePath = null;
+      let pendingImagePath = null;
       let slugManuallyEdited = false;
       const status = message => { $('[data-role="status"]').textContent = message; };
 
-      const clearForm = () => {
+      const clearForm = ({ keepUploaded = false } = {}) => {
+        if (!keepUploaded && pendingImagePath) api.removeImage(pendingImagePath).catch(error => console.warn("[3B TECH HUB] Unused uploaded image could not be removed:", error));
+        pendingImagePath = null;
+        originalImagePath = null;
         editingId = null;
         imagePath = null;
         slugManuallyEdited = false;
@@ -100,8 +105,11 @@
       };
 
       const fillForm = item => {
+        if (pendingImagePath) api.removeImage(pendingImagePath).catch(error => console.warn("[3B TECH HUB] Unused uploaded image could not be removed:", error));
+        pendingImagePath = null;
         editingId = item.id;
-        imagePath = item.image_path || null;
+        originalImagePath = item.image_path || null;
+        imagePath = originalImagePath;
         slugManuallyEdited = true;
         $('[data-role="form-title"]').textContent = "Edit " + singular;
         $('[type="submit"]').textContent = "Update " + singular;
@@ -145,7 +153,11 @@
         upload: file => api.uploadImage(file),
         publicUrl: path => api.publicImageUrl(path),
         status,
-        onUploaded: path => { imagePath = path; }
+        onUploaded: path => {
+          if (pendingImagePath && pendingImagePath !== path) api.removeImage(pendingImagePath).catch(error => console.warn("[3B TECH HUB] Replaced temporary image could not be removed:", error));
+          pendingImagePath = path;
+          imagePath = path;
+        }
       });
       $('[data-action="cancel"]').addEventListener("click", () => {
         clearForm();
@@ -180,8 +192,8 @@
             icon: field("icon").value,
             image_path: imagePath,
             visible_role_ids: visibility.getSelected($('[data-role="visibility"]'))
-          }, editingId);
-          clearForm();
+          }, editingId, originalImagePath);
+          clearForm({ keepUploaded: true });
           await refresh();
           status(singular + " saved successfully.");
         } catch (error) {

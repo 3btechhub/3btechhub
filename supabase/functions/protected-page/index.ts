@@ -117,6 +117,7 @@ Deno.serve(async (req: Request) => {
   if (roles.some((role) => role.slug === "owner")) {
     permissionSlugs = [...new Set([
       ...permissionSlugs,
+      "module.intro.manage",
       "module.our_services.manage",
       "module.related_products.manage",
     ])];

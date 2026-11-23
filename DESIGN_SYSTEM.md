@@ -8,7 +8,7 @@
 ## Tokens
 Use the existing tokens for spacing, sizing, typography, color, borders, radii, shadows, layout widths, and icons. Prefer:
 - `--space-*`, `--space-element`, `--space-section`
-- `--size-control`, `--size-icon-*`, `--icon-size`
+- `--control-size-*`, `--icon-size-*`, `--icon-size`
 - `--font-size-*`, `--font-weight-*`, `--line-height-*`
 - `--content-width-*`, `--page-padding`
 - `--border-width`, `--radius-*`, `--color-*`, `--shadow-card`
@@ -38,6 +38,7 @@ Module styles may cover module-specific layout and content only. Do not define a
 
 ## Loading and themes
 - `loader.js` is the single resource-loading entry point.
+- `themes/classic/standards.css` owns all shared navigation and Intro presentation styles; JavaScript modules own markup and behavior only.
 - Global theme styles must be ready before contexts mount.
 - Do not load the same resource twice or reveal partially initialized pages.
 - Theme variants may change tokens, not shared component markup or behavior.
