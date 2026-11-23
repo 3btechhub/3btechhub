@@ -34,7 +34,7 @@
     ensureStyles();
     if (!items?.length) return null;
     const section = document.createElement("section");
-    section.className = "our-services-section ui-module-section ui-card ui-card-medium ui-section";
+    section.className = "our-services-section ui-section-card ui-section";
     section.setAttribute("aria-label", "Our Services");
     const grid = document.createElement("div");
     grid.className = "our-services-grid ui-item-grid";
