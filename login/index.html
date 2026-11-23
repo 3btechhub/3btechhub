@@ -8,8 +8,23 @@
   <link rel="stylesheet" href="../themes/classic/standard.css">
   <link rel="stylesheet" href="../themes/classic/light.css">
   <link rel="stylesheet" href="../themes/classic/dark.css">
+  <style>
+    .login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
 </head>
 <body>
+  <main class="login-page">
+    <form>
+      <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+      <input type="password" name="password" placeholder="Password" autocomplete="current-password" required>
+      <button type="submit">Login</button>
+    </form>
+  </main>
   <script src="../components/navigation.js"></script>
 </body>
 </html>
