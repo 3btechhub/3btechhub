@@ -10,7 +10,7 @@
       const item = await window.__3bModules.relatedProducts.product.getPublicBySlug(slug);
       if (!item) throw new Error("Product not found or unavailable.");
       const details = window.__3bModules.relatedProducts.renderDetails(item);
-      root.replaceChildren(details);
+      root.appendChild(details);
       document.title = item.name + " | 3B TECH HUB";
       const title = document.getElementById("site-page-title");
       if (title) title.textContent = item.name;
@@ -18,7 +18,7 @@
       const message = document.createElement("p");
       message.className = "related-product-message";
       message.textContent = error.message || "Unable to load this product.";
-      root.replaceChildren(message);
+      root.appendChild(message);
     }
   };
 })();
