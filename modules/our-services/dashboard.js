@@ -91,6 +91,12 @@
           icon.textContent = item.icon;
           icon.setAttribute("aria-hidden", "true");
           media.appendChild(icon);
+        } else {
+          const icon = document.createElement("img");
+          icon.src = new URL("assets/icons/" + item.slug + ".svg", window.__3bBaseUrl || location.href).href;
+          icon.alt = "";
+          icon.loading = "lazy";
+          media.appendChild(icon);
         }
         tile.append(content, media);
         tile.addEventListener("click", () => fillForm(item));
