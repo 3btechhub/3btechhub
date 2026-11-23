@@ -11,7 +11,7 @@
     key: "ourServices",
     title: "Our Services",
     singular: "Service",
-    plural: "Services",
+    plural: "Our Services",
     routeSegment: "service",
     api: module.service
   };
