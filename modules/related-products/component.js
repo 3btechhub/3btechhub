@@ -95,6 +95,12 @@
         icon.textContent = item.icon;
         icon.setAttribute("aria-hidden", "true");
         media.appendChild(icon);
+      } else {
+        const icon = document.createElement("img");
+        icon.src = new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href;
+        icon.alt = "";
+        icon.loading = "lazy";
+        media.appendChild(icon);
       }
       card.append(body, media);
       grid.appendChild(card);
