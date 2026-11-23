@@ -64,15 +64,6 @@
           event.preventDefault();
           fillForm(item);
         });
-        const meta = document.createElement("div");
-        meta.className = "our-services-admin-meta";
-        const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
-        const visibility = document.createElement("span");
-        visibility.textContent = "Visibility: " + (visibleRoles.length ? visibleRoles.join(", ") : "None");
-        const state = document.createElement("span");
-        state.textContent = "Status: " + (item.status || "draft");
-        meta.append(visibility, state);
-        tile.querySelector(".ui-tile-content")?.appendChild(meta);
         list.appendChild(tile);
       });
     };
