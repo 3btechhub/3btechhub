@@ -18,7 +18,6 @@
         <div class="our-services-field"><label class="ui-form-label" for="os-icon">Icon</label><input id="os-icon" class="ui-form-control" type="text" maxlength="80" placeholder="Emoji or icon text"></div>
         <div class="our-services-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" class="ui-form-control" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="our-services-preview" alt="Service image preview" hidden></div>
         <fieldset class="our-services-field"><legend>Visibility</legend><div id="os-roles" class="our-services-role-list"></div></fieldset>
-        <div class="our-services-field"><label class="ui-form-label" for="os-status">Status</label><select id="os-status" class="ui-select"><option value="draft">Draft</option><option value="published">Published</option></select></div>
         <div class="our-services-form-actions"><button class="ui-button ui-button-primary primary" type="submit">Save Service</button><button id="os-cancel" class="ui-button" type="button">Cancel</button><button id="os-delete" class="ui-button danger" type="button" hidden>Delete</button></div>
       </form>
       <p id="os-status-message" class="our-services-status ui-status" role="status" aria-live="polite"></p>
@@ -40,7 +39,6 @@
       $("#our-services-form-title").textContent = "Add Service";
       $("#our-services-form").querySelector('[type="submit"]').textContent = "Save Service";
       $("#os-delete").hidden = true;
-      $("#os-status").value = "draft";
       $("#os-roles").querySelectorAll("input").forEach(input => {
         input.checked = roles.some(role => role.slug === "visitor" && role.id === input.value);
       });
@@ -77,7 +75,6 @@
       $("#os-name").value = item.name || "";
       $("#os-slug").value = item.slug || "";
       $("#os-icon").value = item.icon || "";
-      $("#os-status").value = item.status || "draft";
       $("#os-roles").querySelectorAll("input").forEach(input => {
         input.checked = (item.visible_role_ids || []).includes(input.value);
       });
@@ -153,8 +150,7 @@
           slug: $("#os-slug").value,
           icon: $("#os-icon").value,
           image_path: imagePath,
-          visible_role_ids: visibleRoleIds,
-          status: $("#os-status").value
+          visible_role_ids: visibleRoleIds
         }, editingId);
         clearForm();
         await refresh();
