@@ -17,8 +17,6 @@
         <div class="related-products-field"><label class="ui-form-label" for="os-slug">Slug</label><input id="os-slug" class="ui-form-control" type="text" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></div>
         <div class="related-products-field"><label class="ui-form-label" for="os-icon">Icon</label><input id="os-icon" class="ui-form-control" type="text" maxlength="80" placeholder="Emoji or icon text"></div>
         <div class="related-products-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" class="ui-form-control" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="related-products-preview" alt="Product image preview" hidden></div>
-        <div class="related-products-field"><label class="ui-form-label" for="os-description">Description</label><textarea id="os-description" class="ui-textarea" maxlength="1200"></textarea></div>
-        <div class="related-products-field"><label class="ui-form-label" for="os-details">Details</label><textarea id="os-details" class="ui-textarea" rows="8"></textarea></div>
         <fieldset class="related-products-field"><legend>Visibility</legend><div id="os-roles" class="related-products-role-list"></div></fieldset>
         <div class="related-products-field"><label class="ui-form-label" for="os-status">Status</label><select id="os-status" class="ui-select"><option value="draft">Draft</option><option value="published">Published</option></select></div>
         <div class="related-products-form-actions"><button class="ui-button ui-button-primary primary" type="submit">Save Product</button><button id="os-cancel" class="ui-button" type="button">Clear Form</button></div>
@@ -98,8 +96,6 @@
       $("#os-name").value = item.name || "";
       $("#os-slug").value = item.slug || "";
       $("#os-icon").value = item.icon || "";
-      $("#os-description").value = item.description || "";
-      $("#os-details").value = item.details || "";
       $("#os-status").value = item.status || "draft";
       $("#os-roles").querySelectorAll("input").forEach(input => {
         input.checked = (item.visible_role_ids || []).includes(input.value);
@@ -167,8 +163,6 @@
           slug: $("#os-slug").value,
           icon: $("#os-icon").value,
           image_path: imagePath,
-          description: $("#os-description").value,
-          details: $("#os-details").value,
           visible_role_ids: visibleRoleIds,
           status: $("#os-status").value
         }, editingId);
