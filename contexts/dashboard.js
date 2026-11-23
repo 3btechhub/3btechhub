@@ -28,7 +28,7 @@
       .intro-admin{width:min(100%,760px);margin:var(--space-section) auto;padding:var(--padding-card);border:var(--border-width) solid var(--color-border);border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card)}
       .intro-admin [hidden]{display:none!important}\n      .intro-admin h2{margin:0 0 var(--space-lg);font-size:var(--font-size-lg)}
       .intro-admin-field{display:grid;gap:var(--space-xs);margin:var(--space-element) 0}
-      .intro-admin-field label,.intro-admin legend{font-weight:600;font-size:14px}
+      
       .intro-admin input[type=text]{width:100%;min-height:var(--size-control);padding:var(--space-sm) 14px;border:var(--border-width) solid var(--color-input-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit}
       .intro-image-preview{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:var(--radius-control)}
       .intro-admin-preview{display:flex;flex-direction:column;gap:var(--space-element);margin-top:var(--space-section)}
@@ -41,10 +41,10 @@
     panel.className = "intro-admin";
     panel.innerHTML = `
       <h2>Intro — Home Component</h2>
-      <div class="intro-admin-field"><label for="intro-heading">Heading</label><input id="intro-heading" type="text" maxlength="180" autocomplete="off"></div>
-      <div class="intro-admin-field"><label for="intro-sub-heading">Sub Heading</label><input id="intro-sub-heading" type="text" maxlength="300" autocomplete="off"></div>
-      <div class="intro-admin-field"><label for="intro-visual-type">Card Design</label><select id="intro-visual-type"><option value="default">Default Technology Card</option><option value="image">Uploaded Image</option></select></div>
-      <div class="intro-admin-field" id="intro-image-field"><label for="intro-image">Select Image</label><input id="intro-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
+      <div class="intro-admin-field ui-form-field"><label for="intro-heading">Heading</label><input id="intro-heading" class="ui-form-control" type="text" maxlength="180" autocomplete="off"></div>
+      <div class="intro-admin-field"><label for="intro-sub-heading">Sub Heading</label><input id="intro-sub-heading" class="ui-form-control" type="text" maxlength="300" autocomplete="off"></div>
+      <div class="intro-admin-field"><label for="intro-visual-type">Card Design</label><select id="intro-visual-type" class="ui-form-control"><option value="default">Default Technology Card</option><option value="image">Uploaded Image</option></select></div>
+      <div class="intro-admin-field" id="intro-image-field"><label for="intro-image">Select Image</label><input id="intro-image" class="ui-form-control" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
       <div class="intro-admin-field"><label>Visibility</label><div id="ui-visibility-list" class="ui-visibility-list"></div></div>
       <button id="intro-save" class="ui-button ui-button-primary" type="button">Save Intro</button>
       <p id="intro-status" class="intro-admin-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
