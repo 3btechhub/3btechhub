@@ -22,7 +22,7 @@
     }
     #site-navigation .nav-menu {
       display: none;
-      min-width: 180px;
+      width: 180px;
       margin: 0;
       padding: var(--space-sm);
       list-style: none;
