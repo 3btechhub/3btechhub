@@ -53,6 +53,10 @@
 
   pages.forEach(([label, path]) => {
     const item = document.createElement("li");
+    if (label === "Dashboard") {
+      item.hidden = true;
+      item.dataset.dashboardLink = "true";
+    }
     const link = document.createElement("a");
     link.href = new URL(path, rootUrl).href;
     link.textContent = label;
@@ -111,4 +115,28 @@
   updateModeLabel();
   root.append(menu, toggle);
   document.body.appendChild(root);
+
+  async function updateDashboardLink() {
+    const dashboardItem = list.querySelector('[data-dashboard-link="true"]');
+    if (!dashboardItem) return;
+
+    try {
+      const { supabase } = await import(
+        new URL("supabase-client.js", script.src).href
+      );
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) return;
+
+      const { data: allowed, error } = await supabase.rpc(
+        "can_access_page",
+        { permission_slug: "page.dashboard.view" }
+      );
+
+      dashboardItem.hidden = Boolean(error) || allowed !== true;
+    } catch (error) {
+      console.error("Dashboard navigation access check failed.", error);
+    }
+  }
+
+  updateDashboardLink();
 })();
