@@ -128,6 +128,7 @@ button, input, select, textarea { font: inherit; }
   color: var(--color-primary);
 }
 .ui-tile-media img { width: 100%; height: 100%; object-fit: cover; }
+.ui-tile-svg-icon { display:block; flex:0 0 var(--icon-size); width:var(--icon-size); height:var(--icon-size); background-color:var(--color-primary); -webkit-mask-position:center; mask-position:center; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:contain; mask-size:contain; }
 .ui-tile-icon { font-size: 28px; line-height: 1; }
 .ui-tile-content { display: grid; gap: 4px; min-width: 0; }
 .ui-tile-title { margin: 0; font-size: 1rem; line-height: 1.35; }
