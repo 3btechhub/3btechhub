@@ -19,7 +19,6 @@
     "languages/index.js",
     "navigation.js",
     "services/intro.js",
-    "components/section-card.js",
     "components/item-card.js",
     "components/intro.js",
     "components/content-module-view.js",
