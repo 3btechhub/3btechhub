@@ -46,52 +46,18 @@
     const renderList = () => {
       const list = $("#related-products-list");
       list.replaceChildren();
-      if (!services.length) {
-        list.textContent = "No items have been created yet.";
-        return;
-      }
+      if (!services.length) { list.textContent = "No items have been created yet."; return; }
       services.forEach(item => {
-        const tile = document.createElement("button");
-        tile.type = "button";
-        tile.className = "ui-tile related-products-admin-tile";
-        tile.setAttribute("aria-pressed", String(editingId === item.id));
-        tile.classList.toggle("is-selected", editingId === item.id);
-        const content = document.createElement("div");
-        content.className = "ui-tile-content related-products-admin-content";
-        const identity = document.createElement("div");
-        identity.className = "related-products-admin-identity";
-        const title = document.createElement("h3");
-        title.className = "ui-tile-title";
-        title.textContent = item.name || "";
-        identity.appendChild(title);
-        const visibility = document.createElement("div");
-        visibility.className = "related-products-admin-visibility";
         const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
-        visibility.textContent = visibleRoles.length ? visibleRoles.join(", ") : "None";
-        content.append(identity, visibility);
-        const media = document.createElement("div");
-        media.className = "ui-tile-media related-products-admin-media";
-        if (item.image_path) {
-          const image = document.createElement("img");
-          image.src = product.publicImageUrl(item.image_path);
-          image.alt = "";
-          image.loading = "lazy";
-          media.appendChild(image);
-        } else if (item.icon) {
-          const icon = document.createElement("span");
-          icon.textContent = item.icon;
-          icon.setAttribute("aria-hidden", "true");
-          media.appendChild(icon);
-        } else {
-          const icon = document.createElement("span");
-icon.className = "ui-tile-svg-icon";
-const iconUrl = new URL("assets/icons/" + item.slug + ".svg", window.__3bBaseUrl || location.href).href;
-icon.style.webkitMaskImage = 'url("' + iconUrl + '")';
-icon.style.maskImage = 'url("' + iconUrl + '")';
-media.appendChild(icon);
-        }
-        tile.append(content, media);
-        tile.addEventListener("click", () => fillForm(item));
+        const tile = window.__3bComponents.itemCard.render({
+          item, tag: "button",
+          visibility: visibleRoles.length ? visibleRoles.join(", ") : "None",
+          imageUrl: item.image_path ? product.publicImageUrl(item.image_path) : "",
+          icon: item.icon || "",
+          iconUrl: !item.image_path && !item.icon ? new URL("assets/icons/" + item.slug + ".svg", window.__3bBaseUrl || location.href).href : "",
+          selected: editingId === item.id,
+          onClick: () => fillForm(item)
+        });
         list.appendChild(tile);
       });
     };
