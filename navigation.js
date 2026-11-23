@@ -56,14 +56,15 @@
   `;
   document.head.appendChild(style);
 
+  const basePath = new URL(".", document.currentScript.src).pathname;
   const nav = document.createElement("nav");
   nav.id = "site-navigation";
   nav.setAttribute("aria-label", "Main navigation");
   nav.innerHTML = `
     <ul class="nav-menu" id="site-nav-menu">
-      <li><a href="./">Home</a></li>
-      <li><a href="./account.html">Account</a></li>
-      <li><a href="./dashboard.html">Dashboard</a></li>
+      <li><a href="${basePath}">Home</a></li>
+      <li><a href="${basePath}account/">Account</a></li>
+      <li><a href="${basePath}dashboard/">Dashboard</a></li>
     </ul>
     <button class="nav-toggle" type="button" aria-label="Open menu"
       aria-expanded="false" aria-controls="site-nav-menu">
