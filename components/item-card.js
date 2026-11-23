@@ -2,7 +2,7 @@
 "use strict";
 window.__3bComponents=window.__3bComponents||{};
 window.__3bComponents.itemCard={
-render({item,tag="a",href="",visibility=null,imageUrl="",icon="",iconUrl="",onClick=null,selected=false,size="medium"}){
+render({item,tag="a",href="",visibility=null,imageUrl="",icon="",iconUrl="",onClick=null,selected=false,size="large"}){
 const card=document.createElement(tag);const cardSize=["small","medium","large"].includes(size)?size:"medium";card.className="ui-item-card ui-size-"+cardSize+(selected?" is-selected":"");
 if(tag==="a")card.href=href;if(tag==="button"){card.type="button";card.setAttribute("aria-pressed",String(selected));}
 const content=document.createElement("div");content.className="ui-item-card-content";
