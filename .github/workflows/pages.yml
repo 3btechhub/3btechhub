@@ -18,7 +18,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: \${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -42,22 +42,22 @@ jobs:
           for html in root.rglob("*.html"):
               content = html.read_text(encoding="utf-8")
               content = re.sub(
-                  r'<script\\b[^>]*src=["\'][^"\']*(?:navigation|page-title)\\.js(?:\\?[^"\']*)?["\'][^>]*>\\s*</script>',
+                  r'<script\b[^>]*src=["\'][^"\']*(?:navigation|page-title)\.js(?:\?[^"\']*)?["\'][^>]*>\s*</script>',
                   "",
                   content,
                   flags=re.IGNORECASE,
               )
-              injection = "\\n    ".join(scripts)
-              if re.search(r"</body\\s*>", content, flags=re.IGNORECASE):
+              injection = "\n    ".join(scripts)
+              if re.search(r"</body\s*>", content, flags=re.IGNORECASE):
                   content = re.sub(
-                      r"</body\\s*>",
-                      injection + "\\n</body>",
+                      r"</body\s*>",
+                      injection + "\n</body>",
                       content,
                       count=1,
                       flags=re.IGNORECASE,
                   )
               else:
-                  content += "\\n" + injection + "\\n"
+                  content += "\n" + injection + "\n"
               html.write_text(content, encoding="utf-8")
           PY
       - name: Upload site
