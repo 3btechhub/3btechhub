@@ -93,15 +93,19 @@
           stroke-linejoin: round;
         }
 
-        #${ROOT_ID} .navigation-icon-close {
+        #${ROOT_ID} .navigation-toggle .navigation-icon-open {
+          display: block;
+        }
+
+        #${ROOT_ID} .navigation-toggle .navigation-icon-close {
           display: none;
         }
 
-        #${ROOT_ID}[data-open="true"] .navigation-icon-open {
+        #${ROOT_ID}[data-open="true"] .navigation-toggle .navigation-icon-open {
           display: none;
         }
 
-        #${ROOT_ID}[data-open="true"] .navigation-icon-close {
+        #${ROOT_ID}[data-open="true"] .navigation-toggle .navigation-icon-close {
           display: block;
         }
       `;
