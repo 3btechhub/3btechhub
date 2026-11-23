@@ -51,28 +51,43 @@
         return;
       }
       services.forEach(item => {
-        const preview = module.renderCards?.([item]);
-        const tile = preview?.querySelector(".ui-tile");
-        if (!tile) return;
-        tile.href = "#";
-        tile.setAttribute("role", "button");
+        const tile = document.createElement("button");
+        tile.type = "button";
+        tile.className = "ui-tile our-services-admin-tile";
         tile.setAttribute("aria-pressed", String(editingId === item.id));
         tile.classList.toggle("is-selected", editingId === item.id);
+        const content = document.createElement("div");
+        content.className = "ui-tile-content our-services-admin-content";
+        const title = document.createElement("h3");
+        title.className = "ui-tile-title";
+        title.textContent = item.name || "";
         const visibility = document.createElement("div");
         visibility.className = "our-services-admin-visibility";
-        const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
         const label = document.createElement("span");
         label.className = "our-services-admin-visibility-label";
         label.textContent = "Visibility";
         const value = document.createElement("span");
         value.className = "our-services-admin-visibility-value";
+        const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
         value.textContent = visibleRoles.length ? visibleRoles.join(", ") : "None";
         visibility.append(label, value);
-        tile.querySelector(".ui-tile-content")?.appendChild(visibility);
-        tile.addEventListener("click", event => {
-          event.preventDefault();
-          fillForm(item);
-        });
+        content.append(title, visibility);
+        const media = document.createElement("div");
+        media.className = "ui-tile-media our-services-admin-media";
+        if (item.image_path) {
+          const image = document.createElement("img");
+          image.src = service.publicImageUrl(item.image_path);
+          image.alt = "";
+          image.loading = "lazy";
+          media.appendChild(image);
+        } else if (item.icon) {
+          const icon = document.createElement("span");
+          icon.textContent = item.icon;
+          icon.setAttribute("aria-hidden", "true");
+          media.appendChild(icon);
+        }
+        tile.append(content, media);
+        tile.addEventListener("click", () => fillForm(item));
         list.appendChild(tile);
       });
     };
