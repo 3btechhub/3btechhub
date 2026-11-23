@@ -184,3 +184,20 @@ button, input, select, textarea { font: inherit; }
 .ui-visibility-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-xs)}
 .ui-visibility-option{display:flex;align-items:center;gap:var(--space-xs);padding:0;border:0;border-radius:0}
 .ui-visibility-option input{flex:0 0 auto}
+
+
+/* Shared page shells */
+.ui-auth-page, .ui-dashboard-page {
+  min-height: 100vh;
+  padding: var(--space-xl) var(--page-padding) calc(110px + env(safe-area-inset-bottom));
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family);
+}
+.ui-auth-page { display: grid; place-items: center; }
+.ui-auth-page .ui-form { gap: 0; }
+.ui-form-label { display: block; margin: var(--space-md) 0 var(--space-xs); color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.ui-form-control { display: block; width: 100%; max-width: 100%; min-height: var(--size-control); padding: var(--space-sm) 14px; border: var(--border-width) solid var(--color-input-border); border-radius: var(--radius-control); background: var(--color-surface); color: var(--color-text); font: inherit; }
+.ui-form-submit { display: block; width: 100%; max-width: 100%; min-height: var(--size-control); margin-top: var(--space-lg); padding: var(--space-sm) 18px; border: 0; border-radius: var(--radius-control); background: var(--color-primary); color: var(--color-primary-text); font: inherit; font-weight: var(--font-weight-semibold); cursor: pointer; }
+.ui-form-submit:disabled { opacity: .6; cursor: wait; }
+.ui-form-status { min-height: 22px; margin-top: var(--space-sm); color: var(--color-danger); font-size: var(--font-size-sm); }
