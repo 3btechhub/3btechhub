@@ -55,7 +55,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html { font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); -webkit-text-size-adjust: 100%; }
-body { margin: 0; min-width: 320px; min-height: 100vh; font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); }
+body { width: 100%; min-width: 0; margin: 0; min-height: 100vh; font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); }
 img, svg, video, canvas { max-width: 100%; }
 /* Native controls inherit typography; shared ui-* classes own their complete appearance. */
 button, input, select, textarea { font: inherit; }
@@ -118,7 +118,7 @@ button, input, select, textarea { font: inherit; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: var(--size-auth-card-width);
+  width: min(100%, var(--size-auth-card-width));
   height: var(--size-auth-card-height);
   margin-inline: auto;
   padding: var(--padding-card);
@@ -211,7 +211,9 @@ button, input, select, textarea { font: inherit; }
   color: var(--color-text);
   font-family: var(--font-family);
 }
-.ui-auth-page { display: grid; place-items: center; }
+.ui-auth-page { display: grid; grid-template-columns: minmax(0, 1fr); place-items: center; }
+.ui-auth-page > *, .ui-dashboard-page > #protected-content { min-width: 0; max-width: 100%; }
+.ui-dashboard-page #dashboard-content { width: 100%; min-width: 0; }
 .ui-auth-page .ui-form { gap: 0; }
 
 .ui-form-status { height: var(--size-status-line); margin-top: var(--space-sm); color: var(--color-danger); font-size: var(--font-size-sm); }
