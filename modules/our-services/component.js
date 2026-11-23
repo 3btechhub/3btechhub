@@ -34,7 +34,7 @@
       .our-services-role{display:flex;align-items:center;gap:8px;padding:10px;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control)}
       .our-services-admin-list{display:grid;gap:10px;margin:var(--space-element) 0}
       .our-services-admin-item{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);padding:12px;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control)}
-      .our-services-admin-actions{display:flex;flex-wrap:wrap;gap:8px}
+      .our-services-admin-actions{display:flex;flex-wrap:wrap;gap:var(--space-element)}
       .our-services-admin-actions button,.our-services-form-actions button{min-height:var(--size-control);padding:12px 18px;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit;cursor:pointer}
       .our-services-admin-actions .danger{color:var(--color-danger)}
       .our-services-form-actions{display:flex;gap:var(--space-element);flex-wrap:wrap;margin-top:var(--space-element)}
