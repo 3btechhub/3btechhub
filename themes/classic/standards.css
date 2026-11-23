@@ -43,7 +43,7 @@
   --size-status-line: 22px;
   --size-tile-icon: 28px;
 
-  --size-control: clamp(44px, 3vw, 52px);
+  --size-control: 48px;
   --size-input-padding-inline: 14px;
   --size-button-padding-inline: 18px;
   --radius-control: 10px;
@@ -79,8 +79,8 @@ button, input, select, textarea { font: inherit; }
 
 .ui-label, .ui-form-label { display: block; color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
 .ui-input, .ui-select, .ui-textarea {
-  display: block; width: 100%; max-width: 100%; min-width: 0;
-  min-height: var(--size-control); padding: var(--space-sm) var(--size-input-padding-inline);
+  display: block; width: 100%;
+  height: var(--size-control); padding: var(--space-sm) var(--size-input-padding-inline);
   border: var(--border-width) solid var(--color-input-border);
   border-radius: var(--radius-control); background: var(--color-surface);
   color: var(--color-text); font: inherit;
@@ -96,7 +96,7 @@ button, input, select, textarea { font: inherit; }
 .ui-input[aria-invalid="true"], .ui-select[aria-invalid="true"], .ui-textarea[aria-invalid="true"] { border-color: var(--color-danger); }
 .ui-button, .ui-form-submit {
   display: inline-flex; align-items: center; justify-content: center;
-  min-height: var(--size-control); padding: var(--space-sm) var(--size-button-padding-inline);
+  height: var(--size-control); padding: var(--space-sm) var(--size-button-padding-inline);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-control); background: var(--color-surface);
   color: var(--color-text); font: inherit; cursor: pointer;
