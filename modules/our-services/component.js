@@ -19,8 +19,6 @@
       .our-service-details-image{display:block;width:100%;max-height:440px;object-fit:cover;border-radius:var(--radius-card);margin-bottom:var(--space-element)}
       .our-service-details-icon{font-size:var(--icon-size);margin-bottom:var(--space-element)}
       .our-service-details-title{margin:0 0 var(--space-element);font-size:clamp(26px,4vw,38px)}
-      .our-service-details-description{color:var(--color-muted);font-size:1.0625rem;line-height:1.7;white-space:pre-line}
-      .our-service-details-content{line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}
       .our-service-back{display:inline-flex;margin-top:var(--space-element);color:var(--color-primary);font-weight:600;text-decoration:none}
       .our-service-message{width:min(100% - (2 * var(--page-padding)),900px);margin:var(--space-section) auto;color:var(--color-muted);text-align:center}
       .our-services-admin{width:min(100% - (2 * var(--page-padding)),900px);margin:var(--space-section) auto}
@@ -50,7 +48,7 @@
     ensureStyles();
     if (!items?.length) return null;
     const section = document.createElement("section");
-    section.className = "our-services-section ui-card ui-card-medium";
+    section.className = "our-services-section ui-card ui-card-medium ui-section";
     section.setAttribute("aria-label", "Our Services");
     const grid = document.createElement("div");
     grid.className = "our-services-grid";
@@ -81,12 +79,6 @@
       title.className = "ui-tile-title";
       title.textContent = item.name;
       body.appendChild(title);
-      if (item.description) {
-        const description = document.createElement("p");
-        description.className = "ui-tile-description";
-        description.textContent = item.description;
-        body.appendChild(description);
-      }
       card.append(media, body);
       grid.appendChild(card);
     });
@@ -115,18 +107,6 @@
     title.className = "our-service-details-title";
     title.textContent = item.name;
     section.appendChild(title);
-    if (item.description) {
-      const description = document.createElement("p");
-      description.className = "our-service-details-description";
-      description.textContent = item.description;
-      section.appendChild(description);
-    }
-    if (item.details) {
-      const details = document.createElement("div");
-      details.className = "our-service-details-content";
-      details.textContent = item.details;
-      section.appendChild(details);
-    }
     const back = document.createElement("a");
     back.className = "our-service-back";
     back.href = new URL("./", baseUrl()).href;
