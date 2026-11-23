@@ -96,6 +96,7 @@
         label.className = "ui-visibility-option";
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
+        checkbox.className = "ui-checkbox";
         checkbox.value = role.id;
         const text = document.createElement("span");
         text.textContent = role.name;
