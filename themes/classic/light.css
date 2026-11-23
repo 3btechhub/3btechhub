@@ -1,0 +1,46 @@
+/* Classic Theme — Light Color Palette */
+:root {
+  color-scheme: light;
+
+  /* Backgrounds and surfaces */
+  --color-background: #ffffff;
+  --color-surface: #f7f7f7;
+  --color-surface-raised: #ffffff;
+
+  /* Text */
+  --color-text: #202124;
+  --color-text-secondary: #5f6368;
+  --color-text-muted: #80868b;
+
+  /* Borders and dividers */
+  --color-border: #dadce0;
+  --color-divider: #e8eaed;
+
+  /* Accent and links */
+  --color-accent: #1a73e8;
+  --color-accent-hover: #1558b0;
+  --color-link: #1a73e8;
+
+  /* Buttons */
+  --color-button-primary-bg: #1a73e8;
+  --color-button-primary-text: #ffffff;
+  --color-button-secondary-bg: #f1f3f4;
+  --color-button-secondary-text: #202124;
+
+  /* Form controls */
+  --color-input-bg: #ffffff;
+  --color-input-text: #202124;
+  --color-input-placeholder: #80868b;
+  --color-input-border: #c4c7c5;
+  --color-focus-ring: #1a73e8;
+
+  /* Status */
+  --color-success: #188038;
+  --color-warning: #b06000;
+  --color-error: #d93025;
+  --color-info: #1a73e8;
+
+  /* Effects */
+  --color-overlay: rgb(0 0 0 / 45%);
+  --shadow-color: rgb(60 64 67 / 20%);
+}
