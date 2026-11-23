@@ -23,6 +23,7 @@
     "components/item-card.js",
     "components/content-module-view.js",
     "components/visibility.js",
+    "components/image-upload.js",
     "components/module-dashboard.js",
     "services/content-module.js",
     "modules/our-services/service.js",
