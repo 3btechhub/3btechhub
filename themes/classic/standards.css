@@ -20,6 +20,7 @@
   --font-size-sm: 14px;
   --font-size-md: 16px;
   --font-size-lg: 20px;
+  --font-size-meta: 13px;
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
   --line-height-tight: 1.35;
@@ -33,6 +34,12 @@
   --size-icon-lg: 32px;
   --size-tile-media: 56px;
   --size-item-card-min-height: 104px;
+  --size-item-card-min-height-mobile: 88px;
+  --size-auth-card-width: 420px;
+  --size-auth-card-height: 400px;
+  --size-navigation-clearance: 110px;
+  --size-status-line: 22px;
+  --size-tile-icon: 28px;
 
   --size-control: clamp(44px, 3vw, 52px);
   --radius-control: 10px;
@@ -80,7 +87,7 @@ button, input, select, textarea { font: inherit; }
 }
 .ui-button-primary { border-color: transparent; background: var(--color-primary); color: var(--color-primary-text); }
 .ui-button:disabled { opacity: .6; cursor: not-allowed; }
-.ui-status { min-height: 22px; color: var(--color-muted); font-size: var(--font-size-sm); }
+.ui-status { min-height: var(--size-status-line); color: var(--color-muted); font-size: var(--font-size-sm); }
 :where(button, input, select, textarea, a, .ui-button):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 @media (max-width: 480px) { :root { --space-element: var(--space-sm); --space-section: var(--space-lg); } }
@@ -90,8 +97,8 @@ button, input, select, textarea { font: inherit; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: 420px;
-  height: 400px;
+  width: min(100%, var(--size-auth-card-width));
+  min-height: var(--size-auth-card-height);
   margin-inline: auto;
   padding: var(--padding-card);
   border: var(--border-width) solid var(--color-border);
@@ -99,10 +106,6 @@ button, input, select, textarea { font: inherit; }
   background: var(--color-surface);
   color: var(--color-text);
   box-shadow: var(--shadow-card);
-}
-
-@media (max-width: 455px) {
-  .ui-form-card { width: calc(100vw - 36px); }
 }
 
 /* Form is an independent element; its child fields inherit its available width. */
@@ -118,9 +121,9 @@ button, input, select, textarea { font: inherit; }
 .ui-form .ui-form-submit,
 .ui-form select,
 .ui-form textarea { width: 100%; }
-.ui-account-field { padding: 12px 0; border-bottom: var(--border-width) solid var(--color-border); }
+.ui-account-field { padding: var(--space-sm) 0; border-bottom: var(--border-width) solid var(--color-border); }
 .ui-account-field:last-of-type { border-bottom: 0; }
-.ui-account-field-label { display: block; margin-bottom: 6px; color: var(--color-muted); font-size: var(--font-size-xs); }
+.ui-account-field-label { display: block; margin-bottom: var(--space-2xs); color: var(--color-muted); font-size: var(--font-size-xs); }
 .ui-account-field-value { overflow-wrap: anywhere; font-weight: 600; }
 
 
@@ -154,10 +157,10 @@ button, input, select, textarea { font: inherit; }
 }
 .ui-tile-media img { width: 100%; height: 100%; object-fit: cover; }
 .ui-tile-svg-icon { display:block; flex:0 0 var(--icon-size); width:var(--icon-size); height:var(--icon-size); background-color:var(--color-primary); -webkit-mask-position:center; mask-position:center; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:contain; mask-size:contain; }
-.ui-tile-icon { font-size: 28px; line-height: 1; }
+.ui-tile-icon { font-size: var(--size-tile-icon); line-height: 1; }
 .ui-tile-content { display: grid; gap: var(--space-2xs); min-width: 0; }
-.ui-tile-title { margin: 0; font-size: 1rem; line-height: 1.35; }
-.ui-tile-description { margin: 0; color: var(--color-muted); font-size: .875rem; line-height: 1.5; white-space: pre-line; }
+.ui-tile-title { margin: 0; font-size: 1rem; line-height: var(--line-height-tight); }
+.ui-tile-description { margin: 0; color: var(--color-muted); font-size: var(--font-size-sm); line-height: 1.5; white-space: pre-line; }
 
 /* Global spacing for groups of buttons */
 .ui-button-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-element); }
@@ -169,12 +172,12 @@ button, input, select, textarea { font: inherit; }
 .ui-item-card.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
 .ui-item-card:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
 .ui-item-card-content{display:grid;gap:var(--space-2xs);min-width:0}
-.ui-item-card-title{margin:0;font-size:1rem;line-height:1.35}
+.ui-item-card-title{margin:0;font-size:1rem;line-height:var(--line-height-tight)}
 .ui-item-card-visibility{color:var(--color-muted);font-size:var(--font-size-xs);overflow-wrap:anywhere}
 .ui-item-card-media{display:flex;flex:0 0 var(--size-tile-media);align-items:center;justify-content:center;width:var(--size-tile-media);height:var(--size-tile-media);margin-left:auto;overflow:hidden;border-radius:var(--radius-control);background:color-mix(in srgb,var(--color-primary) 9%,var(--color-surface));color:var(--color-primary)}
 .ui-item-card-media img{width:100%;height:100%;object-fit:cover}
 .ui-item-card-media>span:not(.ui-tile-svg-icon){display:grid;place-items:center;width:100%;height:100%;font-size:var(--size-icon-lg);line-height:1}
-@media(max-width:520px){.ui-item-card{min-height:88px}}
+@media(max-width:520px){.ui-item-card{min-height:var(--size-item-card-min-height-mobile)}}
 
 
 /* Global visibility selector: shared by Intro and all dashboard modules */
@@ -186,7 +189,7 @@ button, input, select, textarea { font: inherit; }
 /* Shared page shells */
 .ui-auth-page, .ui-dashboard-page {
   min-height: 100vh;
-  padding: var(--space-xl) var(--page-padding) calc(110px + env(safe-area-inset-bottom));
+  padding: var(--space-xl) var(--page-padding) calc(var(--size-navigation-clearance) + env(safe-area-inset-bottom));
   background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-family);
