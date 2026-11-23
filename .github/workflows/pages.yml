@@ -15,7 +15,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -63,6 +63,8 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+      - name: Wait for Pages artifact indexing
+        run: sleep 15
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
