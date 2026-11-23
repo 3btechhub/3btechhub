@@ -11,7 +11,7 @@
       flex-direction: column;
       align-items: center;
       gap: 12px;
-      font-family: system-ui, sans-serif;
+      font-family: var(--font-family);
     }
     #site-navigation .nav-menu {
       display: none;
@@ -19,22 +19,23 @@
       margin: 0;
       padding: 10px;
       list-style: none;
-      background: #111827;
-      border: 1px solid #374151;
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
       border-radius: 14px;
-      box-shadow: 0 10px 30px rgb(0 0 0 / 25%);
+      box-shadow: var(--shadow-card);
     }
     #site-navigation.is-open .nav-menu { display: block; }
     #site-navigation .nav-menu a {
       display: block;
       padding: 12px 16px;
-      color: #f9fafb;
+      color: var(--color-text);
       text-decoration: none;
       border-radius: 8px;
     }
     #site-navigation .nav-menu a:hover,
     #site-navigation .nav-menu a:focus-visible {
-      background: #374151;
+      background: var(--color-hover);
       outline: none;
     }
     #site-navigation .nav-toggle {
@@ -42,11 +43,11 @@
       height: 58px;
       display: grid;
       place-items: center;
-      border: 1px solid #4b5563;
+      border: 1px solid var(--color-border);
       border-radius: 50%;
-      background: #111827;
-      color: #fff;
-      box-shadow: 0 6px 22px rgb(0 0 0 / 30%);
+      background: var(--color-primary);
+      color: var(--color-primary-text);
+      box-shadow: var(--shadow-card);
       cursor: pointer;
     }
     #site-navigation .nav-toggle svg { width: 25px; height: 25px; }
