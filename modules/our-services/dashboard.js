@@ -10,7 +10,7 @@
     panel.className = "our-services-admin ui-card";
     panel.innerHTML = `
       <h2>Our Services</h2>
-      <div id="our-services-list" class="our-services-admin-list"></div>
+      <div id="our-services-list" class="our-services-admin-list ui-stack"></div>
       <h2 id="our-services-form-title">Add Service</h2>
       <form id="our-services-form" class="ui-form">
         <div class="our-services-field"><label class="ui-form-label" for="os-name">Name</label><input id="os-name" class="ui-form-control" type="text" maxlength="180" required></div>
@@ -19,7 +19,7 @@
         <div class="our-services-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" class="ui-form-control" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="our-services-preview" alt="Service image preview" hidden></div>
         <fieldset class="our-services-field"><legend>Visibility</legend><div id="os-roles" class="our-services-role-list"></div></fieldset>
         <div class="our-services-field"><label class="ui-form-label" for="os-status">Status</label><select id="os-status" class="ui-select"><option value="draft">Draft</option><option value="published">Published</option></select></div>
-        <div class="our-services-form-actions"><button class="ui-button ui-button-primary primary" type="submit">Save Service</button><button id="os-cancel" class="ui-button" type="button">Clear Form</button></div>
+        <div class="our-services-form-actions"><button class="ui-button ui-button-primary primary" type="submit">Save Service</button><button id="os-cancel" class="ui-button" type="button">Cancel</button><button id="os-delete" class="ui-button danger" type="button" hidden>Delete</button></div>
       </form>
       <p id="os-status-message" class="our-services-status ui-status" role="status" aria-live="polite"></p>
     `;
@@ -38,6 +38,8 @@
       $("#our-services-form").reset();
       $("#os-image-preview").hidden = true;
       $("#our-services-form-title").textContent = "Add Service";
+      $("#our-services-form").querySelector('[type="submit"]').textContent = "Save Service";
+      $("#os-delete").hidden = true;
       $("#os-status").value = "draft";
       $("#os-roles").querySelectorAll("input").forEach(input => {
         input.checked = roles.some(role => role.slug === "visitor" && role.id === input.value);
@@ -47,46 +49,39 @@
       const list = $("#our-services-list");
       list.replaceChildren();
       if (!services.length) {
-        list.textContent = "No services have been created yet.";
+        list.textContent = "No our services have been created yet.";
         return;
       }
       services.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "our-services-admin-item";
-        const label = document.createElement("div");
-        label.className = "ui-stack";
+        const card = document.createElement("button");
+        card.type = "button";
+        card.className = "our-services-admin-item";
+        card.classList.toggle("is-selected", editingId === item.id);
+        card.setAttribute("aria-pressed", String(editingId === item.id));
+        const identity = document.createElement("span");
+        identity.className = "our-services-admin-identity ui-stack";
         const name = document.createElement("strong");
         name.textContent = item.name;
-        const meta = document.createElement("div");
-        meta.textContent = item.slug + " · " + item.status;
-        label.append(name, meta);
-        const actions = document.createElement("div");
-        actions.className = "our-services-admin-actions ui-button-group";
-        const edit = document.createElement("button");
-        edit.type = "button";
-        edit.className = "ui-button";
-        edit.textContent = "Edit";
-        edit.addEventListener("click", () => fillForm(item));
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.className = "ui-button danger";
-        remove.textContent = "Delete";
-        remove.addEventListener("click", async () => {
-          if (!window.confirm("Delete “" + item.name + "”?")) return;
-          remove.disabled = true;
-          try {
-            await service.remove(item.id);
-            if (editingId === item.id) clearForm();
-            await refresh();
-            status("Service deleted.");
-          } catch (error) {
-            status(error.message || "Unable to delete service.");
-            remove.disabled = false;
-          }
-        });
-        actions.append(edit, remove);
-        row.append(label, actions);
-        list.appendChild(row);
+        const slug = document.createElement("span");
+        slug.className = "our-services-admin-slug";
+        slug.textContent = item.slug;
+        identity.append(name, slug);
+        const details = document.createElement("span");
+        details.className = "our-services-admin-meta";
+        const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
+        const visibility = document.createElement("span");
+        visibility.textContent = "Visibility: " + (visibleRoles.length ? visibleRoles.join(", ") : "None");
+        const state = document.createElement("span");
+        state.textContent = "Status: " + (item.status || "draft");
+        details.append(visibility, state);
+        if (item.icon) {
+          const icon = document.createElement("span");
+          icon.textContent = "Icon: " + item.icon;
+          details.appendChild(icon);
+        }
+        card.append(identity, details);
+        card.addEventListener("click", () => fillForm(item));
+        list.appendChild(card);
       });
     };
     const fillForm = item => {
@@ -94,6 +89,8 @@
       imagePath = item.image_path || null;
       slugManuallyEdited = true;
       $("#our-services-form-title").textContent = "Edit Service";
+      $("#our-services-form").querySelector('[type="submit"]').textContent = "Update Service";
+      $("#os-delete").hidden = false;
       $("#os-name").value = item.name || "";
       $("#os-slug").value = item.slug || "";
       $("#os-icon").value = item.icon || "";
@@ -109,6 +106,7 @@
       }
       status("Editing " + item.name + ".");
       $("#our-services-form-title").scrollIntoView({ behavior: "smooth", block: "start" });
+      renderList();
     };
     const refresh = async () => {
       services = await service.listManage();
@@ -151,12 +149,20 @@
         event.target.value = "";
       }
     });
-    $("#os-cancel").addEventListener("click", clearForm);
+    $("#os-cancel").addEventListener("click", () => { clearForm(); renderList(); status("Editing cancelled."); });
+    $("#os-delete").addEventListener("click", async () => {
+      const item = services.find(entry => entry.id === editingId);
+      if (!item || !window.confirm("Delete “" + item.name + "”?")) return;
+      const button = $("#os-delete"); button.disabled = true;
+      try { await service.remove(item.id); clearForm(); await refresh(); status("Service deleted."); }
+      catch (error) { status(error.message || "Unable to delete service."); }
+      finally { button.disabled = false; }
+    });
     $("#our-services-form").addEventListener("submit", async event => {
       event.preventDefault();
       const button = $("#our-services-form").querySelector('[type="submit"]');
       button.disabled = true;
-      status("Saving…");
+      status(editingId ? "Updating…" : "Saving…");
       try {
         const visibleRoleIds = [...$("#os-roles").querySelectorAll("input:checked")].map(input => input.value);
         await service.save({
