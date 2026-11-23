@@ -10,16 +10,19 @@
   <link rel="stylesheet" href="../themes/classic/light.css">
   <link rel="stylesheet" href="../themes/classic/dark.css">
   <script src="../components/section-card.js"></script>
+  <script src="../components/item-card.js"></script>
   <script type="module" src="../components/auth-guard.js"></script>
 </head>
 <body>
   <section-card id="home-section-editor">
-    <form id="home-heading-form">
-      <label for="home-heading">Heading</label>
-      <input id="home-heading" name="heading" type="text" maxlength="180" placeholder="Heading">
-      <button type="submit">Save</button>
-      <p id="home-heading-status" role="status" aria-live="polite"></p>
-    </form>
+    <item-card>
+      <form id="home-heading-form">
+        <label for="home-heading">Heading</label>
+        <input id="home-heading" name="heading" type="text" maxlength="180" placeholder="Heading">
+        <button type="submit">Save</button>
+        <p id="home-heading-status" role="status" aria-live="polite"></p>
+      </form>
+    </item-card>
   </section-card>
 
   <script type="module">
