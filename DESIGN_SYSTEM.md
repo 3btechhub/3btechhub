@@ -24,7 +24,7 @@ Do not add raw spacing, typography, border, radius, color, shadow, or common dim
 - Do not introduce another variant with a new value when an existing shared semantic variant already covers the need.
 
 ## Shared components
-Reuse global classes: `ui-container`, `ui-section`, `ui-card`, `ui-tile`, `ui-item-card`, `ui-button`, `ui-button-primary`, `ui-button-danger`, `ui-button-block`, `ui-button-group`, `ui-input`, `ui-select`, `ui-textarea`, `ui-form`, `ui-form-field`, `ui-form-label`, `ui-input`, `ui-select`, `ui-textarea`, `ui-checkbox`, `ui-radio`, `ui-form-actions`, `ui-visibility-list`, `ui-visibility-option`, `ui-status`, and `ui-form-card`.
+Reuse global classes: `ui-container`, `ui-section`, `ui-card`, `ui-tile`, `ui-item-card`, `ui-button`, `ui-button-primary`, `ui-button-danger`, `ui-button-block`, `ui-button-group`, `ui-input`, `ui-select`, `ui-textarea`, `ui-form`, `ui-form-field`, `ui-form-label`, `ui-form-actions`, `ui-visibility-list`, `ui-visibility-option`, `ui-status`, and `ui-form-card`.
 
 A shared component must be implemented once in Global Standards (or a shared component module when behavior is required). Module code may provide data, events, and module-specific content, but must not restyle or recreate shared component structure.
 
