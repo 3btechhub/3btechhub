@@ -25,7 +25,7 @@
     const supabase = window.supabaseClient;
     const style = document.createElement("style");
     style.textContent = `
-      .intro-admin{width:min(100%,760px);margin:var(--space-section) auto;padding:var(--padding-card);border:var(--border-width) solid var(--color-border);border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card)}
+      .intro-admin{width:min(100%,var(--content-width-admin));margin:var(--space-section) auto;padding:var(--padding-card);border:var(--border-width) solid var(--color-border);border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card)}
       .intro-admin [hidden]{display:none!important}\n      .intro-admin h2{margin:0 0 var(--space-lg);font-size:var(--font-size-lg)}
       
       
