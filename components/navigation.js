@@ -44,11 +44,11 @@
           padding: 8px;
           margin: 0;
           list-style: none;
-          border: 1px solid var(--color-border, rgba(128,128,128,.35));
+          border: 1px solid var(--color-border, currentColor);
           border-radius: 16px;
           background: var(--color-surface, Canvas);
           color: var(--color-text, CanvasText);
-          box-shadow: 0 6px 24px var(--shadow-color, rgba(0,0,0,.18));
+          box-shadow: 0 6px 24px var(--shadow-color, transparent);
         }
 
         #${ROOT_ID}[data-open="true"] .navigation-menu {
@@ -64,18 +64,25 @@
           border: 0;
           border-radius: 10px;
           background: transparent;
-          color: var(--color-link, var(--color-text, CanvasText));
           text-align: left;
           text-decoration: none;
           font: inherit;
           cursor: pointer;
         }
 
+        #${ROOT_ID} .navigation-menu a {
+          color: var(--color-link, var(--color-text, CanvasText));
+        }
+
+        #${ROOT_ID} .navigation-menu button {
+          color: var(--color-text, CanvasText);
+        }
+
         #${ROOT_ID} .navigation-menu a:hover,
         #${ROOT_ID} .navigation-menu a:focus-visible,
         #${ROOT_ID} .navigation-menu button:hover,
         #${ROOT_ID} .navigation-menu button:focus-visible {
-          background: var(--color-surface-raised, var(--color-surface, rgba(128,128,128,.14)));
+          background: var(--color-surface-raised, var(--color-surface, Canvas));
           outline: none;
         }
 
@@ -86,17 +93,17 @@
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border: 1px solid var(--color-border, rgba(128,128,128,.35));
+          border: 1px solid var(--color-border, currentColor);
           border-radius: 50%;
-          background: var(--color-button-primary-bg, var(--color-accent, #222));
-          color: var(--color-button-primary-text, #fff);
-          box-shadow: 0 4px 14px var(--shadow-color, rgba(0,0,0,.2));
+          background: var(--color-button-primary-bg, var(--color-surface-raised, Canvas));
+          color: var(--color-button-primary-text, var(--color-text, CanvasText));
+          box-shadow: 0 4px 14px var(--shadow-color, transparent);
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
         }
 
         #${ROOT_ID} .navigation-toggle:focus-visible {
-          outline: 3px solid var(--color-focus-ring, Highlight);
+          outline: 3px solid var(--color-focus-ring, currentColor);
           outline-offset: 3px;
         }
 
@@ -125,6 +132,13 @@
     const list = document.createElement("ul");
     list.style.cssText = "list-style:none;padding:0;margin:0;";
 
+    function closeMenu() {
+      root.dataset.open = "false";
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Open navigation menu");
+      toggle.innerHTML = openIcon;
+    }
+
     links.forEach(({ label, href }) => {
       const item = document.createElement("li");
       const link = document.createElement("a");
@@ -145,12 +159,12 @@
     function updateModeButtonLabel() {
       const controller = window.ThemeController;
       if (!controller) {
-        modeButton.textContent = "Light / Dark Mode";
+        modeButton.textContent = "Switch Light / Dark Mode";
         return;
       }
       modeButton.textContent = controller.getEffectiveMode() === "dark"
-        ? "Light Mode"
-        : "Dark Mode";
+        ? "Switch to Light Mode"
+        : "Switch to Dark Mode";
     }
 
     modeButton.addEventListener("click", () => {
@@ -178,13 +192,6 @@
     const closeIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"></path></svg>';
     toggle.innerHTML = openIcon;
 
-    function closeMenu() {
-      root.dataset.open = "false";
-      toggle.setAttribute("aria-expanded", "false");
-      toggle.setAttribute("aria-label", "Open navigation menu");
-      toggle.innerHTML = openIcon;
-    }
-
     function openMenu() {
       root.dataset.open = "true";
       toggle.setAttribute("aria-expanded", "true");
@@ -196,6 +203,18 @@
     toggle.addEventListener("click", () => {
       if (root.dataset.open === "true") closeMenu();
       else openMenu();
+    });
+
+    const systemColorScheme = window.matchMedia("(prefers-color-scheme: dark)");
+    systemColorScheme.addEventListener("change", () => {
+      const controller = window.ThemeController;
+      if (controller && controller.getMode() === "system") {
+        updateModeButtonLabel();
+      }
+    });
+
+    window.addEventListener("storage", event => {
+      if (event.key === "3btechhub-color-mode") updateModeButtonLabel();
     });
 
     document.addEventListener("pointerdown", event => {
