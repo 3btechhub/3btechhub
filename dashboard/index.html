@@ -13,7 +13,72 @@
   <script type="module" src="../components/auth-guard.js"></script>
 </head>
 <body>
-  <section-card></section-card>
+  <section-card id="home-section-editor">
+    <form id="home-heading-form">
+      <label for="home-heading">Heading</label>
+      <input id="home-heading" name="heading" type="text" maxlength="180" placeholder="Heading">
+      <button type="submit">Save</button>
+      <p id="home-heading-status" role="status" aria-live="polite"></p>
+    </form>
+  </section-card>
+
+  <script type="module">
+    import { supabase } from "../components/supabase-client.js";
+
+    const form = document.getElementById("home-heading-form");
+    const input = document.getElementById("home-heading");
+    const status = document.getElementById("home-heading-status");
+    const saveButton = form.querySelector('button[type="submit"]');
+
+    async function loadHeading() {
+      const { data, error } = await supabase
+        .from("home_section_content")
+        .select("heading")
+        .eq("id", 1)
+        .single();
+
+      if (error) {
+        status.textContent = "Unable to load Heading.";
+        console.error("Dashboard heading load failed.", error);
+        return;
+      }
+
+      input.value = data.heading || "";
+    }
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      saveButton.disabled = true;
+      status.textContent = "";
+
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        status.textContent = "Please sign in again.";
+        saveButton.disabled = false;
+        return;
+      }
+
+      const { error } = await supabase
+        .from("home_section_content")
+        .update({
+          heading: input.value.trim(),
+          updated_at: new Date().toISOString(),
+          updated_by: user.id
+        })
+        .eq("id", 1);
+
+      if (error) {
+        status.textContent = "Unable to save Heading.";
+        console.error("Dashboard heading save failed.", error);
+      } else {
+        status.textContent = "Saved.";
+      }
+
+      saveButton.disabled = false;
+    });
+
+    loadHeading();
+  </script>
   <script src="../components/navigation.js"></script>
 </body>
 </html>
