@@ -61,8 +61,7 @@ body { display: block; width: 100%; max-width: 100%; min-width: 0; margin: 0; mi
 img, svg, video, canvas { max-width: 100%; }
 /* Native controls inherit typography; shared ui-* classes own their complete appearance. */
 button, input, select, textarea { font: inherit; }
-.ui-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); min-width: 0; margin-inline: auto; }
-.page-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); min-width: 0; margin-inline: auto; }
+.ui-container, .page-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); min-width: 0; margin-inline: auto; }
 
 .ui-card-large { --ui-card-padding: 32px; --ui-card-content-padding: 32px; }
 .ui-card-medium { --ui-card-padding: 20px; --ui-card-content-padding: 20px; }
@@ -161,7 +160,6 @@ button, input, select, textarea { font: inherit; }
 .ui-form-field > label, .ui-form-field > legend { color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
 .ui-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-element); margin-top: var(--space-element); }
 .ui-button-danger { color: var(--color-danger); }
-.ui-form > *,
 .ui-form > * { box-sizing: border-box; max-width: 100%; }
 .ui-form .ui-input, .ui-form .ui-select, .ui-form .ui-textarea { width: 100%; }
 .ui-account-field { padding: var(--space-sm) 0; border-bottom: var(--border-width) solid var(--color-border); }
@@ -171,13 +169,8 @@ button, input, select, textarea { font: inherit; }
 
 
 /* Global tile element */
-.ui-tile {
-  display: grid;
-  grid-template-columns: var(--size-tile-media) minmax(0, 1fr);
-  align-items: center;
-  gap: var(--space-element);
+.ui-tile, .ui-item-card {
   min-width: 0;
-  padding: var(--ui-tile-padding, var(--space-md));
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-control);
   background: var(--color-surface);
@@ -186,7 +179,26 @@ button, input, select, textarea { font: inherit; }
   box-shadow: var(--shadow-card);
   transition: border-color .18s ease, transform .18s ease;
 }
-.ui-tile:hover { border-color: var(--color-primary); transform: translateY(-2px); }
+.ui-tile {
+  display: grid;
+  grid-template-columns: var(--size-tile-media) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-element);
+  padding: var(--ui-tile-padding, var(--space-md));
+}
+.ui-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-element);
+  width: 100%;
+  height: var(--size-item-card-height);
+  padding: var(--space-md);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.ui-tile:hover, .ui-item-card:hover { border-color: var(--color-primary); transform: translateY(-2px); }
 .ui-tile-media, .ui-item-card-media {
   display: flex;
   align-items: center;
@@ -211,8 +223,6 @@ button, input, select, textarea { font: inherit; }
 
 
 /* Global item card shared by homepage and dashboard module lists */
-.ui-item-card{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);width:100%;min-width:0;height:var(--size-item-card-height);padding:var(--space-md);border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);text-align:left;text-decoration:none;box-shadow:var(--shadow-card);font:inherit;cursor:pointer;transition:border-color .18s ease,transform .18s ease}
-.ui-item-card:hover{border-color:var(--color-primary);transform:translateY(-2px)}
 .ui-item-card.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
 .ui-item-card:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
 .ui-item-card-visibility{color:var(--color-muted);font-size:var(--font-size-xs);overflow-wrap:anywhere}
