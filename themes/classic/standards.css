@@ -2,6 +2,7 @@
   /* Global design tokens: exactly three reusable size levels. */
   --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-size-small: 14px;
+  --font-size-base: var(--font-size-medium);
   --font-size-medium: 16px;
   --font-size-large: 24px;
   --line-height-base: 1.5;
@@ -69,10 +70,22 @@
 
 
 /* One reusable size API for buttons, inputs, text, headings, cards, icons and media. */
-.ui-size-small { --ui-font-size: var(--font-size-small); --ui-space: var(--space-small); --ui-control-size: var(--control-size-small); --ui-control-padding-inline: var(--control-padding-inline-small); --ui-icon-size: var(--icon-size-small); --ui-card-padding: var(--card-padding-small); --ui-radius-control: var(--radius-control-small); --ui-radius-card: var(--radius-card-small); --ui-media-size: var(--media-size-small); }
-.ui-size-medium { --ui-font-size: var(--font-size-medium); --ui-space: var(--space-medium); --ui-control-size: var(--control-size-medium); --ui-control-padding-inline: var(--control-padding-inline-medium); --ui-icon-size: var(--icon-size-medium); --ui-card-padding: var(--card-padding-medium); --ui-radius-control: var(--radius-control-medium); --ui-radius-card: var(--radius-card-medium); --ui-media-size: var(--media-size-medium); }
-.ui-size-large { --ui-font-size: var(--font-size-large); --ui-space: var(--space-large); --ui-control-size: var(--control-size-large); --ui-control-padding-inline: var(--control-padding-inline-large); --ui-icon-size: var(--icon-size-large); --ui-card-padding: var(--card-padding-large); --ui-radius-control: var(--radius-control-large); --ui-radius-card: var(--radius-card-large); --ui-media-size: var(--media-size-large); }
+.ui-size-small { font-size: var(--font-size-small); --ui-font-size: var(--font-size-small); --ui-space: var(--space-small); --ui-control-size: var(--control-size-small); --ui-control-padding-inline: var(--control-padding-inline-small); --ui-icon-size: var(--icon-size-small); --ui-card-padding: var(--card-padding-small); --ui-radius-control: var(--radius-control-small); --ui-radius-card: var(--radius-card-small); --ui-media-size: var(--media-size-small); }
+.ui-size-medium { font-size: var(--font-size-medium); --ui-font-size: var(--font-size-medium); --ui-space: var(--space-medium); --ui-control-size: var(--control-size-medium); --ui-control-padding-inline: var(--control-padding-inline-medium); --ui-icon-size: var(--icon-size-medium); --ui-card-padding: var(--card-padding-medium); --ui-radius-control: var(--radius-control-medium); --ui-radius-card: var(--radius-card-medium); --ui-media-size: var(--media-size-medium); }
+.ui-size-large { font-size: var(--font-size-large); --ui-font-size: var(--font-size-large); --ui-space: var(--space-large); --ui-control-size: var(--control-size-large); --ui-control-padding-inline: var(--control-padding-inline-large); --ui-icon-size: var(--icon-size-large); --ui-card-padding: var(--card-padding-large); --ui-radius-control: var(--radius-control-large); --ui-radius-card: var(--radius-card-large); --ui-media-size: var(--media-size-large); }
 
+
+
+/* The same size class works whether applied to an element or its component wrapper. */
+:is(.ui-size-small, .ui-size-medium, .ui-size-large) :is(button, input, select, textarea, .ui-button, .ui-form-submit) {
+  height: var(--ui-control-size, var(--control-size-medium));
+  font-size: var(--ui-font-size, var(--font-size-medium));
+  padding-inline: var(--ui-control-padding-inline, var(--control-padding-inline-medium));
+}
+:is(.ui-size-small, .ui-size-medium, .ui-size-large) :is(.ui-card, .ui-section-card, .ui-form-card, .ui-tile, .ui-item-card) {
+  padding: var(--ui-card-padding, var(--card-padding-medium));
+  border-radius: var(--ui-radius-card, var(--radius-card-medium));
+}
 
 *, *::before, *::after { box-sizing: border-box; }
 html { font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); -webkit-text-size-adjust: 100%; }
@@ -99,7 +112,7 @@ button, input, select, textarea { font: inherit; }
   width: min(100% - (2 * var(--page-padding)), var(--content-width-section));
   min-width: 0;
   margin: var(--space-section) auto;
-  padding: var(--card-padding-medium);
+  padding: var(--ui-card-padding, var(--card-padding-medium));
 }
 .ui-module-section { width: min(100% - (2 * var(--page-padding)), var(--content-width-section)); margin: var(--space-section) auto; color: var(--color-text); }
 .ui-item-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--space-element); }
@@ -111,7 +124,7 @@ button, input, select, textarea { font: inherit; }
 .intro-image-preview { display: block; width: 100%; height: 220px; object-fit: contain; border-radius: var(--radius-control-medium); }
 .ui-content-details-image { display: block; width: 100%; height: var(--detail-media-height-large); object-fit: cover; border-radius: var(--radius-card-medium); margin-bottom: var(--space-element); }
 .ui-content-details-icon { font-size: var(--icon-size); margin-bottom: var(--space-element); }
-.ui-content-details-title { margin: 0 0 var(--space-element); font-size: var(--font-size-large); }
+.ui-content-details-title { margin: 0 0 var(--space-element); font-size: var(--ui-font-size, var(--font-size-large)); }
 .ui-content-details-back { display: inline-flex; margin-top: var(--space-element); color: var(--color-primary); font-weight: var(--font-weight-semibold); text-decoration: none; }
 .ui-content-message { width: min(100% - (2 * var(--page-padding)), var(--content-width-reading)); margin: var(--space-section) auto; color: var(--color-muted); text-align: center; }
 .ui-dashboard-sections { display: flex; flex-direction: column; gap: var(--space-section); }
@@ -131,7 +144,7 @@ button, input, select, textarea { font: inherit; }
   display: block; width: 100%;
   height: var(--ui-control-size, var(--control-size-medium)); padding: var(--space-small) var(--ui-control-padding-inline, var(--control-padding-inline-medium));
   border: var(--border-width) solid var(--color-input-border);
-  border-radius: var(--radius-control-medium); background: var(--color-surface);
+  border-radius: var(--ui-radius-control, var(--radius-control-medium)); background: var(--color-surface);
   color: var(--color-text); font: inherit;
 }
 .ui-textarea { height: 96px; resize: vertical; }
