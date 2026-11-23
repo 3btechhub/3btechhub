@@ -24,9 +24,12 @@ Do not add raw spacing, typography, border, radius, color, shadow, or common dim
 - Do not introduce another variant with a new value when an existing shared semantic variant already covers the need.
 
 ## Shared components
-Reuse global classes: `ui-container`, `ui-section`, `ui-card`, `ui-tile`, `ui-item-card`, `ui-button`, `ui-button-primary`, `ui-button-danger`, `ui-button-block`, `ui-button-group`, `ui-input`, `ui-select`, `ui-textarea`, `ui-form`, `ui-form-field`, `ui-form-label`, `ui-checkbox`, `ui-radio`, `ui-form-actions`, `ui-visibility-list`, `ui-visibility-option`, `ui-status`, and `ui-form-card`.
+Reuse global classes: `ui-container`, `ui-section`, `ui-card`, `ui-tile`, `ui-item-card`, `ui-button`, `ui-button-primary`, `ui-button-danger`, `ui-button-block`, `ui-button-group`, `ui-input`, `ui-select`, `ui-textarea`, `ui-form`, `ui-form-field`, `ui-form-label`, `ui-checkbox`, `ui-radio`, `ui-form-actions`, `ui-visibility-list`, `ui-visibility-option`, `ui-status`, `ui-form-card`, `ui-admin-panel`, `ui-admin-list`, `ui-admin-image-preview`, `ui-admin-preview`, `ui-dashboard-sections`, `ui-content-details`, and `ui-content-message`.
 
-A shared component must be implemented once in Global Standards (or a shared component module when behavior is required). Module code may provide data, events, and module-specific content, but must not restyle or recreate shared component structure.
+A shared component must be implemented once in Global Standards (or a shared component module when behavior is required).
+- Shared behavior components: `components/visibility.js` owns role visibility rendering/selection; `components/module-dashboard.js` owns the shared CRUD dashboard form and list behavior; `components/content-module-view.js` owns reusable homepage cards, detail views, and their mounting behavior.
+- `services/content-module.js` owns common Supabase CRUD, role loading, slug generation, image upload, and public image URL behavior. Module adapters provide only table, storage folder, and labels.
+- New pages/modules must use these shared components and services wherever their behavior matches. Add a shared capability first when the same behavior appears in more than one place. Module code may provide data, events, and module-specific content, but must not restyle or recreate shared component structure.
 
 ## Module boundaries
 Module styles may cover module-specific layout and content only. Do not define a second card, tile, form field, visibility selector, button, status, or loading system in a module. Keep data access, permissions, and business behavior unchanged when changing presentation.
@@ -45,4 +48,4 @@ Module styles may cover module-specific layout and content only. Do not define a
 5. Check desktop, tablet, and mobile layouts.
 6. Check light and dark modes.
 7. Verify keyboard focus, disabled states, and status/loading feedback.
-6. Verify that data, authentication, permissions, and navigation behavior remain unchanged.
+8. Verify that data, authentication, permissions, and navigation behavior remain unchanged.
