@@ -26,10 +26,16 @@ async function initializeLoginPage(){
 form.addEventListener("submit",async event=>{
  event.preventDefault();status.textContent="";button.disabled=true;button.textContent="Logging in...";
  const email=document.getElementById("email").value.trim(),password=document.getElementById("password").value;
- const {data,error}=await supabase.auth.signInWithPassword({email,password});
- if(error){status.textContent=error.message;button.disabled=false;button.textContent="Login";return;}
- if(data.user){window.location.replace(targetUrl);return;}
- status.textContent="Login could not be verified. Please try again.";button.disabled=false;button.textContent="Login";
+ try{
+  if(!supabase) throw new Error("Supabase connection is unavailable. Please refresh and try again.");
+  const {data,error}=await supabase.auth.signInWithPassword({email,password});
+  if(error) throw error;
+  if(data.user){window.location.replace(targetUrl);return;}
+  throw new Error("Login could not be verified. Please try again.");
+ }catch(error){
+  status.textContent=error.message||"Login failed. Please try again.";
+  button.disabled=false;button.textContent="Login";
+ }
 });
 initializeLoginPage();
 </script><script src="../navigation.js"></script><script src="../page-title.js"></script></body></html>
