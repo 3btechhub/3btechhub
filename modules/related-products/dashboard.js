@@ -13,12 +13,12 @@
       <div id="related-products-list" class="related-products-admin-list ui-stack"></div>
       <h2 id="related-products-form-title">Add Product</h2>
       <form id="related-products-form" class="ui-form">
-        <div class="related-products-field ui-form-field"><label class="ui-form-label" for="os-name">Name</label><input id="os-name" class="ui-input" type="text" maxlength="180" required></div>
-        <div class="related-products-field"><label class="ui-form-label" for="os-slug">Slug</label><input id="os-slug" class="ui-input" type="text" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></div>
-        <div class="related-products-field"><label class="ui-form-label" for="os-icon">Icon</label><input id="os-icon" class="ui-input" type="text" maxlength="80" placeholder="Emoji or icon text"></div>
-        <div class="related-products-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" class="ui-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="related-products-preview" alt="Product image preview" hidden></div>
-        <div class="related-products-field"><label class="ui-form-label">Visibility</label><div id="os-roles" class="ui-visibility-list"></div></div>
-        <div class="related-products-form-actions ui-form-actions"><button class="ui-button ui-button-primary primary" type="submit">Save Product</button><button id="os-cancel" class="ui-button" type="button">Cancel</button><button id="os-delete" class="ui-button danger" type="button" hidden>Delete</button></div>
+        <div class="ui-form-field"><label class="ui-form-label" for="os-name">Name</label><input id="os-name" class="ui-input" type="text" maxlength="180" required></div>
+        <div class="ui-form-field"><label class="ui-form-label" for="os-slug">Slug</label><input id="os-slug" class="ui-input" type="text" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></div>
+        <div class="ui-form-field"><label class="ui-form-label" for="os-icon">Icon</label><input id="os-icon" class="ui-input" type="text" maxlength="80" placeholder="Emoji or icon text"></div>
+        <div class="ui-form-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" class="ui-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="related-products-preview" alt="Product image preview" hidden></div>
+        <div class="ui-form-field"><label class="ui-form-label">Visibility</label><div id="os-roles" class="ui-visibility-list"></div></div>
+        <div class="related-products-form-actions ui-form-actions"><button class="ui-button ui-button-primary" type="submit">Save Product</button><button id="os-cancel" class="ui-button" type="button">Cancel</button><button id="os-delete" class="ui-button ui-button-danger" type="button" hidden>Delete</button></div>
       </form>
       <p id="os-status-message" class="related-products-status ui-status" role="status" aria-live="polite"></p>
     `;
