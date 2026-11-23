@@ -64,30 +64,13 @@
       const card = document.createElement("a");
       card.className = "related-product-tile ui-tile";
       card.href = new URL("product/?slug=" + encodeURIComponent(item.slug), baseUrl()).href;
-      const media = document.createElement("div");
-      media.className = "ui-tile-media";
-      if (item.image_path) {
-        const image = document.createElement("img");
-        image.className = "";
-        image.src = product.publicImageUrl(item.image_path);
-        image.alt = item.name;
-        image.loading = "lazy";
-        image.decoding = "async";
-        media.appendChild(image);
-      } else {
-        const icon = document.createElement("span");
-        icon.className = "ui-tile-icon";
-        icon.textContent = item.icon || "✦";
-        icon.setAttribute("aria-hidden", "true");
-        media.appendChild(icon);
-      }
       const body = document.createElement("div");
       body.className = "ui-tile-content";
       const title = document.createElement("h2");
       title.className = "ui-tile-title";
       title.textContent = item.name;
       body.appendChild(title);
-      card.append(media, body);
+      card.append(body);
       grid.appendChild(card);
     });
     section.appendChild(grid);
