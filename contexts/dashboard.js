@@ -3,6 +3,13 @@
   window.__3bContexts = window.__3bContexts || {};
   window.__3bContexts.dashboard = async root => {
     if (!root) return;
+    if (!document.getElementById("dashboard-section-spacing")) {
+      const spacing = document.createElement("style");
+      spacing.id = "dashboard-section-spacing";
+      spacing.textContent = `.ui-dashboard-sections{display:flex;flex-direction:column;gap:var(--space-section)}.ui-dashboard-sections>section{margin-block:0}`;
+      document.head.appendChild(spacing);
+    }
+    root.classList.add("ui-dashboard-sections");
     if (root.dataset.introMounted === "true") {
       if (window.__3bAccess?.has("module.our_services.manage")) await window.__3bModules?.ourServices?.mountDashboard?.(root);
       if (window.__3bAccess?.has("module.related_products.manage")) await window.__3bModules?.relatedProducts?.mountDashboard?.(root);
