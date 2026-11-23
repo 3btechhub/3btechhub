@@ -10,7 +10,7 @@
 
       const { key, title, singular, plural, api } = config;
       const panel = document.createElement("section");
-      panel.className = "ui-section-card ui-size-large ui-admin-panel";
+      panel.className = "ui-large-card ui-size-large ui-admin-panel";
       panel.innerHTML = `
         <h2>${title}</h2>
         <div data-role="list" class="ui-admin-list ui-stack"></div>
