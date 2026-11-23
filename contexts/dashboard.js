@@ -18,7 +18,7 @@
     const service = window.__3bIntroService;
     const supabase = window.supabaseClient;
     const panel = document.createElement("section");
-    panel.className = "intro-admin ui-section-card ui-admin-panel";
+    panel.className = "intro-admin ui-section-card ui-size-large ui-admin-panel";
     panel.innerHTML = `
       <h2>Intro — Home Component</h2>
       <div class="ui-form-field"><label class="ui-form-label" for="intro-heading">Heading</label><input id="intro-heading" class="ui-input" type="text" maxlength="180" autocomplete="off"></div>
