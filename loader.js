@@ -3,6 +3,12 @@
   const loaderScript = document.currentScript;
   if (!loaderScript || loaderScript.dataset.componentsLoaded === "true") return;
   loaderScript.dataset.componentsLoaded = "true";
+
+  const visibilityStyle = document.createElement("style");
+  visibilityStyle.id = "site-initial-visibility";
+  visibilityStyle.textContent = "html:not(.site-ready) body{visibility:hidden}";
+  document.head.appendChild(visibilityStyle);
+
   const baseUrl = new URL(".", loaderScript.src);
   window.__3bBaseUrl = baseUrl;
   const resources = [
@@ -28,18 +34,37 @@
     "contexts/home.js",
     "contexts/dashboard.js"
   ];
+
   let resourcesReady = false;
   const pending = [];
-  const mount = (name, root) => {
-    if (!resourcesReady) { pending.push([name, root]); return; }
+  const mounted = new WeakMap();
+
+  const runContext = (name, root) => {
+    if (!root) return Promise.resolve();
+    if (mounted.has(root)) return mounted.get(root);
     const context = window.__3bContexts?.[name];
-    if (typeof context === "function") Promise.resolve(context(root)).catch(error => console.error("[3B TECH HUB] Context failed:", error));
+    const task = typeof context === "function"
+      ? Promise.resolve().then(() => context(root))
+      : Promise.resolve();
+    mounted.set(root, task);
+    return task;
   };
+
+  const mount = (name, root) => {
+    if (!resourcesReady) {
+      return new Promise(resolve => pending.push({ name, root, resolve }));
+    }
+    return runContext(name, root).catch(error => {
+      console.error("[3B TECH HUB] Context failed:", error);
+    });
+  };
+
   window.__3bMountContext = mount;
   document.addEventListener("3b-context-request", event => {
     const detail = event.detail || {};
     mount(detail.name, detail.root);
   });
+
   const loadScript = src => new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = src;
@@ -47,15 +72,36 @@
     script.onerror = () => reject(new Error("Failed to load script: " + src));
     document.head.appendChild(script);
   });
-  resources.reduce((chain, file) => chain.then(() => loadScript(new URL(file, baseUrl).href)), Promise.resolve())
-    .then(() => Promise.all([window.__3bThemeReady, window.__3bRegionReady, window.__3bLanguageReady]))
-    .then(() => {
+
+  resources.reduce(
+    (chain, file) => chain.then(() => loadScript(new URL(file, baseUrl).href)),
+    Promise.resolve()
+  )
+    .then(() => Promise.all([
+      window.__3bThemeReady,
+      window.__3bRegionReady,
+      window.__3bLanguageReady
+    ]))
+    .then(async () => {
       resourcesReady = true;
+      const tasks = [];
       document.querySelectorAll("[data-context]").forEach(root => {
-        mount(root.dataset.context, root);
+        tasks.push(runContext(root.dataset.context, root));
       });
-      pending.splice(0).forEach(args => mount(...args));
+      pending.splice(0).forEach(({ name, root, resolve }) => {
+        const task = runContext(name, root);
+        tasks.push(task);
+        task.then(resolve, error => {
+          console.error("[3B TECH HUB] Context failed:", error);
+          resolve();
+        });
+      });
+      await Promise.allSettled(tasks);
+      document.documentElement.classList.add("site-ready");
       document.dispatchEvent(new Event("3b-global-loader-ready"));
     })
-    .catch(error => console.error("[3B TECH HUB] Site resources loading error:", error));
+    .catch(error => {
+      console.error("[3B TECH HUB] Site resources loading error:", error);
+      document.documentElement.classList.add("site-ready");
+    });
 })();
