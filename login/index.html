@@ -1,41 +1,50 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Login | 3B TECH HUB</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:32px 18px 110px;display:grid;place-items:center;background:#f3f4f6;color:#111827;font-family:system-ui,sans-serif}.card{width:min(100%,420px);padding:32px;background:#fff;border:1px solid #e5e7eb;border-radius:20px;box-shadow:0 12px 36px rgb(17 24 39 / 8%)}h1{margin:0 0 8px;font-size:28px}.subtitle{margin:0 0 26px;color:#6b7280}label{display:block;margin:16px 0 7px;font-size:14px;font-weight:600}input{width:100%;padding:13px 14px;border:1px solid #d1d5db;border-radius:10px;font:inherit}button{width:100%;margin-top:24px;padding:13px 18px;border:0;border-radius:10px;background:#111827;color:#fff;font:inherit;font-weight:600;cursor:pointer}button:disabled{opacity:.6;cursor:wait}#status{min-height:22px;margin-top:14px;color:#b91c1c;font-size:14px}#login-card{display:block!important;visibility:visible!important;opacity:1!important}#login-form{display:block!important}input,button{display:block}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:32px 18px 110px;display:grid;place-items:center;background:#f3f4f6;color:#111827;font-family:system-ui,sans-serif}.card{width:min(100%,420px);padding:32px;background:#fff;border:1px solid #e5e7eb;border-radius:20px;box-shadow:0 12px 36px rgb(17 24 39 / 8%)}label{display:block;margin:16px 0 7px;font-size:14px;font-weight:600}input{width:100%;padding:13px 14px;border:1px solid #d1d5db;border-radius:10px;font:inherit}button{width:100%;margin-top:24px;padding:13px 18px;border:0;border-radius:10px;background:#111827;color:#fff;font:inherit;font-weight:600;cursor:pointer}button:disabled{opacity:.6;cursor:wait}#status{min-height:22px;margin-top:14px;color:#b91c1c;font-size:14px}#login-card,#login-form,input,button{display:block}
 </style></head><body data-page-title="Login">
 <main class="card" id="login-card"><form id="login-form"><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" placeholder="Enter your email" required><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required><button id="login-button" type="submit">Login</button><p id="status" role="status" aria-live="polite"></p></form></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../supabase/client.js"></script>
 <script>
-const supabase=window.supabaseClient;
-const loginCard=document.getElementById("login-card"),form=document.getElementById("login-form"),button=document.getElementById("login-button"),status=document.getElementById("status");
+const form=document.getElementById("login-form"),button=document.getElementById("login-button"),status=document.getElementById("status");
 const allowedTargets=new Set(["account/","dashboard/"]);
 const requestedTarget=new URLSearchParams(window.location.search).get("target");
 const targetPage=allowedTargets.has(requestedTarget)?requestedTarget:"account/";
 const targetUrl="../"+targetPage;
-async function initializeLoginPage(){
+function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement("script");script.src=src;script.onload=resolve;script.onerror=()=>reject(new Error("Could not load "+src));document.head.appendChild(script);});}
+let supabase=null;
+const ready=(async()=>{
  try{
-  const {data:sessionData,error:sessionError}=await supabase.auth.getSession();
-  if(!sessionError&&sessionData.session){
+  try{await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");}
+  catch(firstError){await loadScript("https://unpkg.com/@supabase/supabase-js@2");}
+  await loadScript("../supabase/client.js");
+  supabase=window.supabaseClient;
+  if(!supabase)throw new Error("Supabase client could not be initialized.");
+  const {data,error}=await supabase.auth.getSession();
+  if(error)throw error;
+  if(data.session){
    const {data:userData,error:userError}=await supabase.auth.getUser();
    if(!userError&&userData.user){window.location.replace(targetUrl);return;}
-   await supabase.auth.signOut();
   }
- }catch(error){}
- loginCard.style.display="block";
-}
+ }catch(error){status.textContent=error.message||"Unable to connect to the login service.";}
+})();
 form.addEventListener("submit",async event=>{
- event.preventDefault();status.textContent="";button.disabled=true;button.textContent="Logging in...";
- const email=document.getElementById("email").value.trim(),password=document.getElementById("password").value;
+ event.preventDefault();
+ status.textContent="";
+ button.disabled=true;
+ button.textContent="Logging in...";
  try{
-  if(!supabase) throw new Error("Supabase connection is unavailable. Please refresh and try again.");
+  await ready;
+  if(!supabase)throw new Error(status.textContent||"Supabase connection is unavailable. Please refresh and try again.");
+  const email=document.getElementById("email").value.trim();
+  const password=document.getElementById("password").value;
   const {data,error}=await supabase.auth.signInWithPassword({email,password});
-  if(error) throw error;
+  if(error)throw error;
   if(data.user){window.location.replace(targetUrl);return;}
   throw new Error("Login could not be verified. Please try again.");
  }catch(error){
   status.textContent=error.message||"Login failed. Please try again.";
-  button.disabled=false;button.textContent="Login";
+  button.disabled=false;
+  button.textContent="Login";
  }
 });
-initializeLoginPage();
 </script><script src="../navigation.js"></script><script src="../page-title.js"></script></body></html>
