@@ -15,8 +15,16 @@ Use the existing tokens for spacing, sizing, typography, color, borders, radii, 
 
 Do not add raw spacing, typography, border, radius, color, shadow, or common dimensions to page/module CSS when a global token exists. A genuinely unique visual dimension may remain local only when it is intrinsic to that module's content (for example, a media crop limit), not a shared UI convention.
 
+## Component ownership and variants
+- A module declares only field semantics and behavior: native control type (`text`, `email`, `password`, `number`, `file`, etc.), name/id, value, validation, options, and event handling.
+- Appearance is selected only by the shared component class: `ui-input`, `ui-select`, `ui-textarea`, `ui-checkbox`, `ui-radio`, `ui-button`, and `ui-form-field`.
+- Never create module/page-specific input, select, textarea, checkbox, radio, button, or form-field CSS.
+- The same component has one shared base style everywhere. Do not create Home/Dashboard, Intro/Module, or other context-specific versions.
+- Only semantic variants are permitted (for example button `primary` or `danger`); variants are centrally defined and express purpose, not location. Layout utilities such as full-width may change placement, not visual design.
+- Do not introduce another variant with a new value when an existing shared semantic variant already covers the need.
+
 ## Shared components
-Reuse global classes: `ui-container`, `ui-section`, `ui-card`, `ui-tile`, `ui-item-card`, `ui-button`, `ui-button-group`, `ui-input`, `ui-select`, `ui-textarea`, `ui-form`, `ui-form-field`, `ui-form-label`, `ui-form-control`, `ui-form-actions`, `ui-visibility-list`, `ui-visibility-option`, `ui-status`, and `ui-form-card`.
+Reuse global classes: `ui-container`, `ui-section`, `ui-card`, `ui-tile`, `ui-item-card`, `ui-button`, `ui-button-primary`, `ui-button-danger`, `ui-button-block`, `ui-button-group`, `ui-input`, `ui-select`, `ui-textarea`, `ui-form`, `ui-form-field`, `ui-form-label`, `ui-input`, `ui-select`, `ui-textarea`, `ui-checkbox`, `ui-radio`, `ui-form-actions`, `ui-visibility-list`, `ui-visibility-option`, `ui-status`, and `ui-form-card`.
 
 A shared component must be implemented once in Global Standards (or a shared component module when behavior is required). Module code may provide data, events, and module-specific content, but must not restyle or recreate shared component structure.
 
@@ -32,6 +40,8 @@ Module styles may cover module-specific layout and content only. Do not define a
 ## Required review before merging a page/module
 1. Search for duplicate shared component markup and CSS.
 2. Search for raw spacing and other design values; replace them with tokens where applicable.
+3. Confirm controls use semantic Global classes and native field types only; reject module/page-specific appearance classes or values.
+4. Confirm there is only one base style per component and only approved semantic variants, never context-based variants.
 3. Check desktop, tablet, and mobile layouts.
 4. Check light and dark modes.
 5. Verify keyboard focus, disabled states, and status/loading feedback.
