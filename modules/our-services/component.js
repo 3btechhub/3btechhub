@@ -17,7 +17,7 @@
       .our-service-card:focus-visible{outline:3px solid var(--color-primary);outline-offset:3px}
       .our-service-card-media{display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;overflow:hidden;background:color-mix(in srgb,var(--color-primary) 9%,var(--color-surface));color:var(--color-primary)}
       .our-service-card-image{width:100%;height:100%;object-fit:cover}
-      .our-service-card-icon{font-size:clamp(36px,5vw,54px);line-height:1}
+      .our-service-card-icon{font-size:clamp(36px,5vw,54px);line-height:1}\n      .our-service-card-icon-overlay{position:absolute;top:12px;left:12px;display:grid;place-items:center;min-width:38px;min-height:38px;padding:6px;border:1px solid var(--color-border);border-radius:10px;background:color-mix(in srgb,var(--color-surface) 88%,transparent);font-size:22px}
       .our-service-card-body{display:grid;gap:8px;padding:18px}
       .our-service-card-title{margin:0;font-size:19px;line-height:1.3}
       .our-service-card-description{margin:0;color:var(--color-muted);font-size:14px;line-height:1.6;white-space:pre-line}
