@@ -42,7 +42,7 @@ jobs:
           for html in root.rglob("*.html"):
               content = html.read_text(encoding="utf-8")
               content = re.sub(
-                  r'<script\b[^>]*src=["\'][^"\']*(?:loader|navigation|page-title)\.js(?:\?[^"\']*)?["\'][^>]*>\s*</script>',
+                  r'<script\b[^>]*src=["\'][^"\']*(?:loader|navigation)\.js(?:\?[^"\']*)?["\'][^>]*>\s*</script>',
                   "",
                   content,
                   flags=re.IGNORECASE,
