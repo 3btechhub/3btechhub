@@ -24,7 +24,7 @@
   });
 
   Promise.all([
-    addStylesheet("themes/classic/standards.css"),
+    addScript("themes/classic/theme.js"),
     addScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2")
   ])
     .then(() => addScript("supabase/client.js"))
