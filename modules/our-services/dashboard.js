@@ -13,14 +13,14 @@
       <div id="our-services-list" class="our-services-admin-list"></div>
       <h2 id="our-services-form-title">Add Service</h2>
       <form id="our-services-form" class="ui-form">
-        <div class="our-services-field"><label class="ui-form-label" for="os-name">Name</label><input id="os-name" type="text" maxlength="180" required></div>
-        <div class="our-services-field"><label class="ui-form-label" for="os-slug">Slug</label><input id="os-slug" type="text" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></div>
-        <div class="our-services-field"><label class="ui-form-label" for="os-icon">Icon</label><input id="os-icon" type="text" maxlength="80" placeholder="Emoji or icon text"></div>
-        <div class="our-services-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="our-services-preview" alt="Service image preview" hidden></div>
-        <div class="our-services-field"><label class="ui-form-label" for="os-description">Description</label><textarea id="os-description" maxlength="1200"></textarea></div>
-        <div class="our-services-field"><label class="ui-form-label" for="os-details">Details</label><textarea id="os-details" rows="8"></textarea></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-name">Name</label><input id="os-name" class="ui-form-control" type="text" maxlength="180" required></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-slug">Slug</label><input id="os-slug" class="ui-form-control" type="text" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-icon">Icon</label><input id="os-icon" class="ui-form-control" type="text" maxlength="80" placeholder="Emoji or icon text"></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" class="ui-form-control" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="our-services-preview" alt="Service image preview" hidden></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-description">Description</label><textarea id="os-description" class="ui-textarea" maxlength="1200"></textarea></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-details">Details</label><textarea id="os-details" class="ui-textarea" rows="8"></textarea></div>
         <fieldset class="our-services-field"><legend>Visibility</legend><div id="os-roles" class="our-services-role-list"></div></fieldset>
-        <div class="our-services-field"><label class="ui-form-label" for="os-status">Status</label><select id="os-status"><option value="draft">Draft</option><option value="published">Published</option></select></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-status">Status</label><select id="os-status" class="ui-select"><option value="draft">Draft</option><option value="published">Published</option></select></div>
         <div class="our-services-form-actions"><button class="ui-button ui-button-primary primary" type="submit">Save Service</button><button id="os-cancel" class="ui-button" type="button">Clear Form</button></div>
       </form>
       <p id="os-status-message" class="our-services-status ui-status" role="status" aria-live="polite"></p>
@@ -65,11 +65,12 @@
         actions.className = "our-services-admin-actions";
         const edit = document.createElement("button");
         edit.type = "button";
+        edit.className = "ui-button";
         edit.textContent = "Edit";
         edit.addEventListener("click", () => fillForm(item));
         const remove = document.createElement("button");
         remove.type = "button";
-        remove.className = "danger";
+        remove.className = "ui-button danger";
         remove.textContent = "Delete";
         remove.addEventListener("click", async () => {
           if (!window.confirm("Delete “" + item.name + "”?")) return;
