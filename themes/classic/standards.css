@@ -77,6 +77,13 @@
 
 
 /* The same size class works whether applied to an element or its component wrapper. */
+
+:is(.ui-size-small, .ui-size-medium, .ui-size-large):is(button, input, select, textarea, .ui-button, .ui-form-submit) {
+  height: var(--ui-control-size, var(--control-size-medium));
+  font-size: var(--ui-font-size, var(--font-size-medium));
+  padding-inline: var(--ui-control-padding-inline, var(--control-padding-inline-medium));
+}
+
 :is(.ui-size-small, .ui-size-medium, .ui-size-large) :is(button, input, select, textarea, .ui-button, .ui-form-submit) {
   height: var(--ui-control-size, var(--control-size-medium));
   font-size: var(--ui-font-size, var(--font-size-medium));
