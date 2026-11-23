@@ -30,8 +30,8 @@
       .intro-admin-field{display:grid;gap:8px;margin:16px 0}
       .intro-admin-field label,.intro-admin legend{font-weight:600;font-size:14px}
       .intro-admin input[type=text]{width:100%;min-height:var(--size-control);padding:12px 14px;border:1px solid var(--color-input-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit}
-      .intro-role-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-      .intro-role-option{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--color-border);border-radius:8px}
+      .ui-visibility-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+      .ui-visibility-option{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--color-border);border-radius:8px}
       .intro-image-preview{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:8px}
       .intro-admin-preview{display:flex;flex-direction:column;gap:var(--space-element);margin-top:var(--space-section)}
       .intro-admin-preview #intro-preview{width:100%}
@@ -47,7 +47,7 @@
       <div class="intro-admin-field"><label for="intro-sub-heading">Sub Heading</label><input id="intro-sub-heading" type="text" maxlength="300" autocomplete="off"></div>
       <div class="intro-admin-field"><label for="intro-visual-type">Card Design</label><select id="intro-visual-type"><option value="default">Default Technology Card</option><option value="image">Uploaded Image</option></select></div>
       <div class="intro-admin-field" id="intro-image-field"><label for="intro-image">Select Image</label><input id="intro-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
-      <fieldset class="intro-admin-field"><legend>Visibility</legend><div id="intro-role-list" class="intro-role-list"></div></fieldset>
+      <fieldset class="intro-admin-field"><legend>Visibility</legend><div id="ui-visibility-list" class="ui-visibility-list"></div></fieldset>
       <button id="intro-save" class="ui-button ui-button-primary" type="button">Save Intro</button>
       <p id="intro-status" class="intro-admin-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
     `;
@@ -92,13 +92,13 @@
       }
       renderPreview(currentContent);
       const selected = new Set(content?.visible_role_ids || []);
-      const list = $("#intro-role-list");
+      const list = $("#ui-visibility-list");
       if (!roles.length) {
         list.textContent = "No active roles are available.";
       } else {
         roles.forEach(role => {
           const label = document.createElement("label");
-          label.className = "intro-role-option";
+          label.className = "ui-visibility-option";
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.value = role.id;
@@ -151,7 +151,7 @@
       button.disabled = true;
       status("Saving…");
       try {
-        const visibleRoleIds = [...panel.querySelectorAll("#intro-role-list input:checked")].map(input => input.value);
+        const visibleRoleIds = [...panel.querySelectorAll("#ui-visibility-list input:checked")].map(input => input.value);
         await service.saveContent({
           heading: $("#intro-heading").value,
           sub_heading: $("#intro-sub-heading").value,
