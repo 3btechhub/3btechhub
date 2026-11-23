@@ -31,8 +31,38 @@
     return svg;
   }
 
+  function ensureStyles() {
+    if (document.getElementById("intro-component-styles")) return;
+    const style = document.createElement("style");
+    style.id = "intro-component-styles";
+    style.textContent = `
+      .intro-component{width:min(100% - 32px,1040px);margin:clamp(24px,5vw,56px) auto}
+      .intro-card{overflow:hidden;border:1px solid var(--color-border);border-radius:20px;background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card,0 12px 36px rgba(0,0,0,.12))}
+      .intro-visual{position:relative;display:flex;align-items:center;justify-content:center;min-height:clamp(190px,30vw,300px);overflow:hidden}
+      .intro-visual-tech{background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--color-primary) 18%,transparent),transparent 65%),linear-gradient(135deg,var(--color-surface),color-mix(in srgb,var(--color-primary) 9%,var(--color-surface)))}
+      .intro-visual-tech::before,.intro-visual-tech::after{position:absolute;inset:0;content:"";pointer-events:none}
+      .intro-visual-tech::before{background-image:linear-gradient(color-mix(in srgb,var(--color-primary) 9%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--color-primary) 9%,transparent) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
+      .intro-visual-tech::after{inset:12px;border:1px solid color-mix(in srgb,var(--color-primary) 18%,transparent);border-radius:12px}
+      .intro-tech-art{position:relative;z-index:1;width:min(88%,760px);height:auto;max-height:270px}
+      .intro-circuit-line{fill:none;stroke:var(--color-primary);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:.65}
+      .intro-chip{fill:color-mix(in srgb,var(--color-primary) 12%,var(--color-surface));stroke:var(--color-primary);stroke-width:2.5}
+      .intro-chip-inner{fill:none;stroke:var(--color-primary);stroke-width:1.5;opacity:.8}
+      .intro-chip-detail{fill:none;stroke:var(--color-primary);stroke-width:4;stroke-linecap:round;opacity:.85}
+      .intro-node{fill:var(--color-surface);stroke:var(--color-primary);stroke-width:3}
+      .intro-node-center{fill:var(--color-primary)}
+      .intro-tech-label{position:absolute;z-index:2;bottom:22px;left:0;width:100%;color:var(--color-muted);font-size:10px;font-weight:700;letter-spacing:.22em;text-align:center}
+      .intro-visual-image{min-height:0;max-height:460px;background:var(--color-surface)}
+      .intro-image{display:block;width:100%;max-height:460px;object-fit:cover}
+      .intro-card-content{display:grid;justify-items:center;gap:10px;padding:clamp(22px,4vw,40px);text-align:center}
+      .intro-heading{margin:0;color:var(--color-text);font-size:clamp(26px,4vw,42px);line-height:1.15}
+      .intro-sub-heading{max-width:760px;margin:0;color:var(--color-muted);font-size:clamp(15px,1.8vw,19px);line-height:1.65}
+    `;
+    document.head.appendChild(style);
+  }
+
   window.__3bComponents.intro = {
     render(content, imageUrl, options = {}) {
+      ensureStyles();
       const heading = String(content?.heading || "").trim();
       const subHeading = String(content?.sub_heading || "").trim();
       const hasImage = Boolean(imageUrl);
