@@ -135,3 +135,6 @@ button, input, select, textarea { font: inherit; }
 .ui-tile-content { display: grid; gap: 4px; min-width: 0; }
 .ui-tile-title { margin: 0; font-size: 1rem; line-height: 1.35; }
 .ui-tile-description { margin: 0; color: var(--color-muted); font-size: .875rem; line-height: 1.5; white-space: pre-line; }
+
+/* Global spacing for groups of buttons */
+.ui-button-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-element); }
