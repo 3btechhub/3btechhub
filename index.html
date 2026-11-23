@@ -9,9 +9,14 @@
   <link rel="stylesheet" href="./themes/classic/light.css">
   <link rel="stylesheet" href="./themes/classic/dark.css">
   <script src="./components/section-card.js"></script>
+  <script src="./components/item-card.js"></script>
 </head>
 <body>
-  <section-card id="home-section"></section-card>
+  <section-card id="home-section" title="Intro">
+    <item-card title="Heading">
+      <p id="home-heading-output"></p>
+    </item-card>
+  </section-card>
   <script type="module">
     import { supabase } from "./components/supabase-client.js";
 
@@ -27,7 +32,7 @@
         return;
       }
 
-      document.getElementById("home-section").setAttribute("title", data.heading || "");
+      document.getElementById("home-heading-output").textContent = data.heading || "";
     }
 
     loadHomeHeading();
