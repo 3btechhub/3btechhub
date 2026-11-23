@@ -12,8 +12,6 @@
       const details = window.__3bModules.relatedProducts.renderDetails(item);
       root.appendChild(details);
       document.title = item.name + " | 3B TECH HUB";
-      const title = document.getElementById("site-page-title");
-      if (title) title.textContent = item.name;
     } catch (error) {
       const message = document.createElement("p");
       message.className = "related-product-message";
