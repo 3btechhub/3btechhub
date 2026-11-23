@@ -1,8 +1,20 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3B TECH HUB</title>
 </head>
-<body></body>
-</html>
+<body>
+<script type="module">
+  import mountNavigation from "./shared-component/navigation.js";
 
+  mountNavigation({
+    items: [
+      { label: "Home", href: "/" },
+      { label: "Account", href: "/account" }
+    ]
+  });
+</script>
+</body>
+</html>
