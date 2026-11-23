@@ -49,39 +49,31 @@
       const list = $("#related-products-list");
       list.replaceChildren();
       if (!services.length) {
-        list.textContent = "No related products have been created yet.";
+        list.textContent = "No items have been created yet.";
         return;
       }
       services.forEach(item => {
-        const card = document.createElement("button");
-        card.type = "button";
-        card.className = "related-products-admin-item";
-        card.classList.toggle("is-selected", editingId === item.id);
-        card.setAttribute("aria-pressed", String(editingId === item.id));
-        const identity = document.createElement("span");
-        identity.className = "related-products-admin-identity ui-stack";
-        const name = document.createElement("strong");
-        name.textContent = item.name;
-        const slug = document.createElement("span");
-        slug.className = "related-products-admin-slug";
-        slug.textContent = item.slug;
-        identity.append(name, slug);
-        const details = document.createElement("span");
-        details.className = "related-products-admin-meta";
+        const preview = module.renderCards?.([item]);
+        const tile = preview?.querySelector(".ui-tile");
+        if (!tile) return;
+        tile.href = "#";
+        tile.setAttribute("role", "button");
+        tile.setAttribute("aria-pressed", String(editingId === item.id));
+        tile.classList.toggle("is-selected", editingId === item.id);
+        tile.addEventListener("click", event => {
+          event.preventDefault();
+          fillForm(item);
+        });
+        const meta = document.createElement("div");
+        meta.className = "related-products-admin-meta";
         const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
         const visibility = document.createElement("span");
         visibility.textContent = "Visibility: " + (visibleRoles.length ? visibleRoles.join(", ") : "None");
         const state = document.createElement("span");
         state.textContent = "Status: " + (item.status || "draft");
-        details.append(visibility, state);
-        if (item.icon) {
-          const icon = document.createElement("span");
-          icon.textContent = "Icon: " + item.icon;
-          details.appendChild(icon);
-        }
-        card.append(identity, details);
-        card.addEventListener("click", () => fillForm(item));
-        list.appendChild(card);
+        meta.append(visibility, state);
+        tile.querySelector(".ui-tile-content")?.appendChild(meta);
+        list.appendChild(tile);
       });
     };
     const fillForm = item => {
