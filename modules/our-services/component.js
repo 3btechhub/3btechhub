@@ -34,7 +34,16 @@
       .our-services-admin-item{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,auto);align-items:center;justify-content:space-between;gap:var(--space-element);width:100%;padding:14px 16px;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit;text-align:left;cursor:pointer}
       .our-services-admin-item.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
       .our-services-admin-meta{display:flex;flex-wrap:wrap;gap:var(--space-element);margin-top:var(--space-element);color:var(--color-muted);font-size:13px}
-      .our-services-admin-list .ui-tile{cursor:pointer;text-decoration:none}
+      .our-services-admin-list .our-services-admin-tile{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);width:100%;min-height:104px;padding:16px;border:var(--border-width) solid var(--color-border);background:var(--color-surface);color:var(--color-text);font:inherit;text-align:left;cursor:pointer}
+      .our-services-admin-list .our-services-admin-tile.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
+      .our-services-admin-content{display:grid;gap:8px;min-width:0}
+      .our-services-admin-content .ui-tile-title{margin:0}
+      .our-services-admin-visibility{display:grid;gap:3px;color:var(--color-muted);font-size:13px}
+      .our-services-admin-visibility-label{font-weight:600}
+      .our-services-admin-visibility-value{overflow-wrap:anywhere}
+      .our-services-admin-media{display:flex;flex:0 0 76px;width:76px;height:76px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted,transparent);font-size:36px}
+      .our-services-admin-media img{width:100%;height:100%;object-fit:cover}
+      .our-services-admin-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .our-services-admin-list .ui-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .our-services-admin-identity{min-width:0}
       .our-services-admin-slug{color:var(--color-muted);font-size:13px;overflow-wrap:anywhere}
