@@ -18,7 +18,6 @@
     "languages/language.js",
     "languages/index.js",
     "navigation.js",
-    "page-title.js",
     "services/intro.js",
     "components/intro.js",
     "modules/our-services/service.js",
