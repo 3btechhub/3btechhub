@@ -25,10 +25,45 @@ jobs:
         uses: actions/checkout@v4
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Prepare all HTML pages with shared components
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          root = Path("_site")
+          scripts = (
+              '<script src="/3btechhub/navigation.js"></script>',
+              '<script src="/3btechhub/page-title.js"></script>',
+          )
+
+          for html in root.rglob("*.html"):
+              content = html.read_text(encoding="utf-8")
+              content = re.sub(
+                  r'<script\\b[^>]*src=["\'][^"\']*(?:navigation|page-title)\\.js(?:\\?[^"\']*)?["\'][^>]*>\\s*</script>',
+                  "",
+                  content,
+                  flags=re.IGNORECASE,
+              )
+              injection = "\\n    ".join(scripts)
+              if re.search(r"</body\\s*>", content, flags=re.IGNORECASE):
+                  content = re.sub(
+                      r"</body\\s*>",
+                      injection + "\\n</body>",
+                      content,
+                      count=1,
+                      flags=re.IGNORECASE,
+                  )
+              else:
+                  content += "\\n" + injection + "\\n"
+              html.write_text(content, encoding="utf-8")
+          PY
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
