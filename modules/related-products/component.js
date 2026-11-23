@@ -76,37 +76,13 @@
     const grid = document.createElement("div");
     grid.className = "related-products-grid";
     items.forEach(item => {
-      const card = document.createElement("a");
-      card.className = "related-product-tile ui-tile";
-      card.href = new URL("product/?slug=" + encodeURIComponent(item.slug), baseUrl()).href;
-      const body = document.createElement("div");
-      body.className = "ui-tile-content";
-      const title = document.createElement("h2");
-      title.className = "ui-tile-title";
-      title.textContent = item.name;
-      body.appendChild(title);
-      const media = document.createElement("div");
-      media.className = "related-product-tile-media ui-tile-media";
-      if (item.image_path) {
-        const image = document.createElement("img");
-        image.src = product.publicImageUrl(item.image_path);
-        image.alt = "";
-        image.loading = "lazy";
-        media.appendChild(image);
-      } else if (item.icon) {
-        const icon = document.createElement("span");
-        icon.textContent = item.icon;
-        icon.setAttribute("aria-hidden", "true");
-        media.appendChild(icon);
-      } else {
-        const icon = document.createElement("span");
-icon.className = "ui-tile-svg-icon";
-const iconUrl = new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href;
-icon.style.webkitMaskImage = 'url("' + iconUrl + '")';
-icon.style.maskImage = 'url("' + iconUrl + '")';
-media.appendChild(icon);
-      }
-      card.append(body, media);
+      const card = window.__3bComponents.itemCard.render({
+        item,
+        href: new URL("product/?slug=" + encodeURIComponent(item.slug), baseUrl()).href,
+        imageUrl: item.image_path ? product.publicImageUrl(item.image_path) : "",
+        icon: item.icon || "",
+        iconUrl: !item.image_path && !item.icon ? new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href : ""
+      });
       grid.appendChild(card);
     });
     section.appendChild(grid);
