@@ -73,7 +73,8 @@
       section.className = "intro-component ui-section";
       section.setAttribute("aria-label", "Introduction");
 
-      const card = window.__3bComponents.sectionCard.render({ tag: "article", size: "large", className: "intro-card" });
+      const card = document.createElement("article");
+      card.className = "ui-section-card ui-size-large intro-card";
 
       const visual = document.createElement("div");
       visual.className = hasImage ? "intro-visual intro-visual-image" : "intro-visual intro-visual-tech";
