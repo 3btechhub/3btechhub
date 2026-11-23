@@ -9,6 +9,7 @@
 
   const style = document.createElement("style");
   style.textContent = `
+    /* Independent positioning; shares only the 20px top alignment */
     #site-page-title {
       position: fixed;
       top: 20px;
