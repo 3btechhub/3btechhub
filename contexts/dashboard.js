@@ -34,7 +34,7 @@
       .intro-admin-preview{display:flex;flex-direction:column;gap:var(--space-element);margin-top:var(--space-section)}
       .intro-admin-preview #intro-preview{width:100%}
       .intro-admin-preview #intro-preview>.intro-component{width:100%;margin:0;cursor:pointer}\n      .intro-admin-preview #intro-preview>.intro-component:focus-visible{outline:2px solid var(--color-primary);outline-offset:4px;border-radius:var(--radius-card)}
-      .intro-admin-status{min-height:22px;color:var(--color-muted);font-size:14px}
+      .intro-admin-status{min-height:var(--size-status-line);color:var(--color-muted);font-size:var(--font-size-sm)}
     `;
     document.head.appendChild(style);
     const panel = document.createElement("section");
