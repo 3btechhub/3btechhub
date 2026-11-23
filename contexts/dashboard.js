@@ -35,7 +35,7 @@
       .intro-image-preview{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:8px}
       .intro-admin-preview{display:flex;flex-direction:column;gap:var(--space-element);margin-top:var(--space-section)}
       .intro-admin-preview #intro-preview{width:100%}
-      .intro-admin-preview #intro-preview>.intro-component{width:100%;margin:0}
+      .intro-admin-preview #intro-preview>.intro-component{width:100%;margin:0;cursor:pointer}\n      .intro-admin-preview #intro-preview>.intro-component:focus-visible{outline:2px solid var(--color-primary);outline-offset:4px;border-radius:var(--radius-card)}
       .intro-admin-status{min-height:22px;color:var(--color-muted);font-size:14px}
     `;
     document.head.appendChild(style);
@@ -60,7 +60,23 @@
       const preview = $("#intro-preview");
       preview.replaceChildren();
       const component = window.__3bComponents?.intro?.render(content || {}, service.publicImageUrl(content?.image_path), { fallback: true });
-      if (component) preview.appendChild(component);
+      if (component) {
+        component.setAttribute("role", "button");
+        component.setAttribute("tabindex", "0");
+        component.setAttribute("aria-label", "Edit Intro preview");
+        const activateEdit = () => {
+          status("Editing Intro.");
+          $("#intro-heading").focus({ preventScroll: true });
+          $("#intro-heading").scrollIntoView({ behavior: "smooth", block: "center" });
+        };
+        component.addEventListener("click", activateEdit);
+        component.addEventListener("keydown", event => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          event.preventDefault();
+          activateEdit();
+        });
+        preview.appendChild(component);
+      }
     };
     try {
       const [roles, content] = await Promise.all([service.getRoles(), service.getContent()]);
