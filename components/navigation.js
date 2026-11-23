@@ -3,7 +3,6 @@
   "use strict";
 
   const ROOT_ID = "site-navigation";
-  const STYLE_ID = "site-navigation-styles";
 
   function initializeNavigation() {
     if (document.getElementById(ROOT_ID)) return;
@@ -21,97 +20,6 @@
       { label: "Dashboard", href: new URL("dashboard/index.html", siteRoot).href }
     ];
 
-    if (!document.getElementById(STYLE_ID)) {
-      const style = document.createElement("style");
-      style.id = STYLE_ID;
-      style.textContent = `
-        #${ROOT_ID} {
-          position: fixed;
-          left: 50%;
-          bottom: 20px;
-          z-index: 10000;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          transform: translateX(-50%);
-          font: inherit;
-        }
-
-        #${ROOT_ID} .navigation-menu {
-          display: none;
-          min-width: 190px;
-          padding: 8px;
-          margin: 0;
-          list-style: none;
-          border-radius: 16px;
-        }
-
-        #${ROOT_ID}[data-open="true"] .navigation-menu {
-          display: block;
-        }
-
-        #${ROOT_ID} .navigation-menu a,
-        #${ROOT_ID} .navigation-menu button {
-          box-sizing: border-box;
-          display: block;
-          width: 100%;
-          padding: 12px 14px;
-          border: 0;
-          border-radius: 10px;
-          background: transparent;
-          text-align: left;
-          text-decoration: none;
-          font: inherit;
-          cursor: pointer;
-        }
-
-
-
-        #${ROOT_ID} .navigation-toggle {
-          width: 58px;
-          height: 58px;
-          padding: 0;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid var(--color-border);
-          border-radius: 50%;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-        }
-
-
-        #${ROOT_ID} .navigation-toggle svg {
-          display: block;
-          width: 25px;
-          height: 25px;
-          fill: none;
-          stroke: currentColor;
-          stroke-width: 2;
-          stroke-linecap: round;
-          stroke-linejoin: round;
-        }
-
-        #${ROOT_ID} .navigation-toggle .navigation-icon-open {
-          display: block;
-        }
-
-        #${ROOT_ID} .navigation-toggle .navigation-icon-close {
-          display: none;
-        }
-
-        #${ROOT_ID}[data-open="true"] .navigation-toggle .navigation-icon-open {
-          display: none;
-        }
-
-        #${ROOT_ID}[data-open="true"] .navigation-toggle .navigation-icon-close {
-          display: block;
-        }
-      `;
-      document.head.appendChild(style);
-    }
-
     const root = document.createElement("div");
     root.id = ROOT_ID;
     root.dataset.open = "false";
@@ -121,7 +29,7 @@
     menu.setAttribute("aria-label", "Main navigation");
 
     const list = document.createElement("ul");
-    list.style.cssText = "list-style:none;padding:0;margin:0;";
+    list.className = "navigation-list";
 
     function closeMenu() {
       root.dataset.open = "false";
