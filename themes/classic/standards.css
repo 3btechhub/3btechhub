@@ -101,3 +101,24 @@ select, textarea {
     --space-section: 24px;
   }
 }
+
+/* One global style for the theme-mode control */
+.theme-mode-toggle {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1100;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
+  font: 22px/1 var(--font-family);
+  cursor: pointer;
+}
