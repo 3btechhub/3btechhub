@@ -4,36 +4,46 @@
   if (customElements.get("section-card")) return;
 
   class SectionCard extends HTMLElement {
+    static get observedAttributes() {
+      return ["title", "description"];
+    }
+
     connectedCallback() {
       if (this.dataset.initialized === "true") return;
       this.dataset.initialized = "true";
 
-      const section = document.createElement("section");
-      section.className = "section-card";
+      this.section = document.createElement("section");
+      this.section.className = "section-card";
 
-      const title = this.getAttribute("title");
-      const description = this.getAttribute("description");
+      this.heading = document.createElement("h2");
+      this.heading.className = "section-card__title";
 
-      if (title) {
-        const heading = document.createElement("h2");
-        heading.className = "section-card__title";
-        heading.textContent = title;
-        section.appendChild(heading);
-      }
+      this.description = document.createElement("p");
+      this.description.className = "section-card__description";
 
-      if (description) {
-        const summary = document.createElement("p");
-        summary.className = "section-card__description";
-        summary.textContent = description;
-        section.appendChild(summary);
-      }
+      this.content = document.createElement("div");
+      this.content.className = "section-card__content";
 
-      const content = document.createElement("div");
-      content.className = "section-card__content";
+      while (this.firstChild) this.content.appendChild(this.firstChild);
 
-      while (this.firstChild) content.appendChild(this.firstChild);
-      section.appendChild(content);
-      this.appendChild(section);
+      this.section.append(this.heading, this.description, this.content);
+      this.appendChild(this.section);
+      this.updateText();
+    }
+
+    attributeChangedCallback() {
+      if (this.section) this.updateText();
+    }
+
+    updateText() {
+      const title = this.getAttribute("title") || "";
+      const description = this.getAttribute("description") || "";
+
+      this.heading.textContent = title;
+      this.heading.hidden = !title;
+
+      this.description.textContent = description;
+      this.description.hidden = !description;
     }
   }
 
