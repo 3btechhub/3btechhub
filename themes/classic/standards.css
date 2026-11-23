@@ -154,5 +154,5 @@ button, input, select, textarea { font: inherit; }
 
 /* Global visibility selector: shared by Intro and all dashboard modules */
 .ui-visibility-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.ui-visibility-option{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--color-border);border-radius:8px}
+.ui-visibility-option{display:flex;align-items:center;gap:9px;padding:0;border:0;border-radius:0}
 .ui-visibility-option input{flex:0 0 auto}
