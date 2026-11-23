@@ -2,6 +2,9 @@
 :root {
   color-scheme: dark;
 
+  /* Shared spacing */
+  --space: 16px;
+
   /* Backgrounds and surfaces */
   --color-background: #121212;
   --color-surface: #1e1e1e;
