@@ -116,9 +116,9 @@ button, input, select, textarea { font: inherit; }
   max-width: var(--content-width-section);
   min-width: 0;
   margin: var(--space-section) auto;
-  padding: var(--card-padding-medium);
+  padding: var(--ui-card-padding, var(--card-padding-medium));
   border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-card-medium);
+  border-radius: var(--ui-radius-card, var(--radius-card-medium));
   background: var(--color-surface);
   color: var(--color-text);
   box-shadow: var(--shadow-card);
@@ -307,3 +307,8 @@ body[data-context] { width: 100%; min-width: 0; }
 .ui-section-card.ui-size-small { padding: var(--card-padding-small); border-radius: var(--radius-card-small); }
 .ui-section-card.ui-size-medium { padding: var(--card-padding-medium); border-radius: var(--radius-card-medium); }
 .ui-section-card.ui-size-large { padding: var(--card-padding-large); border-radius: var(--radius-card-large); }
+
+/* Section card uses the shared three-level size API. */
+.ui-section-card.ui-size-small { --ui-card-padding: var(--card-padding-small); --ui-radius-card: var(--radius-card-small); }
+.ui-section-card.ui-size-medium { --ui-card-padding: var(--card-padding-medium); --ui-radius-card: var(--radius-card-medium); }
+.ui-section-card.ui-size-large { --ui-card-padding: var(--card-padding-large); --ui-radius-card: var(--radius-card-large); }
