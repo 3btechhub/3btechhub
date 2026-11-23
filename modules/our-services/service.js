@@ -10,21 +10,21 @@
     },
     async listPublic() {
       const { data, error } = await supabase().from("our_services")
-        .select("id,name,slug,icon,image_path,description,details,visible_role_ids,status,sort_order")
+        .select("id,name,slug,icon,image_path,visible_role_ids,status,sort_order")
         .eq("status", "published").order("sort_order").order("created_at");
       if (error) throw error;
       return data || [];
     },
     async getPublicBySlug(slug) {
       const { data, error } = await supabase().from("our_services")
-        .select("id,name,slug,icon,image_path,description,details,visible_role_ids,status")
+        .select("id,name,slug,icon,image_path,visible_role_ids,status")
         .eq("slug", slug).eq("status", "published").maybeSingle();
       if (error) throw error;
       return data;
     },
     async listManage() {
       const { data, error } = await supabase().from("our_services")
-        .select("id,name,slug,icon,image_path,description,details,visible_role_ids,status,sort_order,created_at")
+        .select("id,name,slug,icon,image_path,visible_role_ids,status,sort_order,created_at")
         .order("sort_order").order("created_at", { ascending: false });
       if (error) throw error;
       return data || [];
@@ -35,8 +35,6 @@
         slug: String(values.slug || "").trim().toLowerCase(),
         icon: String(values.icon || "").trim(),
         image_path: values.image_path || null,
-        description: String(values.description || "").trim(),
-        details: String(values.details || "").trim(),
         visible_role_ids: Array.isArray(values.visible_role_ids) ? values.visible_role_ids : [],
         status: values.status === "published" ? "published" : "draft"
       };
