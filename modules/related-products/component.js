@@ -16,7 +16,7 @@
       .related-products-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
       .related-product-tile{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);min-height:104px}
       .related-product-tile .ui-tile-content{min-width:0}
-      .related-product-tile-media{display:flex;flex:0 0 56px;width:56px;height:56px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted,transparent);font-size:30px}
+      .related-product-tile-media{display:flex;flex:0 0 56px;width:56px;height:56px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:color-mix(in srgb,var(--color-primary) 9%,var(--color-surface));}
       .related-product-tile-media img{width:100%;height:100%;object-fit:cover}
       .related-product-details{width:min(100% - (2 * var(--page-padding)),900px);margin:var(--space-section) auto}
       .related-product-details-image{display:block;width:100%;max-height:440px;object-fit:cover;border-radius:var(--radius-card);margin-bottom:var(--space-element)}
@@ -44,7 +44,7 @@
       .related-products-admin-visibility{display:grid;gap:3px;color:var(--color-muted);font-size:13px}
       .related-products-admin-visibility-label{font-weight:600}
       .related-products-admin-visibility-value{overflow-wrap:anywhere}
-      .related-products-admin-media{display:flex;flex:0 0 76px;width:76px;height:76px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted,transparent);font-size:36px}
+      .related-products-admin-media{display:flex;flex:0 0 76px;width:76px;height:76px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:color-mix(in srgb,var(--color-primary) 9%,var(--color-surface));}
       .related-products-admin-media img{width:100%;height:100%;object-fit:cover}
       .related-products-admin-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .related-products-admin-list .ui-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
@@ -96,11 +96,12 @@
         icon.setAttribute("aria-hidden", "true");
         media.appendChild(icon);
       } else {
-        const icon = document.createElement("img");
-        icon.src = new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href;
-        icon.alt = "";
-        icon.loading = "lazy";
-        media.appendChild(icon);
+        const icon = document.createElement("span");
+icon.className = "ui-tile-svg-icon";
+const iconUrl = new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href;
+icon.style.webkitMaskImage = 'url("' + iconUrl + '")';
+icon.style.maskImage = 'url("' + iconUrl + '")';
+media.appendChild(icon);
       }
       card.append(body, media);
       grid.appendChild(card);
