@@ -9,3 +9,91 @@
   /* Shared spacing */
   --space: 16px;
 }
+
+/* Navigation layout and presentation. Colors come from the active palette. */
+#site-navigation {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(-50%);
+  font: inherit;
+}
+#site-navigation .navigation-menu {
+  display: none;
+  min-width: 190px;
+  padding: 8px;
+  margin: 0;
+  list-style: none;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 6px 24px var(--shadow-color);
+}
+#site-navigation[data-open="true"] .navigation-menu { display: block; }
+#site-navigation .navigation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+#site-navigation .navigation-menu a,
+#site-navigation .navigation-menu button {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text);
+  text-align: left;
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
+}
+#site-navigation .navigation-menu a:hover,
+#site-navigation .navigation-menu a:focus-visible,
+#site-navigation .navigation-menu button:hover,
+#site-navigation .navigation-menu button:focus-visible {
+  background: var(--color-surface-raised);
+  outline: none;
+}
+#site-navigation .navigation-toggle {
+  box-sizing: border-box;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  background: var(--color-button-secondary-bg);
+  color: var(--color-button-secondary-text);
+  box-shadow: 0 4px 14px var(--shadow-color);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+#site-navigation .navigation-toggle:focus-visible {
+  outline: 3px solid var(--color-border);
+  outline-offset: 3px;
+}
+#site-navigation .navigation-toggle svg {
+  display: block;
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+#site-navigation .navigation-icon-open { display: block; }
+#site-navigation .navigation-icon-close { display: none; }
+#site-navigation[data-open="true"] .navigation-icon-open { display: none; }
+#site-navigation[data-open="true"] .navigation-icon-close { display: block; }
