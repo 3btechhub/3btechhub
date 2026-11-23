@@ -22,15 +22,6 @@
     }
   };
 
-  const loadStylesheet = (name) => new Promise((resolve, reject) => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = new URL(name, document.currentScript?.src || document.baseURI).href;
-    link.onload = resolve;
-    link.onerror = () => reject(new Error("Unable to load Classic theme stylesheet: " + name));
-    document.head.appendChild(link);
-  });
-
   const scriptUrl = document.currentScript.src;
   const themeBase = new URL(".", scriptUrl);
   const addStylesheet = name => new Promise((resolve, reject) => {
