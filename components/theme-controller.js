@@ -3,7 +3,7 @@
 
   const KEY = "3btechhub-color-mode";
   const THEME = "classic";
-  const MODES = ["system", "light", "dark"];
+  const MODES = ["light", "dark"];
   const script = document.currentScript;
   if (!script) return;
 
@@ -11,21 +11,13 @@
 
   function readMode() {
     try {
-      const saved = localStorage.getItem(KEY);
-      return MODES.includes(saved) ? saved : "system";
+      return localStorage.getItem(KEY) === "dark" ? "dark" : "light";
     } catch {
-      return "system";
+      return "light";
     }
   }
 
   let mode = readMode();
-  const systemMode = matchMedia("(prefers-color-scheme: dark)");
-
-  function getEffectiveMode() {
-    return mode === "system"
-      ? systemMode.matches ? "dark" : "light"
-      : mode;
-  }
 
   function loadStyle(id, file) {
     const href = new URL(file, themesUrl).href;
@@ -43,8 +35,8 @@
 
   function applyTheme() {
     loadStyle("theme-standard", `${THEME}/standard.css`);
-    loadStyle("theme-colors", `${THEME}/${getEffectiveMode()}.css`);
-    document.documentElement.dataset.colorMode = getEffectiveMode();
+    loadStyle("theme-colors", `${THEME}/${mode}.css`);
+    document.documentElement.dataset.colorMode = mode;
   }
 
   function setMode(value) {
@@ -59,10 +51,6 @@
     applyTheme();
   }
 
-  systemMode.addEventListener("change", () => {
-    if (mode === "system") applyTheme();
-  });
-
   window.addEventListener("storage", event => {
     if (event.key === KEY) {
       mode = readMode();
@@ -72,7 +60,6 @@
 
   window.ThemeController = {
     getMode: () => mode,
-    getEffectiveMode,
     setMode
   };
 
