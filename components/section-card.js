@@ -21,19 +21,15 @@
       this.description = document.createElement("p");
       this.description.className = "section-card__description";
 
-      this.content = document.createElement("div");
-      this.content.className = "section-card__content";
-
-      this.section.append(this.heading, this.description, this.content);
+      this.section.append(this.heading, this.description);
       this.appendChild(this.section);
 
-      // Custom elements connect when their opening tag is parsed.
-      // Move subsequently parsed light-DOM children into the content area.
+      // Keep every child component directly inside the Section Card.
       this.childObserver = new MutationObserver(records => {
         for (const record of records) {
           for (const node of record.addedNodes) {
             if (node !== this.section && node.parentNode === this) {
-              this.content.appendChild(node);
+              this.section.appendChild(node);
             }
           }
         }
