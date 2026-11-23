@@ -41,10 +41,10 @@
     panel.className = "intro-admin";
     panel.innerHTML = `
       <h2>Intro — Home Component</h2>
-      <div class="intro-admin-field ui-form-field"><label for="intro-heading">Heading</label><input id="intro-heading" class="ui-form-control" type="text" maxlength="180" autocomplete="off"></div>
-      <div class="intro-admin-field ui-form-field"><label for="intro-sub-heading">Sub Heading</label><input id="intro-sub-heading" class="ui-form-control" type="text" maxlength="300" autocomplete="off"></div>
-      <div class="intro-admin-field ui-form-field"><label for="intro-visual-type">Card Design</label><select id="intro-visual-type" class="ui-form-control"><option value="default">Default Technology Card</option><option value="image">Uploaded Image</option></select></div>
-      <div class="intro-admin-field ui-form-field" id="intro-image-field"><label for="intro-image">Select Image</label><input id="intro-image" class="ui-form-control" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
+      <div class="intro-admin-field ui-form-field"><label for="intro-heading">Heading</label><input id="intro-heading" class="ui-input" type="text" maxlength="180" autocomplete="off"></div>
+      <div class="intro-admin-field ui-form-field"><label for="intro-sub-heading">Sub Heading</label><input id="intro-sub-heading" class="ui-input" type="text" maxlength="300" autocomplete="off"></div>
+      <div class="intro-admin-field ui-form-field"><label for="intro-visual-type">Card Design</label><select id="intro-visual-type" class="ui-select"><option value="default">Default Technology Card</option><option value="image">Uploaded Image</option></select></div>
+      <div class="intro-admin-field ui-form-field" id="intro-image-field"><label for="intro-image">Select Image</label><input id="intro-image" class="ui-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
       <div class="intro-admin-field ui-form-field"><label>Visibility</label><div id="ui-visibility-list" class="ui-visibility-list"></div></div>
       <button id="intro-save" class="ui-button ui-button-primary" type="button">Save Intro</button>
       <p id="intro-status" class="intro-admin-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
