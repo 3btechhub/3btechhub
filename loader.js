@@ -21,6 +21,8 @@
     "services/intro.js",
     "components/intro.js",
     "components/item-card.js",
+    "components/visibility.js",
+    "components/module-dashboard.js",
     "modules/our-services/service.js",
     "modules/our-services/component.js",
     "modules/our-services/home.js",
