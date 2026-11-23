@@ -26,15 +26,24 @@
       box-shadow: var(--shadow-card);
     }
     #site-navigation.is-open .nav-menu { display: block; }
-    #site-navigation .nav-menu a {
+    #site-navigation .nav-menu a,
+    #site-navigation .menu-theme-toggle {
       display: block;
+      width: 100%;
       padding: 12px 16px;
       color: var(--color-text);
+      text-align: left;
       text-decoration: none;
+      border: 0;
       border-radius: 8px;
+      background: transparent;
+      font: inherit;
+      cursor: pointer;
     }
     #site-navigation .nav-menu a:hover,
-    #site-navigation .nav-menu a:focus-visible {
+    #site-navigation .nav-menu a:focus-visible,
+    #site-navigation .menu-theme-toggle:hover,
+    #site-navigation .menu-theme-toggle:focus-visible {
       background: var(--color-hover);
       outline: none;
     }
@@ -66,6 +75,7 @@
       <li><a href="${basePath}">Home</a></li>
       <li><a href="${basePath}account/">Account</a></li>
       <li><a href="${basePath}dashboard/">Dashboard</a></li>
+      <li><button id="theme-mode-toggle" class="menu-theme-toggle" type="button">Dark mode</button></li>
     </ul>
     <button class="nav-toggle" type="button" aria-label="Open menu"
       aria-expanded="false" aria-controls="site-nav-menu">
@@ -88,4 +98,5 @@
   });
 
   document.body.appendChild(nav);
+  document.dispatchEvent(new Event("3b-navigation-ready"));
 })();
