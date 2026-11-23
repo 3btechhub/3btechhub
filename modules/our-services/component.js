@@ -12,14 +12,9 @@
     style.textContent = `
       .our-services-section{width:min(100% - (2 * var(--page-padding)),1120px);margin:var(--space-section) auto;color:var(--color-text)}
       .our-services-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,245px),1fr));gap:var(--space-element)}
-      .our-service-card{--ui-card-padding:0;display:flex;flex-direction:column;min-width:0;overflow:hidden;padding:0;color:var(--color-text);text-decoration:none;transition:border-color .18s ease,transform .18s ease}
-      .our-service-card:hover{transform:translateY(-2px);border-color:var(--color-primary)}
-      .our-service-card-media{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:16/9;overflow:hidden;background:color-mix(in srgb,var(--color-primary) 9%,var(--color-surface));color:var(--color-primary)}
-      .our-service-card-image{width:100%;height:100%;object-fit:cover}
-      .our-service-card-icon{font-size:clamp(36px,5vw,54px);line-height:1}
-      .our-service-card-body{display:grid;gap:8px;padding:var(--ui-card-content-padding)}
-      .our-service-card-title{margin:0;font-size:1.15rem;line-height:1.3}
-      .our-service-card-description{margin:0;color:var(--color-muted);font-size:.875rem;line-height:1.6;white-space:pre-line}
+      .our-service-tile{--ui-tile-padding:16px}
+      .our-services-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
+      .our-service-tile .ui-tile-media{flex:0 0 56px}
       .our-service-details{width:min(100% - (2 * var(--page-padding)),900px);margin:var(--space-section) auto}
       .our-service-details-image{display:block;width:100%;max-height:440px;object-fit:cover;border-radius:var(--radius-card);margin-bottom:var(--space-element)}
       .our-service-details-icon{font-size:var(--icon-size);margin-bottom:var(--space-element)}
@@ -61,13 +56,13 @@
     grid.className = "our-services-grid";
     items.forEach(item => {
       const card = document.createElement("a");
-      card.className = "our-service-card ui-card ui-card-medium";
+      card.className = "our-service-tile ui-tile";
       card.href = new URL("service/?slug=" + encodeURIComponent(item.slug), baseUrl()).href;
       const media = document.createElement("div");
-      media.className = "our-service-card-media";
+      media.className = "ui-tile-media";
       if (item.image_path) {
         const image = document.createElement("img");
-        image.className = "our-service-card-image";
+        image.className = "";
         image.src = service.publicImageUrl(item.image_path);
         image.alt = item.name;
         image.loading = "lazy";
@@ -75,20 +70,20 @@
         media.appendChild(image);
       } else {
         const icon = document.createElement("span");
-        icon.className = "our-service-card-icon";
+        icon.className = "ui-tile-icon";
         icon.textContent = item.icon || "✦";
         icon.setAttribute("aria-hidden", "true");
         media.appendChild(icon);
       }
       const body = document.createElement("div");
-      body.className = "our-service-card-body";
+      body.className = "ui-tile-content";
       const title = document.createElement("h2");
-      title.className = "our-service-card-title";
+      title.className = "ui-tile-title";
       title.textContent = item.name;
       body.appendChild(title);
       if (item.description) {
         const description = document.createElement("p");
-        description.className = "our-service-card-description";
+        description.className = "ui-tile-description";
         description.textContent = item.description;
         body.appendChild(description);
       }
