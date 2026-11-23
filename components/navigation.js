@@ -2,7 +2,7 @@
   "use strict";
 
   const scriptUrl = document.currentScript?.src || new URL("navigation.js", window.location.href).href;
-  const basePath = new URL(".", scriptUrl).pathname;
+  const basePath = new URL("../", scriptUrl).pathname;
   const functionUrl = "https://sburxeuxkrilbfppxylm.supabase.co/functions/v1/protected-page";
   const publishableKey = "sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT";
 
