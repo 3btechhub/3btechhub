@@ -46,7 +46,9 @@
     try {
       const [roles, content] = await Promise.all([service.getRoles(), service.getContent()]);
       currentContent = content || {};
-      imagePath = content?.image_path || null;\n      $("#intro-visual-type").value = imagePath ? "image" : "default";\n      $("#intro-image-field").hidden = !imagePath;
+      imagePath = content?.image_path || null;
+      $("#intro-visual-type").value = imagePath ? "image" : "default";
+      $("#intro-image-field").hidden = !imagePath;
       $("#intro-heading").value = content?.heading || "";
       $("#intro-sub-heading").value = content?.sub_heading || "";
       if (imagePath) {
@@ -93,13 +95,16 @@
 
     $("#intro-image").addEventListener("change", async event => {
       const file = event.target.files?.[0];
-      if (!file) return;\n      $("#intro-visual-type").value = "image";\n      $("#intro-image-field").hidden = false;
+      if (!file) return;
+      $("#intro-visual-type").value = "image";
+      $("#intro-image-field").hidden = false;
       try {
         status("Uploading image…");
         imagePath = await service.uploadImage(file);
         $("#intro-image-preview").src = service.publicImageUrl(imagePath);
         $("#intro-image-preview").hidden = false;
-        renderPreview({ heading: $("#intro-heading").value, sub_heading: $("#intro-sub-heading").value, image_path: imagePath });\n        status("Image uploaded. Save to apply it.");
+        renderPreview({ heading: $("#intro-heading").value, sub_heading: $("#intro-sub-heading").value, image_path: imagePath });
+        status("Image uploaded. Save to apply it.");
       } catch (error) {
         status(error.message || "Image upload failed.");
         event.target.value = "";
