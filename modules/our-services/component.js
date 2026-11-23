@@ -50,7 +50,7 @@
     ensureStyles();
     if (!items?.length) return null;
     const section = document.createElement("section");
-    section.className = "our-services-section";
+    section.className = "our-services-section ui-card ui-card-medium";
     section.setAttribute("aria-label", "Our Services");
     const grid = document.createElement("div");
     grid.className = "our-services-grid";
