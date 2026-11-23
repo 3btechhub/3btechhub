@@ -2,7 +2,11 @@
   "use strict";
   window.__3bContexts = window.__3bContexts || {};
   window.__3bContexts.dashboard = async root => {
-    if (!root || root.dataset.introMounted === "true") return;
+    if (!root) return;
+    if (window.__3bAccess?.has("module.our_services.manage")) {
+      await window.__3bModules?.ourServices?.mountDashboard?.(root);
+    }
+    if (root.dataset.introMounted === "true") return;
     root.dataset.introMounted = "true";
     if (!window.__3bAccess?.has("module.intro.manage")) return;
     const service = window.__3bIntroService;
