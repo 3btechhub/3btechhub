@@ -6,23 +6,21 @@
   <title>Account</title>
   <style>html.auth-pending { visibility: hidden; }</style>
   <script src="../components/theme-controller.js"></script>
-  <link rel="stylesheet" href="../themes/classic/standard.css">
-  <link rel="stylesheet" href="../themes/classic/light.css">
-  <link rel="stylesheet" href="../themes/classic/dark.css">
   <script type="module" src="../components/auth-guard.js"></script>
 </head>
 <body>
-  <main>
+  <main class="account-page">
     <form id="account-form">
-      <input type="text" id="account-name" name="name" placeholder="Name" aria-label="Name" readonly>
-      <input type="email" id="account-email" name="email" placeholder="Email" aria-label="Email" readonly>
-      <button type="button" id="logout-button">Logout</button>
+      <input type="text" id="account-name" name="name" placeholder="Name" aria-label="Name" autocomplete="name" readonly>
+      <input type="email" id="account-email" name="email" placeholder="Email" aria-label="Email" autocomplete="email" readonly>
+      <button type="submit" id="logout-button">Logout</button>
     </form>
   </main>
   <script src="../components/navigation.js"></script>
   <script type="module">
     import { supabase } from "../components/supabase-client.js";
 
+    const form = document.getElementById("account-form");
     const nameField = document.getElementById("account-name");
     const emailField = document.getElementById("account-email");
     const logoutButton = document.getElementById("logout-button");
@@ -35,10 +33,11 @@
       emailField.value = user.email || "";
     }
 
-    logoutButton.addEventListener("click", async () => {
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
       logoutButton.disabled = true;
-      const { error } = await supabase.auth.signOut();
 
+      const { error } = await supabase.auth.signOut();
       if (error) {
         console.error("Logout failed.", error);
         logoutButton.disabled = false;
@@ -52,5 +51,13 @@
       console.error("Could not load account details.", error);
     });
   </script>
+  <style>
+    .account-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
 </body>
 </html>
