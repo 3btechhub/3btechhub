@@ -37,7 +37,7 @@
       .our-services-admin-media>.ui-tile-svg-icon{flex:0 0 var(--icon-size)}
       .our-services-admin-list .ui-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .our-services-preview{display:block;max-width:260px;max-height:150px;object-fit:cover;border-radius:var(--radius-control)}
-      @media(max-width:520px){.our-services-admin-item{grid-template-columns:1fr;align-items:flex-start}.our-services-admin-meta{justify-content:flex-start;text-align:left}}
+      
     `;
     document.head.appendChild(style);
   }
