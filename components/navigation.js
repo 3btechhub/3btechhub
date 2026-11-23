@@ -64,7 +64,7 @@
           border: 0;
           border-radius: 10px;
           background: transparent;
-          color: inherit;
+          color: var(--color-link, var(--color-text, CanvasText));
           text-align: left;
           text-decoration: none;
           font: inherit;
@@ -75,7 +75,7 @@
         #${ROOT_ID} .navigation-menu a:focus-visible,
         #${ROOT_ID} .navigation-menu button:hover,
         #${ROOT_ID} .navigation-menu button:focus-visible {
-          background: var(--color-hover, rgba(128,128,128,.14));
+          background: var(--color-surface-raised, var(--color-surface, rgba(128,128,128,.14)));
           outline: none;
         }
 
@@ -88,7 +88,7 @@
           justify-content: center;
           border: 1px solid var(--color-border, rgba(128,128,128,.35));
           border-radius: 50%;
-          background: var(--color-accent, #222);
+          background: var(--color-button-primary-bg, var(--color-accent, #222));
           color: var(--color-button-primary-text, #fff);
           box-shadow: 0 4px 14px var(--shadow-color, rgba(0,0,0,.2));
           cursor: pointer;
