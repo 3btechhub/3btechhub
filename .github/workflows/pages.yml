@@ -1,5 +1,7 @@
 name: Deploy static site to GitHub Pages
 
+run-name: Deploy 3B TECH HUB from ${{ github.ref_name }}
+
 on:
   push:
     branches: ["main"]
