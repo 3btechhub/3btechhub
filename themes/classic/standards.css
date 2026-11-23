@@ -55,12 +55,12 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html { font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); -webkit-text-size-adjust: 100%; }
-body { width: 100%; min-width: 0; margin: 0; min-height: 100vh; font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); }
+body { display: block; width: 100%; max-width: 100%; min-width: 0; margin: 0; min-height: 100vh; overflow-x: clip; font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); }
 img, svg, video, canvas { max-width: 100%; }
 /* Native controls inherit typography; shared ui-* classes own their complete appearance. */
 button, input, select, textarea { font: inherit; }
-.ui-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); margin-inline: auto; }
-.page-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); margin-inline: auto; }
+.ui-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); min-width: 0; margin-inline: auto; }
+.page-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); min-width: 0; margin-inline: auto; }
 
 .ui-card-large { --ui-card-padding: 32px; --ui-card-content-padding: 32px; }
 .ui-card-medium { --ui-card-padding: 20px; --ui-card-content-padding: 20px; }
@@ -202,6 +202,12 @@ button, input, select, textarea { font: inherit; }
 .ui-visibility-option{display:flex;align-items:center;gap:var(--space-xs);padding:0;border:0;border-radius:0}
 .ui-visibility-option input{flex:0 0 auto}
 
+
+/* Shared responsive page canvas: the page adapts to the viewport; components retain their global dimensions. */
+body > :not(#site-navigation) { min-width: 0; max-width: 100%; }
+body[data-context] { width: 100%; min-width: 0; }
+#protected-content { width: 100%; min-width: 0; max-width: 100%; }
+#dashboard-content { width: 100%; min-width: 0; max-width: 100%; }
 
 /* Shared page shells */
 .ui-auth-page, .ui-dashboard-page {
