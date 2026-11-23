@@ -62,6 +62,8 @@
   nav.innerHTML = `
     <ul class="nav-menu" id="site-nav-menu">
       <li><a href="./">Home</a></li>
+      <li><a href="./account.html">Account</a></li>
+      <li><a href="./dashboard.html">Dashboard</a></li>
     </ul>
     <button class="nav-toggle" type="button" aria-label="Open menu"
       aria-expanded="false" aria-controls="site-nav-menu">
