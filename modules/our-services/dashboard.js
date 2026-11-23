@@ -13,10 +13,10 @@
       <div id="our-services-list" class="our-services-admin-list ui-stack"></div>
       <h2 id="our-services-form-title">Add Service</h2>
       <form id="our-services-form" class="ui-form">
-        <div class="our-services-field ui-form-field"><label class="ui-form-label" for="os-name">Name</label><input id="os-name" class="ui-form-control" type="text" maxlength="180" required></div>
-        <div class="our-services-field"><label class="ui-form-label" for="os-slug">Slug</label><input id="os-slug" class="ui-form-control" type="text" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></div>
-        <div class="our-services-field"><label class="ui-form-label" for="os-icon">Icon</label><input id="os-icon" class="ui-form-control" type="text" maxlength="80" placeholder="Emoji or icon text"></div>
-        <div class="our-services-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" class="ui-form-control" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="our-services-preview" alt="Service image preview" hidden></div>
+        <div class="our-services-field ui-form-field"><label class="ui-form-label" for="os-name">Name</label><input id="os-name" class="ui-input" type="text" maxlength="180" required></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-slug">Slug</label><input id="os-slug" class="ui-input" type="text" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-icon">Icon</label><input id="os-icon" class="ui-input" type="text" maxlength="80" placeholder="Emoji or icon text"></div>
+        <div class="our-services-field"><label class="ui-form-label" for="os-image">Image</label><input id="os-image" class="ui-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="os-image-preview" class="our-services-preview" alt="Service image preview" hidden></div>
         <div class="our-services-field"><label class="ui-form-label">Visibility</label><div id="os-roles" class="ui-visibility-list"></div></div>
         <div class="our-services-form-actions ui-form-actions"><button class="ui-button ui-button-primary primary" type="submit">Save Service</button><button id="os-cancel" class="ui-button" type="button">Cancel</button><button id="os-delete" class="ui-button danger" type="button" hidden>Delete</button></div>
       </form>
