@@ -16,7 +16,7 @@
       .our-services-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr))}
       .our-service-tile{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);min-height:104px}
       .our-service-tile .ui-tile-content{min-width:0}
-      .our-service-tile-media{display:flex;flex:0 0 56px;width:56px;height:56px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted,transparent);font-size:30px}
+      .our-service-tile-media{display:flex;flex:0 0 56px;width:56px;height:56px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:color-mix(in srgb,var(--color-primary) 9%,var(--color-surface));}
       .our-service-tile-media img{width:100%;height:100%;object-fit:cover}
       .our-service-details{width:min(100% - (2 * var(--page-padding)),900px);margin:var(--space-section) auto}
       .our-service-details-image{display:block;width:100%;max-height:440px;object-fit:cover;border-radius:var(--radius-card);margin-bottom:var(--space-element)}
@@ -44,7 +44,7 @@
       .our-services-admin-visibility{display:grid;gap:3px;color:var(--color-muted);font-size:13px}
       .our-services-admin-visibility-label{font-weight:600}
       .our-services-admin-visibility-value{overflow-wrap:anywhere}
-      .our-services-admin-media{display:flex;flex:0 0 76px;width:76px;height:76px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:var(--color-surface-muted,transparent);font-size:36px}
+      .our-services-admin-media{display:flex;flex:0 0 76px;width:76px;height:76px;align-items:center;justify-content:center;overflow:hidden;border-radius:var(--radius-control);background:color-mix(in srgb,var(--color-primary) 9%,var(--color-surface));}
       .our-services-admin-media img{width:100%;height:100%;object-fit:cover}
       .our-services-admin-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .our-services-admin-list .ui-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
@@ -96,11 +96,12 @@
         icon.setAttribute("aria-hidden", "true");
         media.appendChild(icon);
       } else {
-        const icon = document.createElement("img");
-        icon.src = new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href;
-        icon.alt = "";
-        icon.loading = "lazy";
-        media.appendChild(icon);
+        const icon = document.createElement("span");
+icon.className = "ui-tile-svg-icon";
+const iconUrl = new URL("assets/icons/" + item.slug + ".svg", baseUrl()).href;
+icon.style.webkitMaskImage = 'url("' + iconUrl + '")';
+icon.style.maskImage = 'url("' + iconUrl + '")';
+media.appendChild(icon);
       }
       card.append(body, media);
       grid.appendChild(card);
