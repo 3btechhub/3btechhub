@@ -18,8 +18,6 @@ create table if not exists public.our_services (
 
 create unique index if not exists our_services_slug_uidx on public.our_services (lower(slug));
 create index if not exists our_services_public_order_idx on public.our_services (sort_order, created_at) where status = 'published';
-create index if not exists our_services_created_by_idx on public.our_services (created_by);
-create index if not exists our_services_updated_by_idx on public.our_services (updated_by);
 
 alter table public.our_services enable row level security;
 revoke all on public.our_services from anon, authenticated;
