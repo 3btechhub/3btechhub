@@ -37,7 +37,7 @@
       .related-products-admin-media>.ui-tile-svg-icon{flex:0 0 var(--icon-size)}
       .related-products-admin-list .ui-tile:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
       .related-products-preview{display:block;max-width:260px;max-height:150px;object-fit:cover;border-radius:var(--radius-control)}
-      @media(max-width:520px){.related-products-admin-item{grid-template-columns:1fr;align-items:flex-start}.related-products-admin-meta{justify-content:flex-start;text-align:left}}
+      
     `;
     document.head.appendChild(style);
   }
