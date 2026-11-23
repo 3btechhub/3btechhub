@@ -72,28 +72,14 @@
 
   function updateModeLabel() {
     const theme = window.ThemeController;
-    if (!theme) {
-      modeButton.textContent = "Color mode";
-      return;
-    }
-
-    const mode = theme.getMode();
-    modeButton.textContent = mode === "system"
-      ? "Use light or dark mode"
-      : mode === "dark" ? "Light mode" : "Dark mode";
+    modeButton.textContent = theme?.getMode() === "dark" ? "Light Mode" : "Dark Mode";
   }
 
   modeButton.addEventListener("click", () => {
     const theme = window.ThemeController;
     if (!theme) return;
 
-    const next = {
-      system: "light",
-      light: "dark",
-      dark: "system"
-    }[theme.getMode()];
-
-    theme.setMode(next);
+    theme.setMode(theme.getMode() === "dark" ? "light" : "dark");
     updateModeLabel();
   });
 
@@ -120,11 +106,6 @@
 
   window.addEventListener("storage", event => {
     if (event.key === "3btechhub-color-mode") updateModeLabel();
-  });
-
-  const systemMode = matchMedia("(prefers-color-scheme: dark)");
-  systemMode.addEventListener("change", () => {
-    if (window.ThemeController?.getMode() === "system") updateModeLabel();
   });
 
   updateModeLabel();
