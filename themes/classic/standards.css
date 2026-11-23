@@ -105,7 +105,7 @@ select, textarea {
 /* One global style for the theme-mode control */
 .theme-mode-toggle {
   position: fixed;
-  top: 18px;
+  top: 20px;
   right: 18px;
   z-index: 1100;
   display: grid;
