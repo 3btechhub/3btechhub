@@ -1,8 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Dashboard | 3B TECH HUB</title>
-<style>body{margin:0;min-height:100vh;padding:32px 18px 110px;display:grid;place-items:center;background:var(--color-bg);color:var(--color-text);font-family:var(--font-family)} #protected-content{visibility:hidden}</style>
-<script src="../loader.js"></script></head><body data-page-title="Dashboard"><div id="protected-content"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../supabase/client.js"></script>
+<style>body{margin:0;min-height:100vh;padding:32px 18px 110px;background:var(--color-bg);color:var(--color-text);font-family:var(--font-family)} #protected-content{visibility:hidden}</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../supabase/client.js"></script><script src="../loader.js"></script></head><body data-page-title="Dashboard" data-context="dashboard"><div id="protected-content"></div>
 <script>
 (async()=>{
  const supabase=window.supabaseClient;
@@ -18,9 +17,12 @@
   if(!response.ok)throw new Error("Dashboard could not be loaded.");
   const result=await response.json();
   if(typeof result.html!=="string"){window.location.replace("../");return;}
-  document.getElementById("protected-content").innerHTML=result.html;
+  const content=document.getElementById("protected-content");
+  content.innerHTML=result.html;
   window.__3bAccess?.setPermissions(result.permissions);
-  document.getElementById("protected-content").style.visibility="visible";
+  const root=content.querySelector("#dashboard-content");
+  if(root) document.dispatchEvent(new CustomEvent("3b-context-request",{detail:{name:"dashboard",root}}));
+  content.style.visibility="visible";
  }catch(e){window.location.replace(loginUrl);}
 })();
 </script></body></html>
