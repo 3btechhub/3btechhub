@@ -37,13 +37,13 @@ input:not([type="checkbox"]):not([type="radio"]), select, textarea { min-height:
 /* Independent top alignment: matches the page title's 20px offset */
 .theme-mode-toggle { position: fixed; top: 20px; right: 18px; z-index: 1100; display: grid; place-items: center; width: 44px; height: 44px; min-height: 44px; padding: 0; border: var(--border-width) solid var(--color-border); border-radius: 50%; background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-card); font: 22px/1 var(--font-family); cursor: pointer; }
 
-/* Shared dimensions for Login and Account cards */
+/* One fixed standard size for Login and Account cards */
 .ui-form-card {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  width: min(100%, 420px);
-  min-height: 400px;
+  width: 420px;
+  height: 400px;
   margin-inline: auto;
   padding: var(--padding-card);
   border: var(--border-width) solid var(--color-border);
@@ -51,6 +51,10 @@ input:not([type="checkbox"]):not([type="radio"]), select, textarea { min-height:
   background: var(--color-surface);
   color: var(--color-text);
   box-shadow: var(--shadow-card);
+}
+
+@media (max-width: 455px) {
+  .ui-form-card { width: calc(100vw - 36px); }
 }
 
 #login-form { width: 100%; }
