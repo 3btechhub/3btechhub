@@ -93,7 +93,7 @@
   font-size: var(--ui-font-size, var(--font-size-medium));
   padding-inline: var(--ui-control-padding-inline, var(--control-padding-inline-medium));
 }
-:is(.ui-size-small, .ui-size-medium, .ui-size-large) :is(.ui-card, .ui-section-card, .ui-form-card, .ui-tile, .ui-item-card) {
+:is(.ui-size-small, .ui-size-medium, .ui-size-large) :is(.ui-tile, .ui-item-card) {
   padding: var(--ui-card-padding, var(--card-padding-medium));
   border-radius: var(--ui-radius-card, var(--radius-card-medium));
 }
@@ -110,24 +110,22 @@ button, input, select, textarea { font: inherit; }
 .ui-card-medium { --ui-card-padding: var(--card-padding-medium); --ui-card-content-padding: var(--card-padding-medium); }
 .ui-card-large { --ui-card-padding: var(--card-padding-large); --ui-card-content-padding: var(--card-padding-large); }
 
-.ui-card, .ui-section-card, .ui-form-card {
+.ui-section-card {
+  display: block;
+  width: 100%;
+  max-width: var(--content-width-section);
+  min-width: 0;
+  margin: var(--space-section) auto;
+  padding: var(--card-padding-medium);
   border: var(--border-width) solid var(--color-border);
-  border-radius: var(--ui-radius-card, var(--radius-card-medium));
+  border-radius: var(--radius-card-medium);
   background: var(--color-surface);
   color: var(--color-text);
   box-shadow: var(--shadow-card);
 }
-.ui-card { padding: var(--ui-card-padding, var(--card-padding-medium)); }
-.ui-section-card {
-  display: block;
-  width: min(100% - (2 * var(--page-padding)), var(--content-width-section));
-  min-width: 0;
-  margin: var(--space-section) auto;
-  padding: var(--ui-card-padding, var(--card-padding-medium));
-}
 .ui-module-section { width: min(100% - (2 * var(--page-padding)), var(--content-width-section)); margin: var(--space-section) auto; color: var(--color-text); }
 .ui-item-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--space-element); }
-.ui-detail-card { width: min(100% - (2 * var(--page-padding)), var(--content-width-reading)); margin: var(--space-section) auto; }
+.ui-detail-card { width: 100%; max-width: var(--content-width-reading); margin: var(--space-section) auto; }
 .ui-admin-panel { min-width: 0; color: var(--color-text); }
 .ui-admin-panel h2 { margin: 0 0 var(--space-large); font-size: var(--ui-font-size, var(--font-size-large)); }
 .ui-admin-list { margin-block: var(--space-element); }
@@ -187,16 +185,11 @@ button, input, select, textarea { font: inherit; }
 
 @media (max-width: 480px) { :root { --space-element: var(--space-small); --space-section: var(--space-large); } }
 
-/* One fixed standard size for Login and Account cards */
-.ui-form-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+/* Auth pages use the same shared section-card design; only the available width is contextual. */
+.ui-auth-section-card {
   width: min(100%, var(--auth-card-width-medium));
   min-height: var(--auth-card-height-large);
-  height: auto;
   margin-inline: auto;
-  padding: var(--card-padding-medium);
 }
 
 /* Form is an independent element; its child fields inherit its available width. */
