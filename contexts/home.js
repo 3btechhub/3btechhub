@@ -7,9 +7,7 @@
     const render = (content, imageUrl) => {
       const component = window.__3bComponents?.intro?.render(content || {}, imageUrl || null, { fallback: true });
       if (!component) return;
-      const title = root.querySelector(".page-title");
-      if (title?.parentNode) title.insertAdjacentElement("afterend", component);
-      else root.appendChild(component);
+      root.appendChild(component);
     };
     try {
       const supabase = window.supabaseClient;
