@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Account | 3B TECH HUB</title>
 <style>
-*{box-sizing:border-box}html,body{visibility:hidden}body{margin:0;min-height:100vh;padding:32px 18px 110px;display:grid;place-items:center;background:#f3f4f6;color:#111827;font-family:system-ui,sans-serif}.card{width:min(100%,440px);padding:32px;background:#fff;border:1px solid #e5e7eb;border-radius:20px;box-shadow:0 12px 36px rgb(17 24 39 / 8%)}h1{margin:0 0 8px;font-size:28px}.subtitle{margin:0 0 28px;color:#6b7280}.field{padding:15px 0;border-bottom:1px solid #e5e7eb}.field:last-of-type{border-bottom:0}.field-label{display:block;margin-bottom:6px;color:#6b7280;font-size:13px}.field-value{overflow-wrap:anywhere;font-weight:600}button{width:100%;margin-top:24px;padding:13px 18px;border:0;border-radius:10px;background:#111827;color:#fff;font:inherit;font-weight:600;cursor:pointer}#status{min-height:22px;margin-top:14px;color:#b91c1c;font-size:14px}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:32px 18px 110px;display:grid;place-items:center;background:#f3f4f6;color:#111827;font-family:system-ui,sans-serif}#protected-content{visibility:hidden}.card{width:min(100%,440px);padding:32px;background:#fff;border:1px solid #e5e7eb;border-radius:20px;box-shadow:0 12px 36px rgb(17 24 39 / 8%)}h1{margin:0 0 8px;font-size:28px}.subtitle{margin:0 0 28px;color:#6b7280}.field{padding:15px 0;border-bottom:1px solid #e5e7eb}.field:last-of-type{border-bottom:0}.field-label{display:block;margin-bottom:6px;color:#6b7280;font-size:13px}.field-value{overflow-wrap:anywhere;font-weight:600}button{width:100%;margin-top:24px;padding:13px 18px;border:0;border-radius:10px;background:#111827;color:#fff;font:inherit;font-weight:600;cursor:pointer}#status{min-height:22px;margin-top:14px;color:#b91c1c;font-size:14px}
 </style></head><body data-page-title="Account"><div id="protected-content"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../supabase/client.js"></script>
 <script>
@@ -24,7 +24,7 @@
    if(error){document.getElementById("status").textContent=error.message;button.disabled=false;return;}
    window.location.replace("../login/");
   });
-  document.documentElement.style.visibility="visible";document.body.style.visibility="visible";
+  document.getElementById("protected-content").style.visibility="visible";
  }catch(e){window.location.replace(loginUrl);}
 })();
-</script><script src="../page-title.js"></script></body></html>
+</script><script src="../navigation.js"></script><script src="../page-title.js"></script></body></html>
