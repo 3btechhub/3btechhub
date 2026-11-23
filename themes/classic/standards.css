@@ -94,7 +94,7 @@ button, input, select, textarea { font: inherit; }
 .ui-input:disabled, .ui-select:disabled, .ui-textarea:disabled,
 .ui-checkbox:disabled, .ui-radio:disabled { opacity: .6; cursor: not-allowed; }
 .ui-input[aria-invalid="true"], .ui-select[aria-invalid="true"], .ui-textarea[aria-invalid="true"] { border-color: var(--color-danger); }
-.ui-button {
+.ui-button, .ui-form-submit {
   display: inline-flex; align-items: center; justify-content: center;
   min-height: var(--size-control); padding: var(--space-sm) var(--size-button-padding-inline);
   border: var(--border-width) solid var(--color-border);
@@ -102,8 +102,8 @@ button, input, select, textarea { font: inherit; }
   color: var(--color-text); font: inherit; cursor: pointer;
 }
 .ui-button-primary { border-color: transparent; background: var(--color-primary); color: var(--color-primary-text); }
-.ui-button-block { display: flex; width: 100%; }
-.ui-button:disabled { opacity: .6; cursor: not-allowed; }
+.ui-button-block, .ui-form-submit { display: flex; width: 100%; }
+.ui-button:disabled, .ui-form-submit:disabled { opacity: .6; cursor: not-allowed; }
 .ui-status { min-height: var(--size-status-line); color: var(--color-muted); font-size: var(--font-size-sm); }
 .ui-status-error { color: var(--color-danger); }
 .ui-loader { display: inline-flex; align-items: center; gap: var(--space-xs); color: var(--color-muted); font-size: var(--font-size-sm); }
