@@ -105,6 +105,10 @@ button, input, select, textarea { font: inherit; }
 
 /* Form is an independent element; its child fields inherit its available width. */
 .ui-form { display: flex; flex-direction: column; width: 100%; min-width: 0; gap: 0; }
+.ui-form-field { display: grid; gap: var(--space-xs); margin-block: var(--space-element); min-width: 0; }
+.ui-form-field > label, .ui-form-field > legend { color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.ui-form-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-element); margin-top: var(--space-element); }
+.ui-button-danger { color: var(--color-danger); }
 .ui-form > *,
 .ui-form .ui-form-control,
 .ui-form .ui-form-submit { box-sizing: border-box; max-width: 100%; }
