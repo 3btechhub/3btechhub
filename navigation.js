@@ -108,8 +108,17 @@
     toggleButton.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
   });
 
-  document.body.appendChild(nav);
-  document.dispatchEvent(new Event("3b-navigation-ready"));
+  const mountNavigation = () => {
+    if (!document.body || nav.isConnected) return;
+    document.body.appendChild(nav);
+    document.dispatchEvent(new Event("3b-navigation-ready"));
+  };
+
+  if (document.body) {
+    mountNavigation();
+  } else {
+    document.addEventListener("DOMContentLoaded", mountNavigation, { once: true });
+  }
 
   let refreshId = 0;
   const refreshVisibility = async () => {
