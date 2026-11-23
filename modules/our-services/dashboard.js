@@ -92,11 +92,12 @@
           icon.setAttribute("aria-hidden", "true");
           media.appendChild(icon);
         } else {
-          const icon = document.createElement("img");
-          icon.src = new URL("assets/icons/" + item.slug + ".svg", window.__3bBaseUrl || location.href).href;
-          icon.alt = "";
-          icon.loading = "lazy";
-          media.appendChild(icon);
+          const icon = document.createElement("span");
+icon.className = "ui-tile-svg-icon";
+const iconUrl = new URL("assets/icons/" + item.slug + ".svg", window.__3bBaseUrl || location.href).href;
+icon.style.webkitMaskImage = 'url("' + iconUrl + '")';
+icon.style.maskImage = 'url("' + iconUrl + '")';
+media.appendChild(icon);
         }
         tile.append(content, media);
         tile.addEventListener("click", () => fillForm(item));
