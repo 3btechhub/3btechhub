@@ -26,6 +26,8 @@ Do not add raw spacing, typography, border, radius, color, shadow, or common dim
 ## Shared components
 Reuse global classes: `ui-container`, `ui-section`, `ui-section-card`, `ui-tile`, `ui-card`, `ui-button`, `ui-button-primary`, `ui-button-danger`, `ui-button-block`, `ui-button-group`, `ui-input`, `ui-select`, `ui-textarea`, `ui-form`, `ui-form-field`, `ui-form-label`, `ui-checkbox`, `ui-radio`, `ui-form-actions`, `ui-visibility-list`, `ui-visibility-option`, `ui-status`, `ui-section-card`, `ui-admin-panel`, `ui-admin-list`, `ui-admin-image-preview`, `ui-admin-preview`, `ui-dashboard-sections`, `ui-content-details`, and `ui-content-message`.
 
+Card hierarchy: modules (Intro, Our Services, Related Products) are displayed inside the shared Large Card (`ui-section-card ui-size-large`). Their individual items are displayed with the shared Medium Card (`ui-card ui-size-medium`). The Large Card owns module-level presentation; the Medium Card owns item-level presentation. This hierarchy is identical on homepage and dashboard.
+
 A shared component must be implemented once in Global Standards (or a shared component module when behavior is required).
 - Shared behavior components: `components/visibility.js` owns role visibility rendering/selection; `components/module-dashboard.js` owns the shared CRUD dashboard form and list behavior; `components/content-module-view.js` owns reusable homepage cards, detail views, and their mounting behavior; `components/image-upload.js` owns the shared file-selection, upload, preview, and status flow.
 - `services/content-module.js` owns common Supabase CRUD, role loading, slug generation, image upload, and public image URL behavior. Module adapters provide only table, storage folder, and labels.
