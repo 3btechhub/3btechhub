@@ -67,6 +67,10 @@ button, input, select, textarea { font: inherit; }
 .ui-card-medium { --ui-card-padding: clamp(16px, 2vw, 24px); --ui-card-content-padding: clamp(16px, 2vw, 24px); }
 
 .ui-card { padding: var(--ui-card-padding, var(--padding-card)); border: var(--border-width) solid var(--color-border); border-radius: var(--radius-card); background: var(--color-surface); color: var(--color-text); box-shadow: var(--shadow-card); }
+.ui-module-section { width: min(100% - (2 * var(--page-padding)), var(--content-width-section)); margin: var(--space-section) auto; color: var(--color-text); }
+.ui-item-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: var(--space-element); }
+.ui-detail-card { width: min(100% - (2 * var(--page-padding)), var(--content-width-reading)); margin: var(--space-section) auto; }
+.ui-admin-panel { width: min(100% - (2 * var(--page-padding)), var(--content-width-reading)); margin: var(--space-section) auto; }
 .ui-section { display: block; min-width: 0; }
 .ui-section + .ui-section { margin-top: var(--space-section); }
 .ui-element-group { display: flex; flex-wrap: wrap; gap: var(--space-element); }
