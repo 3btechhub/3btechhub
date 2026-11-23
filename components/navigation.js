@@ -87,9 +87,22 @@
           width: 25px;
           height: 25px;
           fill: none;
+          stroke: currentColor;
           stroke-width: 2;
           stroke-linecap: round;
           stroke-linejoin: round;
+        }
+
+        #${ROOT_ID} .navigation-icon-close {
+          display: none;
+        }
+
+        #${ROOT_ID}[data-open="true"] .navigation-icon-open {
+          display: none;
+        }
+
+        #${ROOT_ID}[data-open="true"] .navigation-icon-close {
+          display: block;
         }
       `;
       document.head.appendChild(style);
@@ -110,7 +123,6 @@
       root.dataset.open = "false";
       toggle.setAttribute("aria-expanded", "false");
       toggle.setAttribute("aria-label", "Open navigation menu");
-      toggle.innerHTML = openIcon;
     }
 
     links.forEach(({ label, href }) => {
@@ -162,15 +174,19 @@
     toggle.setAttribute("aria-label", "Open navigation menu");
     toggle.setAttribute("aria-expanded", "false");
 
-    const openIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>';
-    const closeIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"></path></svg>';
-    toggle.innerHTML = openIcon;
+    toggle.innerHTML = `
+      <svg class="navigation-icon-open" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+      <svg class="navigation-icon-close" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M18 6 6 18M6 6l12 12"></path>
+      </svg>
+    `;
 
     function openMenu() {
       root.dataset.open = "true";
       toggle.setAttribute("aria-expanded", "true");
       toggle.setAttribute("aria-label", "Close navigation menu");
-      toggle.innerHTML = closeIcon;
       updateModeButtonLabel();
     }
 
