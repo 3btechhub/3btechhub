@@ -54,13 +54,14 @@
         const row = document.createElement("div");
         row.className = "our-services-admin-item";
         const label = document.createElement("div");
+        label.className = "ui-stack";
         const name = document.createElement("strong");
         name.textContent = item.name;
         const meta = document.createElement("div");
         meta.textContent = item.slug + " · " + item.status;
         label.append(name, meta);
         const actions = document.createElement("div");
-        actions.className = "our-services-admin-actions";
+        actions.className = "our-services-admin-actions ui-button-group";
         const edit = document.createElement("button");
         edit.type = "button";
         edit.className = "ui-button";
