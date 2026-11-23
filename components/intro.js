@@ -36,7 +36,7 @@
     const style = document.createElement("style");
     style.id = "intro-component-styles";
     style.textContent = `
-      .intro-component{width:min(100% - (2 * var(--page-padding)),var(--content-width-intro));margin:var(--space-section) auto}
+      .intro-component{width:min(100% - (2 * var(--page-padding)),var(--content-width-section));margin:var(--space-section) auto}
       .intro-card{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--space-element);width:100%;margin:0;overflow:hidden}
       .intro-visual{position:relative;display:flex;flex:none;width:100%;aspect-ratio:16 / 9;min-height:0;align-items:center;justify-content:center;height:auto;overflow:hidden;border-radius:var(--radius-card-large)}
       .intro-visual-tech{background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--color-primary) 18%,transparent),transparent 65%),linear-gradient(135deg,var(--color-surface),color-mix(in srgb,var(--color-primary) 9%,var(--color-surface)))}
@@ -74,7 +74,7 @@
       section.setAttribute("aria-label", "Introduction");
 
       const card = document.createElement("article");
-      card.className = "intro-card ui-section-card ui-card-large";
+      card.className = "intro-card ui-section-card ui-card-medium";
 
       const visual = document.createElement("div");
       visual.className = hasImage ? "intro-visual intro-visual-image" : "intro-visual intro-visual-tech";
