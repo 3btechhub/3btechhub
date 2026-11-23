@@ -150,3 +150,9 @@ button, input, select, textarea { font: inherit; }
 .ui-item-card-media img{width:100%;height:100%;object-fit:cover}
 .ui-item-card-media>span:not(.ui-tile-svg-icon){display:grid;place-items:center;width:100%;height:100%;font-size:28px;line-height:1}
 @media(max-width:520px){.ui-item-card{min-height:88px}}
+
+
+/* Global visibility selector: shared by Intro and all dashboard modules */
+.ui-visibility-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.ui-visibility-option{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--color-border);border-radius:8px}
+.ui-visibility-option input{flex:0 0 auto}
