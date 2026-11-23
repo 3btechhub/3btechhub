@@ -4,8 +4,8 @@
   window.__3bContexts.dashboard = async root => {
     if (!root) return;
     if (root.dataset.introMounted === "true") {
-      await window.__3bModules?.ourServices?.mountDashboard?.(root);
-      await window.__3bModules?.relatedProducts?.mountDashboard?.(root);
+      if (window.__3bAccess?.has("module.our_services.manage")) await window.__3bModules?.ourServices?.mountDashboard?.(root);
+      if (window.__3bAccess?.has("module.related_products.manage")) await window.__3bModules?.relatedProducts?.mountDashboard?.(root);
       return;
     }
     root.dataset.introMounted = "true";
@@ -141,7 +141,7 @@
         button.disabled = false;
       }
     });
-    await window.__3bModules?.ourServices?.mountDashboard?.(root);
-    await window.__3bModules?.relatedProducts?.mountDashboard?.(root);
+    if (window.__3bAccess?.has("module.our_services.manage")) await window.__3bModules?.ourServices?.mountDashboard?.(root);
+    if (window.__3bAccess?.has("module.related_products.manage")) await window.__3bModules?.relatedProducts?.mountDashboard?.(root);
   };
 })();
