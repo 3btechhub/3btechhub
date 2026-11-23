@@ -55,7 +55,7 @@
   module.renderDetails = item => {
     ensureStyles();
     const section = document.createElement("article");
-    section.className = "related-product-details ui-detail-card ui-card ui-card-medium";
+    section.className = "related-product-details ui-detail-card ui-card ui-card-large";
     if (item.image_path) {
       const image = document.createElement("img");
       image.className = "related-product-details-image";
