@@ -58,6 +58,17 @@
         tile.setAttribute("role", "button");
         tile.setAttribute("aria-pressed", String(editingId === item.id));
         tile.classList.toggle("is-selected", editingId === item.id);
+        const visibility = document.createElement("div");
+        visibility.className = "related-products-admin-visibility";
+        const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
+        const label = document.createElement("span");
+        label.className = "related-products-admin-visibility-label";
+        label.textContent = "Visibility";
+        const value = document.createElement("span");
+        value.className = "related-products-admin-visibility-value";
+        value.textContent = visibleRoles.length ? visibleRoles.join(", ") : "None";
+        visibility.append(label, value);
+        tile.querySelector(".ui-tile-content")?.appendChild(visibility);
         tile.addEventListener("click", event => {
           event.preventDefault();
           fillForm(item);
