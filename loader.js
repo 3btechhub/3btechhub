@@ -4,6 +4,7 @@
   if (!loaderScript || loaderScript.dataset.componentsLoaded === "true") return;
   loaderScript.dataset.componentsLoaded = "true";
   const baseUrl = new URL(".", loaderScript.src);
+  window.__3bBaseUrl = baseUrl;
   const resources = [
     "themes/classic/theme.js",
     "regions/region.js",
@@ -14,6 +15,11 @@
     "page-title.js",
     "services/intro.js",
     "components/intro.js",
+    "modules/our-services/service.js",
+    "modules/our-services/component.js",
+    "modules/our-services/home.js",
+    "modules/our-services/dashboard.js",
+    "modules/our-services/details.js",
     "contexts/home.js",
     "contexts/dashboard.js"
   ];
