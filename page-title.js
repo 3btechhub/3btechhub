@@ -1,4 +1,11 @@
 (() => {
+  if (!document.getElementById("site-navigation")) {
+    const script = document.createElement("script");
+    script.src = new URL("./navigation.js", document.currentScript.src).href;
+    script.async = false;
+    document.head.appendChild(script);
+  }
+
   const pageName = document.body.dataset.pageTitle;
   if (!pageName) return;
 
