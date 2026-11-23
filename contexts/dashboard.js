@@ -26,7 +26,8 @@
       <h2>Intro — Home Component</h2>
       <div class="intro-admin-field"><label for="intro-heading">Heading</label><input id="intro-heading" type="text" maxlength="180" autocomplete="off"></div>
       <div class="intro-admin-field"><label for="intro-sub-heading">Sub Heading</label><input id="intro-sub-heading" type="text" maxlength="300" autocomplete="off"></div>
-      <div class="intro-admin-field"><label for="intro-image">Image Picker</label><input id="intro-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
+      <div class="intro-admin-field"><label for="intro-visual-type">Card Design</label><select id="intro-visual-type"><option value="default">Default Technology Card</option><option value="image">Uploaded Image</option></select></div>
+      <div class="intro-admin-field" id="intro-image-field"><label for="intro-image">Select Image</label><input id="intro-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
       <fieldset class="intro-admin-field"><legend>Visibility</legend><div id="intro-role-list" class="intro-role-list"></div></fieldset>
       <button id="intro-save" class="ui-button ui-button-primary" type="button">Save Intro</button>
       <p id="intro-status" class="intro-admin-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
@@ -45,7 +46,7 @@
     try {
       const [roles, content] = await Promise.all([service.getRoles(), service.getContent()]);
       currentContent = content || {};
-      imagePath = content?.image_path || null;
+      imagePath = content?.image_path || null;\n      $("#intro-visual-type").value = imagePath ? "image" : "default";\n      $("#intro-image-field").hidden = !imagePath;
       $("#intro-heading").value = content?.heading || "";
       $("#intro-sub-heading").value = content?.sub_heading || "";
       if (imagePath) {
@@ -76,15 +77,29 @@
       return;
     }
 
+    $("#intro-visual-type").addEventListener("change", event => {
+      const useImage = event.target.value === "image";
+      $("#intro-image-field").hidden = !useImage;
+      if (!useImage) {
+        imagePath = null;
+        $("#intro-image-preview").hidden = true;
+      }
+      renderPreview({
+        heading: $("#intro-heading").value,
+        sub_heading: $("#intro-sub-heading").value,
+        image_path: imagePath
+      });
+    });
+
     $("#intro-image").addEventListener("change", async event => {
       const file = event.target.files?.[0];
-      if (!file) return;
+      if (!file) return;\n      $("#intro-visual-type").value = "image";\n      $("#intro-image-field").hidden = false;
       try {
         status("Uploading image…");
         imagePath = await service.uploadImage(file);
         $("#intro-image-preview").src = service.publicImageUrl(imagePath);
         $("#intro-image-preview").hidden = false;
-        status("Image uploaded. Save to apply it.");
+        renderPreview({ heading: $("#intro-heading").value, sub_heading: $("#intro-sub-heading").value, image_path: imagePath });\n        status("Image uploaded. Save to apply it.");
       } catch (error) {
         status(error.message || "Image upload failed.");
         event.target.value = "";
@@ -103,7 +118,7 @@
           image_path: imagePath,
           visible_role_ids: visibleRoleIds
         });
-        currentContent = { heading: $("#intro-heading").value, sub_heading: $("#intro-sub-heading").value, image_path: imagePath, visible_role_ids: visibleRoleIds };
+        currentContent = { heading: $("#intro-heading").value, sub_heading: $("#intro-sub-heading").value, image_path: $("#intro-visual-type").value === "image" ? imagePath : null, visible_role_ids: visibleRoleIds };
         renderPreview(currentContent);
         status("Intro saved successfully.");
       } catch (error) {
