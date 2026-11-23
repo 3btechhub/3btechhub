@@ -30,8 +30,6 @@
       .intro-admin-field{display:grid;gap:8px;margin:16px 0}
       .intro-admin-field label,.intro-admin legend{font-weight:600;font-size:14px}
       .intro-admin input[type=text]{width:100%;min-height:var(--size-control);padding:12px 14px;border:1px solid var(--color-input-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit}
-      .ui-visibility-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-      .ui-visibility-option{display:flex;align-items:center;gap:9px;padding:10px;border:1px solid var(--color-border);border-radius:8px}
       .intro-image-preview{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:8px}
       .intro-admin-preview{display:flex;flex-direction:column;gap:var(--space-element);margin-top:var(--space-section)}
       .intro-admin-preview #intro-preview{width:100%}
@@ -47,7 +45,7 @@
       <div class="intro-admin-field"><label for="intro-sub-heading">Sub Heading</label><input id="intro-sub-heading" type="text" maxlength="300" autocomplete="off"></div>
       <div class="intro-admin-field"><label for="intro-visual-type">Card Design</label><select id="intro-visual-type"><option value="default">Default Technology Card</option><option value="image">Uploaded Image</option></select></div>
       <div class="intro-admin-field" id="intro-image-field"><label for="intro-image">Select Image</label><input id="intro-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
-      <fieldset class="intro-admin-field"><legend>Visibility</legend><div id="ui-visibility-list" class="ui-visibility-list"></div></fieldset>
+      <div class="intro-admin-field"><div id="ui-visibility-list" class="ui-visibility-list"></div></div>
       <button id="intro-save" class="ui-button ui-button-primary" type="button">Save Intro</button>
       <p id="intro-status" class="intro-admin-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
     `;
