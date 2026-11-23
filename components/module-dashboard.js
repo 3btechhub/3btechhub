@@ -112,19 +112,13 @@
         if (!slugManuallyEdited) field("slug").value = api.toSlug(field("name").value);
       });
       field("slug").addEventListener("input", () => { slugManuallyEdited = true; });
-      field("image").addEventListener("change", async event => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-        try {
-          status("Uploading image…");
-          imagePath = await api.uploadImage(file);
-          $('[data-role="image-preview"]').src = api.publicImageUrl(imagePath);
-          $('[data-role="image-preview"]').hidden = false;
-          status("Image uploaded. Save to apply it.");
-        } catch (error) {
-          status(error.message || "Image upload failed.");
-          event.target.value = "";
-        }
+      window.__3bComponents.imageUpload.bind({
+        input: field("image"),
+        preview: $('[data-role="image-preview"]'),
+        upload: file => api.uploadImage(file),
+        publicUrl: path => api.publicImageUrl(path),
+        status,
+        onUploaded: path => { imagePath = path; }
       });
       $('[data-action="cancel"]').addEventListener("click", () => {
         clearForm();
