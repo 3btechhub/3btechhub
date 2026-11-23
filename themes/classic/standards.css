@@ -102,7 +102,7 @@ select, textarea {
   }
 }
 
-/* One global style for the theme-mode control */
+/* Independent top alignment: matches the page title's 20px offset */
 .theme-mode-toggle {
   position: fixed;
   top: 20px;
