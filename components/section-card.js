@@ -24,11 +24,27 @@
       this.content = document.createElement("div");
       this.content.className = "section-card__content";
 
-      while (this.firstChild) this.content.appendChild(this.firstChild);
-
       this.section.append(this.heading, this.description, this.content);
       this.appendChild(this.section);
+
+      // Custom elements connect when their opening tag is parsed.
+      // Move subsequently parsed light-DOM children into the content area.
+      this.childObserver = new MutationObserver(records => {
+        for (const record of records) {
+          for (const node of record.addedNodes) {
+            if (node !== this.section && node.parentNode === this) {
+              this.content.appendChild(node);
+            }
+          }
+        }
+      });
+
+      this.childObserver.observe(this, { childList: true });
       this.updateText();
+    }
+
+    disconnectedCallback() {
+      this.childObserver?.disconnect();
     }
 
     attributeChangedCallback() {
