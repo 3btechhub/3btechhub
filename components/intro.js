@@ -73,7 +73,7 @@
       section.setAttribute("aria-label", "Introduction");
 
       const card = document.createElement("article");
-      card.className = "intro-card ui-card ui-card-large";
+      card.className = "intro-card ui-section-card";
 
       const visual = document.createElement("div");
       visual.className = hasImage ? "intro-visual intro-visual-image" : "intro-visual intro-visual-tech";
