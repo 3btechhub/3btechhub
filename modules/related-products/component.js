@@ -34,7 +34,7 @@
     ensureStyles();
     if (!items?.length) return null;
     const section = document.createElement("section");
-    section.className = "related-products-section ui-module-section ui-card ui-card-medium ui-section";
+    section.className = "related-products-section ui-section-card ui-section";
     section.setAttribute("aria-label", "Related Products");
     const grid = document.createElement("div");
     grid.className = "related-products-grid ui-item-grid";
