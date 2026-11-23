@@ -3,12 +3,17 @@
   window.__3bContexts = window.__3bContexts || {};
   window.__3bContexts.dashboard = async root => {
     if (!root) return;
-    if (window.__3bAccess?.has("module.our_services.manage")) {
+    if (root.dataset.introMounted === "true") {
       await window.__3bModules?.ourServices?.mountDashboard?.(root);
+      await window.__3bModules?.relatedProducts?.mountDashboard?.(root);
+      return;
     }
-    if (root.dataset.introMounted === "true") return;
     root.dataset.introMounted = "true";
-    if (!window.__3bAccess?.has("module.intro.manage")) return;
+    if (!window.__3bAccess?.has("module.intro.manage")) {
+      await window.__3bModules?.ourServices?.mountDashboard?.(root);
+      await window.__3bModules?.relatedProducts?.mountDashboard?.(root);
+      return;
+    }
     const service = window.__3bIntroService;
     const supabase = window.supabaseClient;
     const style = document.createElement("style");
@@ -136,5 +141,7 @@
         button.disabled = false;
       }
     });
+    await window.__3bModules?.ourServices?.mountDashboard?.(root);
+    await window.__3bModules?.relatedProducts?.mountDashboard?.(root);
   };
 })();
