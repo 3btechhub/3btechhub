@@ -20,6 +20,11 @@
     "modules/our-services/home.js",
     "modules/our-services/dashboard.js",
     "modules/our-services/details.js",
+    "modules/related-products/product.js",
+    "modules/related-products/component.js",
+    "modules/related-products/home.js",
+    "modules/related-products/dashboard.js",
+    "modules/related-products/details.js",
     "contexts/home.js",
     "contexts/dashboard.js"
   ];
