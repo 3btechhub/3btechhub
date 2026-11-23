@@ -24,12 +24,12 @@
       display: none;
       width: 180px;
       margin: 0;
-      padding: var(--space-sm);
+      padding: var(--space-small);
       list-style: none;
       background: var(--color-surface);
       color: var(--color-text);
       border: var(--border-width) solid var(--color-border);
-      border-radius: var(--radius-card);
+      border-radius: var(--radius-card-medium);
       box-shadow: var(--shadow-card);
     }
     #site-navigation.is-open .nav-menu { display: block; }
@@ -37,12 +37,12 @@
     #site-navigation .menu-theme-toggle {
       display: block;
       width: 100%;
-      padding: var(--space-sm) var(--space-md);
+      padding: var(--space-small) var(--space-medium);
       color: var(--color-text);
       text-align: left;
       text-decoration: none;
       border: 0;
-      border-radius: var(--radius-control);
+      border-radius: var(--radius-control-medium);
       background: transparent;
       font: inherit;
       cursor: pointer;
@@ -55,8 +55,8 @@
       outline: none;
     }
     #site-navigation .nav-toggle {
-      width: calc(var(--size-control) + var(--space-md));
-      height: calc(var(--size-control) + var(--space-md));
+      width: var(--control-size-large);
+      height: var(--control-size-large);
       display: grid;
       place-items: center;
       border: 1px solid var(--color-border);
