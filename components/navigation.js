@@ -1,42 +1,97 @@
-/* Floating navigation toggle — theme colors come from the active theme CSS. */
+/* Self-contained floating site navigation. Pages only load this file. */
 (() => {
-  const BUTTON_ID = "site-navigation-toggle";
-  const STYLE_ID = "site-navigation-toggle-styles";
+  "use strict";
 
-  function initializeNavigationToggle() {
-    if (document.getElementById(BUTTON_ID)) return;
+  const ROOT_ID = "site-navigation";
+  const STYLE_ID = "site-navigation-styles";
+
+  function initializeNavigation() {
+    if (document.getElementById(ROOT_ID)) return;
+
+    const script = document.currentScript ||
+      document.querySelector('script[src$="/components/navigation.js"]');
+    if (!script) return;
+
+    const componentUrl = new URL(script.src, window.location.href);
+    const siteRoot = new URL("../", componentUrl);
+
+    const links = [
+      { label: "Home", href: new URL("index.html", siteRoot).href },
+      { label: "Account", href: new URL("account/index.html", siteRoot).href },
+      { label: "Dashboard", href: new URL("dashboard/index.html", siteRoot).href }
+    ];
 
     if (!document.getElementById(STYLE_ID)) {
       const style = document.createElement("style");
       style.id = STYLE_ID;
       style.textContent = `
-        #${BUTTON_ID} {
+        #${ROOT_ID} {
           position: fixed;
           left: 50%;
           bottom: 20px;
+          z-index: 10000;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
           transform: translateX(-50%);
-          z-index: 1000;
+          font: inherit;
+        }
+
+        #${ROOT_ID} .navigation-menu {
+          display: none;
+          min-width: 190px;
+          padding: 8px;
+          margin: 0;
+          list-style: none;
+          border: 1px solid var(--color-border, rgba(128,128,128,.35));
+          border-radius: 16px;
+          background: var(--color-surface, Canvas);
+          color: var(--color-text, CanvasText);
+          box-shadow: 0 6px 24px var(--shadow-color, rgba(0,0,0,.18));
+        }
+
+        #${ROOT_ID}[data-open="true"] .navigation-menu {
+          display: block;
+        }
+
+        #${ROOT_ID} .navigation-menu a {
+          display: block;
+          padding: 12px 14px;
+          border-radius: 10px;
+          color: inherit;
+          text-decoration: none;
+          font: inherit;
+        }
+
+        #${ROOT_ID} .navigation-menu a:hover,
+        #${ROOT_ID} .navigation-menu a:focus-visible {
+          background: var(--color-hover, rgba(128,128,128,.14));
+          outline: none;
+        }
+
+        #${ROOT_ID} .navigation-toggle {
           width: 58px;
           height: 58px;
           padding: 0;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          border: 1px solid var(--color-border);
+          border: 1px solid var(--color-border, rgba(128,128,128,.35));
           border-radius: 50%;
-          background: var(--color-accent);
-          color: var(--color-button-primary-text);
-          box-shadow: 0 4px 14px 0 var(--shadow-color);
+          background: var(--color-accent, #222);
+          color: var(--color-button-primary-text, #fff);
+          box-shadow: 0 4px 14px var(--shadow-color, rgba(0,0,0,.2));
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
         }
 
-        #${BUTTON_ID}:focus-visible {
-          outline: 3px solid var(--color-focus-ring);
+        #${ROOT_ID} .navigation-toggle:focus-visible {
+          outline: 3px solid var(--color-focus-ring, Highlight);
           outline-offset: 3px;
         }
 
-        #${BUTTON_ID} svg {
+        #${ROOT_ID} .navigation-toggle svg {
           display: block;
           width: 25px;
           height: 25px;
@@ -46,57 +101,85 @@
           stroke-linecap: round;
           stroke-linejoin: round;
         }
-
-        @media (prefers-reduced-motion: no-preference) {
-          #${BUTTON_ID} svg {
-            transition: transform 160ms ease;
-          }
-        }
       `;
       document.head.appendChild(style);
     }
 
-    const button = document.createElement("button");
-    button.id = BUTTON_ID;
-    button.type = "button";
-    button.setAttribute("aria-label", "Open navigation menu");
-    button.setAttribute("aria-expanded", "false");
-    button.innerHTML = `
-      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-    `;
+    const root = document.createElement("div");
+    root.id = ROOT_ID;
+    root.dataset.open = "false";
 
-    button.addEventListener("click", () => {
-      const isOpen = button.getAttribute("aria-expanded") === "true";
-      const nextIsOpen = !isOpen;
+    const menu = document.createElement("nav");
+    menu.className = "navigation-menu";
+    menu.setAttribute("aria-label", "Main navigation");
 
-      button.setAttribute("aria-expanded", String(nextIsOpen));
-      button.setAttribute(
-        "aria-label",
-        nextIsOpen ? "Close navigation menu" : "Open navigation menu"
-      );
+    const list = document.createElement("ul");
+    list.style.cssText = "list-style:none;padding:0;margin:0;";
 
-      button.innerHTML = nextIsOpen
-        ? `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-             <path d="M18 6 6 18M6 6l12 12"></path>
-           </svg>`
-        : `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-             <path d="M4 6h16M4 12h16M4 18h16"></path>
-           </svg>`;
-
-      button.dispatchEvent(new CustomEvent("navigation-toggle", {
-        bubbles: true,
-        detail: { open: nextIsOpen }
-      }));
+    links.forEach(({ label, href }) => {
+      const item = document.createElement("li");
+      const link = document.createElement("a");
+      link.href = href;
+      link.textContent = label;
+      if (new URL(href).pathname === window.location.pathname) {
+        link.setAttribute("aria-current", "page");
+      }
+      link.addEventListener("click", closeMenu);
+      item.appendChild(link);
+      list.appendChild(item);
     });
 
-    document.body.appendChild(button);
+    menu.appendChild(list);
+
+    const toggle = document.createElement("button");
+    toggle.className = "navigation-toggle";
+    toggle.type = "button";
+    toggle.setAttribute("aria-label", "Open navigation menu");
+    toggle.setAttribute("aria-expanded", "false");
+
+    const openIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16"></path></svg>';
+    const closeIcon = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"></path></svg>';
+    toggle.innerHTML = openIcon;
+
+    function closeMenu() {
+      root.dataset.open = "false";
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Open navigation menu");
+      toggle.innerHTML = openIcon;
+    }
+
+    function openMenu() {
+      root.dataset.open = "true";
+      toggle.setAttribute("aria-expanded", "true");
+      toggle.setAttribute("aria-label", "Close navigation menu");
+      toggle.innerHTML = closeIcon;
+    }
+
+    toggle.addEventListener("click", () => {
+      if (root.dataset.open === "true") closeMenu();
+      else openMenu();
+    });
+
+    document.addEventListener("pointerdown", event => {
+      if (root.dataset.open === "true" && !root.contains(event.target)) {
+        closeMenu();
+      }
+    });
+
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && root.dataset.open === "true") {
+        closeMenu();
+        toggle.focus();
+      }
+    });
+
+    root.append(menu, toggle);
+    document.body.appendChild(root);
   }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializeNavigationToggle, { once: true });
+    document.addEventListener("DOMContentLoaded", initializeNavigation, { once: true });
   } else {
-    initializeNavigationToggle();
+    initializeNavigation();
   }
 })();
