@@ -53,7 +53,7 @@
   box-shadow: 0 6px 24px var(--shadow-color);
 }
 #site-navigation .navigation-menu a {
-  color: var(--color-link);
+  color: var(--color-text);
 }
 #site-navigation .navigation-menu button {
   color: var(--color-text);
@@ -67,12 +67,12 @@
 }
 #site-navigation .navigation-toggle {
   border: 1px solid var(--color-border);
-  background: var(--color-button-primary-bg);
-  color: var(--color-button-primary-text);
+  background: var(--color-button-secondary-bg);
+  color: var(--color-button-secondary-text);
   box-shadow: 0 4px 14px var(--shadow-color);
 }
 #site-navigation .navigation-toggle:focus-visible {
-  outline: 3px solid var(--color-focus-ring);
+  outline: 3px solid var(--color-border);
   outline-offset: 3px;
 }
 #site-navigation .navigation-toggle svg {
