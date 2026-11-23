@@ -55,17 +55,26 @@
           display: block;
         }
 
-        #${ROOT_ID} .navigation-menu a {
+        #${ROOT_ID} .navigation-menu a,
+        #${ROOT_ID} .navigation-menu button {
+          box-sizing: border-box;
           display: block;
+          width: 100%;
           padding: 12px 14px;
+          border: 0;
           border-radius: 10px;
+          background: transparent;
           color: inherit;
+          text-align: left;
           text-decoration: none;
           font: inherit;
+          cursor: pointer;
         }
 
         #${ROOT_ID} .navigation-menu a:hover,
-        #${ROOT_ID} .navigation-menu a:focus-visible {
+        #${ROOT_ID} .navigation-menu a:focus-visible,
+        #${ROOT_ID} .navigation-menu button:hover,
+        #${ROOT_ID} .navigation-menu button:focus-visible {
           background: var(--color-hover, rgba(128,128,128,.14));
           outline: none;
         }
@@ -129,6 +138,34 @@
       list.appendChild(item);
     });
 
+    const modeItem = document.createElement("li");
+    const modeButton = document.createElement("button");
+    modeButton.type = "button";
+
+    function updateModeButtonLabel() {
+      const controller = window.ThemeController;
+      if (!controller) {
+        modeButton.textContent = "Light / Dark Mode";
+        return;
+      }
+      modeButton.textContent = controller.getEffectiveMode() === "dark"
+        ? "Switch to Light Mode"
+        : "Switch to Dark Mode";
+    }
+
+    modeButton.addEventListener("click", () => {
+      const controller = window.ThemeController;
+      if (!controller) return;
+
+      const nextMode = controller.getEffectiveMode() === "dark" ? "light" : "dark";
+      controller.setMode(nextMode);
+      updateModeButtonLabel();
+    });
+
+    updateModeButtonLabel();
+    modeItem.appendChild(modeButton);
+    list.appendChild(modeItem);
+
     menu.appendChild(list);
 
     const toggle = document.createElement("button");
@@ -153,6 +190,7 @@
       toggle.setAttribute("aria-expanded", "true");
       toggle.setAttribute("aria-label", "Close navigation menu");
       toggle.innerHTML = closeIcon;
+      updateModeButtonLabel();
     }
 
     toggle.addEventListener("click", () => {
