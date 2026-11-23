@@ -37,7 +37,7 @@
     style.id = "intro-component-styles";
     style.textContent = `
       .intro-component{width:min(100% - (2 * var(--page-padding)),var(--content-width-intro));margin:var(--space-section) auto}
-      .intro-card{overflow:hidden;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card,0 12px 36px rgba(0,0,0,.12))}
+      .intro-card{overflow:hidden}
       .intro-visual{position:relative;display:flex;align-items:center;justify-content:center;height:240px;overflow:hidden}
       .intro-visual-tech{background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--color-primary) 18%,transparent),transparent 65%),linear-gradient(135deg,var(--color-surface),color-mix(in srgb,var(--color-primary) 9%,var(--color-surface)))}
       .intro-visual-tech::before,.intro-visual-tech::after{position:absolute;inset:0;content:"";pointer-events:none}
