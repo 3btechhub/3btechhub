@@ -27,7 +27,7 @@
       <div class="ui-form-field" id="intro-image-field"><label class="ui-form-label" for="intro-image">Select Image</label><input id="intro-image" class="ui-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
       <div class="ui-form-field"><label class="ui-form-label">Visibility</label><div id="ui-visibility-list" class="ui-visibility-list"></div></div>
       <button id="intro-save" class="ui-button ui-button-primary" type="button">Save Intro</button>
-      <p id="intro-status" class="ui-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
+      <p id="intro-status" class="ui-status" role="status" aria-live="polite"></p><div class="ui-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
     `;
     root.appendChild(panel);
     const $ = selector => panel.querySelector(selector);
