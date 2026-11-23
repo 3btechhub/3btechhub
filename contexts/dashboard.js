@@ -25,12 +25,12 @@
     const supabase = window.supabaseClient;
     const style = document.createElement("style");
     style.textContent = `
-      .intro-admin{width:min(100%,760px);margin:24px auto;padding:var(--padding-card);border:1px solid var(--color-border);border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card)}
-      .intro-admin [hidden]{display:none!important}\n      .intro-admin h2{margin:0 0 20px;font-size:20px}
-      .intro-admin-field{display:grid;gap:8px;margin:16px 0}
+      .intro-admin{width:min(100%,760px);margin:var(--space-section) auto;padding:var(--padding-card);border:var(--border-width) solid var(--color-border);border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card)}
+      .intro-admin [hidden]{display:none!important}\n      .intro-admin h2{margin:0 0 var(--space-lg);font-size:var(--font-size-lg)}
+      .intro-admin-field{display:grid;gap:var(--space-xs);margin:var(--space-element) 0}
       .intro-admin-field label,.intro-admin legend{font-weight:600;font-size:14px}
-      .intro-admin input[type=text]{width:100%;min-height:var(--size-control);padding:12px 14px;border:1px solid var(--color-input-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit}
-      .intro-image-preview{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:8px}
+      .intro-admin input[type=text]{width:100%;min-height:var(--size-control);padding:var(--space-sm) 14px;border:var(--border-width) solid var(--color-input-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);font:inherit}
+      .intro-image-preview{display:block;max-width:100%;max-height:220px;object-fit:contain;border-radius:var(--radius-control)}
       .intro-admin-preview{display:flex;flex-direction:column;gap:var(--space-element);margin-top:var(--space-section)}
       .intro-admin-preview #intro-preview{width:100%}
       .intro-admin-preview #intro-preview>.intro-component{width:100%;margin:0;cursor:pointer}\n      .intro-admin-preview #intro-preview>.intro-component:focus-visible{outline:2px solid var(--color-primary);outline-offset:4px;border-radius:var(--radius-card)}
