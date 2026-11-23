@@ -39,21 +39,21 @@ jobs:
           for html in root.rglob("*.html"):
               content = html.read_text(encoding="utf-8")
               content = re.sub(
-                  r'<script\\b[^>]*src=["\\'][^"\\']*(?:loader|navigation|page-title)\\.js(?:\\?[^"\\']*)?["\\'][^>]*>\\s*</script>',
+                  r'<script\b[^>]*src=["\'][^"\']*(?:loader|navigation|page-title)\.js(?:\?[^"\']*)?["\'][^>]*>\s*</script>',
                   "",
                   content,
                   flags=re.IGNORECASE,
               )
-              if re.search(r"</body\\s*>", content, flags=re.IGNORECASE):
+              if re.search(r"</body\s*>", content, flags=re.IGNORECASE):
                   content = re.sub(
-                      r"</body\\s*>",
-                      loader + "\\n</body>",
+                      r"</body\s*>",
+                      loader + "\n</body>",
                       content,
                       count=1,
                       flags=re.IGNORECASE,
                   )
               else:
-                  content += "\\n" + loader + "\\n"
+                  content += "\n" + loader + "\n"
               html.write_text(content, encoding="utf-8")
           PY
       - name: Upload site
