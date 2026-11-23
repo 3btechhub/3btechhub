@@ -301,7 +301,6 @@ body[data-context] { width: 100%; min-width: 0; }
 .ui-auth-page .ui-form { gap: 0; }
 
 .ui-form-status { height: var(--status-line-height-medium); margin-top: var(--space-small); color: var(--color-danger); font-size: var(--font-size-small); }
-\n/* Section cards share the global three-level sizing API. */\n.ui-section-card.ui-size-small { --ui-card-padding: var(--card-padding-small); --ui-radius-card: var(--radius-card-small); }\n.ui-section-card.ui-size-medium { --ui-card-padding: var(--card-padding-medium); --ui-radius-card: var(--radius-card-medium); }\n.ui-section-card.ui-size-large { --ui-card-padding: var(--card-padding-large); --ui-radius-card: var(--radius-card-large); }\n
 
 
 
