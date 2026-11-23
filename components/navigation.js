@@ -44,11 +44,7 @@
           padding: 8px;
           margin: 0;
           list-style: none;
-          border: 1px solid var(--color-border, currentColor);
           border-radius: 16px;
-          background: var(--color-surface, Canvas);
-          color: var(--color-text, CanvasText);
-          box-shadow: 0 6px 24px var(--shadow-color, transparent);
         }
 
         #${ROOT_ID}[data-open="true"] .navigation-menu {
@@ -70,21 +66,7 @@
           cursor: pointer;
         }
 
-        #${ROOT_ID} .navigation-menu a {
-          color: var(--color-link, var(--color-text, CanvasText));
-        }
 
-        #${ROOT_ID} .navigation-menu button {
-          color: var(--color-text, CanvasText);
-        }
-
-        #${ROOT_ID} .navigation-menu a:hover,
-        #${ROOT_ID} .navigation-menu a:focus-visible,
-        #${ROOT_ID} .navigation-menu button:hover,
-        #${ROOT_ID} .navigation-menu button:focus-visible {
-          background: var(--color-surface-raised, var(--color-surface, Canvas));
-          outline: none;
-        }
 
         #${ROOT_ID} .navigation-toggle {
           width: 58px;
@@ -95,24 +77,16 @@
           justify-content: center;
           border: 1px solid var(--color-border, currentColor);
           border-radius: 50%;
-          background: var(--color-button-primary-bg, var(--color-surface-raised, Canvas));
-          color: var(--color-button-primary-text, var(--color-text, CanvasText));
-          box-shadow: 0 4px 14px var(--shadow-color, transparent);
           cursor: pointer;
           -webkit-tap-highlight-color: transparent;
         }
 
-        #${ROOT_ID} .navigation-toggle:focus-visible {
-          outline: 3px solid var(--color-focus-ring, currentColor);
-          outline-offset: 3px;
-        }
 
         #${ROOT_ID} .navigation-toggle svg {
           display: block;
           width: 25px;
           height: 25px;
           fill: none;
-          stroke: currentColor;
           stroke-width: 2;
           stroke-linecap: round;
           stroke-linejoin: round;
