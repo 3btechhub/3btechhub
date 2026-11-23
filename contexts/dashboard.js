@@ -29,22 +29,22 @@
       <div class="intro-admin-field"><label for="intro-image">Image Picker</label><input id="intro-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
       <fieldset class="intro-admin-field"><legend>Visibility</legend><div id="intro-role-list" class="intro-role-list"></div></fieldset>
       <button id="intro-save" class="ui-button ui-button-primary" type="button">Save Intro</button>
-      <p id="intro-status" class="intro-admin-status" role="status" aria-live="polite"></p>
+      <p id="intro-status" class="intro-admin-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
     `;
     root.appendChild(panel);
     const $ = selector => panel.querySelector(selector);
     const status = message => { $("#intro-status").textContent = message; };
-    let imagePath = null;
+    let imagePath = null;\n    let currentContent = null;\n    const renderPreview = content => {\n      const preview = $("#intro-preview");\n      preview.replaceChildren();\n      const component = window.__3bComponents?.intro?.render(content || {}, service.publicImageUrl(content?.image_path), { fallback: true });\n      if (component) preview.appendChild(component);\n    };
     try {
       const [roles, content] = await Promise.all([service.getRoles(), service.getContent()]);
-      imagePath = content?.image_path || null;
+      currentContent = content || {};\n      imagePath = content?.image_path || null;
       $("#intro-heading").value = content?.heading || "";
       $("#intro-sub-heading").value = content?.sub_heading || "";
       if (imagePath) {
         $("#intro-image-preview").src = service.publicImageUrl(imagePath);
         $("#intro-image-preview").hidden = false;
       }
-      const selected = new Set(content?.visible_role_ids || []);
+      renderPreview(currentContent);\n      const selected = new Set(content?.visible_role_ids || []);
       const list = $("#intro-role-list");
       if (!roles.length) {
         list.textContent = "No active roles are available.";
@@ -94,7 +94,7 @@
           image_path: imagePath,
           visible_role_ids: visibleRoleIds
         });
-        status("Intro saved successfully.");
+        currentContent = { heading: $("#intro-heading").value, sub_heading: $("#intro-sub-heading").value, image_path: imagePath, visible_role_ids: visibleRoleIds };\n        renderPreview(currentContent);\n        status("Intro saved successfully.");
       } catch (error) {
         status(error.message || "Unable to save Intro.");
       } finally {
