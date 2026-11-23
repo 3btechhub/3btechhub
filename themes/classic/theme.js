@@ -36,6 +36,7 @@
   applyMode(getMode());
 
   window.__3bThemeReady = Promise.all([
+    addStylesheet("standards.css"),
     addStylesheet("light.css"),
     addStylesheet("dark.css")
   ]).then(() => {
