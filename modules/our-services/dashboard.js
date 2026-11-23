@@ -41,7 +41,7 @@
       $("#os-image-preview").hidden = true;
       $("#our-services-form-title").textContent = "Add Service";
       $("#os-status").value = "draft";
-      $("#os-roles").querySelectorAll("input").forEach(input => { input.checked = false; });
+      $("#os-roles").querySelectorAll("input").forEach(input => {\n        input.checked = roles.some(role => role.slug === "visitor" && role.id === input.value);\n      });
     };
     const renderList = () => {
       const list = $("#our-services-list");
