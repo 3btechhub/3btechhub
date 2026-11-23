@@ -36,8 +36,8 @@
     const style = document.createElement("style");
     style.id = "intro-component-styles";
     style.textContent = `
-      .intro-component{width:min(100% - 32px,1040px);margin:clamp(24px,5vw,56px) auto}
-      .intro-card{overflow:hidden;border:1px solid var(--color-border);border-radius:20px;background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card,0 12px 36px rgba(0,0,0,.12))}
+      .intro-component{width:min(100% - (2 * var(--page-padding)),1040px);margin:var(--space-section) auto}
+      .intro-card{overflow:hidden;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-card);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-card,0 12px 36px rgba(0,0,0,.12))}
       .intro-visual{position:relative;display:flex;align-items:center;justify-content:center;min-height:clamp(190px,30vw,300px);overflow:hidden}
       .intro-visual-tech{background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--color-primary) 18%,transparent),transparent 65%),linear-gradient(135deg,var(--color-surface),color-mix(in srgb,var(--color-primary) 9%,var(--color-surface)))}
       .intro-visual-tech::before,.intro-visual-tech::after{position:absolute;inset:0;content:"";pointer-events:none}
@@ -53,9 +53,9 @@
       .intro-tech-label{position:absolute;z-index:2;bottom:22px;left:0;width:100%;color:var(--color-muted);font-size:10px;font-weight:700;letter-spacing:.22em;text-align:center}
       .intro-visual-image{min-height:0;max-height:460px;background:var(--color-surface)}
       .intro-image{display:block;width:100%;max-height:460px;object-fit:cover}
-      .intro-card-content{display:grid;justify-items:center;gap:10px;padding:clamp(22px,4vw,40px);text-align:center}
+      .intro-card-content{display:grid;justify-items:center;gap:var(--space-xs);padding:var(--padding-card);text-align:center}
       .intro-heading{margin:0;color:var(--color-text);font-size:clamp(26px,4vw,42px);line-height:1.15}
-      .intro-sub-heading{max-width:760px;margin:0;color:var(--color-muted);font-size:clamp(15px,1.8vw,19px);line-height:1.65}
+      .intro-sub-heading{max-width:760px;margin:0;color:var(--color-muted);font-size:clamp(15px,1.8vw,19px);line-height:var(--line-height-normal)}
     `;
     document.head.appendChild(style);
   }
