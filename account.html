@@ -7,8 +7,8 @@
 <main class="card" id="account-card"><h1>My Account</h1><p class="subtitle">Your 3B TECH HUB account information</p>
 <div class="field"><span class="field-label">Name</span><div class="field-value" id="user-name"></div></div><div class="field"><span class="field-label">Email</span><div class="field-value" id="user-email"></div></div><div class="field"><span class="field-label">Role</span><div class="field-value" id="user-role"></div></div>
 <button id="logout-button" type="button">Logout</button><p id="status" role="status" aria-live="polite"></p></main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
-const supabase=window.supabase.createClient("https://sburxeuxkrilbfppxylm.supabase.co","sb_publishable_lqGGahZ0ST267jqsI3Zelg_477szacT");
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="./supabase/client.js"></script><script>
+const supabase=window.supabaseClient;
 const accountCard=document.getElementById("account-card");
 async function loadAccount(){
  try{
