@@ -19,8 +19,6 @@
       .related-product-details-image{display:block;width:100%;max-height:440px;object-fit:cover;border-radius:var(--radius-card);margin-bottom:var(--space-element)}
       .related-product-details-icon{font-size:var(--icon-size);margin-bottom:var(--space-element)}
       .related-product-details-title{margin:0 0 var(--space-element);font-size:clamp(26px,4vw,38px)}
-      .related-product-details-description{color:var(--color-muted);font-size:1.0625rem;line-height:1.7;white-space:pre-line}
-      .related-product-details-content{line-height:1.8;white-space:pre-wrap;overflow-wrap:anywhere}
       .related-product-back{display:inline-flex;margin-top:var(--space-element);color:var(--color-primary);font-weight:600;text-decoration:none}
       .related-product-message{width:min(100% - (2 * var(--page-padding)),900px);margin:var(--space-section) auto;color:var(--color-muted);text-align:center}
       .related-products-admin{width:min(100% - (2 * var(--page-padding)),900px);margin:var(--space-section) auto}
@@ -50,7 +48,7 @@
     ensureStyles();
     if (!items?.length) return null;
     const section = document.createElement("section");
-    section.className = "related-products-section ui-card ui-card-medium";
+    section.className = "related-products-section ui-card ui-card-medium ui-section";
     section.setAttribute("aria-label", "Related Products");
     const grid = document.createElement("div");
     grid.className = "related-products-grid";
@@ -81,12 +79,6 @@
       title.className = "ui-tile-title";
       title.textContent = item.name;
       body.appendChild(title);
-      if (item.description) {
-        const description = document.createElement("p");
-        description.className = "ui-tile-description";
-        description.textContent = item.description;
-        body.appendChild(description);
-      }
       card.append(media, body);
       grid.appendChild(card);
     });
@@ -115,18 +107,6 @@
     title.className = "related-product-details-title";
     title.textContent = item.name;
     section.appendChild(title);
-    if (item.description) {
-      const description = document.createElement("p");
-      description.className = "related-product-details-description";
-      description.textContent = item.description;
-      section.appendChild(description);
-    }
-    if (item.details) {
-      const details = document.createElement("div");
-      details.className = "related-product-details-content";
-      details.textContent = item.details;
-      section.appendChild(details);
-    }
     const back = document.createElement("a");
     back.className = "related-product-back";
     back.href = new URL("./", baseUrl()).href;
