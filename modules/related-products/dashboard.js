@@ -7,7 +7,7 @@
     root.dataset.relatedProductsMounted = "true";
     const product = module.product;
     const panel = document.createElement("section");
-    panel.className = "related-products-admin ui-admin-panel ui-card";
+    panel.className = "related-products-admin ui-section-card";
     panel.innerHTML = `
       <h2>Related Products</h2>
       <div id="related-products-list" class="related-products-admin-list ui-stack"></div>
