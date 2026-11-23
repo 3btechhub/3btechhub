@@ -58,17 +58,44 @@
         }
         items.forEach(item => {
           const visibleRoles = roles.filter(role => (item.visible_role_ids || []).includes(role.id)).map(role => role.name);
-          const tile = window.__3bComponents.itemCard.render({
-            item,
-            tag: "button",
-            visibility: visibleRoles.length ? visibleRoles.join(", ") : "None",
-            imageUrl: item.image_path ? api.publicImageUrl(item.image_path) : "",
-            icon: item.icon || "",
-            iconUrl: !item.image_path && !item.icon ? new URL("assets/icons/" + item.slug + ".svg", window.__3bBaseUrl || location.href).href : "",
-            selected: editingId === item.id,
-            onClick: () => fillForm(item)
-          });
-          list.appendChild(tile);
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "ui-card ui-size-medium" + (editingId === item.id ? " is-selected" : "");
+          card.setAttribute("aria-pressed", String(editingId === item.id));
+          card.addEventListener("click", () => fillForm(item));
+          const content = document.createElement("div");
+          content.className = "ui-card-content";
+          const title = document.createElement("h2");
+          title.className = "ui-card-title";
+          title.textContent = item.name || "";
+          content.appendChild(title);
+          const roleLine = document.createElement("div");
+          roleLine.className = "ui-card-visibility";
+          roleLine.textContent = visibleRoles.length ? visibleRoles.join(", ") : "None";
+          content.appendChild(roleLine);
+          const media = document.createElement("div");
+          media.className = "ui-card-media";
+          if (item.image_path) {
+            const image = document.createElement("img");
+            image.src = api.publicImageUrl(item.image_path);
+            image.alt = "";
+            image.loading = "lazy";
+            media.appendChild(image);
+          } else if (item.icon) {
+            const glyph = document.createElement("span");
+            glyph.textContent = item.icon;
+            glyph.setAttribute("aria-hidden", "true");
+            media.appendChild(glyph);
+          } else {
+            const glyph = document.createElement("span");
+            glyph.className = "ui-card-svg-icon";
+            const iconUrl = new URL("assets/icons/" + item.slug + ".svg", window.__3bBaseUrl || location.href).href;
+            glyph.style.webkitMaskImage = 'url("' + iconUrl + '")';
+            glyph.style.maskImage = 'url("' + iconUrl + '")';
+            media.appendChild(glyph);
+          }
+          card.append(content, media);
+          list.appendChild(card);
         });
       };
 
