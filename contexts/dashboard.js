@@ -3,12 +3,6 @@
   window.__3bContexts = window.__3bContexts || {};
   window.__3bContexts.dashboard = async root => {
     if (!root) return;
-    if (!document.getElementById("dashboard-section-spacing")) {
-      const spacing = document.createElement("style");
-      spacing.id = "dashboard-section-spacing";
-      spacing.textContent = `.ui-dashboard-sections{display:flex;flex-direction:column;gap:var(--space-section)}.ui-dashboard-sections>section{margin-block:0}`;
-      document.head.appendChild(spacing);
-    }
     root.classList.add("ui-dashboard-sections");
     if (root.dataset.introMounted === "true") {
       if (window.__3bAccess?.has("module.our_services.manage")) await window.__3bModules?.ourServices?.mountDashboard?.(root);
@@ -23,22 +17,8 @@
     }
     const service = window.__3bIntroService;
     const supabase = window.supabaseClient;
-    const style = document.createElement("style");
-    style.textContent = `
-      .intro-admin{color:var(--color-text)}
-      .intro-admin [hidden]{display:none!important}\n      .intro-admin h2{margin:0 0 var(--space-lg);font-size:var(--font-size-lg)}
-      
-      
-      
-      .intro-image-preview{display:block;width:100%;height:220px;object-fit:contain;border-radius:var(--radius-control)}
-      .intro-admin-preview{display:flex;flex-direction:column;gap:var(--space-element);margin-top:var(--space-section)}
-      .intro-admin-preview #intro-preview{width:100%}
-      .intro-admin-preview #intro-preview>.intro-component{width:100%;margin:0;cursor:pointer}\n      .intro-admin-preview #intro-preview>.intro-component:focus-visible{outline:2px solid var(--color-primary);outline-offset:4px;border-radius:var(--radius-card)}
-      .intro-admin-status{height:var(--size-status-line);color:var(--color-muted);font-size:var(--font-size-sm)}
-    `;
-    document.head.appendChild(style);
     const panel = document.createElement("section");
-    panel.className = "intro-admin ui-section-card";
+    panel.className = "intro-admin ui-section-card ui-admin-panel";
     panel.innerHTML = `
       <h2>Intro — Home Component</h2>
       <div class="ui-form-field"><label class="ui-form-label" for="intro-heading">Heading</label><input id="intro-heading" class="ui-input" type="text" maxlength="180" autocomplete="off"></div>
@@ -47,7 +27,7 @@
       <div class="ui-form-field" id="intro-image-field"><label class="ui-form-label" for="intro-image">Select Image</label><input id="intro-image" class="ui-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif"><img id="intro-image-preview" class="intro-image-preview" alt="Intro image preview" hidden></div>
       <div class="ui-form-field"><label class="ui-form-label">Visibility</label><div id="ui-visibility-list" class="ui-visibility-list"></div></div>
       <button id="intro-save" class="ui-button ui-button-primary" type="button">Save Intro</button>
-      <p id="intro-status" class="intro-admin-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
+      <p id="intro-status" class="ui-status" role="status" aria-live="polite"></p><div class="intro-admin-preview"><h2>Home Preview</h2><div id="intro-preview"></div></div>
     `;
     root.appendChild(panel);
     const $ = selector => panel.querySelector(selector);
@@ -89,25 +69,7 @@
         $("#intro-image-preview").hidden = false;
       }
       renderPreview(currentContent);
-      const selected = new Set(content?.visible_role_ids || []);
-      const list = $("#ui-visibility-list");
-      if (!roles.length) {
-        list.textContent = "No active roles are available.";
-      } else {
-        roles.forEach(role => {
-          const label = document.createElement("label");
-          label.className = "ui-visibility-option";
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.className = "ui-checkbox";
-          checkbox.value = role.id;
-          checkbox.checked = selected.has(role.id);
-          const name = document.createElement("span");
-          name.textContent = role.name;
-          label.append(checkbox, name);
-          list.appendChild(label);
-        });
-      }
+      window.__3bComponents.visibility.render($("#ui-visibility-list"), roles, content?.visible_role_ids || []);
     } catch (error) {
       status(error.message || "Unable to load Intro settings.");
       return;
@@ -150,7 +112,7 @@
       button.disabled = true;
       status("Saving…");
       try {
-        const visibleRoleIds = [...panel.querySelectorAll("#ui-visibility-list input:checked")].map(input => input.value);
+        const visibleRoleIds = window.__3bComponents.visibility.getSelected($("#ui-visibility-list"));
         await service.saveContent({
           heading: $("#intro-heading").value,
           sub_heading: $("#intro-sub-heading").value,
