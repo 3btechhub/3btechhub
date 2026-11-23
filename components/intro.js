@@ -37,25 +37,26 @@
     style.id = "intro-component-styles";
     style.textContent = `
       .intro-component{width:min(100% - (2 * var(--page-padding)),var(--content-width-intro));margin:var(--space-section) auto}
-      .intro-card{overflow:hidden}
-      .intro-visual{position:relative;display:flex;align-items:center;justify-content:center;height:240px;overflow:hidden}
+      .intro-card{width:100%;margin:0;overflow:hidden}
+      .intro-visual{position:relative;display:flex;align-items:center;justify-content:center;height:var(--detail-media-height-large);overflow:hidden}
       .intro-visual-tech{background:radial-gradient(ellipse at 50% 45%,color-mix(in srgb,var(--color-primary) 18%,transparent),transparent 65%),linear-gradient(135deg,var(--color-surface),color-mix(in srgb,var(--color-primary) 9%,var(--color-surface)))}
       .intro-visual-tech::before,.intro-visual-tech::after{position:absolute;inset:0;content:"";pointer-events:none}
       .intro-visual-tech::before{background-image:linear-gradient(color-mix(in srgb,var(--color-primary) 9%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--color-primary) 9%,transparent) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(90deg,transparent,#000 18%,#000 82%,transparent)}
-      .intro-visual-tech::after{inset:12px;border:1px solid color-mix(in srgb,var(--color-primary) 18%,transparent);border-radius:12px}
-      .intro-tech-art{position:relative;z-index:1;width:88%;height:270px}
+      .intro-visual-tech::after{inset:var(--space-small);border:var(--border-width) solid color-mix(in srgb,var(--color-primary) 18%,transparent);border-radius:var(--radius-card-medium)}
+      .intro-tech-art{position:relative;z-index:1;width:88%;height:var(--detail-media-height-medium)}
       .intro-circuit-line{fill:none;stroke:var(--color-primary);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;opacity:.65}
       .intro-chip{fill:color-mix(in srgb,var(--color-primary) 12%,var(--color-surface));stroke:var(--color-primary);stroke-width:2.5}
       .intro-chip-inner{fill:none;stroke:var(--color-primary);stroke-width:1.5;opacity:.8}
       .intro-chip-detail{fill:none;stroke:var(--color-primary);stroke-width:4;stroke-linecap:round;opacity:.85}
       .intro-node{fill:var(--color-surface);stroke:var(--color-primary);stroke-width:3}
       .intro-node-center{fill:var(--color-primary)}
-      .intro-tech-label{position:absolute;z-index:2;bottom:22px;left:0;width:100%;color:var(--color-muted);font-size:10px;font-weight:700;letter-spacing:.22em;text-align:center}
-      .intro-visual-image{height:460px;background:var(--color-surface)}
-      .intro-image{display:block;width:100%;height:460px;object-fit:cover}
-      .intro-card-content{display:grid;justify-items:center;gap:var(--space-xs);padding:var(--padding-card);text-align:center}
-      .intro-heading{margin:0;color:var(--color-text);font-size:32px;line-height:1.15}
-      .intro-sub-heading{width:100%;margin:0;color:var(--color-muted);font-size:16px;line-height:var(--line-height-normal)}
+      .intro-tech-label{position:absolute;z-index:2;bottom:var(--space-medium);left:0;width:100%;color:var(--color-muted);font-size:var(--font-size-small);font-weight:700;letter-spacing:.22em;text-align:center}
+      .intro-visual-image{height:var(--detail-media-height-large);background:var(--color-surface)}
+      .intro-image{display:block;width:100%;height:var(--detail-media-height-large);object-fit:cover}
+      .intro-card-content{display:grid;justify-items:center;gap:var(--space-element);padding:var(--card-padding-large);text-align:center}
+      .intro-heading{margin:0;color:var(--color-text);font-size:var(--font-size-large);line-height:var(--line-height-tight)}
+      .intro-sub-heading{width:100%;margin:0;color:var(--color-muted);font-size:var(--font-size-medium);line-height:var(--line-height-normal)}
+      @media (max-width: 480px){.intro-visual,.intro-visual-image,.intro-image{height:var(--detail-media-height-medium)}.intro-card-content{padding:var(--card-padding-medium)}}
     `;
     document.head.appendChild(style);
   }
