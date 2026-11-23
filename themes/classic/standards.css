@@ -58,7 +58,7 @@
 html { font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); -webkit-text-size-adjust: 100%; }
 body { margin: 0; min-width: 320px; min-height: 100vh; font-family: var(--font-family); font-size: var(--font-size-base); line-height: var(--line-height-base); }
 img, svg, video, canvas { max-width: 100%; }
-/* Independent base elements: each component owns its own sizing and appearance. */
+/* Native controls inherit typography; shared ui-* classes own their complete appearance. */
 button, input, select, textarea { font: inherit; }
 .ui-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); margin-inline: auto; }
 .page-container { width: min(100% - (2 * var(--page-padding)), var(--content-width)); margin-inline: auto; }
@@ -77,7 +77,7 @@ button, input, select, textarea { font: inherit; }
 .ui-stack { display: flex; flex-direction: column; gap: var(--space-element); min-width: 0; }
 .ui-inline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-element); }
 
-.ui-label { display: block; color: var(--color-text); font-size: var(--font-size-sm); font-weight: 600; }
+.ui-label, .ui-form-label { display: block; color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
 .ui-input, .ui-select, .ui-textarea {
   display: block; width: 100%; max-width: 100%; min-width: 0;
   min-height: var(--size-control); padding: var(--space-sm) var(--size-input-padding-inline);
@@ -142,7 +142,7 @@ button, input, select, textarea { font: inherit; }
 .ui-account-field { padding: var(--space-sm) 0; border-bottom: var(--border-width) solid var(--color-border); }
 .ui-account-field:last-of-type { border-bottom: 0; }
 .ui-account-field-label { display: block; margin-bottom: var(--space-2xs); color: var(--color-muted); font-size: var(--font-size-xs); }
-.ui-account-field-value { overflow-wrap: anywhere; font-weight: 600; }
+.ui-account-field-value { overflow-wrap: anywhere; font-weight: var(--font-weight-semibold); }
 
 
 /* Global tile element */
@@ -177,8 +177,8 @@ button, input, select, textarea { font: inherit; }
 .ui-tile-svg-icon { display:block; flex:0 0 var(--icon-size); width:var(--icon-size); height:var(--icon-size); background-color:var(--color-primary); -webkit-mask-position:center; mask-position:center; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:contain; mask-size:contain; }
 .ui-tile-icon { font-size: var(--size-tile-icon); line-height: 1; }
 .ui-tile-content { display: grid; gap: var(--space-2xs); min-width: 0; }
-.ui-tile-title { margin: 0; font-size: 1rem; line-height: var(--line-height-tight); }
-.ui-tile-description { margin: 0; color: var(--color-muted); font-size: var(--font-size-sm); line-height: 1.5; white-space: pre-line; }
+.ui-tile-title { margin: 0; font-size: var(--font-size-md); line-height: var(--line-height-tight); }
+.ui-tile-description { margin: 0; color: var(--color-muted); font-size: var(--font-size-sm); line-height: var(--line-height-normal); white-space: pre-line; }
 
 /* Global spacing for groups of buttons */
 .ui-button-group { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-element); }
@@ -214,5 +214,5 @@ button, input, select, textarea { font: inherit; }
 }
 .ui-auth-page { display: grid; place-items: center; }
 .ui-auth-page .ui-form { gap: 0; }
-.ui-form-label { display: block; margin: var(--space-md) 0 var(--space-xs); color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+
 .ui-form-status { min-height: var(--size-status-line); margin-top: var(--space-sm); color: var(--color-danger); font-size: var(--font-size-sm); }
