@@ -5,15 +5,39 @@
   --line-height-base: 1.5;
   --content-width: 1200px;
   --page-padding: clamp(12px, 2vw, 24px);
-  --space-element: 16px;
-  --space-section: 32px;
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-element: var(--space-md);
+  --space-section: var(--space-xl);
+  --space-control: var(--space-sm);
+  --space-inline: var(--space-xs);
+
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 20px;
+  --font-weight-normal: 400;
+  --font-weight-semibold: 600;
+  --line-height-tight: 1.35;
+  --line-height-normal: 1.5;
+
+  --content-width-wide: 1200px;
+  --content-width-section: 1120px;
+  --content-width-reading: 900px;
+  --size-icon-sm: 16px;
+  --size-icon-md: 24px;
+  --size-icon-lg: 32px;
 
   --size-control: clamp(44px, 3vw, 52px);
   --radius-control: 10px;
   --radius-card: 12px;
   --padding-card: clamp(16px, 2vw, 32px);
   --border-width: 1px;
-  --icon-size: 24px;
+  --icon-size: var(--size-icon-md);
 
 }
 
@@ -36,10 +60,10 @@ button, input, select, textarea { font: inherit; }
 .ui-stack { display: flex; flex-direction: column; gap: var(--space-element); min-width: 0; }
 .ui-inline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-element); }
 
-.ui-label { display: block; color: var(--color-text); font-size: 14px; font-weight: 600; }
+.ui-label { display: block; color: var(--color-text); font-size: var(--font-size-sm); font-weight: 600; }
 .ui-input, .ui-select, .ui-textarea {
   display: block; width: 100%; max-width: 100%; min-width: 0;
-  min-height: var(--size-control); padding: 12px 14px;
+  min-height: var(--size-control); padding: var(--space-sm) 14px;
   border: var(--border-width) solid var(--color-input-border);
   border-radius: var(--radius-control); background: var(--color-surface);
   color: var(--color-text); font: inherit;
@@ -47,7 +71,7 @@ button, input, select, textarea { font: inherit; }
 .ui-textarea { min-height: calc(var(--size-control) * 2); resize: vertical; }
 .ui-button {
   display: inline-flex; align-items: center; justify-content: center;
-  min-height: var(--size-control); padding: 12px 18px;
+  min-height: var(--size-control); padding: var(--space-sm) 18px;
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-control); background: var(--color-surface);
   color: var(--color-text); font: inherit; cursor: pointer;
@@ -57,7 +81,7 @@ button, input, select, textarea { font: inherit; }
 .ui-status { min-height: 22px; color: var(--color-muted); font-size: 14px; }
 :where(button, input, select, textarea, a, .ui-button):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
-@media (max-width: 480px) { :root { --space-element: 12px; --space-section: 24px; } }
+@media (max-width: 480px) { :root { --space-element: var(--space-sm); --space-section: var(--space-lg); } }
 
 /* One fixed standard size for Login and Account cards */
 .ui-form-card {
@@ -88,14 +112,14 @@ button, input, select, textarea { font: inherit; }
 .ui-form .ui-form-submit,
 .ui-form select,
 .ui-form textarea { width: 100%; }
-.ui-form-label { display: block; margin: 16px 0 8px; font-size: 14px; font-weight: 600; }
+.ui-form-label { display: block; margin: var(--space-md) 0 var(--space-xs); font-size: 14px; font-weight: 600; }
 .ui-form-control { display: block; width: 100%; max-width: 100%; min-height: var(--size-control); padding: 12px 14px; border: var(--border-width) solid var(--color-input-border); border-radius: var(--radius-control); background: var(--color-surface); color: var(--color-text); font: inherit; }
-.ui-form-submit { display: block; width: 100%; max-width: 100%; min-height: var(--size-control); margin-top: 24px; padding: 12px 18px; border: 0; border-radius: var(--radius-control); background: var(--color-primary); color: var(--color-primary-text); font: inherit; font-weight: 600; cursor: pointer; }
+.ui-form-submit { display: block; width: 100%; max-width: 100%; min-height: var(--size-control); margin-top: var(--space-lg); padding: 12px 18px; border: 0; border-radius: var(--radius-control); background: var(--color-primary); color: var(--color-primary-text); font: inherit; font-weight: 600; cursor: pointer; }
 .ui-form-submit:disabled { opacity: .6; cursor: wait; }
-.ui-form-status { min-height: 22px; margin-top: 14px; color: var(--color-danger); font-size: 14px; }
+.ui-form-status { min-height: 22px; margin-top: var(--space-sm); color: var(--color-danger); font-size: 14px; }
 .ui-account-field { padding: 12px 0; border-bottom: var(--border-width) solid var(--color-border); }
 .ui-account-field:last-of-type { border-bottom: 0; }
-.ui-account-field-label { display: block; margin-bottom: 6px; color: var(--color-muted); font-size: 13px; }
+.ui-account-field-label { display: block; margin-bottom: 6px; color: var(--color-muted); font-size: var(--font-size-xs); }
 .ui-account-field-value { overflow-wrap: anywhere; font-weight: 600; }
 
 
@@ -130,7 +154,7 @@ button, input, select, textarea { font: inherit; }
 .ui-tile-media img { width: 100%; height: 100%; object-fit: cover; }
 .ui-tile-svg-icon { display:block; flex:0 0 var(--icon-size); width:var(--icon-size); height:var(--icon-size); background-color:var(--color-primary); -webkit-mask-position:center; mask-position:center; -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-size:contain; mask-size:contain; }
 .ui-tile-icon { font-size: 28px; line-height: 1; }
-.ui-tile-content { display: grid; gap: 4px; min-width: 0; }
+.ui-tile-content { display: grid; gap: var(--space-2xs); min-width: 0; }
 .ui-tile-title { margin: 0; font-size: 1rem; line-height: 1.35; }
 .ui-tile-description { margin: 0; color: var(--color-muted); font-size: .875rem; line-height: 1.5; white-space: pre-line; }
 
@@ -139,11 +163,11 @@ button, input, select, textarea { font: inherit; }
 
 
 /* Global item card shared by homepage and dashboard module lists */
-.ui-item-card{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);width:100%;min-width:0;min-height:104px;padding:16px;border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);text-align:left;text-decoration:none;box-shadow:var(--shadow-card);font:inherit;cursor:pointer;transition:border-color .18s ease,transform .18s ease}
+.ui-item-card{display:flex;align-items:center;justify-content:space-between;gap:var(--space-element);width:100%;min-width:0;min-height:104px;padding:var(--space-md);border:var(--border-width) solid var(--color-border);border-radius:var(--radius-control);background:var(--color-surface);color:var(--color-text);text-align:left;text-decoration:none;box-shadow:var(--shadow-card);font:inherit;cursor:pointer;transition:border-color .18s ease,transform .18s ease}
 .ui-item-card:hover{border-color:var(--color-primary);transform:translateY(-2px)}
 .ui-item-card.is-selected{outline:2px solid var(--color-primary);outline-offset:2px}
 .ui-item-card:focus-visible{outline:2px solid var(--color-primary);outline-offset:3px}
-.ui-item-card-content{display:grid;gap:4px;min-width:0}
+.ui-item-card-content{display:grid;gap:var(--space-2xs);min-width:0}
 .ui-item-card-title{margin:0;font-size:1rem;line-height:1.35}
 .ui-item-card-visibility{color:var(--color-muted);font-size:13px;overflow-wrap:anywhere}
 .ui-item-card-media{display:flex;flex:0 0 56px;align-items:center;justify-content:center;width:56px;height:56px;margin-left:auto;overflow:hidden;border-radius:var(--radius-control);background:color-mix(in srgb,var(--color-primary) 9%,var(--color-surface));color:var(--color-primary)}
@@ -153,6 +177,6 @@ button, input, select, textarea { font: inherit; }
 
 
 /* Global visibility selector: shared by Intro and all dashboard modules */
-.ui-visibility-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
-.ui-visibility-option{display:flex;align-items:center;gap:9px;padding:0;border:0;border-radius:0}
+.ui-visibility-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-xs)}
+.ui-visibility-option{display:flex;align-items:center;gap:var(--space-xs);padding:0;border:0;border-radius:0}
 .ui-visibility-option input{flex:0 0 auto}
