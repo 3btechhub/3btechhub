@@ -16,7 +16,7 @@
     root.dataset.theme = mode;
     const button = document.getElementById("theme-mode-toggle");
     if (button) {
-      button.textContent = mode === "dark" ? "☀" : "☾";
+      button.textContent = mode === "dark" ? "Light mode" : "Dark mode";
       button.setAttribute("aria-label", mode === "dark" ? "Switch to light mode" : "Switch to dark mode");
       button.setAttribute("title", mode === "dark" ? "Light mode" : "Dark mode");
     }
@@ -35,21 +35,22 @@
 
   applyMode(getMode());
 
+  document.addEventListener("click", event => {
+    const toggle = event.target.closest("#theme-mode-toggle");
+    if (!toggle) return;
+
+    const next = root.dataset.theme === "dark" ? "light" : "dark";
+    localStorage.setItem(storageKey, next);
+    applyMode(next);
+  });
+
+  document.addEventListener("3b-navigation-ready", () => applyMode(root.dataset.theme));
+
   window.__3bThemeReady = Promise.all([
     addStylesheet("standards.css"),
     addStylesheet("light.css"),
     addStylesheet("dark.css")
   ]).then(() => {
-    const toggle = document.createElement("button");
-    toggle.id = "theme-mode-toggle";
-    toggle.type = "button";
-    toggle.className = "theme-mode-toggle";
-    toggle.addEventListener("click", () => {
-      const next = root.dataset.theme === "dark" ? "light" : "dark";
-      localStorage.setItem(storageKey, next);
-      applyMode(next);
-    });
-    document.body.appendChild(toggle);
     applyMode(root.dataset.theme);
 
     media.addEventListener?.("change", event => {
