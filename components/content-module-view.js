@@ -6,7 +6,7 @@
     renderCards(items, config) {
       if (!items?.length) return null;
       const section = document.createElement("section");
-      section.className = "ui-section-card ui-size-large ui-section";
+      section.className = "ui-large-card ui-size-large ui-section";
       section.setAttribute("aria-label", config.plural);
       const grid = document.createElement("div");
       grid.className = "ui-item-grid";
@@ -49,7 +49,7 @@
     },
     renderDetails(item, config) {
       const section = document.createElement("article");
-      section.className = "ui-section-card ui-size-large ui-detail-card ui-content-details";
+      section.className = "ui-large-card ui-size-large ui-detail-card ui-content-details";
       if (item.image_path) {
         const image = document.createElement("img");
         image.className = "ui-content-details-image";
