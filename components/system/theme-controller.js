@@ -94,7 +94,7 @@
       ["account-form", component("account/account-form.css")],
       ["intro-view-card", component("intro/intro-view-card.css")],
       ["intro-editor-card", component("intro/intro-editor-card.css")],
-      ["our-services", component("services/our-services.css")],
+      ["services", component("services/services.css")],
       ["service-category-editor-card", component("services/service-category-editor-card.css")],
       ["media-uploader-view", component("media/media-uploader-view.css")],
       ["rbv-editor", component("visibility/rbv-editor.css")],
