@@ -1,11 +1,9 @@
 /* Reusable medium-sized output appearance only. */
 .medium-output {
   box-sizing: border-box;
-  display: flex;
-  align-items: center;
   width: 100%;
   min-width: var(--spacing-zero);
-  min-height: var(--size-input-medium);
+  height: var(--size-input-medium);
   padding: var(--spacing-zero) var(--spacing-medium);
   border: var(--border-width-thin) solid var(--color-input-border, var(--color-border));
   border-radius: var(--radius-small);
@@ -15,6 +13,5 @@
   font-size: var(--font-size-medium);
   line-height: var(--line-height-input);
   text-align: start;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  transition: border-color var(--transition-standard), box-shadow var(--transition-standard);
 }
