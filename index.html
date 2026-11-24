@@ -1,17 +1,16 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="rbv-pending" data-page-rbv-key="root">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Root</title>
+  <style>html.rbv-pending body { visibility: hidden; }</style>
   <script src="components/theme-controller.js"></script>
   <script src="components/direction-controller.js"></script>
   <script src="components/navigation.js" defer></script>
-  <script type="module" src="components/rbv.js"></script>
+  <script type="module" src="components/rbv-page-guard.js"></script>
 </head>
 <body>
-  <rbv-visibility data-target-type="page" data-target-key="root">
-    <main></main>
-  </rbv-visibility>
+  <main></main>
 </body>
 </html>
