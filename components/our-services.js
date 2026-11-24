@@ -67,6 +67,9 @@ class OurServices extends HTMLElement {
       return;
     }
 
+    const surface = document.createElement("large-card");
+    surface.className = "our-services__surface";
+
     const heading = document.createElement("h2");
     heading.className = "heading our-services__heading";
     heading.textContent = "Our Services";
@@ -75,7 +78,7 @@ class OurServices extends HTMLElement {
     grid.className = "our-services__grid";
 
     for (const category of this._categories) {
-      const card = document.createElement("large-card");
+      const card = document.createElement("div");
       card.className = "our-services__item";
 
       if (category.image) {
@@ -101,7 +104,8 @@ class OurServices extends HTMLElement {
       grid.append(card);
     }
 
-    this.append(heading, grid);
+    surface.append(heading, grid);
+    this.append(surface);
     this.hidden = false;
   }
 }
