@@ -16,6 +16,7 @@
 
   function applyDirection() {
     document.documentElement.setAttribute("dir", direction);
+    document.documentElement.dataset.direction = direction;
   }
 
   function setDirection(value) {
