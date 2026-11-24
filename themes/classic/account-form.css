@@ -1,13 +1,13 @@
 .account-form {
-  width: min(360px, calc(100vw - 32px));
+  width: min(var(--size-surface-max-width), calc(100% - 32px));
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-medium);
 
-  /* Visible form surface — all values come from Standard CSS and active Theme. */
-  padding: calc(var(--spacing-medium) * 2);
+  /* Visible form surface — dimensions and spacing use Standard CSS. */
+  padding: calc(var(--spacing-medium) * 2) var(--spacing-surface-inline);
   background: var(--color-surface-raised, var(--color-surface));
   border: var(--border-standard);
   border-radius: var(--radius-large);
