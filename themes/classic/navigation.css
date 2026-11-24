@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-medium);
+  gap: var(--spacing-standard-gap);
   transform: translateX(-50%);
 }
 
