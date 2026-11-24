@@ -45,27 +45,28 @@ class RbvEditor extends HTMLElement {
   }
 
   render() {
-    const options = this.roles.map(role => {
-      const owner = role.slug === "owner";
-      const checked = this.selected.has(role.id) || owner;
-      return `
-        <label class="rbv-editor__option">
-          <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""} ${owner ? "disabled" : ""}>
-          <span>${this.escape(role.name)}${owner ? " (Default · Locked)" : ""}</span>
-        </label>
-      `;
-    }).join("");
+    const options = this.roles
+      .filter(role => role.slug !== "owner")
+      .map(role => {
+        const checked = this.selected.has(role.id);
+        return `
+          <label class="rbv-editor__option">
+            <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""}>
+            <span>${this.escape(role.name)}</span>
+          </label>
+        `;
+      }).join("");
 
     this.innerHTML = `
       <fieldset class="rbv-editor">
         <legend>Visibility – Select Roles</legend>
-        <div class="rbv-editor__roles">${options}</div>
+        <div class="rbv-editor__roles" style="display:flex;flex-direction:column;align-items:flex-start;">${options}</div>
         <button class="medium-button rbv-editor__save" type="button">Save Visibility</button>
         <p class="rbv-editor__message" role="status" aria-live="polite"></p>
       </fieldset>
     `;
 
-    this.querySelectorAll('input[type="checkbox"]:not(:disabled)').forEach(input => {
+    this.querySelectorAll('input[type="checkbox"]').forEach(input => {
       input.addEventListener("change", () => {
         if (input.checked) this.selected.add(input.value);
         else this.selected.delete(input.value);
