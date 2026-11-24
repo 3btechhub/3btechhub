@@ -208,7 +208,7 @@ export async function getMediaAssetUrl(id, expiresIn = 3600) {
 }
 
 
-const SERVICE_CATEGORY_BUCKETS = {
+const SERVICE_ASSET_BUCKETS = {
   image: "service-images",
   icon: "service-icons"
 };
@@ -217,8 +217,8 @@ const SERVICE_ICON_MIME_TYPES = new Set([
   "image/svg+xml", "image/x-icon", "image/vnd.microsoft.icon", "image/png", "image/webp"
 ]);
 
-export async function uploadServiceCategoryAsset({ file, kind }) {
-  const bucket = SERVICE_CATEGORY_BUCKETS[kind];
+export async function uploadServiceAsset({ file, kind }) {
+  const bucket = SERVICE_ASSET_BUCKETS[kind];
   if (!bucket) throw new Error("Unknown service category asset type.");
   if (!file || !(file instanceof Blob)) throw new Error("Select a file to upload.");
   if (file.size <= 0) throw new Error("The selected file is empty.");
