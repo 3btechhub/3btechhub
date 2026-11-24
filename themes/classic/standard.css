@@ -3,6 +3,7 @@
   --spacing-small: 8px;
   --spacing-medium: 12px;
   --spacing-control-inline: 14px;
+  --spacing-control-block: 0;
 
   /* Reusable radius */
   --radius-medium: 10px;
@@ -20,6 +21,9 @@
   --size-icon-medium: 25px;
   --size-control-large: 58px;
   --size-menu-min-width: 190px;
+  --size-control-width: 100%;
+  --size-control-min-width: 0;
+  --size-control-box-sizing: border-box;
   --spacing-floating-offset: 20px;
   --layer-floating: 10000;
   --border-width-thin: 1px;
