@@ -106,7 +106,7 @@ our-services .our-services__heading {
 
 our-services .our-services__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 144px), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-standard-gap);
   align-items: stretch;
   min-width: 0;
@@ -161,11 +161,6 @@ our-services .our-services__description {
   font-size: 0.875rem;
 }
 
-@media (max-width: 360px) {
-  our-services .our-services__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
 
 /* Keep Login and Account visibility wrappers full-width like the Intro card hosts. */
 .login-page > rbv-visibility,
