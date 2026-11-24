@@ -9,8 +9,7 @@ import "./rbv-editor.js";
  * Save action: medium-button.css (.medium-button).
  * Surface and spacing: intro-editor-card.css + Standard CSS variables.
  * Theme values: supplied by the active Theme.
- * Authorization: enforced by the existing intro_content RLS policies
- * using the module.intro.manage permission.
+ * Authorization: Dashboard page RBV + this editor's RBV + intro_content RLS.
  */
 
 class IntroEditorCard extends HTMLElement {
@@ -27,7 +26,7 @@ class IntroEditorCard extends HTMLElement {
           <button class="medium-button" type="submit">Save</button>
           <p class="intro-editor-card__message" role="status" aria-live="polite"></p>
         </form>
-      <rbv-editor data-target-type="content" data-target-key="intro" data-table="intro_content" data-row-id="1"></rbv-editor>
+        <rbv-editor data-target-type="content" data-target-key="intro" data-table="intro_content" data-row-id="1"></rbv-editor>
       </section>
     `;
 
