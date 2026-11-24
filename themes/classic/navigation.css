@@ -60,14 +60,14 @@
   justify-content: center;
   width: var(--size-control-large);
   height: var(--size-control-large);
-  padding: 0;
+  padding: var(--spacing-zero);
   border: var(--border-width-thin) solid var(--color-transparent);
   border-radius: var(--radius-circle);
   background: var(--color-button-primary-bg, var(--color-button-secondary-bg));
   color: var(--color-button-primary-text, var(--color-button-secondary-text));
   box-shadow: var(--shadow-medium);
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color: var(--color-transparent);
 }
 
 #site-navigation .navigation-toggle:hover {
