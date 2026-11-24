@@ -84,6 +84,8 @@
       ensureStylesheet("medium-input", new URL("medium-input.css", base).href),
       ensureStylesheet("medium-output", new URL("medium-output.css", base).href),
       ensureStylesheet("medium-button", new URL("medium-button.css", base).href),
+      ensureStylesheet("large-card", new URL("../../components/cards/large-card.css", scriptUrl).href),
+      ensureStylesheet("mini-card", new URL("../../components/cards/mini-card.css", scriptUrl).href),
       ensureStylesheet("navigation", new URL("../../components/navigation/navigation.css", scriptUrl).href),
       ensureStylesheet("login-form", new URL("../../components/account/login-form.css", scriptUrl).href),
       ensureStylesheet("account-form", new URL("../../components/account/account-form.css", scriptUrl).href),

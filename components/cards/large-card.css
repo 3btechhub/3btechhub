@@ -1,0 +1,16 @@
+/* Shared surface: every Card and Form must use <large-card>. */
+large-card {
+  display: block;
+  box-sizing: border-box;
+  width: min(var(--size-surface-max-width), calc(100% - 32px));
+  max-width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+  padding: var(--spacing-surface-block) var(--spacing-surface-inline);
+  background: var(--color-surface-raised, var(--color-surface));
+  color: var(--color-text);
+  border: var(--border-standard);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-medium);
+}
+
