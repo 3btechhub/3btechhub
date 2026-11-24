@@ -1,4 +1,4 @@
-/* Intro View Card — all visual tokens come from Standard CSS and active Theme. */
+/* Intro View Card — dimensions and spacing use Standard CSS. */
 intro-view-card {
   display: block;
   width: 100%;
@@ -6,9 +6,9 @@ intro-view-card {
 
 .intro-view-card {
   box-sizing: border-box;
-  width: min(720px, calc(100% - 32px));
+  width: min(var(--size-surface-max-width), calc(100% - 32px));
   margin-inline: auto;
-  padding: calc(var(--spacing-medium) * 2);
+  padding: calc(var(--spacing-medium) * 2) var(--spacing-surface-inline);
   background: var(--color-surface-raised, var(--color-surface));
   border: var(--border-standard);
   border-radius: var(--radius-large);
