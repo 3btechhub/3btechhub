@@ -1,18 +1,18 @@
-/* Classic Theme: reusable medium-sized input field appearance only. */
+/* Reusable medium-sized input field appearance only. */
 .medium-input-box {
   box-sizing: border-box;
   width: 100%;
-  min-width: 0;
-  height: 44px;
-  padding: 0 12px;
-  border: 1px solid var(--color-input-border, var(--color-border));
-  border-radius: 8px;
+  min-width: var(--spacing-zero);
+  height: var(--size-input-medium);
+  padding: var(--spacing-zero) var(--spacing-medium);
+  border: var(--border-width-thin) solid var(--color-input-border, var(--color-border));
+  border-radius: var(--radius-small);
   background: var(--color-input-bg, var(--color-surface-raised));
   color: var(--color-input-text, var(--color-text));
   font: inherit;
-  font-size: 1rem;
-  line-height: 1.4;
-  transition: border-color 150ms ease, box-shadow 150ms ease;
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-input);
+  transition: border-color var(--transition-standard), box-shadow var(--transition-standard);
 }
 
 .medium-input-box::placeholder {
@@ -23,10 +23,10 @@
 .medium-input-box:focus {
   border-color: var(--color-focus, var(--color-input-border, var(--color-border)));
   outline: none;
-  box-shadow: 0 0 0 2px var(--color-focus, var(--color-input-border, var(--color-border)));
+  box-shadow: var(--shadow-focus);
 }
 
 .medium-input-box:disabled {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: var(--opacity-disabled);
 }
