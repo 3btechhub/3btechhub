@@ -22,7 +22,6 @@ our-services[hidden] {
 
 .our-services__surface {
   display: block;
-  width: 100%;
   min-width: 0;
 }
 
