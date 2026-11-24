@@ -10,21 +10,36 @@
   <link rel="stylesheet" href="../themes/classic/dark.css">
   <style>
     .login-page {
+      box-sizing: border-box;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 16px;
+    }
+
+    .login-form-card {
+      display: block;
+      width: 100%;
+      max-width: 392px;
+    }
+
+    .login-form-card form {
+      max-width: none;
     }
   </style>
 </head>
 <body>
   <main class="login-page">
-    <form id="login-form">
-      <input type="email" name="email" placeholder="Email" autocomplete="email" required>
-      <input type="password" name="password" placeholder="Password" autocomplete="current-password" required>
-      <button type="submit">Login</button>
-    </form>
+    <section-card class="login-form-card">
+      <form id="login-form">
+        <input type="email" name="email" placeholder="Email" autocomplete="email" required>
+        <input type="password" name="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="submit">Login</button>
+      </form>
+    </section-card>
   </main>
+  <script src="../components/section-card.js"></script>
   <script src="../components/navigation.js"></script>
   <script type="module" src="../components/login.js"></script>
 </body>
