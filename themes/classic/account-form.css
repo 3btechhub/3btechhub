@@ -1,3 +1,3 @@
 /* Account form content layout only; surface comes from Large Card. */
 .account-card { display: block; }
-.account-form { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-medium); width: 100%; min-width: 0; margin: 0; }
+.account-form { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-standard-gap); width: 100%; min-width: 0; margin: 0; }
