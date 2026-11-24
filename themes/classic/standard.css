@@ -2,6 +2,7 @@
   /* Reusable spacing */
   --spacing-small: 8px;
   --spacing-medium: 12px;
+  --spacing-standard-gap: var(--spacing-medium);
   --spacing-control-inline: 14px;
   --spacing-control-block: 0;
   --spacing-surface-inline: 24px;
