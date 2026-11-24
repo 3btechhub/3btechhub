@@ -9,8 +9,9 @@ class MediaUpload extends HTMLElement {
   }
 
   render() {
+    const wrapper = this.hasAttribute("embedded") ? "div" : "large-card";
     this.innerHTML = `
-      <large-card class="media-library-upload" aria-label="Upload media">
+      <${wrapper} class="media-library-upload" aria-label="Upload media">
         <input class="media-library-upload__file" type="file" hidden>
         <input class="medium-input media-library-upload__url" type="url" inputmode="url" placeholder="File URL or external URL" aria-label="File URL or external URL">
         <div class="media-library-upload__actions">
@@ -18,7 +19,7 @@ class MediaUpload extends HTMLElement {
           <button class="medium-button media-library-upload__submit" type="button" disabled>Upload</button>
         </div>
         <p class="media-library-upload__status" role="status" aria-live="polite" hidden></p>
-      </large-card>
+      </${wrapper}>
     `;
 
     this.fileInput = this.querySelector(".media-library-upload__file");
