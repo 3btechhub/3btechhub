@@ -206,3 +206,56 @@ export async function getMediaAssetUrl(id, expiresIn = 3600) {
   if (error) throw error;
   return data.signedUrl;
 }
+
+
+const SERVICE_CATEGORY_BUCKETS = {
+  image: "service-images",
+  icon: "service-icons"
+};
+
+const SERVICE_ICON_MIME_TYPES = new Set([
+  "image/svg+xml", "image/x-icon", "image/vnd.microsoft.icon", "image/png", "image/webp"
+]);
+
+export async function uploadServiceCategoryAsset({ file, kind }) {
+  const bucket = SERVICE_CATEGORY_BUCKETS[kind];
+  if (!bucket) throw new Error("Unknown service category asset type.");
+  if (!file || !(file instanceof Blob)) throw new Error("Select a file to upload.");
+  if (file.size <= 0) throw new Error("The selected file is empty.");
+  if (file.size > MEDIA_MAX_FILE_SIZE) throw new Error("The file exceeds the 10 MB upload limit.");
+
+  const mimeType = inferMime(file.name, file.type);
+  if (kind === "image" && !mimeType.startsWith("image/")) {
+    throw new Error("Select an image file.");
+  }
+  if (kind === "icon" && !SERVICE_ICON_MIME_TYPES.has(mimeType)) {
+    throw new Error("Select an SVG, ICO, PNG, or WebP icon file.");
+  }
+  if (BLOCKED_EXTENSIONS.has(getExtension(file.name)) || BLOCKED_MIME_TYPES.has(mimeType)) {
+    throw new Error("This file type is not allowed.");
+  }
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!user) throw new Error("Please log in before uploading files.");
+
+  const now = new Date();
+  const year = now.getUTCFullYear();
+  const month = String(now.getUTCMonth() + 1).padStart(2, "0");
+  const storagePath = `${year}/${month}/${crypto.randomUUID()}-${safeStorageName(file.name)}`;
+  const { error: uploadError } = await supabase.storage.from(bucket).upload(storagePath, file, {
+    cacheControl: "3600",
+    contentType: mimeType,
+    upsert: false
+  });
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage.from(bucket).getPublicUrl(storagePath);
+  return {
+    bucket,
+    storage_path: storagePath,
+    public_url: data.publicUrl,
+    file_name: file.name,
+    mime_type: mimeType
+  };
+}
