@@ -8,35 +8,8 @@
   <link rel="stylesheet" href="./themes/classic/standard.css">
   <link rel="stylesheet" href="./themes/classic/light.css">
   <link rel="stylesheet" href="./themes/classic/dark.css">
-  <script src="./components/section-card.js"></script>
-  <script src="./components/item-card.js"></script>
 </head>
 <body>
-  <section-card id="home-section" title="Intro">
-    <item-card title="Heading">
-      <p id="home-heading-output"></p>
-    </item-card>
-  </section-card>
-  <script type="module">
-    import { supabase } from "./components/supabase-client.js";
-
-    async function loadHomeHeading() {
-      const { data, error } = await supabase
-        .from("home_section_content")
-        .select("heading")
-        .eq("id", 1)
-        .single();
-
-      if (error) {
-        console.error("Home section heading could not be loaded.", error);
-        return;
-      }
-
-      document.getElementById("home-heading-output").textContent = data.heading || "";
-    }
-
-    loadHomeHeading();
-  </script>
   <script src="./components/navigation.js"></script>
 </body>
 </html>
