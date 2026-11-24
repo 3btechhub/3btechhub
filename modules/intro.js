@@ -109,7 +109,9 @@ function renderEditorIntro(headingText) {
           updated_at: new Date().toISOString(),
           updated_by: user.id
         })
-        .eq("id", 1);
+        .eq("id", 1)
+        .select("id")
+        .single();
 
       if (error) throw error;
       status.textContent = "Saved.";
