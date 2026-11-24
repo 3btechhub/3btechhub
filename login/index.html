@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="en" data-page-form="login">
+<html lang="en" class="rbv-pending" data-page-rbv-key="login" data-page-form="login">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login</title>
   <style>
+    html.rbv-pending body { visibility: hidden; }
     .login-page {
       min-height: 100vh;
       display: flex;
@@ -15,16 +16,15 @@
   <script src="../components/theme-controller.js"></script>
   <script src="../components/direction-controller.js"></script>
   <script src="../components/navigation.js" defer></script>
+  <script type="module" src="../components/rbv-page-guard.js"></script>
   <script type="module" src="../components/rbv.js"></script>
   <script type="module" src="../components/login-form.js"></script>
 </head>
 <body>
-  <rbv-visibility data-target-type="page" data-target-key="login">
-    <main class="login-page">
-      <rbv-visibility data-target-type="form" data-target-key="login-form">
-        <login-form></login-form>
-      </rbv-visibility>
-    </main>
-  </rbv-visibility>
+  <main class="login-page">
+    <rbv-visibility data-target-type="form" data-target-key="login-form">
+      <login-form></login-form>
+    </rbv-visibility>
+  </main>
 </body>
 </html>
