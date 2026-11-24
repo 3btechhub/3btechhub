@@ -12,9 +12,8 @@
 
 #site-navigation .navigation-menu {
   display: none;
-  width: fit-content;
-  min-width: 0;
-  max-width: calc(100vw - var(--spacing-medium) * 2);
+  min-width: var(--size-menu-min-width);
+  height: fit-content;
   padding: var(--spacing-small);
   border: var(--border-standard);
   border-radius: var(--radius-large);
@@ -37,8 +36,7 @@
 #site-navigation .navigation-menu button {
   display: block;
   box-sizing: border-box;
-  width: auto;
-  white-space: nowrap;
+  width: 100%;
   padding: var(--spacing-medium) var(--spacing-control-inline);
   border: var(--spacing-zero);
   border-radius: var(--radius-medium);
