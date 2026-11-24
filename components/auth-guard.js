@@ -24,6 +24,12 @@ function goToHome() {
 }
 
 async function protectPage() {
+  // The root page always redirects to Home; this rule does not affect Dashboard.
+  if (pageKey === "root") {
+    goToHome();
+    return;
+  }
+
   if (!permission || !pageKey) return;
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
