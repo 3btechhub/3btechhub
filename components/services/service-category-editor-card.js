@@ -96,7 +96,7 @@ class ServiceCategoryEditorCard extends HTMLElement {
       if (!user) throw new Error("Please sign in again.");
 
       const visibleRoleIds = withRequiredOwner([...this.selectedRoleIds], this.roles);
-      const { error } = await supabase.from("our_services").insert({
+      const { error } = await supabase.from("services").insert({
         name,
         slug,
         description,
