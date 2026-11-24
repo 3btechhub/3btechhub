@@ -1,10 +1,10 @@
 import { supabase } from "./supabase-client.js";
-import { canSeeTarget } from "../visibility/rbv.js";
+import { canSeeTarget } from "./visibility/rbv.js";
 
 const html = document.documentElement;
 const permission = html.dataset.pagePermission;
 const pageKey = html.dataset.pageRbvKey || "dashboard";
-const rootUrl = new URL("../../", import.meta.url);
+const rootUrl = new URL("./", import.meta.url);
 
 function revealAuthorizedPage() {
   html.classList.remove("rbv-pending", "auth-pending");

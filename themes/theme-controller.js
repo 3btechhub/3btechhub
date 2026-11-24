@@ -4,7 +4,8 @@
   const MODE_KEY = "3btechhub-color-mode";
   const THEME_KEY = "3btechhub-theme";
   const scriptUrl = document.currentScript?.src;
-  const themesBase = scriptUrl ? new URL("../../themes/", scriptUrl) : null;
+  const themesBase = scriptUrl ? new URL("./", scriptUrl) : null;
+  const rootUrl = scriptUrl ? new URL("../", scriptUrl) : null;
   const managedStyles = new Map();
   const systemPreference = window.matchMedia
     ? window.matchMedia("(prefers-color-scheme: dark)")
@@ -79,26 +80,26 @@
     }
 
     const base = new URL(encodeURIComponent(theme) + "/", themesBase);
-    const component = path => new URL("../../components/" + path, scriptUrl).href;
+    const asset = path => new URL(path, rootUrl).href;
     const styles = [
       ["standard", new URL("standard.css", base).href],
-      ["heading", new URL("heading.css", base).href],
       ["mode", new URL(getResolvedMode() + ".css", base).href],
-      ["medium-input", new URL("medium-input.css", base).href],
-      ["medium-output", new URL("medium-output.css", base).href],
-      ["medium-button", new URL("medium-button.css", base).href],
-      ["large-card", component("cards/large-card.css")],
-      ["mini-card", component("cards/mini-card.css")],
-      ["navigation", component("navigation/navigation.css")],
-      ["login-form", component("account/login-form.css")],
-      ["account-form", component("account/account-form.css")],
-      ["intro-view-card", component("intro/intro-view-card.css")],
-      ["intro-editor-card", component("intro/intro-editor-card.css")],
-      ["services", component("services/services-viewer.css")],
-      ["service-category-editor-card", component("services/service-category-editor-card.css")],
-      ["media-uploader-view", component("media/media-uploader-view.css")],
-      ["rbv-editor", component("visibility/rbv-viewer.css")],
-      ["dashboard-tabs", component("dashboard/dashboard-tab.css")]
+      ["heading", asset("heading.css")],
+      ["medium-input", asset("medium-input.css")],
+      ["medium-output", asset("medium-output.css")],
+      ["medium-button", asset("medium-button.css")],
+      ["large-card", asset("cards/large-card.css")],
+      ["mini-card", asset("cards/small-card.css")],
+      ["navigation", asset("navigation/navigation.css")],
+      ["login", asset("login/login.css")],
+      ["account", asset("account/account.css")],
+      ["intro-viewer", asset("intro/intro-viewer.css")],
+      ["intro-editor", asset("intro/intro-editor.css")],
+      ["services-viewer", asset("services/services-viewer.css")],
+      ["services-editor", asset("services/services-editor.css")],
+      ["media-uploader", asset("media/media-uploader.css")],
+      ["rbv-viewer", asset("visibility/rbv-viewer.css")],
+      ["dashboard-tabs", asset("dashboard/dashboard-tab.css")]
     ];
 
     await Promise.all(styles.map(([name, href]) => ensureStylesheet(name, href)));

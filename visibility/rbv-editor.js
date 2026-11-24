@@ -1,4 +1,4 @@
-import { supabase } from "../system/supabase-client.js";
+import { supabase } from "../supabase-client.js";
 import { getActiveRoles, withRequiredOwner } from "./rbv.js";
 
 class RbvEditor extends HTMLElement {

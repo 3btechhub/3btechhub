@@ -1,4 +1,4 @@
-import { supabase } from "../system/supabase-client.js";
+import { supabase } from "../supabase-client.js";
 
 const OWNER_SLUG = "owner";
 

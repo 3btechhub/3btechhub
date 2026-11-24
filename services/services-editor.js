@@ -1,4 +1,4 @@
-import { supabase } from "../system/supabase-client.js";
+import { supabase } from "../supabase-client.js";
 import { getActiveRoles, withRequiredOwner } from "../visibility/rbv.js";
 import "../cards/large-card.js";
 import "../media/media-uploader.js";

@@ -1,19 +1,24 @@
-/* Services: one Large Card containing a responsive grid of square Mini Cards. */
+/* Services: one Large Card contains a responsive grid of square Mini Cards. */
 services-section {
   display: block;
   width: 100%;
   min-width: 0;
 }
 
-services-section .services-section__surface {
-  display: block;
+services-section[hidden] {
+  display: none;
 }
 
-services-section .services-section__heading {
+.services-section__surface {
+  display: block;
+  min-width: 0;
+}
+
+.services-section__heading {
   margin: 0 0 var(--spacing-standard-gap);
 }
 
-services-section .services-section__grid {
+.services-section__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--spacing-standard-gap);
@@ -35,7 +40,7 @@ services-section mini-card.services-section__item {
   text-align: center;
 }
 
-services-section .services-section__image {
+.services-section__image {
   display: block;
   width: 100%;
   max-height: 48%;
@@ -43,102 +48,31 @@ services-section .services-section__image {
   border-radius: var(--radius-medium);
 }
 
-services-section .services-section__icon {
+.services-section__icon {
   display: block;
   max-width: 100%;
   font-size: var(--size-icon-medium);
   line-height: 1;
 }
 
-services-section .services-section__icon-image {
+.services-section__icon-image {
   width: 32px;
   height: 32px;
   object-fit: contain;
 }
 
-services-section .services-section__name {
+.services-section__name {
   margin: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
 }
 
-services-section .services-section__description {
+.services-section__description {
   margin: 0;
   max-width: 100%;
   overflow: auto;
   overflow-wrap: anywhere;
   font-size: 0.875rem;
-}
-
-
-
-/* Services — One Large Card surface contains the heading and complete grid. */
-services-section {
-  display: block;
-  width: 100%;
-  min-width: 0;
-}
-
-services-section[hidden] {
-  display: none;
-}
-
-.services-section__heading {
-  margin: 0 0 var(--spacing-standard-gap);
-}
-
-.services-section__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-standard-gap);
-  align-items: stretch;
-}
-
-.services-section__surface {
-  display: block;
-  min-width: 0;
-}
-
-.services-section__item {
-  width: 100%;
-  min-width: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-standard-gap);
-}
-
-.services-section__image {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: var(--radius-medium);
-}
-
-.services-section__icon {
-  display: grid;
-  place-items: center;
-  min-height: 48px;
-  font-size: 2rem;
-}
-
-.services-section__icon-image {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-}
-
-.services-section__name {
-  margin: 0;
-  font-size: var(--font-size-medium);
-  font-weight: 700;
-}
-
-.services-section__description {
-  margin: 0;
-  color: var(--color-text);
-  line-height: 1.5;
 }
 
 @media (max-width: 360px) {
