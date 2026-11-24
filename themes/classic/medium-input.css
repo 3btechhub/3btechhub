@@ -1,5 +1,5 @@
 /* Reusable medium-sized input field appearance only. */
-.medium-input-box {
+.medium-input {
   box-sizing: border-box;
   width: 100%;
   min-width: var(--spacing-zero);
@@ -16,18 +16,18 @@
   transition: border-color var(--transition-standard), box-shadow var(--transition-standard);
 }
 
-.medium-input-box::placeholder {
+.medium-input::placeholder {
   color: var(--color-placeholder, var(--color-text));
   opacity: 1;
 }
 
-.medium-input-box:focus {
+.medium-input:focus {
   border-color: var(--color-focus, var(--color-input-border, var(--color-border)));
   outline: none;
   box-shadow: var(--shadow-focus);
 }
 
-.medium-input-box:disabled {
+.medium-input:disabled {
   cursor: not-allowed;
   opacity: var(--opacity-disabled);
 }
