@@ -1,18 +1,10 @@
-/* Intro View Card — dimensions and spacing use Standard CSS. */
+/* Intro View Card — surface design is supplied by Standard CSS. */
 intro-view-card {
   display: block;
   width: 100%;
 }
 
 .intro-view-card {
-  box-sizing: border-box;
-  width: min(var(--size-surface-max-width), calc(100% - 32px));
-  margin-inline: auto;
-  padding: calc(var(--spacing-medium) * 2) var(--spacing-surface-inline);
-  background: var(--color-surface-raised, var(--color-surface));
-  border: var(--border-standard);
-  border-radius: var(--radius-large);
-  box-shadow: var(--shadow-medium);
   text-align: center;
 }
 
