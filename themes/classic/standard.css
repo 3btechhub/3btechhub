@@ -5,6 +5,7 @@
   --spacing-control-inline: 14px;
   --spacing-control-block: 0;
   --spacing-surface-inline: 24px;
+  --spacing-surface-block: 24px;
 
   /* Reusable radius */
   --radius-medium: 10px;
@@ -45,6 +46,21 @@
   /* Reusable focus */
   --outline-focus: 2px solid var(--color-focus, var(--color-border));
   --outline-focus-offset: 3px;
+}
+
+/* One fixed surface design for every Card and Form. */
+.intro-editor-card,
+.intro-view-card,
+.login-form,
+.account-form {
+  box-sizing: border-box;
+  width: min(var(--size-surface-max-width), calc(100% - 32px));
+  margin-inline: auto;
+  padding: var(--spacing-surface-block) var(--spacing-surface-inline);
+  background: var(--color-surface-raised, var(--color-surface));
+  border: var(--border-standard);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-medium);
 }
 
 .text-center {
