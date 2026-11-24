@@ -1,5 +1,5 @@
 import { supabase } from "./supabase-client.js";
-import { canSeeTarget } from "./rbv.js";
+import { canSeeTarget } from "../visibility/rbv.js";
 
 const html = document.documentElement;
 const permission = html.dataset.pagePermission;

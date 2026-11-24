@@ -1,4 +1,4 @@
-import { getIntroContent } from "../modules/intro/intro-data.js";
+import { getIntroContent } from "../../modules/intro/intro-data.js";
 import "./large-card.js";
 
 /* Intro viewer: content is local; shared surface is supplied by Large Card + Standard CSS. */

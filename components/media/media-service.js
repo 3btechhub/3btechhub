@@ -1,4 +1,4 @@
-import { supabase } from "./supabase-client.js";
+import { supabase } from "../system/supabase-client.js";
 
 export const MEDIA_BUCKET = "site-media";
 export const MEDIA_MAX_FILE_SIZE = 10 * 1024 * 1024;

@@ -4,7 +4,7 @@
   const MODE_KEY = "3btechhub-color-mode";
   const THEME_KEY = "3btechhub-theme";
   const scriptUrl = document.currentScript?.src;
-  const themesBase = scriptUrl ? new URL("../themes/", scriptUrl) : null;
+  const themesBase = scriptUrl ? new URL("../../themes/", scriptUrl) : null;
   const managedStyles = new Map();
   const systemPreference = window.matchMedia
     ? window.matchMedia("(prefers-color-scheme: dark)")
@@ -81,87 +81,19 @@
       ensureStylesheet("standard", new URL("standard.css", base).href),
       ensureStylesheet("heading", new URL("heading.css", base).href),
       ensureStylesheet("mode", new URL(resolvedMode + ".css", base).href),
-      ensureStylesheet("navigation", new URL("navigation.css", base).href),
       ensureStylesheet("medium-input", new URL("medium-input.css", base).href),
       ensureStylesheet("medium-output", new URL("medium-output.css", base).href),
       ensureStylesheet("medium-button", new URL("medium-button.css", base).href),
-      ensureStylesheet("intro-view-card", new URL("intro-view-card.css", base).href),
-      ensureStylesheet("intro-editor-card", new URL("intro-editor-card.css", base).href),
-      ensureStylesheet("our-services", new URL("our-services.css", base).href),
-      ensureStylesheet("service-category-editor-card", new URL("service-category-editor-card.css", base).href),
-      ensureStylesheet("media-library", new URL("media-library.css", base).href)
+      ensureStylesheet("navigation", new URL("../../components/navigation/navigation.css", scriptUrl).href),
+      ensureStylesheet("large-card", new URL("../../components/cards/large-card.css", scriptUrl).href),
+      ensureStylesheet("mini-card", new URL("../../components/cards/mini-card.css", scriptUrl).href),
+      ensureStylesheet("login-form", new URL("../../components/account/login-form.css", scriptUrl).href),
+      ensureStylesheet("account-form", new URL("../../components/account/account-form.css", scriptUrl).href),
+      ensureStylesheet("intro-view-card", new URL("../../components/intro/intro-view-card.css", scriptUrl).href),
+      ensureStylesheet("intro-editor-card", new URL("../../components/intro/intro-editor-card.css", scriptUrl).href),
+      ensureStylesheet("our-services", new URL("../../components/services/our-services.css", scriptUrl).href),
+      ensureStylesheet("service-category-editor-card", new URL("../../components/services/service-category-editor-card.css", scriptUrl).href),
+      ensureStylesheet("media-uploader-view", new URL("../../components/media/media-uploader-view.css", scriptUrl).href)
     ];
 
-    const pageForm = document.documentElement.dataset.pageForm;
-    if (pageForm === "login" || pageForm === "account") {
-      const stylesheetName = pageForm + "-form";
-      loads.push(
-        ensureStylesheet(
-          stylesheetName,
-          new URL(stylesheetName + ".css", base).href
-        )
-      );
-    }
 
-    if (initial) {
-      return Promise.all(loads).finally(() => {
-        delete document.documentElement.dataset.themeLoading;
-        document.documentElement.dataset.themeReady = "true";
-      });
-    }
-
-    return Promise.all(loads);
-  }
-
-  function setMode(value) {
-    if (!["system", "light", "dark"].includes(value)) return;
-
-    mode = value;
-    try {
-      localStorage.setItem(MODE_KEY, mode);
-    } catch {
-      // The current page still receives the selected mode.
-    }
-    applyTheme();
-  }
-
-  function setTheme(value) {
-    if (typeof value !== "string" || !/^[a-z0-9-]+$/.test(value)) return;
-
-    theme = value;
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch {
-      // The current page still receives the selected theme.
-    }
-    applyTheme();
-  }
-
-  function handleSystemPreferenceChange() {
-    if (mode === "system") applyTheme();
-  }
-
-  if (systemPreference) {
-    if (typeof systemPreference.addEventListener === "function") {
-      systemPreference.addEventListener("change", handleSystemPreferenceChange);
-    } else if (typeof systemPreference.addListener === "function") {
-      systemPreference.addListener(handleSystemPreferenceChange);
-    }
-  }
-
-  window.addEventListener("storage", event => {
-    if (event.key === MODE_KEY) mode = readMode();
-    if (event.key === THEME_KEY) theme = readTheme();
-    if (event.key === MODE_KEY || event.key === THEME_KEY) applyTheme();
-  });
-
-  window.ThemeController = {
-    getMode: () => mode,
-    getResolvedMode,
-    setMode,
-    getTheme: () => theme,
-    setTheme
-  };
-
-  applyTheme(true);
-})();

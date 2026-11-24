@@ -1,4 +1,4 @@
-import { supabase } from "./supabase-client.js";
+import { supabase } from "../system/supabase-client.js";
 import "./large-card.js";
 
 /* Login behavior and fields stay local; shared surface is Large Card + Standard CSS. */

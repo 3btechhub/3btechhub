@@ -6,7 +6,7 @@
   const script = document.currentScript;
   if (!script) return;
 
-  const rootUrl = new URL("../", script.src);
+  const rootUrl = new URL("../../", script.src);
   const root = document.createElement("div");
   root.id = "site-navigation";
   root.dataset.open = "false";
@@ -117,8 +117,8 @@
 
   async function updateNavigationVisibility() {
     try {
-      const { canSeeTarget } = await import(new URL("rbv.js", script.src).href);
-      const { supabase } = await import(new URL("supabase-client.js", script.src).href);
+      const { canSeeTarget } = await import(new URL("../visibility/rbv.js", script.src).href);
+      const { supabase } = await import(new URL("../system/supabase-client.js", script.src).href);
 
       const items = [...list.querySelectorAll("[data-navigation-key]")];
       await Promise.all(items.map(async item => {
