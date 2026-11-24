@@ -81,7 +81,8 @@
       ensureStylesheet("standard", new URL("standard.css", base).href),
       ensureStylesheet("mode", new URL(resolvedMode + ".css", base).href),
       ensureStylesheet("navigation", new URL("navigation.css", base).href),
-      ensureStylesheet("medium-input-box", new URL("medium-input-box.css", base).href),
+      ensureStylesheet("medium-input", new URL("medium-input.css", base).href),
+      ensureStylesheet("medium-output", new URL("medium-output.css", base).href),
       ensureStylesheet("medium-button", new URL("medium-button.css", base).href)
     ];
 
