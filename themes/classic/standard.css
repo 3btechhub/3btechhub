@@ -83,7 +83,8 @@ large-card {
 }
 
 /* Home page: keep sibling content cards separated by the Standard Gap. */
-html[data-page-rbv-key="home"] main {
+html[data-page-rbv-key="home"] main,
+html[data-page-rbv-key="dashboard"] main {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-standard-gap);
