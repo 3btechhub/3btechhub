@@ -10,17 +10,36 @@
   <script src="../components/navigation/navigation.js" defer></script>
   <script type="module" src="../components/system/auth-guard.js"></script>
   <script type="module" src="../components/visibility/rbv.js"></script>
+  <script type="module" src="../components/dashboard/dashboard-tabs.js"></script>
   <script type="module" src="../components/intro/intro-editor-card.js"></script>
   <script type="module" src="../components/services/service-category-editor-card.js"></script>
 </head>
 <body>
   <main>
-    <rbv-visibility data-target-type="editor" data-target-key="intro-editor-card">
-      <intro-editor-card></intro-editor-card>
-    </rbv-visibility>
-    <rbv-visibility data-target-type="editor" data-target-key="service-category-editor-card">
-      <service-category-editor-card></service-category-editor-card>
-    </rbv-visibility>
+    <dashboard-tabs>
+      <div class="dashboard-tabs__list" role="tablist" aria-label="Dashboard modules">
+        <button class="dashboard-tabs__tab" id="dashboard-tab-intro" type="button" role="tab"
+          aria-controls="dashboard-panel-intro" aria-selected="true" tabindex="0" data-dashboard-tab="intro">Intro</button>
+        <button class="dashboard-tabs__tab" id="dashboard-tab-services" type="button" role="tab"
+          aria-controls="dashboard-panel-services" aria-selected="false" tabindex="-1" data-dashboard-tab="services">Our Services</button>
+      </div>
+
+      <div class="dashboard-tabs__panels">
+        <section class="dashboard-tabs__panel" id="dashboard-panel-intro" role="tabpanel"
+          aria-labelledby="dashboard-tab-intro" data-dashboard-panel="intro">
+          <rbv-visibility data-target-type="editor" data-target-key="intro-editor-card">
+            <intro-editor-card></intro-editor-card>
+          </rbv-visibility>
+        </section>
+
+        <section class="dashboard-tabs__panel" id="dashboard-panel-services" role="tabpanel"
+          aria-labelledby="dashboard-tab-services" data-dashboard-panel="services" hidden>
+          <rbv-visibility data-target-type="editor" data-target-key="service-category-editor-card">
+            <service-category-editor-card></service-category-editor-card>
+          </rbv-visibility>
+        </section>
+      </div>
+    </dashboard-tabs>
   </main>
 </body>
 </html>
