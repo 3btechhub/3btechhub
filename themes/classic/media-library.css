@@ -1,6 +1,6 @@
 /* Media Upload — minimal URL input and equal-width actions. */
 media-upload { display: block; width: 100%; }
-large-card.media-library-upload {
+.media-library-upload {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-medium);
