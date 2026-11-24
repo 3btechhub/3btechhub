@@ -79,6 +79,7 @@
     const base = new URL(encodeURIComponent(theme) + "/", themesBase);
     const loads = [
       ensureStylesheet("standard", new URL("standard.css", base).href),
+      ensureStylesheet("heading", new URL("heading.css", base).href),
       ensureStylesheet("mode", new URL(resolvedMode + ".css", base).href),
       ensureStylesheet("navigation", new URL("navigation.css", base).href),
       ensureStylesheet("medium-input", new URL("medium-input.css", base).href),
