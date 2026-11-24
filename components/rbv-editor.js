@@ -48,7 +48,7 @@ class RbvEditor extends HTMLElement {
       const checked = this.selected.has(role.id);
       return `
         <label class="service-category-editor-card__role">
-          <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""} ${isOwner ? "disabled" : ""}>
+          <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""} ${isOwner ? "data-owner disabled" : ""}>
           <span>${this.escape(role.name)}${isOwner ? " (Always selected)" : ""}</span>
         </label>
       `;
@@ -84,7 +84,7 @@ class RbvEditor extends HTMLElement {
   }
 
   setControlsDisabled(disabled) {
-    this.querySelectorAll('input[type="checkbox"]:not(:disabled)').forEach(input => {
+    this.querySelectorAll('input[type="checkbox"]:not([data-owner])').forEach(input => {
       input.disabled = disabled;
     });
     const saveButton = this.querySelector(".rbv-editor__save");
