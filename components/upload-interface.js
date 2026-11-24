@@ -26,6 +26,7 @@ class MediaUpload extends HTMLElement {
     this.urlInput = this.querySelector(".media-library-upload__url");
     this.uploadButton = this.querySelector(".media-library-upload__submit");
     this.status = this.querySelector(".media-library-upload__status");
+    this.fileInput.accept = this.getAttribute("accept") || "";
 
     this.selectButton.addEventListener("click", () => this.fileInput.click());
 
@@ -33,6 +34,11 @@ class MediaUpload extends HTMLElement {
       const file = this.fileInput.files?.[0];
       if (file) {
         this.urlInput.value = "";
+        this.urlInput.dispatchEvent(new CustomEvent("media-url-changed", {
+          bubbles: true,
+          composed: true,
+          detail: { url: "" }
+        }));
         this.showStatus(file.name);
       } else {
         this.clearStatus();
