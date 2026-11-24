@@ -1,10 +1,13 @@
 dashboard-tabs {
   display: block;
+  position: static;
   width: 100%;
   min-width: 0;
+  /* Tabs remain in normal document flow and scroll away with the page. */
 }
 
 .dashboard-tabs__list {
+  position: static;
   display: flex;
   align-items: center;
   gap: var(--spacing-standard-gap, 12px);
