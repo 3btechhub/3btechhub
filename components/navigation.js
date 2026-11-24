@@ -136,7 +136,7 @@
         item.hidden = !visible;
       }));
     } catch (error) {
-      console.error("Navigation visibility check failed.", error);
+      console.error("Supabase navigation RBV authorization failed.", error);
     }
   }
 
