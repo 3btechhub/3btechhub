@@ -45,13 +45,6 @@
   --outline-focus-offset: 3px;
 }
 
-.form-stack {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-medium);
-}
-
 .text-center {
   text-align: center;
 }
