@@ -6,6 +6,9 @@
   const scriptUrl = document.currentScript?.src;
   const themesBase = scriptUrl ? new URL("../themes/", scriptUrl) : null;
   const managedStyles = new Map();
+  const systemPreference = window.matchMedia
+    ? window.matchMedia("(prefers-color-scheme: dark)")
+    : null;
 
   function readStored(key, fallback) {
     try {
@@ -16,7 +19,8 @@
   }
 
   function readMode() {
-    return readStored(MODE_KEY, "light") === "dark" ? "dark" : "light";
+    const value = readStored(MODE_KEY, "system");
+    return ["system", "light", "dark"].includes(value) ? value : "system";
   }
 
   function readTheme() {
@@ -26,6 +30,13 @@
 
   let mode = readMode();
   let theme = readTheme();
+
+  function getResolvedMode() {
+    if (mode === "system") {
+      return systemPreference?.matches ? "dark" : "light";
+    }
+    return mode;
+  }
 
   function ensureStylesheet(name, href) {
     let link = managedStyles.get(name);
@@ -40,17 +51,23 @@
   }
 
   function applyTheme() {
-    document.documentElement.dataset.colorMode = mode;
+    const resolvedMode = getResolvedMode();
+    document.documentElement.dataset.colorMode = resolvedMode;
+
     if (!themesBase) return;
 
     const base = new URL(encodeURIComponent(theme) + "/", themesBase);
+
     ensureStylesheet("standard", new URL("standard.css", base).href);
-    ensureStylesheet("mode", new URL(mode + ".css", base).href);
+    ensureStylesheet("mode", new URL(resolvedMode + ".css", base).href);
     ensureStylesheet("navigation", new URL("navigation.css", base).href);
+    ensureStylesheet("medium-input-box", new URL("medium-input-box.css", base).href);
+    ensureStylesheet("medium-input-button", new URL("medium-input-button.css", base).href);
   }
 
   function setMode(value) {
-    if (value !== "light" && value !== "dark") return;
+    if (!["system", "light", "dark"].includes(value)) return;
+
     mode = value;
     try {
       localStorage.setItem(MODE_KEY, mode);
@@ -62,6 +79,7 @@
 
   function setTheme(value) {
     if (typeof value !== "string" || !/^[a-z0-9-]+$/.test(value)) return;
+
     theme = value;
     try {
       localStorage.setItem(THEME_KEY, theme);
@@ -69,6 +87,18 @@
       // The current page still receives the selected theme.
     }
     applyTheme();
+  }
+
+  function handleSystemPreferenceChange() {
+    if (mode === "system") applyTheme();
+  }
+
+  if (systemPreference) {
+    if (typeof systemPreference.addEventListener === "function") {
+      systemPreference.addEventListener("change", handleSystemPreferenceChange);
+    } else if (typeof systemPreference.addListener === "function") {
+      systemPreference.addListener(handleSystemPreferenceChange);
+    }
   }
 
   window.addEventListener("storage", event => {
@@ -79,6 +109,7 @@
 
   window.ThemeController = {
     getMode: () => mode,
+    getResolvedMode,
     setMode,
     getTheme: () => theme,
     setTheme
