@@ -94,11 +94,11 @@
       ["account-form", component("account/account-form.css")],
       ["intro-view-card", component("intro/intro-view-card.css")],
       ["intro-editor-card", component("intro/intro-editor-card.css")],
-      ["services", component("services/services.css")],
+      ["services", component("services/services-viewer.css")],
       ["service-category-editor-card", component("services/service-category-editor-card.css")],
       ["media-uploader-view", component("media/media-uploader-view.css")],
-      ["rbv-editor", component("visibility/rbv-editor.css")],
-      ["dashboard-tabs", component("dashboard/dashboard-tabs.css")]
+      ["rbv-editor", component("visibility/rbv-viewer.css")],
+      ["dashboard-tabs", component("dashboard/dashboard-tab.css")]
     ];
 
     await Promise.all(styles.map(([name, href]) => ensureStylesheet(name, href)));
