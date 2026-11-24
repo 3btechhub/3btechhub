@@ -9,6 +9,9 @@
   const systemPreference = window.matchMedia
     ? window.matchMedia("(prefers-color-scheme: dark)")
     : null;
+  let mode = readStored(MODE_KEY, "system");
+  let theme = readStored(THEME_KEY, "classic");
+  let applySequence = 0;
 
   document.documentElement.dataset.themeLoading = "true";
   const loadingStyle = document.createElement("style");
@@ -23,28 +26,24 @@
     }
   }
 
-  function readMode() {
-    const value = readStored(MODE_KEY, "system");
+  function normalizeMode(value) {
     return ["system", "light", "dark"].includes(value) ? value : "system";
   }
 
-  function readTheme() {
-    const value = readStored(THEME_KEY, "classic");
-    return /^[a-z0-9-]+$/.test(value) ? value : "classic";
+  function normalizeTheme(value) {
+    return /^[a-z0-9-]+$/.test(value || "") ? value : "classic";
   }
 
-  let mode = readMode();
-  let theme = readTheme();
+  mode = normalizeMode(mode);
+  theme = normalizeTheme(theme);
 
   function getResolvedMode() {
-    if (mode === "system") {
-      return systemPreference?.matches ? "dark" : "light";
-    }
-    return mode;
+    return mode === "system" ? (systemPreference?.matches ? "dark" : "light") : mode;
   }
 
   function ensureStylesheet(name, href) {
-    let link = managedStyles.get(name) || document.querySelector('link[data-theme-controller="' + name + '"]');
+    let link = managedStyles.get(name) ||
+      document.querySelector('link[data-theme-controller="' + name + '"]');
 
     if (link?.href === href && link.sheet) return Promise.resolve();
 
@@ -59,42 +58,110 @@
     return new Promise(resolve => {
       const finish = () => resolve();
       link.addEventListener("load", finish, { once: true });
-      link.addEventListener("error", finish, { once: true });
+      link.addEventListener("error", () => {
+        console.error("Stylesheet could not be loaded:", href);
+        finish();
+      }, { once: true });
       link.href = href;
     });
   }
 
-  function applyTheme(initial = false) {
-    const resolvedMode = getResolvedMode();
-    document.documentElement.dataset.colorMode = resolvedMode;
+  async function applyTheme(initial = false) {
+    const sequence = ++applySequence;
+    document.documentElement.dataset.colorMode = getResolvedMode();
 
-    if (!themesBase) {
+    if (!themesBase || !scriptUrl) {
       if (initial) {
         delete document.documentElement.dataset.themeLoading;
         document.documentElement.dataset.themeReady = "true";
       }
-      return Promise.resolve();
+      return;
     }
 
     const base = new URL(encodeURIComponent(theme) + "/", themesBase);
-    const loads = [
-      ensureStylesheet("standard", new URL("standard.css", base).href),
-      ensureStylesheet("heading", new URL("heading.css", base).href),
-      ensureStylesheet("mode", new URL(resolvedMode + ".css", base).href),
-      ensureStylesheet("medium-input", new URL("medium-input.css", base).href),
-      ensureStylesheet("medium-output", new URL("medium-output.css", base).href),
-      ensureStylesheet("medium-button", new URL("medium-button.css", base).href),
-      ensureStylesheet("large-card", new URL("../../components/cards/large-card.css", scriptUrl).href),
-      ensureStylesheet("mini-card", new URL("../../components/cards/mini-card.css", scriptUrl).href),
-      ensureStylesheet("navigation", new URL("../../components/navigation/navigation.css", scriptUrl).href),
-      ensureStylesheet("login-form", new URL("../../components/account/login-form.css", scriptUrl).href),
-      ensureStylesheet("account-form", new URL("../../components/account/account-form.css", scriptUrl).href),
-      ensureStylesheet("intro-view-card", new URL("../../components/intro/intro-view-card.css", scriptUrl).href),
-      ensureStylesheet("intro-editor-card", new URL("../../components/intro/intro-editor-card.css", scriptUrl).href),
-      ensureStylesheet("our-services", new URL("../../components/services/our-services.css", scriptUrl).href),
-      ensureStylesheet("service-category-editor-card", new URL("../../components/services/service-category-editor-card.css", scriptUrl).href),
-      ensureStylesheet("media-uploader-view", new URL("../../components/media/media-uploader-view.css", scriptUrl).href),
-      ensureStylesheet("rbv-editor", new URL("../../components/visibility/rbv-editor.css", scriptUrl).href)
+    const component = path => new URL("../../components/" + path, scriptUrl).href;
+    const styles = [
+      ["standard", new URL("standard.css", base).href],
+      ["heading", new URL("heading.css", base).href],
+      ["mode", new URL(getResolvedMode() + ".css", base).href],
+      ["medium-input", new URL("medium-input.css", base).href],
+      ["medium-output", new URL("medium-output.css", base).href],
+      ["medium-button", new URL("medium-button.css", base).href],
+      ["large-card", component("cards/large-card.css")],
+      ["mini-card", component("cards/mini-card.css")],
+      ["navigation", component("navigation/navigation.css")],
+      ["login-form", component("account/login-form.css")],
+      ["account-form", component("account/account-form.css")],
+      ["intro-view-card", component("intro/intro-view-card.css")],
+      ["intro-editor-card", component("intro/intro-editor-card.css")],
+      ["our-services", component("services/our-services.css")],
+      ["service-category-editor-card", component("services/service-category-editor-card.css")],
+      ["media-uploader-view", component("media/media-uploader-view.css")],
+      ["rbv-editor", component("visibility/rbv-editor.css")]
     ];
 
+    await Promise.all(styles.map(([name, href]) => ensureStylesheet(name, href)));
+    if (sequence !== applySequence) return;
 
+    document.documentElement.dataset.theme = theme;
+    document.documentElement.dataset.themeReady = "true";
+    delete document.documentElement.dataset.themeLoading;
+  }
+
+  function persist(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch (error) {
+      console.warn("Theme preference could not be saved.", error);
+    }
+  }
+
+  function setMode(value) {
+    mode = normalizeMode(value);
+    persist(MODE_KEY, mode);
+    return applyTheme();
+  }
+
+  function setTheme(value) {
+    theme = normalizeTheme(value);
+    persist(THEME_KEY, theme);
+    document.documentElement.dataset.themeLoading = "true";
+    return applyTheme();
+  }
+
+  window.addEventListener("storage", event => {
+    if (event.key === MODE_KEY) {
+      mode = normalizeMode(readStored(MODE_KEY, "system"));
+      applyTheme();
+    }
+    if (event.key === THEME_KEY) {
+      theme = normalizeTheme(readStored(THEME_KEY, "classic"));
+      document.documentElement.dataset.themeLoading = "true";
+      applyTheme();
+    }
+  });
+
+  if (systemPreference?.addEventListener) {
+    systemPreference.addEventListener("change", () => {
+      if (mode === "system") applyTheme();
+    });
+  } else if (systemPreference?.addListener) {
+    systemPreference.addListener(() => {
+      if (mode === "system") applyTheme();
+    });
+  }
+
+  window.ThemeController = {
+    getMode: () => mode === "system" ? getResolvedMode() : mode,
+    getModePreference: () => mode,
+    setMode,
+    getTheme: () => theme,
+    setTheme
+  };
+
+  applyTheme(true).catch(error => {
+    console.error("Theme initialization failed.", error);
+    document.documentElement.dataset.themeReady = "false";
+    delete document.documentElement.dataset.themeLoading;
+  });
+})();
