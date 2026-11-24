@@ -1,4 +1,4 @@
-import { uploadMedia, getMediaAssetUrl, uploadServiceAsset } from "./media-service.js";
+import { uploadMedia, getMediaAssetUrl, uploadServiceAsset } from "./media.js";
 import "../cards/large-card.js";
 
 class MediaUpload extends HTMLElement {
