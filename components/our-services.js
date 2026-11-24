@@ -46,7 +46,7 @@ class OurServices extends HTMLElement {
             image = signed?.signedUrl || "";
           }
         }
-        return { ...category, image };
+        return { ...category, image, iconUrl: category.icon || "" };
       }));
 
       this._categories = categories;
@@ -88,12 +88,23 @@ class OurServices extends HTMLElement {
         image.alt = category.name || "";
         image.loading = "lazy";
         card.append(image);
-      } else if (category.icon) {
-        const icon = document.createElement("span");
-        icon.className = "our-services__icon";
-        icon.textContent = category.icon;
-        icon.setAttribute("aria-hidden", "true");
-        card.append(icon);
+      }
+
+      if (category.iconUrl) {
+        if (/^https?:\/\//i.test(category.iconUrl)) {
+          const icon = document.createElement("img");
+          icon.className = "our-services__icon our-services__icon-image";
+          icon.src = category.iconUrl;
+          icon.alt = "";
+          icon.loading = "lazy";
+          card.append(icon);
+        } else {
+          const icon = document.createElement("span");
+          icon.className = "our-services__icon";
+          icon.textContent = category.iconUrl;
+          icon.setAttribute("aria-hidden", "true");
+          card.append(icon);
+        }
       }
 
       const name = document.createElement("h3");
