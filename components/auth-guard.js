@@ -1,12 +1,13 @@
 import { supabase } from "./supabase-client.js";
 import { canSeeTarget } from "./rbv.js";
 
-const permission = document.documentElement.dataset.pagePermission;
-const pageKey = document.documentElement.dataset.pageRbvKey || "dashboard";
+const html = document.documentElement;
+const permission = html.dataset.pagePermission;
+const pageKey = html.dataset.pageRbvKey || "dashboard";
 const rootUrl = new URL("../", import.meta.url);
 
-function showPage() {
-  document.documentElement.classList.remove("auth-pending");
+function revealAuthorizedPage() {
+  html.classList.remove("rbv-pending", "auth-pending");
 }
 
 function goToLogin() {
@@ -23,39 +24,34 @@ function goToHome() {
 }
 
 async function protectPage() {
-  if (!permission || !pageKey) {
-    goToHome();
-    return;
-  }
+  if (!permission || !pageKey) return;
 
   const { data: { user }, error: userError } = await supabase.auth.getUser();
-
   if (userError || !user) {
     goToLogin();
     return;
   }
 
-  const visible = await canSeeTarget("page", pageKey);
+  const [visible, permissionResult] = await Promise.all([
+    canSeeTarget("page", pageKey),
+    supabase.rpc("can_access_page", { permission_slug: permission })
+  ]);
+
   if (!visible) {
     goToHome();
     return;
   }
 
-  const { data: allowed, error: permissionError } = await supabase.rpc(
-    "can_access_page",
-    { permission_slug: permission }
-  );
-
-  if (permissionError || allowed !== true) {
-    console.error("Page access check failed.", permissionError);
+  if (permissionResult.error || permissionResult.data !== true) {
+    console.error("Supabase page permission check failed.", permissionResult.error);
     goToHome();
     return;
   }
 
-  showPage();
+  revealAuthorizedPage();
 }
 
 protectPage().catch(error => {
-  console.error("Authentication check failed.", error);
+  console.error("Supabase Auth/RBV page authorization failed.", error);
   goToHome();
 });
