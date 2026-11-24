@@ -1,4 +1,4 @@
-import { uploadMedia, getMediaAssetUrl, uploadServiceCategoryAsset } from "./media-service.js";
+import { uploadMedia, getMediaAssetUrl, uploadServiceAsset } from "./media-service.js";
 import "../cards/large-card.js";
 
 class MediaUpload extends HTMLElement {
@@ -83,7 +83,7 @@ class MediaUpload extends HTMLElement {
       let url;
       if (assetKind === "service-image" || assetKind === "service-icon") {
         const kind = assetKind === "service-image" ? "image" : "icon";
-        asset = await uploadServiceCategoryAsset({ file, kind });
+        asset = await uploadServiceAsset({ file, kind });
         url = asset.public_url;
       } else {
         asset = await uploadMedia({
