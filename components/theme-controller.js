@@ -39,7 +39,7 @@
   }
 
   function ensureStylesheet(name, href) {
-    let link = managedStyles.get(name);
+    let link = managedStyles.get(name) || document.querySelector('link[data-theme-controller="' + name + '"]');
     if (!link) {
       link = document.createElement("link");
       link.rel = "stylesheet";
