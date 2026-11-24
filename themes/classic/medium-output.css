@@ -1,10 +1,10 @@
 /* Medium output: displays values. */
 .medium-output {
-  box-sizing: border-box;
-  width: 100%;
-  min-width: var(--spacing-zero);
+  box-sizing: var(--size-control-box-sizing);
+  width: var(--size-control-width);
+  min-width: var(--size-control-min-width);
   height: var(--size-input-medium);
-  padding: var(--spacing-zero) var(--spacing-medium);
+  padding: var(--spacing-control-block) var(--spacing-medium);
   border: var(--border-width-thin) solid var(--color-input-border, var(--color-border));
   border-radius: var(--radius-small);
   background: var(--color-input-bg, var(--color-surface-raised));
