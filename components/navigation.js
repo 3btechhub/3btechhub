@@ -19,9 +19,9 @@
   list.className = "navigation-list";
 
   const pages = [
-    ["Home", "home/index.html"],
-    ["Account", "account/index.html"],
-    ["Dashboard", "dashboard/index.html"]
+    ["Home", "home/index.html", "home"],
+    ["Account", "account/index.html", "account"],
+    ["Dashboard", "dashboard/index.html", "dashboard"]
   ];
 
   const toggle = document.createElement("button");
@@ -51,12 +51,11 @@
     updateModeLabel();
   }
 
-  pages.forEach(([label, path]) => {
+  pages.forEach(([label, path, key]) => {
     const item = document.createElement("li");
-    if (label === "Dashboard") {
-      item.hidden = true;
-      item.dataset.dashboardLink = "true";
-    }
+    item.hidden = true;
+    item.dataset.navigationKey = key;
+
     const link = document.createElement("a");
     link.href = new URL(path, rootUrl).href;
     link.textContent = label;
@@ -89,7 +88,6 @@
 
   modeItem.appendChild(modeButton);
   list.appendChild(modeItem);
-
   menu.appendChild(list);
 
   toggle.addEventListener("click", () => {
@@ -117,27 +115,30 @@
   root.append(menu, toggle);
   document.body.appendChild(root);
 
-  async function updateDashboardLink() {
-    const dashboardItem = list.querySelector('[data-dashboard-link="true"]');
-    if (!dashboardItem) return;
-
+  async function updateNavigationVisibility() {
     try {
-      const { supabase } = await import(
-        new URL("supabase-client.js", script.src).href
-      );
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError || !user) return;
+      const { canSeeTarget } = await import(new URL("rbv.js", script.src).href);
+      const { supabase } = await import(new URL("supabase-client.js", script.src).href);
 
-      const { data: allowed, error } = await supabase.rpc(
-        "can_access_page",
-        { permission_slug: "page.dashboard.view" }
-      );
+      const items = [...list.querySelectorAll("[data-navigation-key]")];
+      await Promise.all(items.map(async item => {
+        const key = item.dataset.navigationKey;
+        let visible = await canSeeTarget("navigation", key);
 
-      dashboardItem.hidden = Boolean(error) || allowed !== true;
+        if (visible && key === "dashboard") {
+          const { data: allowed, error } = await supabase.rpc(
+            "can_access_page",
+            { permission_slug: "page.dashboard.view" }
+          );
+          visible = !error && allowed === true;
+        }
+
+        item.hidden = !visible;
+      }));
     } catch (error) {
-      console.error("Dashboard navigation access check failed.", error);
+      console.error("Navigation visibility check failed.", error);
     }
   }
 
-  updateDashboardLink();
+  updateNavigationVisibility();
 })();
