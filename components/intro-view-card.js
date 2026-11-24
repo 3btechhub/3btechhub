@@ -30,9 +30,11 @@ class IntroViewCard extends HTMLElement {
       const content = await getIntroContent();
       if (!content) return;
 
-      this.querySelector(".intro-view-card__heading").textContent = content.heading || "";
-      this.querySelector(".intro-view-card__description").textContent = content.sub_heading || "";
-      card.hidden = !(content.heading || content.sub_heading);
+      const heading = String(content.heading || "").trim();
+      const description = String(content.sub_heading || "").trim();
+      this.querySelector(".intro-view-card__heading").textContent = heading;
+      this.querySelector(".intro-view-card__description").textContent = description;
+      card.hidden = !heading && !description;
     } catch (error) {
       console.error("Intro content could not be loaded.", error);
       card.hidden = true;
