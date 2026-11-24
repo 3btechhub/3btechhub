@@ -1,5 +1,6 @@
 import { supabase } from "./supabase-client.js";
 import "./large-card.js";
+import "./mini-card.js";
 
 /*
  * Our Services — Service Category viewer.
@@ -78,7 +79,7 @@ class OurServices extends HTMLElement {
     grid.className = "our-services__grid";
 
     for (const category of this._categories) {
-      const card = document.createElement("div");
+      const card = document.createElement("mini-card");
       card.className = "our-services__item";
 
       if (category.image) {
