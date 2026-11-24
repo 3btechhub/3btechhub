@@ -4,11 +4,82 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Account</title>
+  <style>
+    .account-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .account-content {
+      width: min(320px, calc(100vw - 32px));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-medium);
+    }
+  </style>
   <script src="../components/theme-controller.js"></script>
   <script src="../components/direction-controller.js"></script>
   <script src="../components/navigation.js" defer></script>
   <script type="module" src="../components/auth-guard.js"></script>
+  <script type="module">
+    import { supabase } from "../components/supabase-client.js";
+
+    const nameInput = document.querySelector("#account-name");
+    const emailInput = document.querySelector("#account-email");
+    const logoutButton = document.querySelector("#account-logout");
+
+    async function loadAccount() {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error || !user) return;
+
+      nameInput.value =
+        user.user_metadata?.name ||
+        user.user_metadata?.full_name ||
+        "";
+      emailInput.value = user.email || "";
+    }
+
+    logoutButton.addEventListener("click", async () => {
+      logoutButton.disabled = true;
+
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Logout failed.", error);
+        logoutButton.disabled = false;
+        return;
+      }
+
+      window.location.replace(new URL("../login/", window.location.href).href);
+    });
+
+    loadAccount().catch(error => {
+      console.error("Account details could not be loaded.", error);
+    });
+  </script>
 </head>
 <body>
+  <main class="account-page">
+    <section class="account-content" aria-label="Account details">
+      <input
+        id="account-name"
+        class="medium-input"
+        type="text"
+        placeholder="Name"
+        autocomplete="name"
+        readonly
+      >
+      <input
+        id="account-email"
+        class="medium-input"
+        type="email"
+        placeholder="Email"
+        autocomplete="email"
+        readonly
+      >
+      <button id="account-logout" class="medium-button" type="button">Logout</button>
+    </section>
+  </main>
 </body>
 </html>
