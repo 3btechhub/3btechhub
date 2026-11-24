@@ -1,4 +1,4 @@
-import { uploadMedia, getMediaAssetUrl } from "./media-service.js";
+import { uploadMedia, getMediaAssetUrl, uploadServiceCategoryAsset } from "./media-service.js";
 import "./large-card.js";
 
 class MediaUpload extends HTMLElement {
@@ -13,7 +13,7 @@ class MediaUpload extends HTMLElement {
     this.innerHTML = `
       <${wrapper} class="media-library-upload" aria-label="Upload media">
         <input class="media-library-upload__file" type="file" hidden>
-        <input class="medium-input media-library-upload__url" type="url" inputmode="url" placeholder="File URL or external URL" aria-label="File URL or external URL">
+        <input class="medium-input media-library-upload__url" type="url" inputmode="url" placeholder="${this.getAttribute("placeholder") || "File URL or external URL"}" aria-label="Media URL">
         <div class="media-library-upload__actions">
           <button class="medium-button media-library-upload__select" type="button">Select File</button>
           <button class="medium-button media-library-upload__submit" type="button" disabled>Upload</button>
@@ -78,12 +78,21 @@ class MediaUpload extends HTMLElement {
     this.showStatus("Uploading…");
 
     try {
-      const asset = await uploadMedia({
-        file,
-        url: "",
-        visibility: this.dataset.visibility === "public" ? "public" : "private"
-      });
-      const url = await getMediaAssetUrl(asset.id);
+      const assetKind = this.getAttribute("asset-kind");
+      let asset;
+      let url;
+      if (assetKind === "service-image" || assetKind === "service-icon") {
+        const kind = assetKind === "service-image" ? "image" : "icon";
+        asset = await uploadServiceCategoryAsset({ file, kind });
+        url = asset.public_url;
+      } else {
+        asset = await uploadMedia({
+          file,
+          url: "",
+          visibility: this.dataset.visibility === "public" ? "public" : "private"
+        });
+        url = await getMediaAssetUrl(asset.id);
+      }
 
       this.urlInput.value = url;
       this.fileInput.value = "";
