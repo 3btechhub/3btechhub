@@ -102,9 +102,13 @@ async function fileFromUrl(value) {
     throw new Error("This URL does not allow browser access (CORS). Select the file from your device instead.");
   }
   if (!response.ok) throw new Error(`The URL returned an error (${response.status}).`);
+  const contentLength = Number(response.headers.get("content-length") || 0);
+  if (contentLength > MEDIA_MAX_FILE_SIZE) throw new Error("The URL file exceeds the 10 MB upload limit.");
 
   const blob = await response.blob();
-  const urlName = decodeURIComponent(parsed.pathname.split("/").filter(Boolean).pop() || "download");
+  if (blob.size > MEDIA_MAX_FILE_SIZE) throw new Error("The URL file exceeds the 10 MB upload limit.");
+  let urlName = parsed.pathname.split("/").filter(Boolean).pop() || "download";
+  try { urlName = decodeURIComponent(urlName); } catch { /* Keep the encoded filename. */ }
   const contentType = response.headers.get("content-type") || blob.type;
   const mimeType = inferMime(urlName, contentType);
   const extension = getExtension(urlName);
@@ -115,6 +119,10 @@ async function fileFromUrl(value) {
 }
 
 export async function uploadMedia({ file, url, visibility = "private" }) {
+  const hasFile = Boolean(file);
+  const hasUrl = Boolean(String(url || "").trim());
+  if (hasFile === hasUrl) throw new Error("Use Select File or URL, not both.");
+
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (authError) throw authError;
   if (!user) throw new Error("Please log in before uploading files.");
