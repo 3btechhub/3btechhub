@@ -5,39 +5,22 @@
   min-width: var(--spacing-zero);
   height: var(--size-input-medium);
   padding: var(--spacing-zero) var(--spacing-medium);
-  border: var(--border-width-thin) solid var(--color-input-border, var(--color-border));
+  border: var(--border-width-thin) solid var(--color-button-primary-bg);
   border-radius: var(--radius-small);
-  background: var(--color-input-bg, var(--color-surface-raised));
-  color: var(--color-input-text, var(--color-text));
+  background: var(--color-button-primary-bg);
+  color: var(--color-button-primary-text);
   font: inherit;
   font-size: var(--font-size-medium);
   font-weight: 700;
   line-height: var(--line-height-input);
   text-align: center;
-  transition: border-color var(--transition-standard), box-shadow var(--transition-standard);
+  transition: background-color var(--transition-standard), border-color var(--transition-standard), box-shadow var(--transition-standard);
   cursor: pointer;
 }
 
-:root[data-color-mode="light"] .medium-button {
-  background: #8ab4f8;
-  color: #202124;
-  border-color: #8ab4f8;
-}
-
-:root[data-color-mode="light"] .medium-button:hover:not(:disabled) {
-  background: #a6c8ff;
-  border-color: #a6c8ff;
-}
-
-:root[data-color-mode="dark"] .medium-button {
-  background: #1a73e8;
-  color: #ffffff;
-  border-color: #1a73e8;
-}
-
-:root[data-color-mode="dark"] .medium-button:hover:not(:disabled) {
-  background: #1765cc;
-  border-color: #1765cc;
+.medium-button:hover:not(:disabled) {
+  background: var(--color-button-primary-hover);
+  border-color: var(--color-button-primary-hover);
 }
 
 .medium-button:focus-visible {
