@@ -11,16 +11,10 @@ class ServiceCategoryEditorCard extends HTMLElement {
     this.form = this.querySelector("form");
     this.message = this.querySelector(".service-category-editor-card__message");
     this.button = this.querySelector('button[type="submit"]');
-    this.mediaUploader = this.querySelector("media-upload");
-    this.uploadedStoragePath = "";
+    this.imageUploader = this.querySelector('media-upload[asset-kind="service-image"]');
+    this.iconUploader = this.querySelector('media-upload[asset-kind="service-icon"]');
 
     this.form.addEventListener("submit", event => this.save(event));
-    this.mediaUploader.addEventListener("media-uploaded", event => {
-      this.uploadedStoragePath = event.detail?.asset?.storage_path || "";
-    });
-    this.mediaUploader.addEventListener("media-url-changed", () => {
-      this.uploadedStoragePath = "";
-    });
     this.loadRoles();
   }
 
@@ -32,7 +26,8 @@ class ServiceCategoryEditorCard extends HTMLElement {
           <input class="medium-input" type="text" name="name" placeholder="Name" maxlength="180" required>
           <input class="medium-input" type="text" name="slug" placeholder="Slug" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required>
           <input class="medium-input" type="text" name="description" placeholder="Description" maxlength="1000">
-          <media-upload embedded accept="image/*" data-visibility="public"></media-upload>
+          <media-upload embedded asset-kind="service-image" accept="image/*" placeholder="Image URL or external URL"></media-upload>
+          <media-upload embedded asset-kind="service-icon" accept=".svg,.ico,.png,.webp,image/svg+xml,image/x-icon,image/png,image/webp" placeholder="Icon URL or external URL"></media-upload>
           <fieldset class="service-category-editor-card__visibility">
             <legend>Visibility</legend>
             <div class="service-category-editor-card__roles">
@@ -86,7 +81,8 @@ class ServiceCategoryEditorCard extends HTMLElement {
     const name = String(values.get("name") || "").trim();
     const slug = String(values.get("slug") || "").trim();
     const description = String(values.get("description") || "").trim();
-    const imageUrl = this.mediaUploader.urlInput.value.trim();
+    const imageUrl = this.imageUploader.urlInput.value.trim();
+    const iconUrl = this.iconUploader.urlInput.value.trim();
 
     if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)) {
       this.setMessage("Slug must use lowercase letters, numbers, and single hyphens.", true);
@@ -100,13 +96,12 @@ class ServiceCategoryEditorCard extends HTMLElement {
       if (!user) throw new Error("Please sign in again.");
 
       const visibleRoleIds = withRequiredOwner([...this.selectedRoleIds], this.roles);
-      const imagePath = this.uploadedStoragePath || imageUrl || null;
       const { error } = await supabase.from("our_services").insert({
         name,
         slug,
         description,
-        icon: "",
-        image_path: imagePath,
+        icon: iconUrl,
+        image_path: imageUrl || null,
         visible_role_ids: visibleRoleIds,
         created_by: user.id,
         updated_by: user.id
@@ -114,11 +109,12 @@ class ServiceCategoryEditorCard extends HTMLElement {
       if (error) throw error;
 
       this.form.reset();
-      this.mediaUploader.urlInput.value = "";
-      this.mediaUploader.fileInput.value = "";
-      this.mediaUploader.syncState();
-      this.mediaUploader.clearStatus();
-      this.uploadedStoragePath = "";
+      [this.imageUploader, this.iconUploader].forEach(uploader => {
+        uploader.urlInput.value = "";
+        uploader.fileInput.value = "";
+        uploader.syncState();
+        uploader.clearStatus();
+      });
       this.selectedRoleIds = new Set(withRequiredOwner([], this.roles));
       this.querySelectorAll('.service-category-editor-card__roles input[type="checkbox"]').forEach(input => {
         input.checked = this.selectedRoleIds.has(input.value);
