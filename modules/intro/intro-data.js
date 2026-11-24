@@ -1,4 +1,4 @@
-import { supabase } from "../../components/supabase-client.js";
+import { supabase } from "../../components/system/supabase-client.js";
 
 /*
  * INTRO DATA LAYER
