@@ -27,7 +27,7 @@ class OurServices extends HTMLElement {
     try {
       const { data, error } = await supabase
         .from("our_services")
-        .select("id, name, slug, icon, image_path, sort_order")
+        .select("id, name, slug, description, icon, image_path, sort_order")
         .order("sort_order", { ascending: true })
         .order("name", { ascending: true });
 
@@ -100,6 +100,13 @@ class OurServices extends HTMLElement {
       name.className = "our-services__name";
       name.textContent = category.name || "";
       card.append(name);
+
+      if (category.description) {
+        const description = document.createElement("p");
+        description.className = "our-services__description";
+        description.textContent = category.description;
+        card.append(description);
+      }
 
       grid.append(card);
     }
