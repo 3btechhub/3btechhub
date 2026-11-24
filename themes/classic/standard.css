@@ -66,3 +66,16 @@
 .text-center {
   text-align: center;
 }
+
+/* Keep Login and Account visibility wrappers full-width like the Intro card hosts. */
+.login-page > rbv-visibility,
+.account-page > rbv-visibility {
+  display: block;
+  width: 100%;
+}
+
+.login-page login-form,
+.account-page account-form {
+  display: block;
+  width: 100%;
+}
