@@ -1,36 +1,7 @@
-/* Intro Editor Card — surface design is supplied by Standard CSS. */
-intro-editor-card {
-  display: block;
-  width: 100%;
-}
-
-.intro-editor-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-medium);
-}
-
-.intro-editor-card .heading {
-  margin: 0;
-}
-
-.intro-editor-card__form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-medium);
-}
-
-.intro-editor-card__message {
-  min-height: 1.4em;
-  margin: 0;
-  color: var(--color-text);
-  text-align: center;
-}
-
-.intro-editor-card__message[data-state="error"] {
-  color: var(--color-error, var(--color-text));
-}
-
-.intro-editor-card__message[data-state="success"] {
-  color: var(--color-success, var(--color-text));
-}
+/* Intro Editor Card — content layout only; surface comes from Large Card. */
+large-card.intro-editor-card { display: flex; flex-direction: column; gap: var(--spacing-medium); }
+.intro-editor-card .heading { margin: 0; }
+.intro-editor-card__form { display: flex; flex-direction: column; gap: var(--spacing-medium); }
+.intro-editor-card__message { min-height: 1.4em; margin: 0; color: var(--color-text); text-align: center; }
+.intro-editor-card__message[data-state="error"] { color: var(--color-error, var(--color-text)); }
+.intro-editor-card__message[data-state="success"] { color: var(--color-success, var(--color-text)); }
