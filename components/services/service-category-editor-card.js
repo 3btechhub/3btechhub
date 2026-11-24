@@ -28,9 +28,9 @@ class ServiceCategoryEditorCard extends HTMLElement {
           <input class="medium-input" type="text" name="description" placeholder="Description" maxlength="1000">
           <media-upload embedded asset-kind="service-image" accept="image/*" placeholder="Image URL or external URL"></media-upload>
           <media-upload embedded asset-kind="service-icon" accept=".svg,.ico,.png,.webp,image/svg+xml,image/x-icon,image/png,image/webp" placeholder="Icon URL or external URL"></media-upload>
-          <fieldset class="service-category-editor-card__visibility">
+          <fieldset class="rbv-editor__visibility">
             <legend>Visibility</legend>
-            <div class="service-category-editor-card__roles">
+            <div class="rbv-editor__roles">
               <p>Loading roles…</p>
             </div>
           </fieldset>
@@ -49,13 +49,13 @@ class ServiceCategoryEditorCard extends HTMLElement {
         const isOwner = role.slug === "owner";
         const checked = this.selectedRoleIds.has(role.id);
         return `
-          <label class="service-category-editor-card__role">
+          <label class="rbv-editor__role">
             <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""} ${isOwner ? "disabled" : ""}>
             <span>${this.escape(role.name)}${isOwner ? " (Always selected)" : ""}</span>
           </label>
         `;
       }).join("");
-      const list = this.querySelector(".service-category-editor-card__roles");
+      const list = this.querySelector(".rbv-editor__roles");
       list.innerHTML = roleMarkup || "<p>No active roles found.</p>";
       list.querySelectorAll('input[type="checkbox"]:not(:disabled)').forEach(input => {
         input.addEventListener("change", () => {
@@ -116,7 +116,7 @@ class ServiceCategoryEditorCard extends HTMLElement {
         uploader.clearStatus();
       });
       this.selectedRoleIds = new Set(withRequiredOwner([], this.roles));
-      this.querySelectorAll('.service-category-editor-card__roles input[type="checkbox"]').forEach(input => {
+      this.querySelectorAll('.rbv-editor__roles input[type="checkbox"]').forEach(input => {
         input.checked = this.selectedRoleIds.has(input.value);
       });
       this.setMessage("Service category saved successfully.");

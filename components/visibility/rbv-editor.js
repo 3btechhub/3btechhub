@@ -47,7 +47,7 @@ class RbvEditor extends HTMLElement {
       const isOwner = role.slug === "owner";
       const checked = this.selected.has(role.id);
       return `
-        <label class="service-category-editor-card__role">
+        <label class="rbv-editor__role">
           <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""} ${isOwner ? "data-owner disabled" : ""}>
           <span>${this.escape(role.name)}${isOwner ? " (Always selected)" : ""}</span>
         </label>
@@ -56,9 +56,9 @@ class RbvEditor extends HTMLElement {
 
     this.innerHTML = `
       <div class="rbv-editor">
-        <fieldset class="service-category-editor-card__visibility">
+        <fieldset class="rbv-editor__visibility">
           <legend>Visibility</legend>
-          <div class="service-category-editor-card__roles">${options}</div>
+          <div class="rbv-editor__roles">${options}</div>
         </fieldset>
         ${this.managedSave ? "" : '<button class="medium-button rbv-editor__save" type="button">Save Visibility</button>'}
         ${this.managedSave ? "" : '<p class="rbv-editor__message" role="status" aria-live="polite"></p>'}

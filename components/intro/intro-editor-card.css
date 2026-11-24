@@ -6,12 +6,3 @@ large-card.intro-editor-card { display: flex; flex-direction: column; gap: var(-
 .intro-editor-card__message[data-state="error"] { color: var(--color-error, var(--color-text)); }
 .intro-editor-card__message[data-state="success"] { color: var(--color-success, var(--color-text)); }
 
-/* RBV checklist uses the same vertical Standard Gap as the surrounding form. */
-.intro-editor-card rbv-editor,
-.intro-editor-card .rbv-editor {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-standard-gap);
-  min-width: 0;
-}
-.intro-editor-card .rbv-editor__message { margin: 0; }

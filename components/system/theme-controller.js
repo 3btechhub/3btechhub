@@ -93,7 +93,8 @@
       ensureStylesheet("intro-editor-card", new URL("../../components/intro/intro-editor-card.css", scriptUrl).href),
       ensureStylesheet("our-services", new URL("../../components/services/our-services.css", scriptUrl).href),
       ensureStylesheet("service-category-editor-card", new URL("../../components/services/service-category-editor-card.css", scriptUrl).href),
-      ensureStylesheet("media-uploader-view", new URL("../../components/media/media-uploader-view.css", scriptUrl).href)
+      ensureStylesheet("media-uploader-view", new URL("../../components/media/media-uploader-view.css", scriptUrl).href),
+      ensureStylesheet("rbv-editor", new URL("../../components/visibility/rbv-editor.css", scriptUrl).href)
     ];
 
 
