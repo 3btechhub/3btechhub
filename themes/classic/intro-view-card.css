@@ -1,23 +1,5 @@
-/* Intro View Card — surface design is supplied by Standard CSS. */
-intro-view-card {
-  display: block;
-  width: 100%;
-}
-
-.intro-view-card {
-  text-align: center;
-}
-
-.intro-view-card[hidden] {
-  display: none;
-}
-
-.intro-view-card__heading {
-  margin: 0 0 var(--spacing-medium);
-}
-
-.intro-view-card__description {
-  margin: 0;
-  color: var(--color-text);
-  line-height: 1.5;
-}
+/* Intro View Card — content layout only; surface comes from Large Card. */
+large-card.intro-view-card { text-align: center; }
+large-card.intro-view-card[hidden] { display: none; }
+.intro-view-card__heading { margin: 0 0 var(--spacing-medium); }
+.intro-view-card__description { margin: 0; color: var(--color-text); line-height: 1.5; }
