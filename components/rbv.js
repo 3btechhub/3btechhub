@@ -33,42 +33,21 @@ export async function getTargetVisibility(targetType, targetKey) {
 }
 
 /*
- * Runtime visibility helper.
- * For anonymous visitors, rbv_visibility RLS returns a row only when the
- * Visitor role is included. For signed-in users, the user's active roles
- * must intersect the configured role IDs.
- * Database RLS remains the security boundary for protected data.
+ * RBV authorization is decided by the Supabase RPC.
+ * The RPC validates auth.uid(), active user_roles, the Visitor role for
+ * anonymous sessions, and the configured visible_role_ids in one query.
+ * This browser function only requests the authorization decision.
  */
 export async function canSeeTarget(targetType, targetKey) {
   if (!targetType || !targetKey) return false;
 
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError) throw userError;
-
-  const { data: visibility, error: visibilityError } = await supabase
-    .from("rbv_visibility")
-    .select("visible_role_ids")
-    .eq("target_type", targetType)
-    .eq("target_key", targetKey)
-    .maybeSingle();
-
-  if (visibilityError) throw visibilityError;
-  if (!visibility) return false;
-
-  const roleIds = visibility.visible_role_ids || [];
-  if (!roleIds.length) return false;
-
-  // Anonymous SELECT is already filtered by the Visitor visibility RLS policy.
-  if (!user) return true;
-
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role_id, roles!inner(is_active)")
-    .eq("user_id", user.id)
-    .eq("roles.is_active", true);
+  const { data, error } = await supabase.rpc("can_see_target", {
+    p_target_type: targetType,
+    p_target_key: targetKey
+  });
 
   if (error) throw error;
-  return (data || []).some(item => roleIds.includes(item.role_id));
+  return data === true;
 }
 
 class RbvVisibility extends HTMLElement {
@@ -79,12 +58,12 @@ class RbvVisibility extends HTMLElement {
     this.style.display = "none";
 
     canSeeTarget(this.dataset.targetType, this.dataset.targetKey)
-      .then(visible => {
-        this.hidden = !visible;
-        this.style.display = visible ? "contents" : "none";
+      .then(authorized => {
+        this.hidden = !authorized;
+        this.style.display = authorized ? "contents" : "none";
       })
       .catch(error => {
-        console.error("RBV visibility check failed.", error);
+        console.error("Supabase RBV authorization failed.", error);
         this.hidden = true;
         this.style.display = "none";
       });
