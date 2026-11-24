@@ -1,4 +1,5 @@
 import { supabase } from "./supabase-client.js";
+import { canSeeTarget } from "./rbv.js";
 
 const permission = document.documentElement.dataset.pagePermission;
 const rootUrl = new URL("../", import.meta.url);
@@ -30,6 +31,12 @@ async function protectPage() {
 
   if (userError || !user) {
     goToLogin();
+    return;
+  }
+
+  const visible = await canSeeTarget("page", "dashboard");
+  if (!visible) {
+    goToHome();
     return;
   }
 
