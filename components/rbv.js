@@ -34,20 +34,32 @@ export async function getTargetVisibility(targetType, targetKey) {
 
 /*
  * Runtime visibility helper.
- * Database RLS remains the security boundary; this helper controls rendering.
+ * For anonymous visitors, rbv_visibility RLS returns a row only when the
+ * Visitor role is included. For signed-in users, the user's active roles
+ * must intersect the configured role IDs.
+ * Database RLS remains the security boundary for protected data.
  */
 export async function canSeeTarget(targetType, targetKey) {
+  if (!targetType || !targetKey) return false;
+
   const { data: { user }, error: userError } = await supabase.auth.getUser();
   if (userError) throw userError;
 
-  const roleIds = await getTargetVisibility(targetType, targetKey);
+  const { data: visibility, error: visibilityError } = await supabase
+    .from("rbv_visibility")
+    .select("visible_role_ids")
+    .eq("target_type", targetType)
+    .eq("target_key", targetKey)
+    .maybeSingle();
+
+  if (visibilityError) throw visibilityError;
+  if (!visibility) return false;
+
+  const roleIds = visibility.visible_role_ids || [];
   if (!roleIds.length) return false;
 
-  if (!user) {
-    const roles = await getActiveRoles();
-    const visitor = roles.find(role => role.slug === "visitor");
-    return Boolean(visitor && roleIds.includes(visitor.id));
-  }
+  // Anonymous SELECT is already filtered by the Visitor visibility RLS policy.
+  if (!user) return true;
 
   const { data, error } = await supabase
     .from("user_roles")
@@ -59,12 +71,12 @@ export async function canSeeTarget(targetType, targetKey) {
   return (data || []).some(item => roleIds.includes(item.role_id));
 }
 
-
 class RbvVisibility extends HTMLElement {
   connectedCallback() {
     if (this.dataset.initialized === "true") return;
     this.dataset.initialized = "true";
     this.hidden = true;
+
     canSeeTarget(this.dataset.targetType, this.dataset.targetKey)
       .then(visible => { this.hidden = !visible; })
       .catch(error => {
