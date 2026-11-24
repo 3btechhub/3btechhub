@@ -123,10 +123,10 @@ class ServiceCategoryEditorCard extends HTMLElement {
   }
 
   setBusy(busy) {
-    this.form.querySelectorAll("input, button").forEach(control => {
-      if (control.type !== "checkbox" || !control.disabled) control.disabled = busy;
+    this.form.querySelectorAll('input:not([type="checkbox"])').forEach(control => {
+      control.disabled = busy;
     });
-    if (!busy && this.roles) this.button.disabled = false;
+    this.button.disabled = busy || !this.roles;
   }
 
   setMessage(message, isError = false) {
