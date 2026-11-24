@@ -1,0 +1,63 @@
+/* Our Services — Grid content layout only. Card surface comes from Large Card. */
+our-services {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+our-services[hidden] {
+  display: none;
+}
+
+.our-services__heading {
+  margin: 0 0 var(--spacing-medium);
+}
+
+.our-services__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-medium);
+  align-items: stretch;
+}
+
+large-card.our-services__item {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-small);
+}
+
+.our-services__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius-medium);
+}
+
+.our-services__icon {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  font-size: 2rem;
+}
+
+.our-services__name {
+  margin: 0;
+  font-size: var(--font-size-medium);
+  font-weight: 700;
+}
+
+.our-services__description {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+@media (max-width: 360px) {
+  .our-services__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
