@@ -1,0 +1,95 @@
+#site-navigation {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transform: translateX(-50%);
+}
+
+#site-navigation .navigation-menu {
+  display: none;
+  min-width: 190px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 6px 24px var(--shadow-color);
+}
+
+#site-navigation[data-open="true"] .navigation-menu {
+  display: block;
+}
+
+#site-navigation .navigation-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#site-navigation .navigation-menu a,
+#site-navigation .navigation-menu button {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#site-navigation .navigation-menu a:hover,
+#site-navigation .navigation-menu a:focus-visible,
+#site-navigation .navigation-menu button:hover,
+#site-navigation .navigation-menu button:focus-visible {
+  background: var(--color-surface-raised);
+}
+
+#site-navigation .navigation-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--color-button-primary-bg, var(--color-button-secondary-bg));
+  color: var(--color-button-primary-text, var(--color-button-secondary-text));
+  box-shadow: 0 4px 14px var(--shadow-color);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#site-navigation .navigation-toggle:hover {
+  background: var(--color-button-primary-hover, var(--color-button-primary-bg, var(--color-button-secondary-bg)));
+}
+
+#site-navigation .navigation-toggle:focus-visible {
+  outline: 2px solid var(--color-focus, var(--color-border));
+  outline-offset: 3px;
+}
+
+#site-navigation .navigation-toggle svg {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+#site-navigation .navigation-icon-open { display: block; }
+#site-navigation .navigation-icon-close { display: none; }
+#site-navigation[data-open="true"] .navigation-icon-open { display: none; }
+#site-navigation[data-open="true"] .navigation-icon-close { display: block; }
