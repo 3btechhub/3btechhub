@@ -18,8 +18,8 @@ class ServiceCategoryEditorCard extends HTMLElement {
     this.mediaUploader.addEventListener("media-uploaded", event => {
       this.uploadedStoragePath = event.detail?.asset?.storage_path || "";
     });
-    this.mediaUploader.addEventListener("media-url-changed", event => {
-      if (!event.detail?.url) this.uploadedStoragePath = "";
+    this.mediaUploader.addEventListener("media-url-changed", () => {
+      this.uploadedStoragePath = "";
     });
     this.loadRoles();
   }
@@ -105,7 +105,7 @@ class ServiceCategoryEditorCard extends HTMLElement {
         name,
         slug,
         description,
-        icon: null,
+        icon: "",
         image_path: imagePath,
         visible_role_ids: visibleRoleIds,
         created_by: user.id,
@@ -117,6 +117,7 @@ class ServiceCategoryEditorCard extends HTMLElement {
       this.mediaUploader.urlInput.value = "";
       this.mediaUploader.fileInput.value = "";
       this.mediaUploader.syncState();
+      this.mediaUploader.clearStatus();
       this.uploadedStoragePath = "";
       this.selectedRoleIds = new Set(withRequiredOwner([], this.roles));
       this.querySelectorAll('.service-category-editor-card__roles input[type="checkbox"]').forEach(input => {
