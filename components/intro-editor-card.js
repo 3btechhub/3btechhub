@@ -1,4 +1,5 @@
 import { getIntroContent, updateIntroContent } from "../modules/intro/intro-data.js";
+import "./rbv-editor.js";
 
 /*
  * INTRO EDITOR CARD
@@ -26,6 +27,7 @@ class IntroEditorCard extends HTMLElement {
           <button class="medium-button" type="submit">Save</button>
           <p class="intro-editor-card__message" role="status" aria-live="polite"></p>
         </form>
+      <rbv-editor data-target-type="content" data-target-key="intro" data-table="intro_content" data-row-id="1"></rbv-editor>
       </section>
     `;
 
