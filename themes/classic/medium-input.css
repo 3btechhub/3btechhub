@@ -1,4 +1,4 @@
-/* Reusable medium-sized input field appearance only. */
+/* Medium input: accepts user-entered values. */
 .medium-input {
   box-sizing: border-box;
   width: 100%;
