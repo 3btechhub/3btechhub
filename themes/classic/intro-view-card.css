@@ -1,0 +1,31 @@
+/* Intro View Card — all visual tokens come from Standard CSS and active Theme. */
+intro-view-card {
+  display: block;
+  width: 100%;
+}
+
+.intro-view-card {
+  box-sizing: border-box;
+  width: min(720px, calc(100% - 32px));
+  margin-inline: auto;
+  padding: calc(var(--spacing-medium) * 2);
+  background: var(--color-surface-raised, var(--color-surface));
+  border: var(--border-standard);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-medium);
+  text-align: center;
+}
+
+.intro-view-card[hidden] {
+  display: none;
+}
+
+.intro-view-card__heading {
+  margin: 0 0 var(--spacing-medium);
+}
+
+.intro-view-card__description {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.5;
+}
