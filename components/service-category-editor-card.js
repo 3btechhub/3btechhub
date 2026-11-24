@@ -32,7 +32,7 @@ class ServiceCategoryEditorCard extends HTMLElement {
           <input class="medium-input" type="text" name="name" placeholder="Name" maxlength="180" required>
           <input class="medium-input" type="text" name="slug" placeholder="Slug" maxlength="180" pattern="[a-z0-9]+(-[a-z0-9]+)*" required>
           <input class="medium-input" type="text" name="description" placeholder="Description" maxlength="1000">
-          <media-upload data-visibility="public"></media-upload>
+          <media-upload embedded accept="image/*" data-visibility="public"></media-upload>
           <fieldset class="service-category-editor-card__visibility">
             <legend>Visibility</legend>
             <div class="service-category-editor-card__roles">
