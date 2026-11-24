@@ -86,6 +86,17 @@
       ensureStylesheet("medium-button", new URL("medium-button.css", base).href)
     ];
 
+    const pageForm = document.documentElement.dataset.pageForm;
+    if (pageForm === "login" || pageForm === "account") {
+      const stylesheetName = pageForm + "-form";
+      loads.push(
+        ensureStylesheet(
+          stylesheetName,
+          new URL(stylesheetName + ".css", base).href
+        )
+      );
+    }
+
     if (initial) {
       return Promise.all(loads).finally(() => {
         delete document.documentElement.dataset.themeLoading;
