@@ -1,0 +1,60 @@
+dashboard-tabs {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.dashboard-tabs__list {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-standard-gap, 12px);
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2px 1px 8px;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-inline: contain;
+}
+
+.dashboard-tabs__tab {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 7px 16px;
+  border: var(--border-standard, 1px solid currentColor);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--transition-standard, 150ms ease),
+              color var(--transition-standard, 150ms ease),
+              border-color var(--transition-standard, 150ms ease);
+}
+
+.dashboard-tabs__tab.is-active,
+.dashboard-tabs__tab[aria-selected="true"] {
+  background: var(--color-primary, var(--color-button-background, #222));
+  border-color: var(--color-primary, var(--color-button-background, #222));
+  color: var(--color-on-primary, var(--color-button-text, #fff));
+}
+
+.dashboard-tabs__tab:focus-visible {
+  outline: var(--outline-focus, 2px solid currentColor);
+  outline-offset: var(--outline-focus-offset, 3px);
+}
+
+.dashboard-tabs__panels {
+  display: block;
+  min-width: 0;
+}
+
+.dashboard-tabs__panel[hidden] {
+  display: none !important;
+}
+
+.dashboard-tabs__panel {
+  min-width: 0;
+}
