@@ -1,4 +1,4 @@
-/* Our Services — Grid content layout only. Card surface comes from Large Card. */
+/* Our Services — One Large Card surface contains the heading and complete grid. */
 our-services {
   display: block;
   width: 100%;
@@ -20,7 +20,13 @@ our-services[hidden] {
   align-items: stretch;
 }
 
-large-card.our-services__item {
+.our-services__surface {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.our-services__item {
   width: 100%;
   min-width: 0;
   margin: 0;
