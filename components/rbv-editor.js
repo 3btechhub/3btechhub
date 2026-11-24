@@ -61,7 +61,7 @@ class RbvEditor extends HTMLElement {
           <div class="service-category-editor-card__roles">${options}</div>
         </fieldset>
         ${this.managedSave ? "" : '<button class="medium-button rbv-editor__save" type="button">Save Visibility</button>'}
-        <p class="rbv-editor__message" role="status" aria-live="polite"></p>
+        ${this.managedSave ? "" : '<p class="rbv-editor__message" role="status" aria-live="polite"></p>'}
       </div>
     `;
 
