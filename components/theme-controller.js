@@ -88,6 +88,7 @@
       ensureStylesheet("intro-view-card", new URL("intro-view-card.css", base).href),
       ensureStylesheet("intro-editor-card", new URL("intro-editor-card.css", base).href),
       ensureStylesheet("our-services", new URL("our-services.css", base).href),
+      ensureStylesheet("service-category-editor-card", new URL("service-category-editor-card.css", base).href),
       ensureStylesheet("media-library", new URL("media-library.css", base).href)
     ];
 
