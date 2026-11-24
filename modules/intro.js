@@ -7,15 +7,14 @@ if (!mount) throw new Error("Intro mount point is missing.");
 
 const mode = mount.dataset.introMode;
 
-function createSectionCard() {
+function createSectionCard(showTitle = true) {
   const section = document.createElement("section-card");
-  section.setAttribute("title", "Intro");
+  if (showTitle) section.setAttribute("title", "Intro");
   return section;
 }
 
 function createHeadingItem(value) {
   const item = document.createElement("item-card");
-  item.setAttribute("title", "Heading");
 
   const heading = document.createElement("p");
   heading.className = "intro-heading";
@@ -38,7 +37,7 @@ async function loadIntro() {
 
 function renderPublicIntro(headingText) {
   mount.replaceChildren();
-  const section = createSectionCard();
+  const section = createSectionCard(false);
   mount.appendChild(section);
 
   const { item } = createHeadingItem(headingText);
@@ -78,9 +77,6 @@ function renderEditorIntro(headingText) {
   section.appendChild(headingItem);
 
   const previewItem = document.createElement("item-card");
-  previewItem.setAttribute("title", "Preview");
-
-  // Reuse the homepage Heading Item Card for an identical live preview.
   const previewHeading = createHeadingItem(input.value);
   previewItem.appendChild(previewHeading.item);
   section.appendChild(previewItem);
