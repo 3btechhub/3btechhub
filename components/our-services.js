@@ -1,27 +1,63 @@
+import { supabase } from "./supabase-client.js";
 import "./large-card.js";
 
 /*
  * Our Services — Service Category viewer.
- * Category records are supplied by the data layer through the categories property.
- * Category visibility must be filtered by the RBV data layer before assignment.
+ * The public.our_services SELECT policies apply RBV per category in Supabase.
+ * Only rows allowed for the current visitor/session are returned.
  */
 class OurServices extends HTMLElement {
   constructor() {
     super();
     this._categories = [];
-  }
-
-  set categories(value) {
-    this._categories = Array.isArray(value) ? value : [];
-    this.render();
-  }
-
-  get categories() {
-    return this._categories;
+    this._loading = false;
   }
 
   connectedCallback() {
-    this.render();
+    if (this.dataset.initialized === "true") return;
+    this.dataset.initialized = "true";
+    this.loadCategories();
+  }
+
+  async loadCategories() {
+    if (this._loading) return;
+    this._loading = true;
+    this.hidden = true;
+
+    try {
+      const { data, error } = await supabase
+        .from("our_services")
+        .select("id, name, slug, icon, image_path, sort_order")
+        .order("sort_order", { ascending: true })
+        .order("name", { ascending: true });
+
+      if (error) throw error;
+
+      const categories = await Promise.all((data || []).map(async category => {
+        let image = category.image_path || "";
+        if (image && !/^https?:\/\//i.test(image)) {
+          const { data: signed, error: imageError } = await supabase.storage
+            .from("site-media")
+            .createSignedUrl(image, 3600);
+          if (imageError) {
+            console.warn("Service category image could not be loaded.", imageError);
+            image = "";
+          } else {
+            image = signed?.signedUrl || "";
+          }
+        }
+        return { ...category, image };
+      }));
+
+      this._categories = categories;
+      this.render();
+    } catch (error) {
+      console.error("Our Services could not be loaded.", error);
+      this.replaceChildren();
+      this.hidden = true;
+    } finally {
+      this._loading = false;
+    }
   }
 
   render() {
@@ -31,7 +67,6 @@ class OurServices extends HTMLElement {
       return;
     }
 
-    this.hidden = false;
     const heading = document.createElement("h2");
     heading.className = "heading our-services__heading";
     heading.textContent = "Our Services";
@@ -40,8 +75,6 @@ class OurServices extends HTMLElement {
     grid.className = "our-services__grid";
 
     for (const category of this._categories) {
-      if (!category || category.visibility === false) continue;
-
       const card = document.createElement("large-card");
       card.className = "our-services__item";
 
@@ -65,22 +98,11 @@ class OurServices extends HTMLElement {
       name.textContent = category.name || "";
       card.append(name);
 
-      if (category.description) {
-        const description = document.createElement("p");
-        description.className = "our-services__description";
-        description.textContent = category.description;
-        card.append(description);
-      }
-
       grid.append(card);
     }
 
-    if (!grid.childElementCount) {
-      this.hidden = true;
-      return;
-    }
-
     this.append(heading, grid);
+    this.hidden = false;
   }
 }
 
