@@ -11,15 +11,61 @@
       align-items: center;
       justify-content: center;
     }
+    .login-form {
+      width: min(320px, calc(100vw - 32px));
+    }
+    .login-message {
+      margin: 0;
+      color: var(--color-text);
+      font-size: var(--font-size-medium);
+      text-align: center;
+    }
   </style>
   <script src="../components/theme-controller.js"></script>
   <script src="../components/direction-controller.js"></script>
-  <script type="module" src="../components/supabase-client.js"></script>
   <script src="../components/navigation.js" defer></script>
+  <script type="module">
+    import { supabase } from "../components/supabase-client.js";
+
+    const form = document.querySelector("#login-form");
+    const submitButton = form.querySelector('button[type="submit"]');
+    const message = document.querySelector("#login-message");
+
+    form.addEventListener("submit", async event => {
+      event.preventDefault();
+      message.textContent = "";
+      submitButton.disabled = true;
+
+      const formData = new FormData(form);
+      const email = String(formData.get("email") || "").trim();
+      const password = String(formData.get("password") || "");
+
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+
+        const requestedNext = new URLSearchParams(window.location.search).get("next");
+        let destination = new URL("../account/", window.location.href);
+
+        if (requestedNext) {
+          const candidate = new URL(requestedNext, window.location.href);
+          if (candidate.origin === window.location.origin &&
+              candidate.pathname !== window.location.pathname) {
+            destination = candidate;
+          }
+        }
+
+        window.location.replace(destination.href);
+      } catch (error) {
+        message.textContent = error?.message || "Login failed. Please try again.";
+        submitButton.disabled = false;
+      }
+    });
+  </script>
 </head>
 <body>
   <main class="login-page">
-    <form class="form-stack">
+    <form id="login-form" class="form-stack login-form">
       <input
         class="medium-input-box text-center"
         type="email"
@@ -37,6 +83,7 @@
         required
       >
       <button class="medium-input-button" type="submit">Login</button>
+      <p id="login-message" class="login-message" role="alert" aria-live="polite"></p>
     </form>
   </main>
 </body>
