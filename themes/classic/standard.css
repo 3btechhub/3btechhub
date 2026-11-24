@@ -40,3 +40,22 @@
   --outline-focus: 2px solid var(--color-focus, var(--color-border));
   --outline-focus-offset: 3px;
 }
+
+/* Reusable layout and alignment */
+.page-center {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-medium);
+}
+
+.text-center {
+  text-align: center;
+}
