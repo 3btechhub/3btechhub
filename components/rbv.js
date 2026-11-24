@@ -58,3 +58,22 @@ export async function canSeeTarget(targetType, targetKey) {
   if (error) throw error;
   return (data || []).some(item => roleIds.includes(item.role_id));
 }
+
+
+class RbvVisibility extends HTMLElement {
+  connectedCallback() {
+    if (this.dataset.initialized === "true") return;
+    this.dataset.initialized = "true";
+    this.hidden = true;
+    canSeeTarget(this.dataset.targetType, this.dataset.targetKey)
+      .then(visible => { this.hidden = !visible; })
+      .catch(error => {
+        console.error("RBV visibility check failed.", error);
+        this.hidden = true;
+      });
+  }
+}
+
+if (!customElements.get("rbv-visibility")) {
+  customElements.define("rbv-visibility", RbvVisibility);
+}
