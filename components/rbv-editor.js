@@ -10,7 +10,7 @@ class RbvEditor extends HTMLElement {
   }
 
   renderLoading() {
-    this.innerHTML = '<fieldset class="rbv-editor"><legend>Visibility – Select Roles</legend><p>Loading roles…</p></fieldset>';
+    this.innerHTML = '<div class="rbv-editor"><p>Loading roles…</p></div>';
   }
 
   async load() {
@@ -58,12 +58,11 @@ class RbvEditor extends HTMLElement {
       }).join("");
 
     this.innerHTML = `
-      <fieldset class="rbv-editor">
-        <legend>Visibility – Select Roles</legend>
+      <div class="rbv-editor">
         <div class="rbv-editor__roles" style="display:flex;flex-direction:column;align-items:flex-start;">${options}</div>
         <button class="medium-button rbv-editor__save" type="button">Save Visibility</button>
         <p class="rbv-editor__message" role="status" aria-live="polite"></p>
-      </fieldset>
+      </div>
     `;
 
     this.querySelectorAll('input[type="checkbox"]').forEach(input => {
@@ -117,7 +116,7 @@ class RbvEditor extends HTMLElement {
     const message = this.querySelector(".rbv-editor__message") ||
       this.querySelector("p");
     if (message) message.textContent = error?.message || "RBV could not be loaded.";
-    else this.innerHTML = '<fieldset class="rbv-editor"><legend>Visibility</legend><p role="alert"></p></fieldset>';
+    else this.innerHTML = '<div class="rbv-editor"><p role="alert"></p></div>';
     const alert = this.querySelector('[role="alert"]');
     if (alert) alert.textContent = error?.message || "RBV could not be loaded.";
   }
