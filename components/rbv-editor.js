@@ -46,26 +46,29 @@ class RbvEditor extends HTMLElement {
 
   render() {
     const options = this.roles
-      .filter(role => role.slug !== "owner")
       .map(role => {
+        const isOwner = role.slug === "owner";
         const checked = this.selected.has(role.id);
         return `
-          <label class="rbv-editor__option">
-            <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""}>
-            <span>${this.escape(role.name)}</span>
+          <label class="service-category-editor-card__role">
+            <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""} ${isOwner ? "disabled" : ""}>
+            <span>${this.escape(role.name)}${isOwner ? " (Always selected)" : ""}</span>
           </label>
         `;
       }).join("");
 
     this.innerHTML = `
       <div class="rbv-editor">
-        <div class="rbv-editor__roles" style="display:flex;flex-direction:column;align-items:flex-start;">${options}</div>
+        <fieldset class="service-category-editor-card__visibility">
+          <legend>Visibility</legend>
+          <div class="service-category-editor-card__roles">${options}</div>
+        </fieldset>
         <button class="medium-button rbv-editor__save" type="button">Save Visibility</button>
         <p class="rbv-editor__message" role="status" aria-live="polite"></p>
       </div>
     `;
 
-    this.querySelectorAll('input[type="checkbox"]').forEach(input => {
+    this.querySelectorAll('input[type="checkbox"]:not(:disabled)').forEach(input => {
       input.addEventListener("change", () => {
         if (input.checked) this.selected.add(input.value);
         else this.selected.delete(input.value);
