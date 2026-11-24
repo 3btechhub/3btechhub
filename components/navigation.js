@@ -90,29 +90,6 @@
   modeItem.appendChild(modeButton);
   list.appendChild(modeItem);
 
-  const directionItem = document.createElement("li");
-  const directionButton = document.createElement("button");
-  directionButton.type = "button";
-
-  function updateDirectionLabel() {
-    const direction = window.DirectionController?.getDirection() || "ltr";
-    directionButton.textContent = "Text Direction: " + direction.toUpperCase();
-  }
-
-  directionButton.addEventListener("click", () => {
-    const controller = window.DirectionController;
-    if (!controller) return;
-
-    controller.setDirection(controller.getDirection() === "rtl" ? "ltr" : "rtl");
-    updateDirectionLabel();
-  });
-
-  directionItem.appendChild(directionButton);
-  list.appendChild(directionItem);
-  window.addEventListener("storage", event => {
-    if (event.key === "3btechhub-direction") updateDirectionLabel();
-  });
-
   menu.appendChild(list);
 
   toggle.addEventListener("click", () => {
