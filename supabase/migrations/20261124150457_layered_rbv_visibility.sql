@@ -17,7 +17,7 @@ with visibility_config(target_type, target_key, role_slugs) as (
     ('page', 'root', array['visitor','member','owner','admin']::text[]),
     ('page', 'home', array['visitor','member','owner','admin']::text[]),
     ('page', 'account', array['member','owner','admin']::text[]),
-    ('page', 'login', array['visitor']::text[]),
+    ('page', 'login', array['visitor','owner']::text[]),
     ('page', 'dashboard', array['owner','admin']::text[]),
     ('navigation', 'home', array['visitor','member','owner','admin']::text[]),
     ('navigation', 'account', array['member','owner','admin']::text[]),
