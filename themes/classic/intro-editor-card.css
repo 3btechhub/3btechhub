@@ -1,4 +1,4 @@
-/* Intro Editor Card — all visual tokens come from Standard CSS and active Theme. */
+/* Intro Editor Card — dimensions and spacing use Standard CSS. */
 intro-editor-card {
   display: block;
   width: 100%;
@@ -9,9 +9,9 @@ intro-editor-card {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-medium);
-  width: min(480px, calc(100% - 32px));
+  width: min(var(--size-surface-max-width), calc(100% - 32px));
   margin-inline: auto;
-  padding: calc(var(--spacing-medium) * 2);
+  padding: calc(var(--spacing-medium) * 2) var(--spacing-surface-inline);
   background: var(--color-surface-raised, var(--color-surface));
   border: var(--border-standard);
   border-radius: var(--radius-large);
