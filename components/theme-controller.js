@@ -46,6 +46,7 @@
     const base = new URL(encodeURIComponent(theme) + "/", themesBase);
     ensureStylesheet("standard", new URL("standard.css", base).href);
     ensureStylesheet("mode", new URL(mode + ".css", base).href);
+    ensureStylesheet("navigation", new URL("navigation.css", base).href);
   }
 
   function setMode(value) {
