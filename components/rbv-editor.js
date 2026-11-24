@@ -6,7 +6,12 @@ class RbvEditor extends HTMLElement {
     if (this.dataset.initialized === "true") return;
     this.dataset.initialized = "true";
     this.renderLoading();
-    this.load().catch(error => this.showError(error));
+    this.ready = this.load();
+    this.ready.catch(error => this.showError(error));
+  }
+
+  get managedSave() {
+    return this.hasAttribute("data-managed-save");
   }
 
   renderLoading() {
@@ -15,27 +20,20 @@ class RbvEditor extends HTMLElement {
 
   async load() {
     this.roles = await getActiveRoles();
-    const targetType = this.dataset.targetType;
-    const targetKey = this.dataset.targetKey;
+    let selectedIds = [];
     const table = this.dataset.table;
     const rowId = this.dataset.rowId;
 
-    let selectedIds = [];
     if (table && rowId) {
-      const { data, error } = await supabase
-        .from(table)
-        .select("visible_role_ids")
-        .eq("id", rowId)
-        .maybeSingle();
+      const { data, error } = await supabase.from(table)
+        .select("visible_role_ids").eq("id", rowId).maybeSingle();
       if (error) throw error;
       selectedIds = data?.visible_role_ids || [];
     } else {
-      const { data, error } = await supabase
-        .from("rbv_visibility")
+      const { data, error } = await supabase.from("rbv_visibility")
         .select("visible_role_ids")
-        .eq("target_type", targetType)
-        .eq("target_key", targetKey)
-        .maybeSingle();
+        .eq("target_type", this.dataset.targetType)
+        .eq("target_key", this.dataset.targetKey).maybeSingle();
       if (error) throw error;
       selectedIds = data?.visible_role_ids || [];
     }
@@ -45,17 +43,16 @@ class RbvEditor extends HTMLElement {
   }
 
   render() {
-    const options = this.roles
-      .map(role => {
-        const isOwner = role.slug === "owner";
-        const checked = this.selected.has(role.id);
-        return `
-          <label class="service-category-editor-card__role">
-            <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""} ${isOwner ? "disabled" : ""}>
-            <span>${this.escape(role.name)}${isOwner ? " (Always selected)" : ""}</span>
-          </label>
-        `;
-      }).join("");
+    const options = this.roles.map(role => {
+      const isOwner = role.slug === "owner";
+      const checked = this.selected.has(role.id);
+      return `
+        <label class="service-category-editor-card__role">
+          <input type="checkbox" value="${this.escape(role.id)}" ${checked ? "checked" : ""} ${isOwner ? "disabled" : ""}>
+          <span>${this.escape(role.name)}${isOwner ? " (Always selected)" : ""}</span>
+        </label>
+      `;
+    }).join("");
 
     this.innerHTML = `
       <div class="rbv-editor">
@@ -63,7 +60,7 @@ class RbvEditor extends HTMLElement {
           <legend>Visibility</legend>
           <div class="service-category-editor-card__roles">${options}</div>
         </fieldset>
-        <button class="medium-button rbv-editor__save" type="button">Save Visibility</button>
+        ${this.managedSave ? "" : '<button class="medium-button rbv-editor__save" type="button">Save Visibility</button>'}
         <p class="rbv-editor__message" role="status" aria-live="polite"></p>
       </div>
     `;
@@ -75,53 +72,55 @@ class RbvEditor extends HTMLElement {
       });
     });
 
-    this.querySelector(".rbv-editor__save").addEventListener("click", () => {
+    const saveButton = this.querySelector(".rbv-editor__save");
+    saveButton?.addEventListener("click", () => {
       this.save().catch(error => this.showError(error));
     });
+  }
+
+  getSelectedRoleIds() {
+    if (!this.roles || !this.selected) throw new Error("Visibility roles are not ready.");
+    return withRequiredOwner([...this.selected], this.roles);
+  }
+
+  setControlsDisabled(disabled) {
+    this.querySelectorAll('input[type="checkbox"]:not(:disabled)').forEach(input => {
+      input.disabled = disabled;
+    });
+    const saveButton = this.querySelector(".rbv-editor__save");
+    if (saveButton) saveButton.disabled = disabled;
   }
 
   async save() {
     const button = this.querySelector(".rbv-editor__save");
     const message = this.querySelector(".rbv-editor__message");
-    button.disabled = true;
-    message.textContent = "";
+    if (button) button.disabled = true;
+    if (message) message.textContent = "";
 
     try {
-      const roleIds = withRequiredOwner([...this.selected], this.roles);
+      const roleIds = this.getSelectedRoleIds();
       const table = this.dataset.table;
       const rowId = this.dataset.rowId;
-      let result;
-
-      if (table && rowId) {
-        result = await supabase
-          .from(table)
-          .update({ visible_role_ids: roleIds })
-          .eq("id", rowId);
-      } else {
-        result = await supabase
-          .from("rbv_visibility")
-          .upsert({
+      const result = table && rowId
+        ? await supabase.from(table).update({ visible_role_ids: roleIds }).eq("id", rowId)
+        : await supabase.from("rbv_visibility").upsert({
             target_type: this.dataset.targetType,
             target_key: this.dataset.targetKey,
             visible_role_ids: roleIds
           }, { onConflict: "target_type,target_key" });
-      }
 
       if (result.error) throw result.error;
       this.selected = new Set(roleIds);
-      message.textContent = "Visibility saved.";
+      if (message) message.textContent = "Visibility saved.";
     } finally {
-      button.disabled = false;
+      if (button) button.disabled = false;
     }
   }
 
   showError(error) {
-    const message = this.querySelector(".rbv-editor__message") ||
-      this.querySelector("p");
+    const message = this.querySelector(".rbv-editor__message") || this.querySelector("p");
     if (message) message.textContent = error?.message || "RBV could not be loaded.";
     else this.innerHTML = '<div class="rbv-editor"><p role="alert"></p></div>';
-    const alert = this.querySelector('[role="alert"]');
-    if (alert) alert.textContent = error?.message || "RBV could not be loaded.";
   }
 
   escape(value) {
