@@ -1,1 +1,22 @@
-/* Shared theme-wide styles. Navigation styles are defined in navigation.css. */
+:root {
+  /* Reusable spacing */
+  --spacing-small: 8px;
+  --spacing-medium: 12px;
+  --spacing-control-inline: 14px;
+
+  /* Reusable radius */
+  --radius-medium: 10px;
+  --radius-large: 16px;
+  --radius-circle: 50%;
+
+  /* Reusable borders */
+  --border-standard: 1px solid var(--color-border);
+
+  /* Reusable shadows */
+  --shadow-medium: 0 4px 14px var(--shadow-color);
+  --shadow-large: 0 6px 24px var(--shadow-color);
+
+  /* Reusable focus */
+  --outline-focus: 2px solid var(--color-focus, var(--color-border));
+  --outline-focus-offset: 3px;
+}
