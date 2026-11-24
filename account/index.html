@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="en" data-page-permission="page.account.view" data-page-rbv-key="account" data-page-form="account">
+<html lang="en" class="rbv-pending" data-page-permission="page.account.view" data-page-rbv-key="account" data-page-form="account">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Account</title>
   <style>
+    html.rbv-pending body { visibility: hidden; }
     .account-page {
       min-height: 100vh;
       display: flex;
@@ -16,6 +17,7 @@
   <script src="../components/direction-controller.js"></script>
   <script src="../components/navigation.js" defer></script>
   <script type="module" src="../components/auth-guard.js"></script>
+  <script type="module" src="../components/rbv.js"></script>
   <script type="module" src="../components/account-form.js"></script>
 </head>
 <body>
