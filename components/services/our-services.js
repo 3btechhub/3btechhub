@@ -1,6 +1,6 @@
 import { supabase } from "../system/supabase-client.js";
-import "./large-card.js";
-import "./mini-card.js";
+import "../cards/large-card.js";
+import "../cards/mini-card.js";
 
 /*
  * Our Services — Service Category viewer.

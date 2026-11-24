@@ -1,5 +1,5 @@
 import { supabase } from "../system/supabase-client.js";
-import "./large-card.js";
+import "../cards/large-card.js";
 
 /* Account content and logout behavior stay local; shared surface is Large Card + Standard CSS. */
 class AccountForm extends HTMLElement {

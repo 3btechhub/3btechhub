@@ -1,7 +1,7 @@
 import { supabase } from "../system/supabase-client.js";
 import { getActiveRoles, withRequiredOwner } from "../visibility/rbv.js";
-import "./large-card.js";
-import "./upload-interface.js";
+import "../cards/large-card.js";
+import "../media/media-uploader.js";
 
 class ServiceCategoryEditorCard extends HTMLElement {
   connectedCallback() {

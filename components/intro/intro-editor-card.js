@@ -1,6 +1,6 @@
 import { getIntroContent, updateIntroContent } from "../../modules/intro/intro-data.js";
-import "./large-card.js";
-import "./rbv-editor.js";
+import "../cards/large-card.js";
+import "../visibility/rbv-editor.js";
 
 /* Intro content and RBV are saved together from one form action. */
 class IntroEditorCard extends HTMLElement {

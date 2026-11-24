@@ -1,5 +1,5 @@
 import { uploadMedia, getMediaAssetUrl, uploadServiceCategoryAsset } from "./media-service.js";
-import "./large-card.js";
+import "../cards/large-card.js";
 
 class MediaUpload extends HTMLElement {
   connectedCallback() {
