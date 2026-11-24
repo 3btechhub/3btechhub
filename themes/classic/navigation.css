@@ -1,8 +1,8 @@
 #site-navigation {
   position: fixed;
   left: 50%;
-  bottom: 20px;
-  z-index: 10000;
+  bottom: var(--spacing-floating-offset);
+  z-index: var(--layer-floating);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -12,7 +12,7 @@
 
 #site-navigation .navigation-menu {
   display: none;
-  min-width: 190px;
+  min-width: var(--size-menu-min-width);
   padding: var(--spacing-small);
   border: var(--border-standard);
   border-radius: var(--radius-large);
@@ -26,8 +26,8 @@
 }
 
 #site-navigation .navigation-list {
-  margin: 0;
-  padding: 0;
+  margin: var(--spacing-zero);
+  padding: var(--spacing-zero);
   list-style: none;
 }
 
@@ -37,9 +37,9 @@
   box-sizing: border-box;
   width: 100%;
   padding: var(--spacing-medium) var(--spacing-control-inline);
-  border: 0;
+  border: var(--spacing-zero);
   border-radius: var(--radius-medium);
-  background: transparent;
+  background: var(--color-transparent);
   color: var(--color-text);
   font: inherit;
   text-align: left;
@@ -58,10 +58,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 58px;
-  height: 58px;
+  width: var(--size-control-large);
+  height: var(--size-control-large);
   padding: 0;
-  border: 1px solid transparent;
+  border: var(--border-width-thin) solid var(--color-transparent);
   border-radius: var(--radius-circle);
   background: var(--color-button-primary-bg, var(--color-button-secondary-bg));
   color: var(--color-button-primary-text, var(--color-button-secondary-text));
@@ -80,11 +80,11 @@
 }
 
 #site-navigation .navigation-toggle svg {
-  width: 25px;
-  height: 25px;
+  width: var(--size-icon-medium);
+  height: var(--size-icon-medium);
   fill: none;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: var(--icon-stroke-width);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
