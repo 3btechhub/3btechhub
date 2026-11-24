@@ -12,6 +12,7 @@
   font: inherit;
   font-size: var(--font-size-medium);
   line-height: var(--line-height-input);
+  text-align: start;
   transition: border-color var(--transition-standard), box-shadow var(--transition-standard);
 }
 
