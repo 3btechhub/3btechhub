@@ -42,8 +42,8 @@ class MediaUpload extends HTMLElement {
   syncState() {
     const hasFile = Boolean(this.fileInput?.files?.length);
     const hasUrl = Boolean(this.urlInput?.value.trim());
-    this.selectButton.disabled = hasUrl || this.uploading;
-    this.urlInput.disabled = hasFile || this.uploading;
+    this.selectButton.disabled = this.uploading;
+    this.urlInput.disabled = this.uploading;
     this.uploadButton.disabled = (!hasFile && !hasUrl) || this.uploading;
   }
 
