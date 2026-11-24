@@ -42,8 +42,8 @@ class IntroEditorCard extends HTMLElement {
       const content = await getIntroContent();
       if (!content) throw new Error("Intro content is not available.");
 
-      this.form.elements.heading.value = content.heading || "";
-      this.form.elements.description.value = content.sub_heading || "";
+      this.querySelector("[name=\"heading\"]").value = content.heading || "";
+      this.querySelector("[name=\"description\"]").value = content.sub_heading || "";
     } catch (error) {
       this.setMessage(error?.message || "Intro could not be loaded.", true);
     } finally {
@@ -58,8 +58,8 @@ class IntroEditorCard extends HTMLElement {
 
     try {
       await updateIntroContent({
-        heading: this.form.elements.heading.value,
-        description: this.form.elements.description.value
+        heading: this.querySelector("[name=\"heading\"]").value,
+        description: this.querySelector("[name=\"description\"]").value
       });
       this.setMessage("Intro saved successfully.");
     } catch (error) {
@@ -71,8 +71,8 @@ class IntroEditorCard extends HTMLElement {
 
   setBusy(busy) {
     this.button.disabled = busy;
-    this.form.elements.heading.disabled = busy;
-    this.form.elements.description.disabled = busy;
+    this.querySelector("[name=\"heading\"]").disabled = busy;
+    this.querySelector("[name=\"description\"]").disabled = busy;
   }
 
   setMessage(message, isError = false) {
