@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-page-permission="page.account.view" data-page-form="account">
+<html lang="en" data-page-permission="page.account.view" data-page-rbv-key="account" data-page-form="account">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,7 +20,9 @@
 </head>
 <body>
   <main class="account-page">
-    <account-form></account-form>
+    <rbv-visibility data-target-type="form" data-target-key="account-form">
+      <account-form></account-form>
+    </rbv-visibility>
   </main>
 </body>
 </html>
