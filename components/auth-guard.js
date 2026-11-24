@@ -2,6 +2,7 @@ import { supabase } from "./supabase-client.js";
 import { canSeeTarget } from "./rbv.js";
 
 const permission = document.documentElement.dataset.pagePermission;
+const pageKey = document.documentElement.dataset.pageRbvKey || "dashboard";
 const rootUrl = new URL("../", import.meta.url);
 
 function showPage() {
@@ -18,11 +19,11 @@ function goToLogin() {
 }
 
 function goToHome() {
-  location.replace(rootUrl.href);
+  location.replace(new URL("home/", rootUrl).href);
 }
 
 async function protectPage() {
-  if (!permission) {
+  if (!permission || !pageKey) {
     goToHome();
     return;
   }
@@ -34,7 +35,7 @@ async function protectPage() {
     return;
   }
 
-  const visible = await canSeeTarget("page", "dashboard");
+  const visible = await canSeeTarget("page", pageKey);
   if (!visible) {
     goToHome();
     return;
