@@ -97,7 +97,8 @@
       ["our-services", component("services/our-services.css")],
       ["service-category-editor-card", component("services/service-category-editor-card.css")],
       ["media-uploader-view", component("media/media-uploader-view.css")],
-      ["rbv-editor", component("visibility/rbv-editor.css")]
+      ["rbv-editor", component("visibility/rbv-editor.css")],
+      ["dashboard-tabs", component("dashboard/dashboard-tabs.css")]
     ];
 
     await Promise.all(styles.map(([name, href]) => ensureStylesheet(name, href)));
