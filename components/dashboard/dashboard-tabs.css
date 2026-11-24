@@ -3,11 +3,12 @@ dashboard-tabs {
   position: static;
   width: 100%;
   min-width: 0;
-  /* Tabs remain in normal document flow and scroll away with the page. */
 }
 
 .dashboard-tabs__list {
-  position: static;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
   gap: var(--spacing-standard-gap, 12px);
@@ -15,7 +16,8 @@ dashboard-tabs {
   min-width: 0;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 2px 1px 8px;
+  padding: 8px 1px;
+  background: var(--color-surface-raised, var(--color-surface, #fff));
   scrollbar-width: thin;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-inline: contain;
