@@ -41,14 +41,6 @@
   --outline-focus-offset: 3px;
 }
 
-/* Reusable layout and alignment */
-.page-center {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .form-stack {
   display: flex;
   flex-direction: column;
