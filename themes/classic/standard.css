@@ -16,6 +16,17 @@
   --shadow-medium: 0 4px 14px var(--shadow-color);
   --shadow-large: 0 6px 24px var(--shadow-color);
 
+  /* Reusable dimensions and layers */
+  --size-icon-medium: 25px;
+  --size-control-large: 58px;
+  --size-menu-min-width: 190px;
+  --spacing-floating-offset: 20px;
+  --layer-floating: 10000;
+  --border-width-thin: 1px;
+  --icon-stroke-width: 2;
+  --color-transparent: transparent;
+  --spacing-zero: 0;
+
   /* Reusable focus */
   --outline-focus: 2px solid var(--color-focus, var(--color-border));
   --outline-focus-offset: 3px;
