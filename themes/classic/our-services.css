@@ -49,6 +49,12 @@ our-services[hidden] {
   font-size: 2rem;
 }
 
+.our-services__icon-image {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
 .our-services__name {
   margin: 0;
   font-size: var(--font-size-medium);
