@@ -1,35 +1,32 @@
-/* Reusable medium-sized button appearance only. */
-.medium-input-button {
+/* Medium button: triggers an action. */
+.medium-button {
   box-sizing: border-box;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
   min-width: var(--spacing-zero);
-  min-height: var(--size-input-medium);
+  height: var(--size-input-medium);
   padding: var(--spacing-zero) var(--spacing-medium);
-  border: var(--border-width-thin) solid var(--color-button-primary-bg, var(--color-border));
+  border: var(--border-width-thin) solid var(--color-input-border, var(--color-border));
   border-radius: var(--radius-small);
-  background: var(--color-button-primary-bg, var(--color-button-secondary-bg));
-  color: var(--color-button-primary-text, var(--color-button-secondary-text));
+  background: var(--color-input-bg, var(--color-surface-raised));
+  color: var(--color-input-text, var(--color-text));
   font: inherit;
   font-size: var(--font-size-medium);
   line-height: var(--line-height-input);
-  text-align: center;
+  text-align: start;
+  transition: border-color var(--transition-standard), box-shadow var(--transition-standard);
   cursor: pointer;
-  transition: background-color var(--transition-standard), border-color var(--transition-standard), box-shadow var(--transition-standard);
 }
 
-.medium-input-button:hover:not(:disabled) {
-  background: var(--color-button-primary-hover, var(--color-button-primary-bg, var(--color-button-secondary-bg)));
-  border-color: var(--color-button-primary-hover, var(--color-button-primary-bg, var(--color-border)));
+.medium-button:hover:not(:disabled) {
+  border-color: var(--color-focus, var(--color-input-border, var(--color-border)));
 }
 
-.medium-input-button:focus-visible {
+.medium-button:focus-visible {
   outline: none;
   box-shadow: var(--shadow-focus);
 }
 
-.medium-input-button:disabled {
+.medium-button:disabled {
   cursor: not-allowed;
   opacity: var(--opacity-disabled);
 }
