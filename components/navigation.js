@@ -19,7 +19,7 @@
   list.className = "navigation-list";
 
   const pages = [
-    ["Home", "index.html"],
+    ["Home", "home/index.html"],
     ["Account", "account/index.html"],
     ["Dashboard", "dashboard/index.html"]
   ];
