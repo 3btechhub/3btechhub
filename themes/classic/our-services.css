@@ -10,13 +10,13 @@ our-services[hidden] {
 }
 
 .our-services__heading {
-  margin: 0 0 var(--spacing-medium);
+  margin: 0 0 var(--spacing-standard-gap);
 }
 
 .our-services__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--spacing-medium);
+  gap: var(--spacing-standard-gap);
   align-items: stretch;
 }
 
@@ -31,7 +31,7 @@ our-services[hidden] {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-small);
+  gap: var(--spacing-standard-gap);
 }
 
 .our-services__image {
