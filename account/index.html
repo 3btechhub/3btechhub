@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-page-permission="page.account.view">
+<html lang="en" data-page-permission="page.account.view" data-page-form="account">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,13 +10,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    .account-content {
-      width: min(320px, calc(100vw - 32px));
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--spacing-medium);
     }
   </style>
   <script src="../components/theme-controller.js"></script>
@@ -61,7 +54,7 @@
 </head>
 <body>
   <main class="account-page">
-    <section class="account-content" aria-label="Account details">
+    <section class="account-form" aria-label="Account details">
       <input
         id="account-name"
         class="medium-input"
