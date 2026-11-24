@@ -1,4 +1,4 @@
 /* Login form content layout only; surface comes from Large Card. */
 .login-card { display: block; }
-.login-form { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-medium); width: 100%; min-width: 0; margin: 0; }
+.login-form { display: flex; flex-direction: column; align-items: center; gap: var(--spacing-standard-gap); width: 100%; min-width: 0; margin: 0; }
 .login-message { width: 100%; margin: 0; color: var(--color-error, var(--color-text)); text-align: center; overflow-wrap: anywhere; }
