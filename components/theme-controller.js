@@ -85,6 +85,8 @@
       ensureStylesheet("medium-input", new URL("medium-input.css", base).href),
       ensureStylesheet("medium-output", new URL("medium-output.css", base).href),
       ensureStylesheet("medium-button", new URL("medium-button.css", base).href)
+      ,ensureStylesheet("intro-view-card", new URL("intro-view-card.css", base).href)
+      ,ensureStylesheet("intro-editor-card", new URL("intro-editor-card.css", base).href)
     ];
 
     const pageForm = document.documentElement.dataset.pageForm;
