@@ -1,0 +1,41 @@
+/* Media Library Upload — uses active Theme and Standard CSS tokens. */
+media-upload {
+  display: block;
+  width: 100%;
+}
+
+.media-library-upload {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-medium);
+  width: min(480px, 100%);
+  margin-inline: auto;
+}
+
+.media-library-upload__select {
+  background: var(--color-surface-raised, var(--color-surface));
+  color: var(--color-text);
+  border-color: var(--color-input-border, var(--color-border));
+}
+
+.media-library-upload__select:hover:not(:disabled) {
+  background: var(--color-surface, var(--color-surface-raised));
+  border-color: var(--color-focus, var(--color-input-border, var(--color-border)));
+}
+
+.media-library-upload__status {
+  min-height: 1.4em;
+  margin: 0;
+  color: var(--color-text);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.media-library-upload__status[data-state="error"] {
+  color: var(--color-error, var(--color-text));
+}
+
+.media-library-upload__status[data-state="success"] {
+  color: var(--color-success, var(--color-text));
+}
