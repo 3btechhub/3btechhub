@@ -10,6 +10,11 @@
     ? window.matchMedia("(prefers-color-scheme: dark)")
     : null;
 
+  document.documentElement.dataset.themeLoading = "true";
+  const loadingStyle = document.createElement("style");
+  loadingStyle.textContent = 'html[data-theme-loading="true"] body{visibility:hidden}';
+  document.head.appendChild(loadingStyle);
+
   function readStored(key, fallback) {
     try {
       return localStorage.getItem(key) || fallback;
@@ -40,6 +45,9 @@
 
   function ensureStylesheet(name, href) {
     let link = managedStyles.get(name) || document.querySelector('link[data-theme-controller="' + name + '"]');
+
+    if (link?.href === href && link.sheet) return Promise.resolve();
+
     if (!link) {
       link = document.createElement("link");
       link.rel = "stylesheet";
@@ -47,22 +55,44 @@
       document.head.appendChild(link);
       managedStyles.set(name, link);
     }
-    link.href = href;
+
+    return new Promise(resolve => {
+      const finish = () => resolve();
+      link.addEventListener("load", finish, { once: true });
+      link.addEventListener("error", finish, { once: true });
+      link.href = href;
+    });
   }
 
-  function applyTheme() {
+  function applyTheme(initial = false) {
     const resolvedMode = getResolvedMode();
     document.documentElement.dataset.colorMode = resolvedMode;
 
-    if (!themesBase) return;
+    if (!themesBase) {
+      if (initial) {
+        delete document.documentElement.dataset.themeLoading;
+        document.documentElement.dataset.themeReady = "true";
+      }
+      return Promise.resolve();
+    }
 
     const base = new URL(encodeURIComponent(theme) + "/", themesBase);
+    const loads = [
+      ensureStylesheet("standard", new URL("standard.css", base).href),
+      ensureStylesheet("mode", new URL(resolvedMode + ".css", base).href),
+      ensureStylesheet("navigation", new URL("navigation.css", base).href),
+      ensureStylesheet("medium-input-box", new URL("medium-input-box.css", base).href),
+      ensureStylesheet("medium-button", new URL("medium-button.css", base).href)
+    ];
 
-    ensureStylesheet("standard", new URL("standard.css", base).href);
-    ensureStylesheet("mode", new URL(resolvedMode + ".css", base).href);
-    ensureStylesheet("navigation", new URL("navigation.css", base).href);
-    ensureStylesheet("medium-input-box", new URL("medium-input-box.css", base).href);
-    ensureStylesheet("medium-input-button", new URL("medium-input-button.css", base).href);
+    if (initial) {
+      return Promise.all(loads).finally(() => {
+        delete document.documentElement.dataset.themeLoading;
+        document.documentElement.dataset.themeReady = "true";
+      });
+    }
+
+    return Promise.all(loads);
   }
 
   function setMode(value) {
@@ -115,5 +145,5 @@
     setTheme
   };
 
-  applyTheme();
+  applyTheme(true);
 })();
