@@ -1,4 +1,4 @@
-/* Media Library Upload — uses active Theme and Standard CSS tokens. */
+/* Media Library Upload — dimensions use active Theme and Standard CSS. */
 media-upload {
   display: block;
   width: 100%;
@@ -9,7 +9,7 @@ media-upload {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-medium);
-  width: min(480px, 100%);
+  width: min(var(--size-surface-max-width), 100%);
   margin-inline: auto;
 }
 
