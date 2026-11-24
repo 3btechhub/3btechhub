@@ -1,4 +1,4 @@
-import { getIntroContent, updateIntroContent } from "../../modules/intro/intro-data.js";
+import { getIntroContent, updateIntroContent } from "./intro.js";
 import "../cards/large-card.js";
 import "../visibility/rbv-editor.js";
 
