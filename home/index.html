@@ -7,11 +7,14 @@
   <script src="../components/theme-controller.js"></script>
   <script src="../components/direction-controller.js"></script>
   <script src="../components/navigation.js" defer></script>
+  <script type="module" src="../components/rbv.js"></script>
   <script type="module" src="../components/intro-view-card.js"></script>
 </head>
 <body>
-  <main>
-    <intro-view-card></intro-view-card>
-  </main>
+  <rbv-visibility data-target-type="page" data-target-key="home">
+    <main>
+      <intro-view-card></intro-view-card>
+    </main>
+  </rbv-visibility>
 </body>
 </html>
