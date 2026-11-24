@@ -27,6 +27,15 @@
   --color-transparent: transparent;
   --spacing-zero: 0;
 
+  /* Reusable input and typography */
+  --size-input-medium: 44px;
+  --radius-small: 8px;
+  --font-size-medium: 1rem;
+  --line-height-input: 1.4;
+  --transition-standard: 150ms ease;
+  --shadow-focus: 0 0 0 2px var(--color-focus, var(--color-input-border, var(--color-border)));
+  --opacity-disabled: 0.6;
+
   /* Reusable focus */
   --outline-focus: 2px solid var(--color-focus, var(--color-border));
   --outline-focus-offset: 3px;
