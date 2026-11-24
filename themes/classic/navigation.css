@@ -1,6 +1,6 @@
 #site-navigation {
   position: fixed;
-  left: 50%;
+  inset-inline-start: 50%;
   bottom: var(--spacing-floating-offset);
   z-index: var(--layer-floating);
   display: flex;
@@ -42,7 +42,7 @@
   background: var(--color-transparent);
   color: var(--color-text);
   font: inherit;
-  text-align: left;
+  text-align: start;
   text-decoration: none;
   cursor: pointer;
 }
