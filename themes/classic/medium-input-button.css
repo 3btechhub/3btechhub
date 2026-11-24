@@ -1,0 +1,35 @@
+/* Reusable medium-sized button appearance only. */
+.medium-input-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--spacing-zero);
+  min-height: var(--size-input-medium);
+  padding: var(--spacing-zero) var(--spacing-medium);
+  border: var(--border-width-thin) solid var(--color-button-primary-bg, var(--color-border));
+  border-radius: var(--radius-small);
+  background: var(--color-button-primary-bg, var(--color-button-secondary-bg));
+  color: var(--color-button-primary-text, var(--color-button-secondary-text));
+  font: inherit;
+  font-size: var(--font-size-medium);
+  line-height: var(--line-height-input);
+  text-align: center;
+  cursor: pointer;
+  transition: background-color var(--transition-standard), border-color var(--transition-standard), box-shadow var(--transition-standard);
+}
+
+.medium-input-button:hover:not(:disabled) {
+  background: var(--color-button-primary-hover, var(--color-button-primary-bg, var(--color-button-secondary-bg)));
+  border-color: var(--color-button-primary-hover, var(--color-button-primary-bg, var(--color-border)));
+}
+
+.medium-input-button:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.medium-input-button:disabled {
+  cursor: not-allowed;
+  opacity: var(--opacity-disabled);
+}
