@@ -76,12 +76,17 @@ class RbvVisibility extends HTMLElement {
     if (this.dataset.initialized === "true") return;
     this.dataset.initialized = "true";
     this.hidden = true;
+    this.style.display = "none";
 
     canSeeTarget(this.dataset.targetType, this.dataset.targetKey)
-      .then(visible => { this.hidden = !visible; })
+      .then(visible => {
+        this.hidden = !visible;
+        this.style.display = visible ? "contents" : "none";
+      })
       .catch(error => {
         console.error("RBV visibility check failed.", error);
         this.hidden = true;
+        this.style.display = "none";
       });
   }
 }
