@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Home</title>
   <style>html.rbv-pending body { visibility: hidden; }</style>
+  <link rel="stylesheet" href="../cards/large-card.css">
+  <link rel="stylesheet" href="../cards/small-card.css">
+  <link rel="stylesheet" href="../services/services-viewer.css">
   <script src="../themes/theme-controller.js"></script>
   <script src="../direction-controller.js"></script>
   <script src="../navigation/navigation.js" defer></script>
@@ -15,9 +18,7 @@
 </head>
 <body>
   <main>
-    <rbv-visibility data-target-type="component" data-target-key="intro-view-card">
-      <intro-view-card></intro-view-card>
-    </rbv-visibility>
+    <rbv-visibility data-target-type="component" data-target-key="intro-view-card"><intro-view-card></intro-view-card></rbv-visibility>
     <services-section data-link-to-services></services-section>
   </main>
 </body>
