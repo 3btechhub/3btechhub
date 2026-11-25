@@ -61,6 +61,9 @@ class ServiceCategoryCreator extends HTMLElement {
 
   renderList(records) {
     this.listRegion.replaceChildren();
+    const addButton = this.makeButton("Add New", "service-category-creator__button service-category-creator__button--primary", () => this.openForm(null));
+    this.listRegion.append(addButton);
+
     if (!records.length) {
       const empty = document.createElement("p");
       empty.className = "service-category-creator__empty";
@@ -116,9 +119,9 @@ class ServiceCategoryCreator extends HTMLElement {
     this.formRegion.hidden = false;
     this.formRegion.innerHTML = `
       <form class="service-category-creator__form">
+        <input class="medium-input" name="slug" type="text" maxlength="180" placeholder="Slug (auto-generated from Name)" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required>
         <input class="medium-input" name="name" type="text" maxlength="180" placeholder="Name" autocomplete="off" required>
         <textarea class="medium-input service-category-creator__textarea" name="description" placeholder="Description" rows="4"></textarea>
-        <input class="medium-input" name="slug" type="text" maxlength="180" placeholder="Slug (e.g. tv-repair)" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required>
         <input class="medium-input" name="icon" type="text" maxlength="120" placeholder="Icon (icon name or class)">
         <input class="medium-input" name="image_path" type="url" placeholder="Image URL">
         <rbv-editor data-managed-save data-target-type="component" data-target-key="service-category-creator"></rbv-editor>
@@ -135,6 +138,17 @@ class ServiceCategoryCreator extends HTMLElement {
 
     form.elements.name.value = record?.name || "";
     form.elements.slug.value = record?.slug || "";
+    const nameInput = form.elements.name;
+    const slugInput = form.elements.slug;
+    slugInput.dataset.manuallyEdited = record?.slug ? "true" : "false";
+    slugInput.addEventListener("input", () => {
+      slugInput.dataset.manuallyEdited = "true";
+    });
+    nameInput.addEventListener("input", () => {
+      if (slugInput.dataset.manuallyEdited !== "true") {
+        slugInput.value = this.createSlug(nameInput.value);
+      }
+    });
     form.elements.description.value = record?.description || "";
     form.elements.icon.value = record?.icon || "";
     form.elements.image_path.value = record?.image_path || "";
@@ -148,7 +162,7 @@ class ServiceCategoryCreator extends HTMLElement {
     } else {
       actions.append(
         this.makeButton("Update", "service-category-creator__button service-category-creator__button--primary", () => this.submitForm(form, rbv, "update")),
-        this.makeButton("Cancel", "service-category-creator__button", () => this.closeForm()),
+        this.makeButton("Cancel", "service-category-creator__button", () => this.openForm(null)),
         this.makeButton("Delete", "service-category-creator__button service-category-creator__button--danger", () => this.deleteRecord())
       );
     }
@@ -210,6 +224,16 @@ class ServiceCategoryCreator extends HTMLElement {
     } catch (error) {
       this.setStatus(error?.message || "Service category could not be deleted.", true);
     }
+  }
+
+  createSlug(value) {
+    return value
+      .normalize("NFKD")
+      .toLowerCase()
+      .replace(/[\\u0300-\\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 180);
   }
 
   makeButton(label, className, onClick) {
