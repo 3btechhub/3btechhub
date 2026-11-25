@@ -1,0 +1,14 @@
+/* Home page Services heading — independent page-specific styles. */
+home-services-viewer {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.home-services-viewer-card {
+  text-align: center;
+}
+
+.home-services-viewer-card .heading {
+  margin: 0;
+}
