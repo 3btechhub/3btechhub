@@ -1,6 +1,8 @@
 import { supabase } from "../supabase-client.js";
 import { registerCrudConfig } from "../crud/crud-config.js";
 import { CrudCore } from "../crud/crud-core.js";
+import { getMediaAssetUrl } from "../media/media.js";
+import "../media/media-uploader.js";
 import "../slug.js";
 import "../cards/large-card.js";
 import "../visibility/rbv-editor.js";
@@ -23,6 +25,22 @@ const CRUD_CONFIG = registerCrudConfig({
     { name: "updated_by", label: "Updated by" }
   ]
 });
+
+const MEDIA_REFERENCE_PREFIX = "media:";
+
+function storedMediaValue(assetId) {
+  return assetId ? MEDIA_REFERENCE_PREFIX + assetId : "";
+}
+
+function isStoredMediaReference(value) {
+  return String(value || "").startsWith(MEDIA_REFERENCE_PREFIX);
+}
+
+async function displayMediaUrl(value) {
+  if (!value) return "";
+  if (!isStoredMediaReference(value)) return value;
+  return getMediaAssetUrl(value.slice(MEDIA_REFERENCE_PREFIX.length));
+}
 
 class ServiceCategoryCreator extends HTMLElement {
   connectedCallback() {
@@ -60,11 +78,10 @@ class ServiceCategoryCreator extends HTMLElement {
     }
   }
 
-  renderList(records) {
+  async renderList(records) {
     this.listRegion.replaceChildren();
     const addButton = this.makeButton("Add New", "service-category-creator__button service-category-creator__button--primary", () => this.openForm(null));
     this.listRegion.append(addButton);
-
     if (!records.length) return;
 
     const list = document.createElement("div");
@@ -72,9 +89,9 @@ class ServiceCategoryCreator extends HTMLElement {
     for (const record of records) {
       const item = document.createElement("article");
       item.className = "service-category-creator__record";
-
       const details = document.createElement("div");
       details.className = "service-category-creator__record-details";
+
       const name = document.createElement("h3");
       name.textContent = record.name;
       const slug = document.createElement("p");
@@ -86,19 +103,31 @@ class ServiceCategoryCreator extends HTMLElement {
         description.textContent = record.description;
         details.append(description);
       }
+
       if (record.icon) {
-        const icon = document.createElement("p");
-        icon.textContent = "Icon: " + record.icon;
-        details.append(icon);
+        const iconUrl = await displayMediaUrl(record.icon).catch(() => "");
+        if (iconUrl) {
+          const icon = document.createElement("img");
+          icon.className = "service-category-creator__icon-preview";
+          icon.src = iconUrl;
+          icon.alt = record.name + " icon";
+          icon.loading = "lazy";
+          icon.addEventListener("error", () => icon.hidden = true, { once: true });
+          details.append(icon);
+        }
       }
+
       if (record.image_path) {
-        const image = document.createElement("img");
-        image.className = "service-category-creator__preview";
-        image.src = record.image_path;
-        image.alt = record.name;
-        image.loading = "lazy";
-        image.addEventListener("error", () => image.hidden = true, { once: true });
-        details.append(image);
+        const imageUrl = await displayMediaUrl(record.image_path).catch(() => "");
+        if (imageUrl) {
+          const image = document.createElement("img");
+          image.className = "service-category-creator__preview";
+          image.src = imageUrl;
+          image.alt = record.name;
+          image.loading = "lazy";
+          image.addEventListener("error", () => image.hidden = true, { once: true });
+          details.append(image);
+        }
       }
 
       const edit = this.makeButton("Edit", "service-category-creator__button", () => this.openForm(record));
@@ -117,8 +146,16 @@ class ServiceCategoryCreator extends HTMLElement {
         <input class="medium-input" name="name" type="text" maxlength="180" placeholder="Name" autocomplete="off" required>
         <input class="medium-input" name="slug" type="text" maxlength="180" placeholder="Slug (e.g. tv-repair)" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required>
         <textarea class="medium-input service-category-creator__textarea" name="description" placeholder="Description" rows="4"></textarea>
-        <input class="medium-input" name="icon" type="text" maxlength="120" placeholder="Icon (icon name or class)">
-        <input class="medium-input" name="image_path" type="url" placeholder="Image URL">
+        <div class="service-category-creator__media-field">
+          <label>Icon</label>
+          <media-upload embedded accept="image/*,.svg,.ico" placeholder="Icon URL"></media-upload>
+          <input type="hidden" name="icon">
+        </div>
+        <div class="service-category-creator__media-field">
+          <label>Image</label>
+          <media-upload embedded accept="image/*" placeholder="Image URL"></media-upload>
+          <input type="hidden" name="image_path">
+        </div>
         <rbv-editor data-managed-save data-target-type="component" data-target-key="service-category-creator"></rbv-editor>
         <div class="service-category-creator__actions"></div>
       </form>
@@ -126,6 +163,11 @@ class ServiceCategoryCreator extends HTMLElement {
 
     const form = this.formRegion.querySelector("form");
     const rbv = form.querySelector("rbv-editor");
+    const mediaFields = [
+      { uploader: form.querySelectorAll("media-upload")[0], input: form.elements.icon, value: record?.icon || "" },
+      { uploader: form.querySelectorAll("media-upload")[1], input: form.elements.image_path, value: record?.image_path || "" }
+    ];
+
     if (record) {
       rbv.dataset.table = "service_categories";
       rbv.dataset.rowId = record.id;
@@ -133,12 +175,23 @@ class ServiceCategoryCreator extends HTMLElement {
 
     form.elements.name.value = record?.name || "";
     form.elements.slug.value = record?.slug || "";
-    const nameInput = form.elements.name;
-    const slugInput = form.elements.slug;
-    window.SlugGenerator.bind({ nameField: nameInput, slugField: slugInput });
+    window.SlugGenerator.bind({ nameField: form.elements.name, slugField: form.elements.slug });
     form.elements.description.value = record?.description || "";
-    form.elements.icon.value = record?.icon || "";
-    form.elements.image_path.value = record?.image_path || "";
+
+    for (const field of mediaFields) {
+      field.input.value = field.value;
+      field.uploader.addEventListener("media-url-changed", event => {
+        field.input.value = event.detail.url || "";
+      });
+      field.uploader.addEventListener("media-uploaded", event => {
+        field.input.value = storedMediaValue(event.detail.asset.id);
+      });
+      const url = await displayMediaUrl(field.value).catch(() => "");
+      if (url) {
+        const urlInput = field.uploader.querySelector(".media-library-upload__url");
+        if (urlInput) urlInput.value = url;
+      }
+    }
 
     const actions = form.querySelector(".service-category-creator__actions");
     if (mode === "create") {
@@ -178,7 +231,7 @@ class ServiceCategoryCreator extends HTMLElement {
         name: form.elements.name.value.trim(),
         slug: form.elements.slug.value.trim().toLowerCase(),
         description: form.elements.description.value.trim(),
-        icon: form.elements.icon.value.trim(),
+        icon: form.elements.icon.value.trim() || null,
         image_path: form.elements.image_path.value.trim() || null,
         visible_role_ids: rbv.getSelectedRoleIds(),
         updated_by: authData.user.id
