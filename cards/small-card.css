@@ -1,5 +1,5 @@
 /* Shared square surface: same visual system as Large Card, reduced size. */
-mini-card {
+small-card {
   display: block;
   box-sizing: border-box;
   width: 100%;
