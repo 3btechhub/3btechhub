@@ -1,5 +1,5 @@
 /*
- * MINI CARD — Square shared card surface component
+ * SMALL CARD — Shared card surface component.
  *
  * Mirrors Large Card structure and surface treatment.
  * Only the overall size and internal spacing are reduced.
@@ -7,11 +7,11 @@
  */
 class SmallCard extends HTMLElement {
   connectedCallback() {
-    if (this.dataset.miniCardReady === "true") return;
-    this.dataset.miniCardReady = "true";
+    if (this.dataset.smallCardReady === "true") return;
+    this.dataset.smallCardReady = "true";
   }
 }
 
 if (!customElements.get("small-card")) {
-  customElements.define("small-card", MiniCard);
+  customElements.define("small-card", SmallCard);
 }
