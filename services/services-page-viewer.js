@@ -1,0 +1,45 @@
+import { supabase } from "../supabase-client.js";
+import "../cards/large-card.js";
+
+const SERVICES_ROW_ID = 1;
+
+/* Services page heading viewer. Independent from the Home page viewer. */
+class ServicesPageViewer extends HTMLElement {
+  connectedCallback() {
+    if (this.dataset.initialized === "true") return;
+    this.dataset.initialized = "true";
+    this.loadHeading().catch(error => {
+      console.error("Services page heading could not be loaded.", error);
+    });
+  }
+
+  async loadHeading() {
+    const { data, error } = await supabase
+      .from("services")
+      .select("heading")
+      .eq("id", SERVICES_ROW_ID)
+      .single();
+
+    if (error) throw error;
+
+    const heading = data?.heading?.trim();
+    if (!heading) {
+      this.replaceChildren();
+      return;
+    }
+
+    const card = document.createElement("large-card");
+    card.className = "services-page-viewer-card";
+
+    const title = document.createElement("h1");
+    title.className = "heading text-center";
+    title.textContent = heading;
+
+    card.appendChild(title);
+    this.replaceChildren(card);
+  }
+}
+
+if (!customElements.get("services-page-viewer")) {
+  customElements.define("services-page-viewer", ServicesPageViewer);
+}
