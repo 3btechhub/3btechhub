@@ -1,0 +1,21 @@
+/* Services page: center the heading card without adding other page content. */
+html[data-page-rbv-key="services"] body {
+  min-height: 100vh;
+}
+
+html[data-page-rbv-key="services"] main {
+  box-sizing: border-box;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: var(--spacing-standard-gap, 12px);
+}
+
+html[data-page-rbv-key="services"] services-viewer {
+  display: block;
+  width: 100%;
+}
+
+.services-viewer-card .heading {
+  margin: 0;
+}
