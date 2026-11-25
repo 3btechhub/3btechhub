@@ -1,0 +1,49 @@
+/* Service Category List — each category uses the shared Medium Card surface. */
+.service-category-list,
+.service-category-list__items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-standard-gap);
+  min-width: 0;
+}
+
+.service-category-list__title {
+  margin: 0;
+}
+
+.service-category-list__status,
+.service-category-list__description {
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.service-category-list__status[data-state="error"] {
+  color: var(--color-error, var(--color-text));
+}
+
+.service-category-list__card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.service-category-list__card:focus-visible {
+  outline: 2px solid var(--color-primary, currentColor);
+  outline-offset: 2px;
+}
+
+.service-category-list__icon {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
+}
+
+.service-category-list__image {
+  display: block;
+  width: min(100%, 16rem);
+  max-height: 10rem;
+  object-fit: contain;
+  border-radius: var(--radius-medium);
+}
