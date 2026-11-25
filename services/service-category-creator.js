@@ -48,93 +48,29 @@ class ServiceCategoryCreator extends HTMLElement {
     this.dataset.initialized = "true";
     this.core = new CrudCore(supabase, CRUD_CONFIG);
     this.activeRecord = null;
+    this.handleEdit = event => this.openForm(event.detail?.record || null);
+    document.addEventListener("service-category-edit", this.handleEdit);
     this.render();
     this.openForm(null);
-    this.loadRecords();
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener("service-category-edit", this.handleEdit);
   }
 
   render() {
     this.innerHTML = `
       <large-card class="service-category-creator">
         <h2 class="service-category-creator__title">Category Creator</h2>
+        <div class="service-category-creator__toolbar"></div>
         <div class="service-category-creator__status" role="status" aria-live="polite"></div>
-        <section class="service-category-creator__list"></section>
         <section class="service-category-creator__form-region"></section>
       </large-card>
     `;
+    this.toolbar = this.querySelector(".service-category-creator__toolbar");
     this.status = this.querySelector(".service-category-creator__status");
-    this.listRegion = this.querySelector(".service-category-creator__list");
     this.formRegion = this.querySelector(".service-category-creator__form-region");
-  }
-
-  async loadRecords() {
-    this.setStatus("Loading...");
-    try {
-      const records = await this.core.read();
-      this.renderList(records);
-      this.setStatus("");
-    } catch (error) {
-      this.setStatus(error?.message || "Service categories could not be loaded.", true);
-    }
-  }
-
-  async renderList(records) {
-    this.listRegion.replaceChildren();
-    const addButton = this.makeButton("Add New", "service-category-creator__button service-category-creator__button--primary", () => this.openForm(null));
-    this.listRegion.append(addButton);
-    if (!records.length) return;
-
-    const list = document.createElement("div");
-    list.className = "service-category-creator__records";
-    for (const record of records) {
-      const item = document.createElement("article");
-      item.className = "service-category-creator__record";
-      const details = document.createElement("div");
-      details.className = "service-category-creator__record-details";
-
-      const name = document.createElement("h3");
-      name.textContent = record.name;
-      const slug = document.createElement("p");
-      slug.textContent = record.slug;
-      details.append(name, slug);
-
-      if (record.description) {
-        const description = document.createElement("p");
-        description.textContent = record.description;
-        details.append(description);
-      }
-
-      if (record.icon) {
-        const iconUrl = await displayMediaUrl(record.icon).catch(() => "");
-        if (iconUrl) {
-          const icon = document.createElement("img");
-          icon.className = "service-category-creator__icon-preview";
-          icon.src = iconUrl;
-          icon.alt = record.name + " icon";
-          icon.loading = "lazy";
-          icon.addEventListener("error", () => icon.hidden = true, { once: true });
-          details.append(icon);
-        }
-      }
-
-      if (record.image_path) {
-        const imageUrl = await displayMediaUrl(record.image_path).catch(() => "");
-        if (imageUrl) {
-          const image = document.createElement("img");
-          image.className = "service-category-creator__preview";
-          image.src = imageUrl;
-          image.alt = record.name;
-          image.loading = "lazy";
-          image.addEventListener("error", () => image.hidden = true, { once: true });
-          details.append(image);
-        }
-      }
-
-      const edit = this.makeButton("Edit", "service-category-creator__button", () => this.openForm(record));
-      item.append(details, edit);
-      list.append(item);
-    }
-    this.listRegion.append(list);
+    this.toolbar.append(this.makeButton("Add New", "service-category-creator__button service-category-creator__button--primary", () => this.openForm(null)));
   }
 
   async openForm(record = null) {
@@ -246,7 +182,8 @@ class ServiceCategoryCreator extends HTMLElement {
       }
 
       await this.openForm(null);
-      await this.loadRecords();
+      this.setStatus("Service category saved successfully.");
+      document.dispatchEvent(new CustomEvent("service-categories-changed"));
     } catch (error) {
       this.setStatus(error?.message || "Service category could not be saved.", true);
       buttons.forEach(button => button.disabled = false);
@@ -260,7 +197,8 @@ class ServiceCategoryCreator extends HTMLElement {
     try {
       await this.core.delete(this.activeRecord);
       await this.openForm(null);
-      await this.loadRecords();
+      this.setStatus("Service category deleted successfully.");
+      document.dispatchEvent(new CustomEvent("service-categories-changed"));
     } catch (error) {
       this.setStatus(error?.message || "Service category could not be deleted.", true);
     }
