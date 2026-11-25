@@ -1,0 +1,28 @@
+/* Services page heading viewer — page-specific content styling. */
+services-page-viewer {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.services-page-viewer-card {
+  text-align: center;
+}
+
+.services-page-viewer-card .heading {
+  margin: 0;
+}
+
+/* Keep the standalone Services page heading centered in its viewport. */
+html[data-page-rbv-key="services"] main {
+  box-sizing: border-box;
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: var(--spacing-standard-gap);
+}
+
+html[data-page-rbv-key="services"] main > rbv-visibility,
+html[data-page-rbv-key="services"] services-page-viewer {
+  width: 100%;
+}
