@@ -25,9 +25,14 @@ class Services extends HTMLElement {
         return { ...item, image };
       }));
       if (this.hasAttribute("data-show-description")) {
-        const { data: content, error: contentError } = await supabase.from("service_content").select("description").eq("id",1).maybeSingle();
-        if (contentError) throw contentError;
-        this.description = content?.description || "";
+        try {
+          const { data: content, error: contentError } = await supabase.from("service_content").select("description").eq("id",1).maybeSingle();
+          if (contentError) throw contentError;
+          this.description = content?.description || "";
+        } catch (descriptionError) {
+          console.error("Service description could not be loaded; categories will still be shown.", descriptionError);
+          this.description = "";
+        }
       }
       this.render();
     } catch (error) { console.error("Services could not be loaded.", error); this.replaceChildren(); this.hidden = true; }
@@ -39,7 +44,27 @@ class Services extends HTMLElement {
   }
   render() {
     this.replaceChildren();
-    if (!this.categories?.length) { this.hidden = true; return; }
+    if (!this.categories?.length) {
+      const emptySurface = document.createElement("large-card");
+      emptySurface.className = "services-section__surface";
+      const emptyHeading = document.createElement("h2");
+      emptyHeading.className = "heading services-section__heading";
+      emptyHeading.textContent = "Services";
+      emptySurface.append(emptyHeading);
+      if (this.hasAttribute("data-show-description")) {
+        const description = document.createElement("p");
+        description.className = "services-section__description-intro";
+        description.textContent = this.description || "";
+        description.hidden = !this.description;
+        emptySurface.append(description);
+      }
+      const emptyMessage = document.createElement("p");
+      emptyMessage.textContent = "No service categories available.";
+      emptySurface.append(emptyMessage);
+      this.append(emptySurface);
+      this.hidden = false;
+      return;
+    }
     const surface = document.createElement("large-card");
     surface.className = "services-section__surface";
     if (this.hasAttribute("data-link-to-services")) {
