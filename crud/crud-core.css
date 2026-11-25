@@ -1,0 +1,110 @@
+.crud-interface {
+  display: block;
+  width: 100%;
+}
+
+.crud-interface__title,
+.crud-interface__form h3 {
+  margin: 0 0 16px;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+}
+
+.crud-interface__message {
+  min-height: 1.25em;
+  margin: 0 0 12px;
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+.crud-interface__message--error {
+  color: #b42318;
+}
+
+.crud-interface__list,
+.crud-interface__form-region {
+  display: grid;
+  gap: 16px;
+}
+
+.crud-interface__empty {
+  margin: 0;
+  color: inherit;
+  opacity: 0.7;
+}
+
+.crud-interface__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: start;
+}
+
+.crud-interface__table th,
+.crud-interface__table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+  text-align: start;
+  vertical-align: middle;
+}
+
+.crud-interface__form {
+  display: grid;
+  gap: 16px;
+}
+
+.crud-interface__field {
+  display: grid;
+  gap: 8px;
+}
+
+.crud-interface__field > span {
+  font-weight: 500;
+}
+
+.crud-interface__field input,
+.crud-interface__field textarea,
+.crud-interface__field select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+.crud-interface__field textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.crud-interface__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.crud-interface__button {
+  cursor: pointer;
+}
+
+.crud-interface__button--primary {
+  font-weight: 600;
+}
+
+.crud-interface__button--danger {
+  color: #b42318;
+}
+
+.crud-interface [hidden] {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .crud-interface__table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .crud-interface__actions > button {
+    flex: 1 1 auto;
+  }
+}
