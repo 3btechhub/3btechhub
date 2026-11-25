@@ -17,7 +17,7 @@ class ServiceCategoryEditorCard extends HTMLElement {
     this.querySelector('[data-action="cancel"]').addEventListener("click", () => this.resetForm());
     this.querySelector('[data-action="delete"]').addEventListener("click", () => this.deleteCurrent());
     this.loadRoles();
-    this.addEventListener("service-category-edit", event => this.loadCategory(event.detail?.category));
+    window.addEventListener("service-category-edit", event => this.loadCategory(event.detail?.category));
   }
 
   render() {
