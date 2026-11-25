@@ -1,5 +1,6 @@
 import { CrudCore } from "./crud-core.js";
 import { getCrudConfig } from "./crud-config.js";
+import "../slug.js";
 
 class CrudInterface extends HTMLElement {
   connectedCallback() {
@@ -196,6 +197,12 @@ class CrudInterface extends HTMLElement {
 
       wrapper.append(input);
       form.append(wrapper);
+    }
+
+    const nameField = form.elements.namedItem("name");
+    const slugField = form.elements.namedItem("slug");
+    if (nameField && slugField) {
+      window.SlugGenerator.bind({ nameField, slugField });
     }
 
     const buttonRow = document.createElement("div");
