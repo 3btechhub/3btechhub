@@ -64,13 +64,7 @@ class ServiceCategoryCreator extends HTMLElement {
     const addButton = this.makeButton("Add New", "service-category-creator__button service-category-creator__button--primary", () => this.openForm(null));
     this.listRegion.append(addButton);
 
-    if (!records.length) {
-      const empty = document.createElement("p");
-      empty.className = "service-category-creator__empty";
-      empty.textContent = "No service categories found.";
-      this.listRegion.append(empty);
-      return;
-    }
+    if (!records.length) return;
 
     const list = document.createElement("div");
     list.className = "service-category-creator__records";
@@ -120,8 +114,8 @@ class ServiceCategoryCreator extends HTMLElement {
     this.formRegion.innerHTML = `
       <form class="service-category-creator__form">
         <input class="medium-input" name="name" type="text" maxlength="180" placeholder="Name" autocomplete="off" required>
-        <textarea class="medium-input service-category-creator__textarea" name="description" placeholder="Description" rows="4"></textarea>
         <input class="medium-input" name="slug" type="text" maxlength="180" placeholder="Slug (e.g. tv-repair)" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required>
+        <textarea class="medium-input service-category-creator__textarea" name="description" placeholder="Description" rows="4"></textarea>
         <input class="medium-input" name="icon" type="text" maxlength="120" placeholder="Icon (icon name or class)">
         <input class="medium-input" name="image_path" type="url" placeholder="Image URL">
         <rbv-editor data-managed-save data-target-type="component" data-target-key="service-category-creator"></rbv-editor>
