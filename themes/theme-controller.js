@@ -91,6 +91,7 @@
       ["login", asset("login/login.css")],
       ["account", asset("account/account.css")],
       ["intro-viewer", asset("intro/intro-viewer.css")],
+      ["services-viewer", asset("services/services-viewer.css")],
       ["intro-editor", asset("intro/intro-editor.css")],
       ["media-uploader", asset("media/media-uploader.css")],
       ["rbv-viewer", asset("visibility/rbv-viewer.css")],
