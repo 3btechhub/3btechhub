@@ -1,30 +1,9 @@
 import { supabase } from "../supabase-client.js";
-import { registerCrudConfig } from "../crud/crud-config.js";
-import { CrudCore } from "../crud/crud-core.js";
 import { getMediaAssetUrl } from "../media/media.js";
 import "../media/media-uploader.js";
 import "../slug.js";
 import "../cards/large-card.js";
 import "../visibility/rbv-editor.js";
-
-const CRUD_CONFIG = registerCrudConfig({
-  id: "service-category-creator",
-  table: "service_categories",
-  primaryKey: "id",
-  select: "id, name, slug, description, icon, image_path, visible_role_ids, created_by, updated_by, created_at, updated_at",
-  orderBy: { column: "name", ascending: true },
-  actions: ["create", "read", "update", "delete"],
-  fields: [
-    { name: "name", label: "Name" },
-    { name: "slug", label: "Slug" },
-    { name: "description", label: "Description" },
-    { name: "icon", label: "Icon" },
-    { name: "image_path", label: "Image" },
-    { name: "visible_role_ids", label: "RBV" },
-    { name: "created_by", label: "Created by" },
-    { name: "updated_by", label: "Updated by" }
-  ]
-});
 
 const MEDIA_REFERENCE_PREFIX = "media:";
 
@@ -46,7 +25,6 @@ class ServiceCategoryCreator extends HTMLElement {
   connectedCallback() {
     if (this.dataset.initialized === "true") return;
     this.dataset.initialized = "true";
-    this.core = new CrudCore(supabase, CRUD_CONFIG);
     this.activeRecord = null;
     this.handleEdit = event => this.openForm(event.detail?.record || null);
     document.addEventListener("service-category-edit", this.handleEdit);
@@ -62,15 +40,12 @@ class ServiceCategoryCreator extends HTMLElement {
     this.innerHTML = `
       <large-card class="service-category-creator">
         <h2 class="service-category-creator__title">Category Creator</h2>
-        <div class="service-category-creator__toolbar"></div>
         <div class="service-category-creator__status" role="status" aria-live="polite"></div>
         <section class="service-category-creator__form-region"></section>
       </large-card>
     `;
-    this.toolbar = this.querySelector(".service-category-creator__toolbar");
     this.status = this.querySelector(".service-category-creator__status");
     this.formRegion = this.querySelector(".service-category-creator__form-region");
-    this.toolbar.append(this.makeButton("Add New", "service-category-creator__button service-category-creator__button--primary", () => this.openForm(null)));
   }
 
   async openForm(record = null) {
@@ -117,18 +92,13 @@ class ServiceCategoryCreator extends HTMLElement {
     // Render CRUD actions immediately so asynchronous media lookups cannot
     // delay or prevent the action bar from appearing at the bottom of the card.
     const actions = form.querySelector(".service-category-creator__actions");
-    if (mode === "create") {
-      actions.append(
-        this.makeButton("Save", "service-category-creator__button service-category-creator__button--primary", () => this.submitForm(form, rbv, "create")),
-        this.makeButton("Cancel", "service-category-creator__button", () => this.openForm(null))
-      );
-    } else {
-      actions.append(
-        this.makeButton("Update", "service-category-creator__button service-category-creator__button--primary", () => this.submitForm(form, rbv, "update")),
-        this.makeButton("Cancel", "service-category-creator__button", () => this.openForm(null)),
-        this.makeButton("Delete", "service-category-creator__button service-category-creator__button--danger", () => this.deleteRecord())
-      );
-    }
+    actions.append(
+      this.makeButton("Save", "service-category-creator__small-button service-category-creator__small-button--primary", () => this.submitForm(form, rbv)),
+      this.makeButton("Cancel", "service-category-creator__small-button", () => this.openForm(null)),
+      this.makeButton("Delete", "service-category-creator__small-button service-category-creator__small-button--danger", () => this.deleteRecord())
+    );
+    actions.querySelector('[aria-label="Delete"]')?.toggleAttribute("disabled", !record);
+    actions.lastElementChild.disabled = !record;
 
     for (const field of mediaFields) {
       field.input.value = field.value;
@@ -153,11 +123,12 @@ class ServiceCategoryCreator extends HTMLElement {
     }
   }
 
-  async submitForm(form, rbv, mode) {
+  async submitForm(form, rbv) {
     if (!form.reportValidity()) return;
     const buttons = form.querySelectorAll("button");
     buttons.forEach(button => button.disabled = true);
-    this.setStatus(mode === "create" ? "Saving..." : "Updating...");
+    const mode = this.activeRecord ? "update" : "create";
+    this.setStatus("Saving...");
 
     try {
       await rbv.ready;
@@ -177,10 +148,12 @@ class ServiceCategoryCreator extends HTMLElement {
 
       if (mode === "create") {
         values.created_by = authData.user.id;
-        await this.core.create(values);
+        const { error } = await supabase.from("service_categories").insert(values);
+        if (error) throw error;
       } else {
         values.created_by = this.activeRecord.created_by;
-        await this.core.update(this.activeRecord, values);
+        const { error } = await supabase.from("service_categories").update(values).eq("id", this.activeRecord.id);
+        if (error) throw error;
       }
 
       await this.openForm(null);
@@ -197,7 +170,8 @@ class ServiceCategoryCreator extends HTMLElement {
     if (!window.confirm("Delete this service category? This action cannot be undone.")) return;
     this.setStatus("Deleting...");
     try {
-      await this.core.delete(this.activeRecord);
+      const { error } = await supabase.from("service_categories").delete().eq("id", this.activeRecord.id);
+      if (error) throw error;
       await this.openForm(null);
       this.setStatus("Service category deleted successfully.");
       document.dispatchEvent(new CustomEvent("service-categories-changed"));
@@ -210,6 +184,7 @@ class ServiceCategoryCreator extends HTMLElement {
     const button = document.createElement("button");
     button.type = "button";
     button.className = className;
+    button.setAttribute("aria-label", label);
     button.textContent = label;
     button.addEventListener("click", onClick);
     return button;
