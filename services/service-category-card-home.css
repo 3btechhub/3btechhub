@@ -1,0 +1,49 @@
+/* Home page service category cards. */
+service-category-card-home {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: var(--spacing-standard-gap);
+  width: 100%;
+  min-width: 0;
+}
+
+service-category-card-home[hidden] {
+  display: none;
+}
+
+.service-category-card-home__link {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.service-category-card-home__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-standard-gap);
+  min-width: 0;
+  text-align: center;
+  cursor: pointer;
+}
+
+.service-category-card-home__media {
+  display: block;
+  width: min(100%, 4rem);
+  height: 4rem;
+  object-fit: contain;
+}
+
+.service-category-card-home__name {
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.service-category-card-home__link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+  border-radius: var(--radius-medium, 0.5rem);
+}
