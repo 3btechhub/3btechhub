@@ -12,7 +12,7 @@ async function resolveCategoryMedia(value) {
   return getMediaAssetUrl(source.slice(MEDIA_REFERENCE_PREFIX.length));
 }
 
-/* Services page category list. Uses the same mini-card presentation as Home. */
+/* Services page category list. Each visible category uses the shared Small Card. */
 class ServiceCategoryListPage extends HTMLElement {
   connectedCallback() {
     if (this.dataset.initialized === "true") return;
@@ -24,6 +24,7 @@ class ServiceCategoryListPage extends HTMLElement {
   }
 
   async loadCategories() {
+    // Supabase RLS applies each category's visible_role_ids RBV rule to this query.
     const { data, error } = await supabase
       .from("service_categories")
       .select(CATEGORY_FIELDS)
