@@ -238,6 +238,10 @@ class CrudInterface extends HTMLElement {
     const button = document.createElement("button");
     button.type = type;
     button.className = className;
+    button.style.fontSize = "0.875rem";
+    button.style.padding = "6px 10px";
+    button.style.minHeight = "32px";
+    button.style.lineHeight = "1.2";
     button.textContent = label;
     button.addEventListener("click", event => {
       if (type === "submit") event.preventDefault();
