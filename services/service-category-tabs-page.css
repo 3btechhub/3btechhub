@@ -3,38 +3,39 @@ service-category-tabs-page {
   display: block;
   width: 100%;
   min-width: 0;
+  margin-block-start: var(--spacing-standard-gap);
 }
 
 .service-category-tabs-page__tabs {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: var(--spacing-standard-gap);
   width: 100%;
   min-width: 0;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
-  padding-block: 2px;
+  padding: 2px;
   scrollbar-width: thin;
 }
 
 .service-category-tabs-page__tab {
   flex: 0 0 auto;
   min-height: 2.5rem;
-  padding: 0.55rem 1rem;
-  border: 1px solid currentColor;
-  border-radius: var(--radius-medium, 0.5rem);
-  background: transparent;
-  color: inherit;
+  padding: var(--spacing-surface-block, 0.55rem) var(--spacing-surface-inline, 1rem);
+  border: var(--border-standard);
+  border-radius: var(--radius-large);
+  background: var(--color-surface-raised, var(--color-surface));
+  color: var(--color-text);
+  box-shadow: var(--shadow-medium);
   font: inherit;
   line-height: 1.2;
   cursor: pointer;
-  opacity: 0.72;
 }
 
 .service-category-tabs-page__tab[aria-selected="true"] {
-  opacity: 1;
   font-weight: 700;
-  border-width: 2px;
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
 }
 
 .service-category-tabs-page__tab:focus-visible {
