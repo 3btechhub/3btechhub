@@ -25,6 +25,12 @@
 .service-category-list__card {
   min-width: 0;
   overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.service-category-list__card:focus-visible {
+  outline: 2px solid var(--color-primary, currentColor);
+  outline-offset: 2px;
 }
 
 .service-category-list__icon {
@@ -40,8 +46,4 @@
   max-height: 10rem;
   object-fit: contain;
   border-radius: var(--radius-medium);
-}
-
-.service-category-list__card .medium-card__actions {
-  margin-top: auto;
 }
