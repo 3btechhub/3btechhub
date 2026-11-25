@@ -12,6 +12,6 @@ class SmallCard extends HTMLElement {
   }
 }
 
-if (!customElements.get("mini-card")) {
-  customElements.define("mini-card", MiniCard);
+if (!customElements.get("small-card")) {
+  customElements.define("small-card", MiniCard);
 }
