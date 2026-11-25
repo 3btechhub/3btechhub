@@ -41,9 +41,11 @@ large-card.service-category-list {
 
 .service-category-list__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 11rem);
   align-items: start;
+  justify-content: space-between;
   gap: var(--spacing-standard-gap);
+  width: 100%;
   min-width: 0;
 }
 
@@ -58,8 +60,9 @@ large-card.service-category-list {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  justify-self: end;
   gap: var(--spacing-standard-gap);
-  width: min(100%, 11rem);
+  width: 100%;
   min-width: 0;
 }
 
@@ -104,7 +107,7 @@ large-card.service-category-list {
 }
 
 @media (max-width: 420px) {
-  .service-category-list__side {
-    width: min(100%, 7rem);
+  .service-category-list__layout {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 7rem);
   }
 }
