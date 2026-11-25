@@ -1,5 +1,10 @@
-/* Service Category List — each category uses the shared Medium Card surface. */
-.service-category-list,
+/* Category List — the Large Card contains the heading, status and category Medium Cards. */
+large-card.service-category-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-standard-gap);
+}
+
 .service-category-list__items {
   display: flex;
   flex-direction: column;
@@ -9,6 +14,7 @@
 
 .service-category-list__title {
   margin: 0;
+  text-align: center;
 }
 
 .service-category-list__status,
