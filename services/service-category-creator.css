@@ -40,6 +40,16 @@ large-card.service-category-creator {
   resize: vertical;
 }
 
+.service-category-creator__media-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-standard-gap);
+}
+
+.service-category-creator__media-field > label {
+  color: var(--color-text);
+}
+
 .service-category-creator__actions {
   display: flex;
   flex-wrap: wrap;
@@ -108,6 +118,13 @@ large-card.service-category-creator {
 .service-category-creator__record-details p {
   margin: 0;
   overflow-wrap: anywhere;
+}
+
+.service-category-creator__icon-preview {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  object-fit: contain;
 }
 
 .service-category-creator__preview {
