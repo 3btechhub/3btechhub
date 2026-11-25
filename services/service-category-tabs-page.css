@@ -23,15 +23,17 @@ service-category-tabs-page {
 .service-category-tabs-page__tab {
   box-sizing: border-box;
   flex: 0 0 auto;
-  min-height: 1.25rem;
-  padding: 0 var(--spacing-control-inline);
+  width: auto;
+  min-width: 0;
+  height: 2rem;
+  padding: 0 var(--spacing-medium);
   border: var(--border-standard);
-  border-radius: var(--radius-large);
+  border-radius: var(--radius-small);
   background: var(--color-surface-raised, var(--color-surface));
   color: var(--color-text);
   box-shadow: var(--shadow-medium);
   font: inherit;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
