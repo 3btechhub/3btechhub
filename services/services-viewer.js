@@ -66,6 +66,25 @@ class Services extends HTMLElement {
     const surface = document.createElement("large-card");
     surface.className = "services-section__surface";
 
+    if (this.hasAttribute("data-link-to-services")) {
+      surface.classList.add("services-section__surface--linked");
+      surface.setAttribute("role", "link");
+      surface.setAttribute("tabindex", "0");
+      surface.setAttribute("aria-label", "Open Services page");
+
+      const openServicesPage = () => {
+        window.location.href = new URL("./index.html", import.meta.url).href;
+      };
+
+      surface.addEventListener("click", openServicesPage);
+      surface.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openServicesPage();
+        }
+      });
+    }
+
     const heading = document.createElement("h2");
     heading.className = "heading services-section__heading";
     heading.textContent = "Services";
