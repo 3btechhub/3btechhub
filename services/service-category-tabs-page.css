@@ -8,39 +8,44 @@ service-category-tabs-page {
 
 .service-category-tabs-page__tabs {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: var(--spacing-standard-gap);
   width: 100%;
   min-width: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   overscroll-behavior-inline: contain;
   padding: 2px;
   scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
 }
 
 .service-category-tabs-page__tab {
+  box-sizing: border-box;
   flex: 0 0 auto;
-  min-height: 2.5rem;
-  padding: var(--spacing-surface-block, 0.55rem) var(--spacing-surface-inline, 1rem);
+  min-height: 1.25rem;
+  padding: 0 var(--spacing-control-inline);
   border: var(--border-standard);
   border-radius: var(--radius-large);
   background: var(--color-surface-raised, var(--color-surface));
   color: var(--color-text);
   box-shadow: var(--shadow-medium);
   font: inherit;
-  line-height: 1.2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
   cursor: pointer;
 }
 
 .service-category-tabs-page__tab[aria-selected="true"] {
-  font-weight: 700;
-  outline: 2px solid currentColor;
-  outline-offset: -3px;
+  font-weight: 600;
+  box-shadow: var(--shadow-medium), inset 0 0 0 2px currentColor;
 }
 
 .service-category-tabs-page__tab:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline: var(--outline-focus, 2px solid currentColor);
+  outline-offset: var(--outline-focus-offset, 3px);
 }
 
 .service-category-tabs-page__status {
