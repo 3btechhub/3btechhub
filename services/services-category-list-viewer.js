@@ -9,7 +9,7 @@ class ServiceCategoryListViewer extends HTMLElement {
       const button = event.target.closest("[data-edit-category]");
       if (!button) return;
       const category = this.categories?.find(item => String(item.id) === button.dataset.editCategory);
-      this.dispatchEvent(new CustomEvent("service-category-edit", { bubbles: true, detail: { category } }));
+      window.dispatchEvent(new CustomEvent("service-category-edit", { detail: { category } }));
     });
     this.reload = () => this.load();
     window.addEventListener("service-categories-updated", this.reload);
