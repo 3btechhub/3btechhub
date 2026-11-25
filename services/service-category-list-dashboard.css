@@ -1,4 +1,4 @@
-/* Category List — the Large Card contains the heading, status and category Medium Cards. */
+/* Category List — each category Medium Card keeps details left and media/RBV right. */
 large-card.service-category-list {
   display: flex;
   flex-direction: column;
@@ -39,17 +39,72 @@ large-card.service-category-list {
   outline-offset: 2px;
 }
 
-.service-category-list__icon {
-  display: block;
-  width: 2.5rem;
-  height: 2.5rem;
-  object-fit: contain;
+.service-category-list__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--spacing-standard-gap);
+  min-width: 0;
 }
 
-.service-category-list__image {
+.service-category-list__details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-standard-gap);
+  min-width: 0;
+}
+
+.service-category-list__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-standard-gap);
+  width: min(100%, 11rem);
+  min-width: 0;
+}
+
+.service-category-list__avatar {
   display: block;
-  width: min(100%, 16rem);
-  max-height: 10rem;
-  object-fit: contain;
+  flex: 0 0 48px;
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
   border-radius: var(--radius-medium);
+}
+
+.service-category-list__avatar--blank {
+  border: var(--border-standard);
+  background: var(--color-surface-secondary, transparent);
+}
+
+.service-category-list__roles-heading {
+  font-size: var(--font-size-small, 0.875rem);
+  font-weight: 600;
+}
+
+.service-category-list__roles {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-standard-gap);
+  min-width: 0;
+}
+
+.service-category-list__role {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 0.2rem 0.45rem;
+  border: var(--border-standard);
+  border-radius: var(--radius-medium);
+  font-size: var(--font-size-small, 0.875rem);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 420px) {
+  .service-category-list__side {
+    width: min(100%, 7rem);
+  }
 }
