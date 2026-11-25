@@ -1,25 +1,6 @@
 import { supabase } from "../supabase-client.js";
-import { registerCrudConfig } from "../crud/crud-config.js";
-import { CrudCore } from "../crud/crud-core.js";
 import { getMediaAssetUrl } from "../media/media.js";
 import { getActiveRoles } from "../visibility/rbv.js";
-
-const LIST_CONFIG = registerCrudConfig({
-  id: "service-category-list",
-  table: "service_categories",
-  primaryKey: "id",
-  select: "id, name, slug, description, icon, image_path, visible_role_ids, created_at, updated_at",
-  orderBy: { column: "name", ascending: true },
-  actions: ["read"],
-  fields: [
-    { name: "name", label: "Name" },
-    { name: "slug", label: "Slug" },
-    { name: "description", label: "Description" },
-    { name: "icon", label: "Icon" },
-    { name: "image_path", label: "Image" },
-    { name: "visible_role_ids", label: "RBV" }
-  ]
-});
 
 const MEDIA_REFERENCE_PREFIX = "media:";
 
@@ -33,7 +14,6 @@ class ServiceCategoryList extends HTMLElement {
   connectedCallback() {
     if (this.dataset.initialized === "true") return;
     this.dataset.initialized = "true";
-    this.core = new CrudCore(supabase, LIST_CONFIG);
     this.handleRefresh = () => this.loadRecords();
     document.addEventListener("service-categories-changed", this.handleRefresh);
     this.render();
@@ -59,13 +39,18 @@ class ServiceCategoryList extends HTMLElement {
   async loadRecords() {
     this.setStatus("Loading...");
     try {
-      const [records, roles] = await Promise.all([
-        this.core.read(),
+      const [{ data: records, error }, roles] = await Promise.all([
+        supabase
+          .from("service_categories")
+          .select("id, name, slug, description, icon, image_path, visible_role_ids, created_at, updated_at")
+          .order("name", { ascending: true }),
         getActiveRoles()
       ]);
+      if (error) throw error;
+      const categories = records || [];
       this.rolesById = new Map(roles.map(role => [String(role.id), role]));
-      await this.renderRecords(records);
-      this.setStatus(records.length ? "" : "No service categories found.");
+      await this.renderRecords(categories);
+      this.setStatus(categories.length ? "" : "No service categories found.");
     } catch (error) {
       this.items.replaceChildren();
       this.setStatus(error?.message || "Service categories could not be loaded.", true);
