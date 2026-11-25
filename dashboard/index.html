@@ -13,6 +13,7 @@
   <link rel="stylesheet" href="./dashboard-tab.css">
   <link rel="stylesheet" href="../visibility/rbv-editor.css">
   <link rel="stylesheet" href="../services/services-editor.css">
+  <link rel="stylesheet" href="../services/service-category-creator.css">
   <script src="../themes/theme-controller.js"></script>
   <script src="../direction-controller.js"></script>
   <script src="../navigation/navigation.js" defer></script>
@@ -21,6 +22,7 @@
   <script type="module" src="./dashboard-tab.js"></script>
   <script type="module" src="../intro/intro-editor.js"></script>
   <script type="module" src="../services/services-editor.js"></script>
+  <script type="module" src="../services/service-category-creator.js"></script>
 </head>
 <body>
   <main>
@@ -35,6 +37,7 @@
         </section>
         <section class="dashboard-tabs__panel" id="dashboard-panel-service" role="tabpanel" aria-labelledby="dashboard-tab-service" data-dashboard-panel="service" hidden>
           <services-editor-card></services-editor-card>
+          <service-category-creator></service-category-creator>
         </section>
       </div>
     </dashboard-tabs>
