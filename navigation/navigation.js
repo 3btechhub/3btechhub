@@ -20,6 +20,7 @@
 
   const pages = [
     ["Home", "home/index.html", "home"],
+    ["Services", "services/index.html", "services"],
     ["Account", "account/index.html", "account"],
     ["Dashboard", "dashboard/index.html", "dashboard"]
   ];
