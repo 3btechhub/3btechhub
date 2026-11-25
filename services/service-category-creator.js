@@ -137,7 +137,7 @@ class ServiceCategoryCreator extends HTMLElement {
         name: form.elements.name.value.trim(),
         slug: form.elements.slug.value.trim().toLowerCase(),
         description: form.elements.description.value.trim(),
-        icon: form.elements.icon.value.trim() || null,
+        icon: form.elements.icon.value.trim(),
         image_path: form.elements.image_path.value.trim() || null,
         visible_role_ids: rbv.getSelectedRoleIds(),
         updated_by: authData.user.id
