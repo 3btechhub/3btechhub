@@ -1,6 +1,7 @@
 import { supabase } from "../supabase-client.js";
 import { registerCrudConfig } from "../crud/crud-config.js";
 import { CrudCore } from "../crud/crud-core.js";
+import "../slug.js";
 import "../cards/large-card.js";
 import "../visibility/rbv-editor.js";
 
@@ -134,15 +135,7 @@ class ServiceCategoryCreator extends HTMLElement {
     form.elements.slug.value = record?.slug || "";
     const nameInput = form.elements.name;
     const slugInput = form.elements.slug;
-    slugInput.dataset.manuallyEdited = record?.slug ? "true" : "false";
-    slugInput.addEventListener("input", () => {
-      slugInput.dataset.manuallyEdited = "true";
-    });
-    nameInput.addEventListener("input", () => {
-      if (slugInput.dataset.manuallyEdited !== "true") {
-        slugInput.value = this.createSlug(nameInput.value);
-      }
-    });
+    window.SlugGenerator.bind({ nameField: nameInput, slugField: slugInput });
     form.elements.description.value = record?.description || "";
     form.elements.icon.value = record?.icon || "";
     form.elements.image_path.value = record?.image_path || "";
@@ -218,16 +211,6 @@ class ServiceCategoryCreator extends HTMLElement {
     } catch (error) {
       this.setStatus(error?.message || "Service category could not be deleted.", true);
     }
-  }
-
-  createSlug(value) {
-    return value
-      .normalize("NFKD")
-      .toLowerCase()
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 180);
   }
 
   makeButton(label, className, onClick) {
