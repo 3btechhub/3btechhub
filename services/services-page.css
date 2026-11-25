@@ -1,0 +1,8 @@
+@import url("./services-viewer.css");
+
+/* Services page layout */
+services-page {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
