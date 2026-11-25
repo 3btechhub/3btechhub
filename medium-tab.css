@@ -1,5 +1,8 @@
 /* Shared Medium Tab component — common tab list and tab button styling. */
 .medium-tab-list {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
   display: flex;
   align-items: center;
   gap: var(--spacing-standard-gap);
