@@ -5,7 +5,7 @@
  * Only the overall size and internal spacing are reduced.
  * Standard CSS owns all visual surface properties.
  */
-class MiniCard extends HTMLElement {
+class SmallCard extends HTMLElement {
   connectedCallback() {
     if (this.dataset.miniCardReady === "true") return;
     this.dataset.miniCardReady = "true";
