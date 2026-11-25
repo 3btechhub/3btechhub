@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dashboard</title>
   <style>html.rbv-pending body { visibility: hidden; }</style>
+  <link rel="stylesheet" href="../cards/large-card.css">
+  <link rel="stylesheet" href="../cards/medium-card.css">
+  <link rel="stylesheet" href="../cards/small-card.css">
+  <link rel="stylesheet" href="../medium-input.css">
+  <link rel="stylesheet" href="../medium-button.css">
+  <link rel="stylesheet" href="../services/services-editor.css">
+  <link rel="stylesheet" href="../visibility/rbv-editor.css">
   <script src="../themes/theme-controller.js"></script>
   <script src="../direction-controller.js"></script>
   <script src="../navigation/navigation.js" defer></script>
@@ -13,30 +20,24 @@
   <script type="module" src="./dashboard-tab.js"></script>
   <script type="module" src="../intro/intro-editor.js"></script>
   <script type="module" src="../services/services-editor.js"></script>
+  <script type="module" src="../services/service-description-editor.js"></script>
+  <script type="module" src="../services/services-category-list-viewer.js"></script>
 </head>
 <body>
   <main>
     <dashboard-tabs>
       <div class="dashboard-tabs__list" role="tablist" aria-label="Dashboard modules">
-        <button class="dashboard-tabs__tab" id="dashboard-tab-intro" type="button" role="tab"
-          aria-controls="dashboard-panel-intro" aria-selected="true" tabindex="0" data-dashboard-tab="intro">Intro</button>
-        <button class="dashboard-tabs__tab" id="dashboard-tab-services" type="button" role="tab"
-          aria-controls="dashboard-panel-services" aria-selected="false" tabindex="-1" data-dashboard-tab="services">Services</button>
+        <button class="dashboard-tabs__tab" id="dashboard-tab-intro" type="button" role="tab" aria-controls="dashboard-panel-intro" aria-selected="true" tabindex="0" data-dashboard-tab="intro">Intro</button>
+        <button class="dashboard-tabs__tab" id="dashboard-tab-services" type="button" role="tab" aria-controls="dashboard-panel-services" aria-selected="false" tabindex="-1" data-dashboard-tab="services">Services</button>
       </div>
-
       <div class="dashboard-tabs__panels">
-        <section class="dashboard-tabs__panel" id="dashboard-panel-intro" role="tabpanel"
-          aria-labelledby="dashboard-tab-intro" data-dashboard-panel="intro">
-          <rbv-visibility data-target-type="editor" data-target-key="intro-editor-card">
-            <intro-editor-card></intro-editor-card>
-          </rbv-visibility>
+        <section class="dashboard-tabs__panel" id="dashboard-panel-intro" role="tabpanel" aria-labelledby="dashboard-tab-intro" data-dashboard-panel="intro">
+          <rbv-visibility data-target-type="editor" data-target-key="intro-editor-card"><intro-editor-card></intro-editor-card></rbv-visibility>
         </section>
-
-        <section class="dashboard-tabs__panel" id="dashboard-panel-services" role="tabpanel"
-          aria-labelledby="dashboard-tab-services" data-dashboard-panel="services" hidden>
-          <rbv-visibility data-target-type="editor" data-target-key="service-category-editor-card">
-            <service-category-editor-card></service-category-editor-card>
-          </rbv-visibility>
+        <section class="dashboard-tabs__panel" id="dashboard-panel-services" role="tabpanel" aria-labelledby="dashboard-tab-services" data-dashboard-panel="services" hidden>
+          <service-description-editor></service-description-editor>
+          <rbv-visibility data-target-type="editor" data-target-key="service-category-editor-card"><service-category-editor-card></service-category-editor-card></rbv-visibility>
+          <service-category-list-viewer></service-category-list-viewer>
         </section>
       </div>
     </dashboard-tabs>
