@@ -37,7 +37,7 @@ class ServicesHomeViewer extends HTMLElement {
     link.href = "../services/";
     link.setAttribute("aria-label", "Open Services");
 
-    const title = document.createElement("h2");
+    const title = document.createElement("h1");
     title.className = "heading text-center";
     title.textContent = heading;
 
