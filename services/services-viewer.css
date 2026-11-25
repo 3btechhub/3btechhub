@@ -1,21 +1,31 @@
-/* Services page: center the heading card without adding other page content. */
-html[data-page-rbv-key="services"] body {
-  min-height: 100vh;
+/* Services heading viewer — content styling only; Large Card owns the surface. */
+services-viewer {
+  display: block;
+  width: 100%;
+  min-width: 0;
 }
 
+.services-viewer-card {
+  text-align: center;
+}
+
+.services-viewer-card .heading {
+  margin: 0;
+}
+
+/* The standalone Services page centers its heading card in the viewport. */
 html[data-page-rbv-key="services"] main {
   box-sizing: border-box;
   display: grid;
   min-height: 100vh;
   place-items: center;
-  padding: var(--spacing-standard-gap, 12px);
+  padding: var(--spacing-standard-gap);
 }
 
-html[data-page-rbv-key="services"] services-viewer {
-  display: block;
+html[data-page-rbv-key="services"] main > rbv-visibility {
   width: 100%;
 }
 
-.services-viewer-card .heading {
-  margin: 0;
+html[data-page-rbv-key="services"] services-viewer {
+  width: 100%;
 }
