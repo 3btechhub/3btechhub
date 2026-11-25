@@ -3,31 +3,40 @@ import { getCrudConfig } from "./crud-config.js";
 
 class CrudInterface extends HTMLElement {
   connectedCallback() {
+    this.initialize();
+  }
+
+  configure(configuration, client) {
+    this.config = configuration;
+    this.client = client;
+    this.dataset.initialized = "false";
+    this.initialize();
+  }
+
+  setConfiguration(configuration, client) {
+    this.configure(configuration, client);
+  }
+
+  initialize() {
     if (this.dataset.initialized === "true") return;
-    this.dataset.initialized = "true";
 
     this.config = this.config || getCrudConfig(this.dataset.config);
-    if (!this.config) {
-      this.showError("CRUD configuration was not found.");
-      return;
-    }
-
     this.client = this.client || window.supabaseClient;
-    if (!this.client) {
-      this.showError("A Supabase client must be assigned to the CRUD interface.");
+
+    if (!this.config || !this.client) {
+      this.showError(
+        !this.config
+          ? "CRUD configuration was not found. Register or assign a configuration."
+          : "A Supabase client must be assigned to the CRUD interface."
+      );
       return;
     }
 
+    this.dataset.initialized = "true";
     this.core = new CrudCore(this.client, this.config);
     this.activeRecord = null;
     this.render();
     this.loadRecords();
-  }
-
-  setConfiguration(configuration, client) {
-    this.config = configuration;
-    if (client) this.client = client;
-    this.dataset.initialized = "false";
   }
 
   showError(message) {
