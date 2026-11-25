@@ -1,0 +1,14 @@
+/* Home page Services heading and Large Card — independent page styles. */
+services-home-viewer {
+  display: block;
+  width: 100%;
+  min-width: 0;
+}
+
+.services-home-viewer-card {
+  text-align: center;
+}
+
+.services-home-viewer-card .heading {
+  margin: 0;
+}
