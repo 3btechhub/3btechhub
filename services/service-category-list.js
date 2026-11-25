@@ -67,11 +67,27 @@ class ServiceCategoryList extends HTMLElement {
     }
   }
 
+  openRecord(record) {
+    document.dispatchEvent(new CustomEvent("service-category-edit", {
+      detail: { record },
+      bubbles: false
+    }));
+  }
+
   async renderRecords(records) {
     this.items.replaceChildren();
     for (const record of records) {
       const card = document.createElement("article");
       card.className = "medium-card service-category-list__card";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", `Edit service category: ${record.name || "Untitled category"}`);
+      card.addEventListener("click", () => this.openRecord(record));
+      card.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        this.openRecord(record);
+      });
 
       if (record.icon) {
         const iconUrl = await resolveMediaUrl(record.icon).catch(() => "");
@@ -116,20 +132,6 @@ class ServiceCategoryList extends HTMLElement {
         }
       }
 
-      const actions = document.createElement("div");
-      actions.className = "medium-card__actions";
-      const edit = document.createElement("button");
-      edit.type = "button";
-      edit.className = "medium-button";
-      edit.textContent = "Edit";
-      edit.addEventListener("click", () => {
-        document.dispatchEvent(new CustomEvent("service-category-edit", {
-          detail: { record },
-          bubbles: false
-        }));
-      });
-      actions.append(edit);
-      card.append(actions);
       this.items.append(card);
     }
   }
