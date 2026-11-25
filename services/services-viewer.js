@@ -35,7 +35,21 @@ class Services extends HTMLElement {
         }
       }
       this.render();
-    } catch (error) { console.error("Services could not be loaded.", error); this.replaceChildren(); this.hidden = true; }
+    } catch (error) {
+      console.error("Services could not be loaded.", error);
+      this.replaceChildren();
+      const surface = document.createElement("large-card");
+      surface.className = "services-section__surface";
+      const heading = document.createElement("h2");
+      heading.className = "heading services-section__heading";
+      heading.textContent = "Services";
+      const message = document.createElement("p");
+      message.setAttribute("role", "alert");
+      message.textContent = "Service categories could not be loaded. Please try again later.";
+      surface.append(heading, message);
+      this.append(surface);
+      this.hidden = false;
+    }
   }
   updateDescription(value) {
     this.description = value || "";
