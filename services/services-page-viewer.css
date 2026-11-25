@@ -13,16 +13,16 @@ services-page-viewer {
   margin: 0;
 }
 
-/* Keep the standalone Services page heading centered in its viewport. */
+/* Keep the Services heading card at the top of the page. */
 html[data-page-rbv-key="services"] main {
   box-sizing: border-box;
-  display: grid;
-  min-height: 100vh;
-  place-items: center;
+  display: block;
+  min-height: 0;
   padding: var(--spacing-standard-gap);
 }
 
 html[data-page-rbv-key="services"] main > rbv-visibility,
 html[data-page-rbv-key="services"] services-page-viewer {
+  display: block;
   width: 100%;
 }
