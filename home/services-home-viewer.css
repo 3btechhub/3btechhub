@@ -1,12 +1,16 @@
-/* Home page Services heading card — content layout only; surface comes from Large Card. */
+/* Home page Services heading viewer — same heading/card presentation as Services page. */
 services-home-viewer {
   display: block;
   width: 100%;
   min-width: 0;
 }
 
-large-card.services-home-viewer-card {
+.services-home-viewer-card {
   text-align: center;
+}
+
+.services-home-viewer-card .heading {
+  margin: 0;
 }
 
 .services-home-viewer-card__link {
@@ -19,8 +23,4 @@ large-card.services-home-viewer-card {
   outline: var(--outline-focus);
   outline-offset: var(--outline-focus-offset);
   border-radius: var(--radius-medium);
-}
-
-.services-home-viewer-card__link .heading {
-  margin: 0;
 }
