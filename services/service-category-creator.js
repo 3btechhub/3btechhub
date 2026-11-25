@@ -50,7 +50,6 @@ class ServiceCategoryCreator extends HTMLElement {
 
   async openForm(record = null) {
     this.activeRecord = record;
-    const mode = this.core.getMode(record);
     this.formRegion.hidden = false;
     this.formRegion.innerHTML = `
       <form class="service-category-creator__form">
@@ -89,15 +88,13 @@ class ServiceCategoryCreator extends HTMLElement {
     window.SlugGenerator.bind({ nameField: form.elements.name, slugField: form.elements.slug });
     form.elements.description.value = record?.description || "";
 
-    // Render CRUD actions immediately so asynchronous media lookups cannot
-    // delay or prevent the action bar from appearing at the bottom of the card.
+    // Render the small action buttons before asynchronous media URL resolution.
     const actions = form.querySelector(".service-category-creator__actions");
     actions.append(
       this.makeButton("Save", "service-category-creator__small-button service-category-creator__small-button--primary", () => this.submitForm(form, rbv)),
       this.makeButton("Cancel", "service-category-creator__small-button", () => this.openForm(null)),
       this.makeButton("Delete", "service-category-creator__small-button service-category-creator__small-button--danger", () => this.deleteRecord())
     );
-    actions.querySelector('[aria-label="Delete"]')?.toggleAttribute("disabled", !record);
     actions.lastElementChild.disabled = !record;
 
     for (const field of mediaFields) {
