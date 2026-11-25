@@ -44,6 +44,20 @@ large-card.service-category-creator {
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-standard-gap);
+  visibility: visible;
+  opacity: 1;
+}
+
+.service-category-creator__actions button,
+.service-category-creator__list > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  visibility: visible;
+  opacity: 1;
+  flex: 0 0 auto;
+  min-width: 5.5rem;
+  min-height: var(--size-button-medium);
 }
 
 .service-category-creator__button {
