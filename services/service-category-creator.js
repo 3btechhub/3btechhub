@@ -30,16 +30,17 @@ class ServiceCategoryCreator extends HTMLElement {
     this.core = new CrudCore(supabase, CRUD_CONFIG);
     this.activeRecord = null;
     this.render();
+    this.openForm(null);
     this.loadRecords();
   }
 
   render() {
     this.innerHTML = `
       <large-card class="service-category-creator">
-        <h2 class="service-category-creator__title">Service Category</h2>
+        <h2 class="service-category-creator__title">Category Creator</h2>
         <div class="service-category-creator__status" role="status" aria-live="polite"></div>
         <section class="service-category-creator__list"></section>
-        <section class="service-category-creator__form-region" hidden></section>
+        <section class="service-category-creator__form-region"></section>
       </large-card>
     `;
     this.status = this.querySelector(".service-category-creator__status");
@@ -60,9 +61,6 @@ class ServiceCategoryCreator extends HTMLElement {
 
   renderList(records) {
     this.listRegion.replaceChildren();
-    const addButton = this.makeButton("Add New", "service-category-creator__button service-category-creator__button--primary", () => this.openForm(null));
-    this.listRegion.append(addButton);
-
     if (!records.length) {
       const empty = document.createElement("p");
       empty.className = "service-category-creator__empty";
@@ -115,13 +113,12 @@ class ServiceCategoryCreator extends HTMLElement {
   async openForm(record = null) {
     this.activeRecord = record;
     const mode = this.core.getMode(record);
-    this.listRegion.hidden = true;
     this.formRegion.hidden = false;
     this.formRegion.innerHTML = `
       <form class="service-category-creator__form">
         <input class="medium-input" name="name" type="text" maxlength="180" placeholder="Name" autocomplete="off" required>
-        <input class="medium-input" name="slug" type="text" maxlength="180" placeholder="Slug (e.g. tv-repair)" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required>
         <textarea class="medium-input service-category-creator__textarea" name="description" placeholder="Description" rows="4"></textarea>
+        <input class="medium-input" name="slug" type="text" maxlength="180" placeholder="Slug (e.g. tv-repair)" pattern="[a-z0-9]+(-[a-z0-9]+)*" autocomplete="off" required>
         <input class="medium-input" name="icon" type="text" maxlength="120" placeholder="Icon (icon name or class)">
         <input class="medium-input" name="image_path" type="url" placeholder="Image URL">
         <rbv-editor data-managed-save data-target-type="component" data-target-key="service-category-creator"></rbv-editor>
@@ -146,7 +143,7 @@ class ServiceCategoryCreator extends HTMLElement {
     if (mode === "create") {
       actions.append(
         this.makeButton("Save", "service-category-creator__button service-category-creator__button--primary", () => this.submitForm(form, rbv, "create")),
-        this.makeButton("Cancel", "service-category-creator__button", () => this.closeForm())
+        this.makeButton("Cancel", "service-category-creator__button", () => this.openForm(null))
       );
     } else {
       actions.append(
@@ -194,7 +191,7 @@ class ServiceCategoryCreator extends HTMLElement {
         await this.core.update(this.activeRecord, values);
       }
 
-      this.closeForm();
+      await this.openForm(null);
       await this.loadRecords();
     } catch (error) {
       this.setStatus(error?.message || "Service category could not be saved.", true);
@@ -208,19 +205,11 @@ class ServiceCategoryCreator extends HTMLElement {
     this.setStatus("Deleting...");
     try {
       await this.core.delete(this.activeRecord);
-      this.closeForm();
+      await this.openForm(null);
       await this.loadRecords();
     } catch (error) {
       this.setStatus(error?.message || "Service category could not be deleted.", true);
     }
-  }
-
-  closeForm() {
-    this.activeRecord = null;
-    this.formRegion.replaceChildren();
-    this.formRegion.hidden = true;
-    this.listRegion.hidden = false;
-    this.setStatus("");
   }
 
   makeButton(label, className, onClick) {
