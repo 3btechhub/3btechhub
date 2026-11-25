@@ -80,3 +80,8 @@ services-section mini-card.services-section__item {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+
+.services-section__surface--linked {
+  cursor: pointer;
+}
