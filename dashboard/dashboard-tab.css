@@ -10,7 +10,9 @@ dashboard-tabs {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--color-surface-raised, var(--color-surface));
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .dashboard-tabs__panels {
