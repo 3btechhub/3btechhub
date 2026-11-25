@@ -114,21 +114,8 @@ class ServiceCategoryCreator extends HTMLElement {
     window.SlugGenerator.bind({ nameField: form.elements.name, slugField: form.elements.slug });
     form.elements.description.value = record?.description || "";
 
-    for (const field of mediaFields) {
-      field.input.value = field.value;
-      field.uploader.addEventListener("media-url-changed", event => {
-        field.input.value = event.detail.url || "";
-      });
-      field.uploader.addEventListener("media-uploaded", event => {
-        field.input.value = storedMediaValue(event.detail.asset.id);
-      });
-      const url = await displayMediaUrl(field.value).catch(() => "");
-      if (url) {
-        const urlInput = field.uploader.querySelector(".media-library-upload__url");
-        if (urlInput) urlInput.value = url;
-      }
-    }
-
+    // Render CRUD actions immediately so asynchronous media lookups cannot
+    // delay or prevent the action bar from appearing at the bottom of the card.
     const actions = form.querySelector(".service-category-creator__actions");
     if (mode === "create") {
       actions.append(
@@ -141,6 +128,21 @@ class ServiceCategoryCreator extends HTMLElement {
         this.makeButton("Cancel", "service-category-creator__button", () => this.openForm(null)),
         this.makeButton("Delete", "service-category-creator__button service-category-creator__button--danger", () => this.deleteRecord())
       );
+    }
+
+    for (const field of mediaFields) {
+      field.input.value = field.value;
+      field.uploader.addEventListener("media-url-changed", event => {
+        field.input.value = event.detail.url || "";
+      });
+      field.uploader.addEventListener("media-uploaded", event => {
+        field.input.value = storedMediaValue(event.detail.asset.id);
+      });
+      displayMediaUrl(field.value).then(url => {
+        if (!url || !field.uploader.isConnected) return;
+        const urlInput = field.uploader.querySelector(".media-library-upload__url");
+        if (urlInput) urlInput.value = url;
+      }).catch(() => {});
     }
 
     try {
