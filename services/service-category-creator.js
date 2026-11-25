@@ -91,9 +91,9 @@ class ServiceCategoryCreator extends HTMLElement {
     // Render the small action buttons before asynchronous media URL resolution.
     const actions = form.querySelector(".service-category-creator__actions");
     actions.append(
-      this.makeButton("Save", "service-category-creator__small-button service-category-creator__small-button--primary", () => this.submitForm(form, rbv)),
-      this.makeButton("Cancel", "service-category-creator__small-button", () => this.openForm(null)),
-      this.makeButton("Delete", "service-category-creator__small-button service-category-creator__small-button--danger", () => this.deleteRecord())
+      this.makeButton("Save", "medium-button service-category-creator__small-button", () => this.submitForm(form, rbv)),
+      this.makeButton("Cancel", "medium-button service-category-creator__small-button", () => this.openForm(null)),
+      this.makeButton("Delete", "medium-button service-category-creator__small-button", () => this.deleteRecord())
     );
     actions.lastElementChild.disabled = !record;
 
