@@ -85,6 +85,7 @@
       ["medium-input", asset("medium-input.css")],
       ["medium-output", asset("medium-output.css")],
       ["medium-button", asset("medium-button.css")],
+      ["medium-tab", asset("medium-tab.css")],
       ["large-card", asset("cards/large-card.css")],
       ["mini-card", asset("cards/small-card.css")],
       ["navigation", asset("navigation/navigation.css")],
@@ -120,7 +121,7 @@
 
   function setTheme(value) {
     theme = normalizeTheme(value);
-    persist(THEME_KEY, theme);
+    persist(THEME_KEY, value);
     document.documentElement.dataset.themeLoading = "true";
     return applyTheme();
   }
