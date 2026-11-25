@@ -2,6 +2,7 @@ import { supabase } from "../supabase-client.js";
 import { registerCrudConfig } from "../crud/crud-config.js";
 import { CrudCore } from "../crud/crud-core.js";
 import { getMediaAssetUrl } from "../media/media.js";
+import { getActiveRoles } from "../visibility/rbv.js";
 
 const LIST_CONFIG = registerCrudConfig({
   id: "service-category-list",
@@ -58,7 +59,11 @@ class ServiceCategoryList extends HTMLElement {
   async loadRecords() {
     this.setStatus("Loading...");
     try {
-      const records = await this.core.read();
+      const [records, roles] = await Promise.all([
+        this.core.read(),
+        getActiveRoles()
+      ]);
+      this.rolesById = new Map(roles.map(role => [String(role.id), role]));
       await this.renderRecords(records);
       this.setStatus(records.length ? "" : "No service categories found.");
     } catch (error) {
@@ -72,6 +77,54 @@ class ServiceCategoryList extends HTMLElement {
       detail: { record },
       bubbles: false
     }));
+  }
+
+  async createMediaElement(record) {
+    const mediaValue = record.image_path || record.icon;
+    const mediaType = record.image_path ? "image" : "icon";
+    if (mediaValue) {
+      const mediaUrl = await resolveMediaUrl(mediaValue).catch(() => "");
+      if (mediaUrl) {
+        const image = document.createElement("img");
+        image.className = "service-category-list__avatar";
+        image.src = mediaUrl;
+        image.alt = record.name ? `${record.name} ${mediaType}` : `Category ${mediaType}`;
+        image.loading = "lazy";
+        image.addEventListener("error", () => {
+          image.replaceWith(this.createBlankAvatar());
+        }, { once: true });
+        return image;
+      }
+    }
+    return this.createBlankAvatar();
+  }
+
+  createBlankAvatar() {
+    const avatar = document.createElement("span");
+    avatar.className = "service-category-list__avatar service-category-list__avatar--blank";
+    avatar.setAttribute("aria-label", "No image or icon");
+    return avatar;
+  }
+
+  createRoleList(record) {
+    const list = document.createElement("div");
+    list.className = "service-category-list__roles";
+    list.setAttribute("aria-label", "Selected RBV roles");
+
+    const selectedIds = Array.isArray(record.visible_role_ids)
+      ? record.visible_role_ids
+      : [];
+
+    selectedIds.forEach(id => {
+      const role = this.rolesById?.get(String(id));
+      if (!role) return;
+      const item = document.createElement("span");
+      item.className = "service-category-list__role";
+      item.textContent = role.name;
+      list.append(item);
+    });
+
+    return list;
   }
 
   async renderRecords(records) {
@@ -89,49 +142,40 @@ class ServiceCategoryList extends HTMLElement {
         this.openRecord(record);
       });
 
-      if (record.icon) {
-        const iconUrl = await resolveMediaUrl(record.icon).catch(() => "");
-        if (iconUrl) {
-          const icon = document.createElement("img");
-          icon.className = "service-category-list__icon";
-          icon.src = iconUrl;
-          icon.alt = record.name + " icon";
-          icon.loading = "lazy";
-          icon.addEventListener("error", () => icon.hidden = true, { once: true });
-          card.append(icon);
-        }
-      }
+      const layout = document.createElement("div");
+      layout.className = "service-category-list__layout";
+
+      const details = document.createElement("div");
+      details.className = "service-category-list__details";
 
       const heading = document.createElement("h3");
       heading.className = "medium-card__heading";
       heading.textContent = record.name || "Untitled category";
-      card.append(heading);
+      details.append(heading);
 
       const slug = document.createElement("p");
       slug.className = "medium-card__meta";
       slug.textContent = record.slug || "";
-      if (slug.textContent) card.append(slug);
+      if (slug.textContent) details.append(slug);
 
       if (record.description) {
         const description = document.createElement("p");
         description.className = "service-category-list__description";
         description.textContent = record.description;
-        card.append(description);
+        details.append(description);
       }
 
-      if (record.image_path) {
-        const imageUrl = await resolveMediaUrl(record.image_path).catch(() => "");
-        if (imageUrl) {
-          const image = document.createElement("img");
-          image.className = "service-category-list__image";
-          image.src = imageUrl;
-          image.alt = record.name || "Service category";
-          image.loading = "lazy";
-          image.addEventListener("error", () => image.hidden = true, { once: true });
-          card.append(image);
-        }
-      }
+      const side = document.createElement("div");
+      side.className = "service-category-list__side";
+      side.append(await this.createMediaElement(record));
 
+      const rolesHeading = document.createElement("span");
+      rolesHeading.className = "service-category-list__roles-heading";
+      rolesHeading.textContent = "Selected RBV";
+      side.append(rolesHeading, this.createRoleList(record));
+
+      layout.append(details, side);
+      card.append(layout);
       this.items.append(card);
     }
   }
