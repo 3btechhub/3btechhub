@@ -43,7 +43,7 @@ class ServiceCategoryTabsPage extends HTMLElement {
 
   renderShell() {
     this.innerHTML = `
-      <div class="service-category-tabs-page__tabs" role="tablist" aria-label="Service categories"></div>
+      <div class="service-category-tabs-page__tabs medium-tab-list" role="tablist" aria-label="Service categories"></div>
       <div class="service-category-tabs-page__status" role="status" aria-live="polite"></div>
     `;
     this.tabs = this.querySelector(".service-category-tabs-page__tabs");
@@ -83,7 +83,7 @@ class ServiceCategoryTabsPage extends HTMLElement {
       const active = key === categoryKey(selectedCategory);
       const button = document.createElement("button");
       button.type = "button";
-      button.className = "service-category-tabs-page__tab";
+      button.className = "service-category-tabs-page__tab medium-tab";
       button.id = `service-category-tab-${CSS.escape(key)}`;
       button.setAttribute("role", "tab");
       button.setAttribute("aria-selected", String(active));
