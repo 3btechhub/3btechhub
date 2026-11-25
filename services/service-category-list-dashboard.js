@@ -45,11 +45,11 @@ class ServiceCategoryList extends HTMLElement {
 
   render() {
     this.innerHTML = `
-      <section class="service-category-list">
-        <h2 class="service-category-list__title">Service Category List</h2>
+      <large-card class="service-category-list">
+        <h2 class="service-category-list__title">Category List</h2>
         <p class="service-category-list__status" role="status" aria-live="polite"></p>
         <div class="service-category-list__items"></div>
-      </section>
+      </large-card>
     `;
     this.status = this.querySelector(".service-category-list__status");
     this.items = this.querySelector(".service-category-list__items");
