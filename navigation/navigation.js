@@ -20,7 +20,6 @@
 
   const pages = [
     ["Home", "home/index.html", "home"],
-    ["Services", "services/index.html", "services"],
     ["Account", "account/index.html", "account"],
     ["Dashboard", "dashboard/index.html", "dashboard"]
   ];
@@ -96,9 +95,7 @@
   });
 
   document.addEventListener("pointerdown", event => {
-    if (root.dataset.open === "true" && !root.contains(event.target)) {
-      closeMenu();
-    }
+    if (root.dataset.open === "true" && !root.contains(event.target)) closeMenu();
   });
 
   document.addEventListener("keydown", event => {

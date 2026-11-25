@@ -1,4 +1,4 @@
-import { uploadMedia, getMediaAssetUrl, uploadServiceAsset } from "./media.js";
+import { uploadMedia, getMediaAssetUrl } from "./media.js";
 import "../cards/large-card.js";
 
 class MediaUpload extends HTMLElement {
@@ -78,21 +78,12 @@ class MediaUpload extends HTMLElement {
     this.showStatus("Uploading…");
 
     try {
-      const assetKind = this.getAttribute("asset-kind");
-      let asset;
-      let url;
-      if (assetKind === "service-image" || assetKind === "service-icon") {
-        const kind = assetKind === "service-image" ? "image" : "icon";
-        asset = await uploadServiceAsset({ file, kind });
-        url = asset.public_url;
-      } else {
-        asset = await uploadMedia({
-          file,
-          url: "",
-          visibility: this.dataset.visibility === "public" ? "public" : "private"
-        });
-        url = await getMediaAssetUrl(asset.id);
-      }
+      const asset = await uploadMedia({
+        file,
+        url: "",
+        visibility: this.dataset.visibility === "public" ? "public" : "private"
+      });
+      const url = await getMediaAssetUrl(asset.id);
 
       this.urlInput.value = url;
       this.fileInput.value = "";

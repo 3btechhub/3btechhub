@@ -20,11 +20,8 @@
   document.head.appendChild(loadingStyle);
 
   function readStored(key, fallback) {
-    try {
-      return localStorage.getItem(key) || fallback;
-    } catch {
-      return fallback;
-    }
+    try { return localStorage.getItem(key) || fallback; }
+    catch { return fallback; }
   }
 
   function normalizeMode(value) {
@@ -95,8 +92,6 @@
       ["account", asset("account/account.css")],
       ["intro-viewer", asset("intro/intro-viewer.css")],
       ["intro-editor", asset("intro/intro-editor.css")],
-      ["services-viewer", asset("services/services-viewer.css")],
-      ["services-editor", asset("services/services-editor.css")],
       ["media-uploader", asset("media/media-uploader.css")],
       ["rbv-viewer", asset("visibility/rbv-viewer.css")],
       ["dashboard-tabs", asset("dashboard/dashboard-tab.css")]
@@ -111,11 +106,8 @@
   }
 
   function persist(key, value) {
-    try {
-      localStorage.setItem(key, value);
-    } catch (error) {
-      console.warn("Theme preference could not be saved.", error);
-    }
+    try { localStorage.setItem(key, value); }
+    catch (error) { console.warn("Theme preference could not be saved.", error); }
   }
 
   function setMode(value) {
