@@ -1,4 +1,4 @@
-/* Home service categories — mini cards within the existing Services large card. */
+/* Home service categories — shared Small Card layout within the Services card. */
 service-category-list-home {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
