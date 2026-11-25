@@ -14,3 +14,9 @@ large-card {
   box-shadow: var(--shadow-medium);
 }
 
+/* Shared Large Card title alignment. Covers direct card headings and
+   headings wrapped by a full-card link (e.g. the Home Services card). */
+large-card > :is(h1, h2, h3, h4, h5, h6),
+large-card > a > :is(h1, h2, h3, h4, h5, h6) {
+  text-align: center;
+}
