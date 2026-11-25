@@ -34,8 +34,10 @@
 }
 
 .medium-tab[aria-selected="true"] {
+  background: var(--color-text);
+  color: var(--color-surface);
   font-weight: 600;
-  box-shadow: var(--shadow-medium), inset 0 0 0 2px currentColor;
+  box-shadow: var(--shadow-medium);
 }
 
 .medium-tab:focus-visible {
