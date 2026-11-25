@@ -1,14 +1,26 @@
-/* Home page Services heading and Large Card — independent page styles. */
+/* Home page Services heading card — content layout only; surface comes from Large Card. */
 services-home-viewer {
   display: block;
   width: 100%;
   min-width: 0;
 }
 
-.services-home-viewer-card {
+large-card.services-home-viewer-card {
   text-align: center;
 }
 
-.services-home-viewer-card .heading {
+.services-home-viewer-card__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.services-home-viewer-card__link:focus-visible {
+  outline: var(--outline-focus);
+  outline-offset: var(--outline-focus-offset);
+  border-radius: var(--radius-medium);
+}
+
+.services-home-viewer-card__link .heading {
   margin: 0;
 }
