@@ -121,7 +121,7 @@
 
   function setTheme(value) {
     theme = normalizeTheme(value);
-    persist(THEME_KEY, value);
+    persist(THEME_KEY, theme);
     document.documentElement.dataset.themeLoading = "true";
     return applyTheme();
   }
