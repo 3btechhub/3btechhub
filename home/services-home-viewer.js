@@ -9,7 +9,8 @@ class ServicesHomeViewer extends HTMLElement {
     if (this.dataset.initialized === "true") return;
     this.dataset.initialized = "true";
     this.loadHeading().catch(error => {
-      console.error("Home Services heading could not be loaded.", error);
+      console.error("Home page Services heading could not be loaded.", error);
+      this.replaceChildren();
     });
   }
 
@@ -31,11 +32,17 @@ class ServicesHomeViewer extends HTMLElement {
     const card = document.createElement("large-card");
     card.className = "services-home-viewer-card";
 
+    const link = document.createElement("a");
+    link.className = "services-home-viewer-card__link";
+    link.href = "../services/";
+    link.setAttribute("aria-label", "Open Services");
+
     const title = document.createElement("h2");
     title.className = "heading text-center";
     title.textContent = heading;
 
-    card.appendChild(title);
+    link.appendChild(title);
+    card.appendChild(link);
     this.replaceChildren(card);
   }
 }
