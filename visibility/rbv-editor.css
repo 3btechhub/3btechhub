@@ -1,6 +1,0 @@
-.rbv-editor { display:flex; flex-direction:column; gap:var(--spacing-standard-gap); }
-.rbv-editor__visibility { display:flex; flex-direction:column; gap:var(--spacing-standard-gap); min-width:0; margin:0; padding:var(--spacing-standard-gap); border:var(--border-standard); border-radius:var(--radius-medium); }
-.rbv-editor__visibility legend { padding-inline:var(--spacing-small); font-weight:700; }
-.rbv-editor__roles { display:flex; flex-direction:column; gap:var(--spacing-standard-gap); }
-.rbv-editor__role { display:flex; align-items:center; gap:var(--spacing-standard-gap); min-height:var(--size-input-medium); }
-.rbv-editor__role input { accent-color:var(--color-primary); }
