@@ -1,3 +1,1 @@
-import { requireSupabase } from "../client.js";
-export const preferenceTable = "preference";
-export async function listPreferences() { const { data, error } = await requireSupabase().from(preferenceTable).select("*"); if (error) throw error; return data; }
+import {requireSupabase} from "../client.js";export const preferenceTable="preferences";export async function listPreferences(userId){const{data,error}=await requireSupabase().from(preferenceTable).select("*").eq("user_id",userId).order("name");if(error)throw error;return data;}

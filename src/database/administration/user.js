@@ -1,3 +1,1 @@
-import { requireSupabase } from "../client.js";
-export const userTable = "users";
-export async function listUsers() { const { data, error } = await requireSupabase().from(userTable).select("*"); if (error) throw error; return data; }
+import {requireSupabase} from "../client.js";export const userTable="profiles";export async function listUsers(){const{data,error}=await requireSupabase().from(userTable).select("id,name,email,status,role:roles(name)").order("created_at",{ascending:false});if(error)throw error;return data;}export async function manageUser(action,payload){const{data,error}=await requireSupabase().functions.invoke("manage-users",{body:{action,...payload}});if(error)throw error;if(data?.error)throw new Error(data.error);return data;}

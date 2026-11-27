@@ -42,6 +42,7 @@ Deno.serve(async(req:Request)=>{
  if(targetError||!target)return reply(req,{error:"User not found"},404);
  const targetRole=(target.role as {name?:string}|null)?.name||"Member";
  if(targetRole==="Owner")return reply(req,{error:"The permanent Owner account is immutable"},403);
+ if(callerRole==="Admin"&&targetRole!=="Member")return reply(req,{error:"Admin can manage Member accounts only"},403);
  if(action==="assign-role"){
   const nextRole=String(body.role||"");if(!["Member","Admin"].includes(nextRole))return reply(req,{error:"Owner cannot be assigned"},403);
   if(callerRole==="Admin"&&nextRole!=="Member")return reply(req,{error:"Admin can assign Member only"},403);

@@ -1,3 +1,1 @@
-import { requireSupabase } from "../client.js";
-export const mediaTable = "media";
-export async function listMedia() { const { data, error } = await requireSupabase().from(mediaTable).select("*"); if (error) throw error; return data; }
+import {requireSupabase} from "../client.js";export const mediaTable="media";export async function listMedia(){const{data,error}=await requireSupabase().from(mediaTable).select("*").order("created_at",{ascending:false});if(error)throw error;return data;}export async function updateMedia(id,record){const{data,error}=await requireSupabase().from(mediaTable).update(record).eq("id",id).select().single();if(error)throw error;return data;}export async function deleteMedia(id){const{data,error}=await requireSupabase().functions.invoke("media-manager",{body:{action:"delete",media_id:id}});if(error)throw error;if(data?.error)throw new Error(data.error);return data;}

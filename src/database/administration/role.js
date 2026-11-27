@@ -1,3 +1,1 @@
-import { requireSupabase } from "../client.js";
-export const roleTable = "roles";
-export async function listRoles() { const { data, error } = await requireSupabase().from(roleTable).select("*"); if (error) throw error; return data; }
+import {requireSupabase} from "../client.js";export const roleTable="roles";export async function listRoles(){const{data,error}=await requireSupabase().from(roleTable).select("*").order("name");if(error)throw error;return data;}export async function listRolePermissions(roleId){const{data,error}=await requireSupabase().from("role_permissions").select("permission_id").eq("role_id",roleId);if(error)throw error;return data;}

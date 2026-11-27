@@ -1,3 +1,1 @@
-import { requireSupabase } from "../client.js";
-export const auditsTable = "audits";
-export async function listAudits() { const { data, error } = await requireSupabase().from(auditsTable).select("*"); if (error) throw error; return data; }
+import {requireSupabase} from "../client.js";export const auditsTable="audits";export async function listAudits(limit=200){const{data,error}=await requireSupabase().from(auditsTable).select("*").order("timestamp",{ascending:false}).limit(limit);if(error)throw error;return data;}

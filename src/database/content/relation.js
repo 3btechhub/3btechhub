@@ -1,7 +1,1 @@
-import { requireSupabase } from "../client.js";
-export const relationTable = "relations";
-export async function listRelations() { const { data, error } = await requireSupabase().from(relationTable).select("*"); if (error) throw error; return data; }
-export function canonicalPair(sourceType, sourceId, targetType, targetId) {
-  const left = `${sourceType}:${sourceId}`, right = `${targetType}:${targetId}`;
-  return left < right ? [left, right] : [right, left];
-}
+import {requireSupabase} from "../client.js";export const relationTable="relations";export async function listRelations(){const{data,error}=await requireSupabase().from(relationTable).select("*").order("created_at",{ascending:false});if(error)throw error;return data;}export async function createRelations(records){const{data,error}=await requireSupabase().from(relationTable).insert(records).select();if(error)throw error;return data;}export async function deleteRelation(id){const{error}=await requireSupabase().from(relationTable).delete().eq("id",id);if(error)throw error;}export function canonicalPair(st,si,tt,ti){if(st===tt)throw new Error("Same-type Relations are not allowed.");return st<tt?{source_type:st,source_id:si,target_type:tt,target_id:ti}:{source_type:tt,source_id:ti,target_type:st,target_id:si};}
