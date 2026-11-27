@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Navigation } from "../components/navigation/index.jsx";
 import { AuthenticationGuard } from "../components/authentication-guard/index.jsx";
 import { RoleBasedView } from "../components/role-based-view/index.jsx";
+import { useAuth } from "../services/authentication.js";
 import { HomeOverview } from "../pages/home/overview.jsx";
 import { HomeList } from "../pages/home/list.jsx";
 import { HomeDetail } from "../pages/home/detail.jsx";
@@ -24,10 +25,14 @@ import { UserPage } from "../pages/dashboard/administration/user.jsx";
 import { RolePage } from "../pages/dashboard/administration/role.jsx";
 import { PermissionPage } from "../pages/dashboard/administration/permission.jsx";
 
+function AccountDefault() {
+  const { user, loading } = useAuth();
+  if (loading) return <main className="page-shell"><div className="skeleton-card" /></main>;
+  return <Navigate to={user ? "/account/profile" : "/account/login"} replace />;
+}
 function DashboardRoute({ children }) {
   return <AuthenticationGuard><RoleBasedView allow={["Owner", "Admin"]}>{children}</RoleBasedView></AuthenticationGuard>;
 }
-
 export function AppRoutes() {
   return <>
     <Navigation />
@@ -37,7 +42,7 @@ export function AppRoutes() {
       <Route path="/home/overview" element={<HomeOverview />} />
       <Route path="/home/list" element={<HomeList />} />
       <Route path="/home/detail" element={<HomeDetail />} />
-      <Route path="/account" element={<Navigate to="/account/login" replace />} />
+      <Route path="/account" element={<AccountDefault />} />
       <Route path="/account/login" element={<Login />} />
       <Route path="/account/profile" element={<AuthenticationGuard><Profile /></AuthenticationGuard>} />
       <Route path="/dashboard" element={<Navigate to="/dashboard/general/overview" replace />} />
