@@ -1,26 +1,3 @@
-import React, { useState } from "react";
-import { uploadMedia } from "../../services/storage.js";
-
-export function MediaUploader({ value, onChange, accept="image/*", disabled=false }) {
-  const [status, setStatus] = useState("");
-  const [preview, setPreview] = useState(value?.url || "");
-  async function handleChange(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setStatus("Uploading…");
-    try {
-      const media = await uploadMedia(file);
-      setPreview(media.url);
-      onChange?.(media);
-      setStatus("Uploaded");
-    } catch (error) {
-      setStatus(error.message || "Upload failed");
-    }
-  }
-  return <div className="field-stack">
-    <label className="field-label">Media</label>
-    <input type="file" accept={accept} disabled={disabled} onChange={handleChange} />
-    {preview && <img className="media-preview" src={preview} alt="Selected media preview" />}
-    {status && <small role="status">{status}</small>}
-  </div>;
-}
+import React,{useEffect,useState} from "react";
+const rules={Image:{accept:".jpg,.jpeg,.png,.webp",max:5*1024*1024,label:"JPG, JPEG, PNG or WebP — max 5 MB"},Icon:{accept:".svg,.png,.webp",max:1024*1024,label:"SVG, PNG or WebP — max 1 MB"},Document:{accept:".pdf",max:10*1024*1024,label:"PDF — max 10 MB"}};
+export function MediaUploader({fileType="Image",value=null,onChange,disabled=false}){const[preview,setPreview]=useState(""),[error,setError]=useState("");useEffect(()=>{if(!value||!value.type?.startsWith("image/")){setPreview("");return;}const url=URL.createObjectURL(value);setPreview(url);return()=>URL.revokeObjectURL(url);},[value]);const rule=rules[fileType]||rules.Image;function choose(e){const file=e.target.files?.[0]||null;setError("");if(file&&file.size>rule.max){setError("Selected file exceeds the maximum allowed size.");onChange?.(null);e.target.value="";return;}if(file){const ext=file.name.split(".").pop()?.toLowerCase(),allowed=rule.accept.split(",").map(x=>x.replace(".",""));if(!allowed.includes(ext)){setError("This file type is not allowed.");onChange?.(null);e.target.value="";return;}}onChange?.(file);}return <div className="field-stack"><span className="field-label">File Picker</span><input type="file" accept={rule.accept} disabled={disabled} onChange={choose}/><small className="muted">{rule.label}</small>{preview&&<img className="media-preview" src={preview} alt="Selected file preview"/>}{value&&<small>{value.name} · {(value.size/1024).toFixed(1)} KB</small>}{error&&<p className="error-message" role="alert">{error}</p>}</div>;}

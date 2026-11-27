@@ -1,67 +1,14 @@
 import React from "react";
-import { Navigate, Route, Routes } from "react-router-dom";
-import { Navigation } from "../components/navigation/index.jsx";
-import { AuthenticationGuard } from "../components/authentication-guard/index.jsx";
-import { RoleBasedView } from "../components/role-based-view/index.jsx";
-import { useAuth } from "../services/authentication.js";
-import { HomeOverview } from "../pages/home/overview.jsx";
-import { HomeList } from "../pages/home/list.jsx";
-import { HomeDetail } from "../pages/home/detail.jsx";
-import { Login } from "../pages/account/login.jsx";
-import { Profile } from "../pages/account/profile.jsx";
-import { DashboardOverview } from "../pages/dashboard/general/overview.jsx";
-import { Customization } from "../pages/dashboard/general/customization.jsx";
-import { Preference } from "../pages/dashboard/general/preference.jsx";
-import { Settings } from "../pages/dashboard/general/settings.jsx";
-import { Audits } from "../pages/dashboard/general/audits.jsx";
-import { RelationPage } from "../pages/dashboard/content/relation.jsx";
-import { ServicePage } from "../pages/dashboard/content/service.jsx";
-import { ProductPage } from "../pages/dashboard/content/product.jsx";
-import { WorkshopPage } from "../pages/dashboard/content/workshop.jsx";
-import { TechnicianPage } from "../pages/dashboard/content/technician.jsx";
-import { ContactPage } from "../pages/dashboard/content/contact.jsx";
-import { MediaPage } from "../pages/dashboard/content/media.jsx";
-import { UserPage } from "../pages/dashboard/administration/user.jsx";
-import { RolePage } from "../pages/dashboard/administration/role.jsx";
-import { PermissionPage } from "../pages/dashboard/administration/permission.jsx";
-
-function AccountDefault() {
-  const { user, loading } = useAuth();
-  if (loading) return <main className="page-shell"><div className="skeleton-card" /></main>;
-  return <Navigate to={user ? "/account/profile" : "/account/login"} replace />;
-}
-function DashboardRoute({ children }) {
-  return <AuthenticationGuard><RoleBasedView allow={["Owner", "Admin"]}>{children}</RoleBasedView></AuthenticationGuard>;
-}
-export function AppRoutes() {
-  return <>
-    <Navigation />
-    <Routes>
-      <Route path="/" element={<Navigate to="/home/overview" replace />} />
-      <Route path="/home" element={<Navigate to="/home/overview" replace />} />
-      <Route path="/home/overview" element={<HomeOverview />} />
-      <Route path="/home/list" element={<HomeList />} />
-      <Route path="/home/detail" element={<HomeDetail />} />
-      <Route path="/account" element={<AccountDefault />} />
-      <Route path="/account/login" element={<Login />} />
-      <Route path="/account/profile" element={<AuthenticationGuard><Profile /></AuthenticationGuard>} />
-      <Route path="/dashboard" element={<Navigate to="/dashboard/general/overview" replace />} />
-      <Route path="/dashboard/general/overview" element={<DashboardRoute><DashboardOverview /></DashboardRoute>} />
-      <Route path="/dashboard/general/customization" element={<DashboardRoute><Customization /></DashboardRoute>} />
-      <Route path="/dashboard/general/preference" element={<DashboardRoute><Preference /></DashboardRoute>} />
-      <Route path="/dashboard/general/settings" element={<DashboardRoute><Settings /></DashboardRoute>} />
-      <Route path="/dashboard/general/audits" element={<DashboardRoute><Audits /></DashboardRoute>} />
-      <Route path="/dashboard/content/relation" element={<DashboardRoute><RelationPage /></DashboardRoute>} />
-      <Route path="/dashboard/content/service" element={<DashboardRoute><ServicePage /></DashboardRoute>} />
-      <Route path="/dashboard/content/product" element={<DashboardRoute><ProductPage /></DashboardRoute>} />
-      <Route path="/dashboard/content/workshop" element={<DashboardRoute><WorkshopPage /></DashboardRoute>} />
-      <Route path="/dashboard/content/technician" element={<DashboardRoute><TechnicianPage /></DashboardRoute>} />
-      <Route path="/dashboard/content/contact" element={<DashboardRoute><ContactPage /></DashboardRoute>} />
-      <Route path="/dashboard/content/media" element={<DashboardRoute><MediaPage /></DashboardRoute>} />
-      <Route path="/dashboard/administration/user" element={<DashboardRoute><UserPage /></DashboardRoute>} />
-      <Route path="/dashboard/administration/role" element={<DashboardRoute><RolePage /></DashboardRoute>} />
-      <Route path="/dashboard/administration/permission" element={<DashboardRoute><PermissionPage /></DashboardRoute>} />
-      <Route path="*" element={<main className="page-shell"><section className="card"><h1>Not found</h1><p>The requested page does not exist.</p></section></main>} />
-    </Routes>
-  </>;
-}
+import {Navigate,Route,Routes} from "react-router-dom";
+import {Navigation,DashboardNavigation} from "../components/navigation/index.jsx";
+import {AuthenticationGuard} from "../components/authentication-guard/index.jsx";
+import {RoleBasedView} from "../components/role-based-view/index.jsx";
+import {useAuth} from "../services/authentication.js";
+import {HomeOverview} from "../pages/home/overview.jsx";import {HomeList} from "../pages/home/list.jsx";import {HomeDetail} from "../pages/home/detail.jsx";
+import {Login} from "../pages/account/login.jsx";import {Profile} from "../pages/account/profile.jsx";
+import {DashboardOverview} from "../pages/dashboard/general/overview.jsx";import {Customization} from "../pages/dashboard/general/customization.jsx";import {Preference} from "../pages/dashboard/general/preference.jsx";import {Settings} from "../pages/dashboard/general/settings.jsx";import {Audits} from "../pages/dashboard/general/audits.jsx";
+import {RelationPage} from "../pages/dashboard/content/relation.jsx";import {ServicePage} from "../pages/dashboard/content/service.jsx";import {ProductPage} from "../pages/dashboard/content/product.jsx";import {WorkshopPage} from "../pages/dashboard/content/workshop.jsx";import {TechnicianPage} from "../pages/dashboard/content/technician.jsx";import {ContactPage} from "../pages/dashboard/content/contact.jsx";import {MediaPage} from "../pages/dashboard/content/media.jsx";
+import {UserPage} from "../pages/dashboard/administration/user.jsx";import {RolePage} from "../pages/dashboard/administration/role.jsx";import {PermissionPage} from "../pages/dashboard/administration/permission.jsx";
+function AccountDefault(){const{user,loading}=useAuth();if(loading)return <main className="page-shell"><div className="skeleton-card"/></main>;return <Navigate to={user?"/account/profile":"/account/login"} replace/>;}
+function DashboardRoute({children}){return <AuthenticationGuard><RoleBasedView allow={["Owner","Admin"]}><DashboardNavigation/>{children}</RoleBasedView></AuthenticationGuard>;}
+export function AppRoutes(){return <><Navigation/><Routes><Route path="/" element={<Navigate to="/home/overview" replace/>}/><Route path="/home" element={<Navigate to="/home/overview" replace/>}/><Route path="/home/overview" element={<HomeOverview/>}/><Route path="/home/list" element={<HomeList/>}/><Route path="/home/detail" element={<HomeDetail/>}/><Route path="/account" element={<AccountDefault/>}/><Route path="/account/login" element={<Login/>}/><Route path="/account/profile" element={<AuthenticationGuard><Profile/></AuthenticationGuard>}/><Route path="/dashboard" element={<Navigate to="/dashboard/general/overview" replace/>}/><Route path="/dashboard/general/overview" element={<DashboardRoute><DashboardOverview/></DashboardRoute>}/><Route path="/dashboard/general/customization" element={<DashboardRoute><Customization/></DashboardRoute>}/><Route path="/dashboard/general/preference" element={<DashboardRoute><Preference/></DashboardRoute>}/><Route path="/dashboard/general/settings" element={<DashboardRoute><Settings/></DashboardRoute>}/><Route path="/dashboard/general/audits" element={<DashboardRoute><Audits/></DashboardRoute>}/><Route path="/dashboard/content/relation" element={<DashboardRoute><RelationPage/></DashboardRoute>}/><Route path="/dashboard/content/service" element={<DashboardRoute><ServicePage/></DashboardRoute>}/><Route path="/dashboard/content/product" element={<DashboardRoute><ProductPage/></DashboardRoute>}/><Route path="/dashboard/content/workshop" element={<DashboardRoute><WorkshopPage/></DashboardRoute>}/><Route path="/dashboard/content/technician" element={<DashboardRoute><TechnicianPage/></DashboardRoute>}/><Route path="/dashboard/content/contact" element={<DashboardRoute><ContactPage/></DashboardRoute>}/><Route path="/dashboard/content/media" element={<DashboardRoute><MediaPage/></DashboardRoute>}/><Route path="/dashboard/administration/user" element={<DashboardRoute><UserPage/></DashboardRoute>}/><Route path="/dashboard/administration/role" element={<DashboardRoute><RolePage/></DashboardRoute>}/><Route path="/dashboard/administration/permission" element={<DashboardRoute><PermissionPage/></DashboardRoute>}/><Route path="*" element={<main className="page-shell"><section className="card"><h1>Not found</h1><p>The requested page does not exist.</p></section></main>}/></Routes></>;}

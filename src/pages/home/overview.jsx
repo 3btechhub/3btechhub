@@ -1,10 +1,3 @@
-import React from "react";
-import { Card } from "../../elements/card/index.jsx";
-export function HomeOverview() {
-  return <main className="page-shell">
-    <Card size="large"><h1>3B TECH HUB</h1><p>Technology services, products and support.</p></Card>
-    <div className="page-grid">
-      {["Service","Product","Workshop","Technician","Contact","Media"].map(name=><Card key={name}><h2>{name}</h2><p>Public content appears here according to Role and Region visibility rules.</p></Card>)}
-    </div>
-  </main>;
-}
+import React,{useEffect,useState} from "react";import {Link} from "react-router-dom";import {Card} from "../../elements/card/index.jsx";import {fetchVisibleContent,entityTypes} from "../../services/records.js";
+export function HomeOverview(){const[rows,setRows]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState("");useEffect(()=>{let active=true;fetchVisibleContent().then(d=>{if(active)setRows(d);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[]);
+ return <main className="page-shell"><Card size="large"><h1>3B TECH HUB</h1><p>Technology services, products and support.</p><Link to="/home/list">Browse available content</Link></Card>{loading?<div className="skeleton-card"/>:error?<p className="error-message">{error}</p>:entityTypes.map(type=>{const items=rows.filter(x=>x.entity_type===type.type);if(!items.length)return null;return <Card key={type.type} title={type.label}><div className="record-list">{items.slice(0,6).map(row=><Link className="record-row" key={row.id} to={"/home/detail?type="+row.entity_type+"&id="+row.id}><strong>{row.name}</strong><span>{row.description||row.slug||row.entity_label}</span></Link>)}</div></Card>;})}</main>;}

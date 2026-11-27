@@ -1,19 +1,6 @@
 import React from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { useAuth } from "../../services/authentication.js";
-
-export function Navigation() {
-  const { user, role, signOut } = useAuth();
-  const location = useLocation();
-  const dashboardPath = location.pathname.startsWith("/dashboard");
-  const accountPath = location.pathname.startsWith("/account");
-  return <header className="site-header">
-    <NavLink className="brand" to="/home/overview">3B TECH HUB</NavLink>
-    <nav aria-label="Main navigation" className="main-nav">
-      {!location.pathname.startsWith("/home") && <NavLink to="/home/overview">Home</NavLink>}
-      {!accountPath && <NavLink to={user ? "/account/profile" : "/account/login"}>Account</NavLink>}
-      {user && ["Owner", "Admin"].includes(role) && !dashboardPath && <NavLink to="/dashboard/general/overview">Dashboard</NavLink>}
-      {user && <button className="button button-small button-quiet" onClick={signOut}>Logout</button>}
-    </nav>
-  </header>;
-}
+import {NavLink,useLocation} from "react-router-dom";
+import {useAuth} from "../../services/authentication.js";
+const groups=[{title:"General",links:[["Overview","/dashboard/general/overview"],["Customization","/dashboard/general/customization"],["Preference","/dashboard/general/preference"],["Settings","/dashboard/general/settings"],["Audits","/dashboard/general/audits"]]},{title:"Content",links:[["Relation","/dashboard/content/relation"],["Service","/dashboard/content/service"],["Product","/dashboard/content/product"],["Workshop","/dashboard/content/workshop"],["Technician","/dashboard/content/technician"],["Contact","/dashboard/content/contact"],["Media","/dashboard/content/media"]]},{title:"Administration",links:[["User","/dashboard/administration/user"],["Role","/dashboard/administration/role"],["Permission","/dashboard/administration/permission"]]}];
+export function Navigation(){const{user,role,signOut}=useAuth(),location=useLocation(),dashboard=location.pathname.startsWith("/dashboard"),account=location.pathname.startsWith("/account");return <header className="site-header"><NavLink className="brand" to="/home/overview">3B TECH HUB</NavLink><nav className="main-nav" aria-label="Main navigation">{!location.pathname.startsWith("/home")&&<NavLink to="/home/overview">Home</NavLink>}{!account&&<NavLink to={user?"/account/profile":"/account/login"}>Account</NavLink>}{user&&["Owner","Admin"].includes(role)&&!dashboard&&<NavLink to="/dashboard/general/overview">Dashboard</NavLink>}{user&&<button className="button button-small button-quiet" onClick={signOut}>Logout</button>}</nav></header>;}
+export function DashboardNavigation(){return <nav className="dashboard-nav" aria-label="Dashboard sections">{groups.map(group=><section className="dashboard-nav-group" key={group.title}><strong>{group.title}</strong><div>{group.links.map(([label,to])=><NavLink key={to} to={to}>{label}</NavLink>)}</div></section>)}</nav>;}

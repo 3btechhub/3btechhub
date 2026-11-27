@@ -1,3 +1,5 @@
-import React from "react";
-import { useAuth } from "../../services/authentication.js";
-export function Profile() { const { user, role }=useAuth(); return <main className="page-shell"><section className="card"><h1>Profile</h1><p>{user?.email}</p><p>Role: {role}</p></section></main>; }
+import React,{useEffect,useState} from "react";
+import {Card} from "../../elements/card/index.jsx";import {Input} from "../../elements/input/index.jsx";import {Button} from "../../elements/button/index.jsx";import {useAuth} from "../../services/authentication.js";import {supabase} from "../../database/client.js";
+export function Profile(){const{user,profile,role}=useAuth();const[name,setName]=useState(profile?.name||""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState("");useEffect(()=>setName(profile?.name||""),[profile?.name]);
+ async function save(e){e.preventDefault();setBusy(true);setError("");const{error}=await supabase.from("profiles").update({name}).eq("id",user.id);if(error)setError(error.message);else setNotice("Profile updated.");setBusy(false);}
+ return <main className="page-shell"><Card size="large" title="Profile"><form className="field-stack" onSubmit={save}><Input label="Name" value={name} onChange={e=>setName(e.target.value)} disabled={role==="Owner"}/><Input label="Email" value={user?.email||""} readOnly/><Input label="Role" value={role} readOnly/>{role==="Owner"&&<p className="muted">The permanent Owner identity is read-only.</p>}{error&&<p className="error-message">{error}</p>}{notice&&<p className="success-message">{notice}</p>}{role!=="Owner"&&<Button type="submit" disabled={busy}>Save</Button>}</form></Card></main>;}

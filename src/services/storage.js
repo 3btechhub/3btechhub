@@ -1,12 +1,4 @@
-import { requireSupabase } from "../database/client.js";
-export async function uploadMedia(file) {
-  if (!file) throw new Error("Choose a file first.");
-  // Allowed types and maximum size are intentionally not guessed; pending Notion decisions.
-  const client = requireSupabase();
-  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
-  const path = `${Date.now()}-${safeName}`;
-  const { data, error } = await client.storage.from("media").upload(path, file, { upsert: false });
-  if (error) throw error;
-  const { data: publicData } = client.storage.from("media").getPublicUrl(data.path);
-  return { path: data.path, url: publicData.publicUrl, name: file.name, type: file.type };
-}
+import {requireSupabase} from "../database/client.js";
+export async function uploadMediaAsset({file,fileType,name,slug,description,roleIds,regionIds}){const client=requireSupabase();const form=new FormData();form.append("file",file);form.append("file_type",fileType);form.append("name",name);form.append("slug",slug);form.append("description",description||"");form.append("role_ids",JSON.stringify(roleIds||[]));form.append("region_ids",JSON.stringify(regionIds||[]));const {data,error}=await client.functions.invoke("media-manager",{body:form});if(error)throw error;if(data?.error)throw new Error(data.error);return data;}
+export async function deleteMediaAsset(id){const {data,error}=await requireSupabase().functions.invoke("media-manager",{body:{action:"delete",media_id:id}});if(error)throw error;if(data?.error)throw new Error(data.error);return data;}
+export async function getSignedMediaUrl(path,expiresIn=3600){const {data,error}=await requireSupabase().storage.from("media").createSignedUrl(path,expiresIn);if(error)throw error;return data.signedUrl;}

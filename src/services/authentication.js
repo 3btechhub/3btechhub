@@ -1,18 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect,useState } from "react";
 import { supabase } from "../database/client.js";
-export function resolveRole(user) {
-  if (!user) return "Visitor";
-  const role = user.app_metadata?.role;
-  return ["Owner", "Admin", "Member"].includes(role) ? role : "Member";
+export function resolveRole(user,profile){if(!user||!profile||profile.status!=="active")return "Visitor";const name=profile.role?.name;return typeof name==="string"&&name&&name!=="Visitor"?name:"Visitor";}
+export function useAuth(){
+ const [user,setUser]=useState(null),[profile,setProfile]=useState(null),[role,setRole]=useState("Visitor"),[loading,setLoading]=useState(Boolean(supabase));
+ useEffect(()=>{if(!supabase){setLoading(false);return;}let active=true;const {data:listener}=supabase.auth.onAuthStateChange((_event,session)=>{if(active)setUser(session?.user||null);});supabase.auth.getSession().then(({data,error})=>{if(active&&!error)setUser(data.session?.user||null);if(active&&error)setLoading(false);});return()=>{active=false;listener.subscription.unsubscribe();};},[]);
+ useEffect(()=>{if(!supabase)return;let active=true;if(!user){setProfile(null);setRole("Visitor");setLoading(false);return()=>{active=false;};}setLoading(true);supabase.from("profiles").select("id,name,email,status,role:roles!profiles_role_id_fkey(name)").eq("id",user.id).maybeSingle().then(({data,error})=>{if(!active)return;if(error||!data){setProfile(null);setRole("Visitor");}else{setProfile(data);setRole(resolveRole(user,data));}setLoading(false);});return()=>{active=false;};},[user]);
+ async function signOut(){if(supabase)await supabase.auth.signOut();setUser(null);setProfile(null);setRole("Visitor");}
+ return {user,profile,role,loading,signOut};
 }
-export function useAuth() {
-  const [user,setUser]=useState(null); const [loading,setLoading]=useState(Boolean(supabase));
-  useEffect(()=>{ if(!supabase){setLoading(false);return;} let active=true;
-    supabase.auth.getUser().then(({data})=>{if(active){setUser(data.user);setLoading(false);}});
-    const {data:listener}=supabase.auth.onAuthStateChange((_event,session)=>setUser(session?.user||null));
-    return ()=>{active=false;listener.subscription.unsubscribe();};
-  },[]);
-  async function signOut(){if(supabase) await supabase.auth.signOut();setUser(null);}
-  return {user,role:resolveRole(user),loading,signOut};
-}
-export async function signIn(email,password){if(!supabase)throw new Error("Authentication is not configured.");const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;return data.user;}
+export async function signIn(email,password){if(!supabase)throw new Error("Authentication is not configured.");const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;const {data:profile,error:profileError}=await supabase.from("profiles").select("status").eq("id",data.user.id).maybeSingle();if(profileError||!profile||profile.status!=="active"){await supabase.auth.signOut();throw new Error("This account is inactive or has no active profile.");}return data.user;}

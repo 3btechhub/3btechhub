@@ -1,2 +1,2 @@
 import React from "react";
-export function Checklist({ options=[], value=[], onChange }) { return <div className="checklist">{options.map(option => <label key={option}><input type="checkbox" checked={value.includes(option)} onChange={e=>onChange(e.target.checked?[...value,option]:value.filter(x=>x!==option))} />{option}</label>)}</div>; }
+export function Checklist({options=[],value=[],onChange}){return <div className="checklist">{options.map(option=>{const v=typeof option==="string"?option:option.value,label=typeof option==="string"?option:option.label;return <label key={v}><input type="checkbox" checked={value.includes(v)} onChange={e=>onChange(e.target.checked?[...value,v]:value.filter(x=>x!==v))}/><span>{label}</span></label>;})}</div>;}
