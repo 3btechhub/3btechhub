@@ -1,0 +1,2 @@
+import React from "react";
+export function Selector({ label, options=[], ...props }) { return <label className="field-stack"><span className="field-label">{label}</span><select className="input input-medium" {...props}>{options.map(option=><option key={option.value||option} value={option.value||option}>{option.label||option}</option>)}</select></label>; }

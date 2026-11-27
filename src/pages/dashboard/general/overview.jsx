@@ -1,0 +1,2 @@
+import React from "react";
+export function DashboardOverview() { return <main className="page-shell"><h1>Dashboard</h1><div className="page-grid">{["General","Content","Administration"].map(x=><section className="card" key={x}><h2>{x}</h2><p>Management section</p></section>)}</div></main>; }

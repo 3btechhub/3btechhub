@@ -1,0 +1,2 @@
+import React from "react";
+export function Customization() { return <main className="page-shell"><section className="card"><h1>Customization</h1><p>Customization fields are pending their canonical Notion field specification.</p></section></main>; }

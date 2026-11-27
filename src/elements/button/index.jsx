@@ -1,0 +1,2 @@
+import React from "react";
+export function Button({ size="medium", variant="primary", children, ...props }) { return <button className={`button button-${size} button-${variant}`} {...props}>{children}</button>; }

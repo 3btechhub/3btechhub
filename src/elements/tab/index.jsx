@@ -1,0 +1,2 @@
+import React from "react";
+export function Tab({ items=[], value, onChange }) { return <div className="tabs" role="tablist">{items.map(item => <button key={item.value} role="tab" aria-selected={value===item.value} className={value===item.value?"tab active":"tab"} onClick={()=>onChange(item.value)}>{item.label}</button>)}</div>; }

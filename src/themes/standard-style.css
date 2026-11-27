@@ -1,0 +1,11 @@
+:root {
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --standard-gap: 16px;
+  --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: 32px; --font-h1: 28px; --font-h2: 24px; --font-h3: 20px;
+  --font-small-heading: 16px; --font-body: 16px; --font-small: 14px; --font-caption: 12px;
+  --radius-card: 8px; --radius-control: 6px; --border-width: 1px;
+  --shadow-1: 0 1px 2px rgba(15,23,42,.06); --shadow-2: 0 4px 12px rgba(15,23,42,.08);
+  --shadow-3: 0 8px 24px rgba(15,23,42,.12);
+  --transition-fast: 150ms ease; --transition-normal: 180ms ease-out;
+}

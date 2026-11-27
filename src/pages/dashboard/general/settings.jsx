@@ -1,0 +1,2 @@
+import React from "react";
+export function Settings() { return <main className="page-shell"><section className="card"><h1>Settings</h1><p>Settings fields are pending their canonical Notion field specification.</p></section></main>; }

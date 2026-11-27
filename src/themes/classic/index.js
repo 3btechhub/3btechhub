@@ -1,0 +1,1 @@
+export const classicTheme = { name: "Classic", defaultVariant: "system" };

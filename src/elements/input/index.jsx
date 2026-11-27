@@ -1,0 +1,2 @@
+import React from "react";
+export function Input({ label, size="medium", ...props }) { return <label className="field-stack"><span className="field-label">{label}</span><input className={`input input-${size}`} {...props} /></label>; }

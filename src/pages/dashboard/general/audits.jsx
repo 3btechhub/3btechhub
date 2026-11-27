@@ -1,0 +1,2 @@
+import React from "react";
+export function Audits() { return <main className="page-shell"><section className="card"><h1>Audits</h1><p>Audit record schema and view fields are pending the canonical Notion specification.</p></section></main>; }

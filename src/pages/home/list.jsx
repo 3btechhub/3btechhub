@@ -1,0 +1,2 @@
+import React from "react";
+export function HomeList() { return <main className="page-shell"><section className="card"><h1>List</h1><p>List content and data source are pending the corresponding Notion specification.</p></section></main>; }

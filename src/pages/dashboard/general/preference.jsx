@@ -1,0 +1,2 @@
+import React from "react";
+export function Preference() { return <main className="page-shell"><section className="card"><h1>Preference</h1><p>Preference fields are pending their canonical Notion field specification.</p></section></main>; }
