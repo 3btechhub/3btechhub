@@ -14,5 +14,6 @@ The migration files are retained in remote execution order and mirror the connec
 - 20261127234810 protect_reserved_owner_auth_identity_before_bootstrap
 - 20261127235203 preserve_owner_permission_invariants
 - 20261127235225 correct_owner_permission_guard_update_return
+- 20261127235553 seed_configured_regions
 
-The two earliest migration files are intentionally no-op placeholders: their legacy schema was superseded by the approved baseline. The connected project has all listed versions applied.
+The first two versions are intentionally no-op historical placeholders; the legacy schema was superseded by the approved baseline. The connected project has all listed versions applied.
