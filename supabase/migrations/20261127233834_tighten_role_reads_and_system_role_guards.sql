@@ -1,0 +1,10 @@
+create function private.guard_role_catalog() returns trigger language plpgsql set search_path='' as $$begin if old.name in('Owner','Visitor') or new.name in('Owner','Visitor') then raise exception 'Owner and Visitor are immutable system roles.';end if;return new;end$$;
+create trigger roles_catalog_guard before update on public.roles for each row execute function private.guard_role_catalog();
+drop policy roles_read on public.roles;create policy roles_read on public.roles for select to authenticated using(id=(select role_id from public.profiles where id=(select auth.uid())) or private.has_permission('roles','View'));
+revoke execute on all functions in schema private from anon,authenticated;
+grant execute on function private.effective_role_name() to anon,authenticated;
+grant execute on function private.has_permission(text,text) to anon,authenticated;
+grant execute on function private.can_view_content(text,uuid) to anon,authenticated;
+create function private.protect_system_role_delete() returns trigger language plpgsql set search_path='' as $$begin if old.name in('Owner','Visitor') then raise exception 'Owner and Visitor system roles cannot be deleted.';end if;return old;end$$;
+create trigger roles_system_delete_guard before delete on public.roles for each row execute function private.protect_system_role_delete();
+revoke execute on function private.protect_system_role_delete() from public,anon,authenticated;

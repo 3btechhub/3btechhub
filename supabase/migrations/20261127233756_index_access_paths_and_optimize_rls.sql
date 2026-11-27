@@ -1,0 +1,13 @@
+create index profiles_role_id_idx on public.profiles(role_id);
+create index profiles_region_id_idx on public.profiles(region_id);
+create index role_permissions_permission_id_idx on public.role_permissions(permission_id);
+create index content_role_visibility_role_id_idx on public.content_role_visibility(role_id);
+create index content_region_visibility_region_id_idx on public.content_region_visibility(region_id);
+create index relations_created_by_idx on public.relations(created_by);
+drop policy profiles_read on public.profiles;create policy profiles_read on public.profiles for select to authenticated using(id=(select auth.uid()) or private.has_permission('users','View'));
+drop policy profiles_update on public.profiles;create policy profiles_update on public.profiles for update to authenticated using(id=(select auth.uid()) or private.has_permission('users','Update')) with check(id=(select auth.uid()) or private.has_permission('users','Update'));
+drop policy preferences_read on public.preferences;create policy preferences_read on public.preferences for select to authenticated using(user_id=(select auth.uid()));
+drop policy preferences_insert on public.preferences;create policy preferences_insert on public.preferences for insert to authenticated with check(user_id=(select auth.uid()) and private.has_permission('preferences','Create'));
+drop policy preferences_update on public.preferences;create policy preferences_update on public.preferences for update to authenticated using(user_id=(select auth.uid()) and private.has_permission('preferences','Update')) with check(user_id=(select auth.uid()) and private.has_permission('preferences','Update'));
+drop policy preferences_delete on public.preferences;create policy preferences_delete on public.preferences for delete to authenticated using(user_id=(select auth.uid()) and private.has_permission('preferences','Delete'));
+drop policy relations_insert on public.relations;create policy relations_insert on public.relations for insert to authenticated with check(private.has_permission('content.relation','Create') and created_by=(select auth.uid()));

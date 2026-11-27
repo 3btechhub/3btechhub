@@ -1,0 +1,1 @@
+grant execute on function private.validate_entity_reference(text,uuid) to authenticated;

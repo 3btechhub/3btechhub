@@ -1,0 +1,3 @@
+create or replace function public.is_reserved_owner_email(p_email text) returns boolean language sql stable security definer set search_path='' as $$select lower(coalesce(p_email,''))=lower((select value from private.system_config where key='owner_email'))$$;
+revoke all on function public.is_reserved_owner_email(text) from public,anon,authenticated;
+grant execute on function public.is_reserved_owner_email(text) to service_role;

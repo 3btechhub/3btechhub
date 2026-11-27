@@ -1,0 +1,1 @@
+-- Historical cleanup retained for migration-history alignment. The approved baseline migration creates the current public schema and tables. Intentionally no-op in the current schema.

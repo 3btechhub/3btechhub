@@ -1,0 +1,1 @@
+-- Historical migration retained for migration-history alignment. The legacy Service Categories table was superseded by the approved Service entity schema. Intentionally no-op in the current schema.
