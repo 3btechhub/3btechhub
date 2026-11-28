@@ -6,7 +6,7 @@ function cors(req: Request) {
   return {
     "Access-Control-Allow-Origin": allowedOrigins.has(origin) ? origin : "https://3btechhub.github.io",
     "Access-Control-Allow-Headers": "authorization, apikey, content-type",
-    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Vary": "Origin"
   };
 }
@@ -18,7 +18,7 @@ function response(req: Request, body: unknown, status = 200) {
 }
 Deno.serve((req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors(req) });
-  if (req.method !== "GET") return response(req, { error: "Method not allowed" }, 405);
+  if (req.method !== "GET" && req.method !== "POST") return response(req, { error: "Method not allowed" }, 405);
   const country = (
     req.headers.get("cf-ipcountry") ||
     req.headers.get("x-country-code") ||
