@@ -1,5 +1,5 @@
 import {useCallback,useEffect,useState} from "react";
-import {supabase,requireSupabase} from "../database/client.js";
+import {supabase,requireSupabase,createRegionClient} from "../database/client.js";
 export const entityTypes=[{type:"service",table:"services",label:"Service"},{type:"product",table:"products",label:"Product"},{type:"workshop",table:"workshops",label:"Workshop"},{type:"technician",table:"technicians",label:"Technician"},{type:"contact",table:"contacts",label:"Contact"},{type:"media",table:"media",label:"Media"}];
 export function useContentManager(entityType,fields){
  const config=entityTypes.find(x=>x.type===entityType);
@@ -13,7 +13,7 @@ export function useContentManager(entityType,fields){
  async function remove(){if(!recordId||!window.confirm("Delete this record? Linked Relations must be removed first."))return;setBusy(true);setError("");const {error:e}=await supabase.from(config.table).delete().eq("id",recordId);if(e)setError(e.message);else{setNotice("Record deleted.");reset();await load();}setBusy(false);}
  return {rows,roles,regions,recordId,form,setField,selectedRoles,setSelectedRoles,selectedRegions,setSelectedRegions,loading,busy,error,notice,selectRecord,reset,save,remove,reload:load};
 }
-export async function fetchVisibleContent(){const client=requireSupabase();const all=await Promise.all(entityTypes.map(async x=>{const {data,error}=await client.from(x.table).select("*").order("created_at",{ascending:false});if(error)throw error;return(data||[]).map(row=>({...row,entity_type:x.type,entity_label:x.label}));}));return all.flat().sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));}
+export async function fetchVisibleContent(regionSlug="global"){const client=createRegionClient(regionSlug)||requireSupabase();const all=await Promise.all(entityTypes.map(async x=>{const {data,error}=await client.from(x.table).select("*").order("created_at",{ascending:false});if(error)throw error;return(data||[]).map(row=>({...row,entity_type:x.type,entity_label:x.label}));}));return all.flat().sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));}
 export function useRelationManager(){
  const [records,setRecords]=useState({}),[relations,setRelations]=useState([]),[sourceType,setSourceType]=useState("service"),[sourceId,setSourceId]=useState(""),[selectedTargets,setSelectedTargets]=useState([]),[selectedRelation,setSelectedRelation]=useState(null),[loading,setLoading]=useState(Boolean(supabase)),[busy,setBusy]=useState(false),[error,setError]=useState(""),[notice,setNotice]=useState("");
  const load=useCallback(async()=>{if(!supabase){setLoading(false);return;}setLoading(true);setError("");const lists=await Promise.all(entityTypes.map(async x=>{const {data,error}=await supabase.from(x.table).select("id,name").order("name");if(error)throw error;return[x.type,data||[]];}));setRecords(Object.fromEntries(lists));const {data,error}=await supabase.from("relations").select("*").order("created_at",{ascending:false});if(error)setError(error.message);else setRelations(data||[]);setLoading(false);},[]);

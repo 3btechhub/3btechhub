@@ -1,4 +1,4 @@
 export async function loadTheme() {
-  // Theme tokens are loaded by the global stylesheet before application content renders.
-  return { family: "Classic", variants: ["light", "dark"] };
+  const variant = typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return { variant };
 }

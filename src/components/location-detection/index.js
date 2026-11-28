@@ -1,4 +1,8 @@
+import { supabase } from "../../database/client.js";
+
 export async function detectRegion() {
-  // Precise GPS is intentionally not requested. Region detection requires an approved server-side source.
-  return { region: "Unknown", source: "unavailable", confidence: null };
+  if (!supabase) return { region: "Global", slug: "global", source: "fallback" };
+  const { data, error } = await supabase.functions.invoke("region-detection");
+  if (error || !data?.slug) return { region: "Global", slug: "global", source: "fallback" };
+  return data;
 }
