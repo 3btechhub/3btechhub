@@ -5,7 +5,7 @@ function cors(req: Request) {
   const origin = req.headers.get("Origin") || "";
   return {
     "Access-Control-Allow-Origin": allowedOrigins.has(origin) ? origin : "https://3btechhub.github.io",
-    "Access-Control-Allow-Headers": "authorization, apikey, content-type",
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Vary": "Origin"
   };
